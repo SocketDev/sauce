@@ -1,0 +1,41 @@
+# pnpm workspace config for the single-package socket-skills repo.
+# Even though there's no `packages:` declaration, pnpm reads this file
+# for workspace-scoped policy: minimumReleaseAge, blockExoticSubdeps,
+# trustPolicy, etc. — the supply-chain controls that need to live
+# above package.json so they apply uniformly to every install.
+
+# Wait 7 days (10080 minutes) before installing newly published packages.
+# Reduces blast radius from hijacked-but-not-yet-detected packages.
+# minimumReleaseAgeExclude lists Socket-published scopes whose releases
+# we trust without the soak window.
+minimumReleaseAge: 10080
+minimumReleaseAgeExclude:
+  - '@socketregistry/*'
+  - '@socketsecurity/*'
+
+# Refuse "exotic" subdeps (git URLs, tarballs, file: links) anywhere in
+# the dep graph. Forces every dep to come from a public registry where
+# the integrity hash + version + minimumReleaseAge soak apply.
+blockExoticSubdeps: true
+
+# Resolve to highest matching range (default: lowest). Aligns with the
+# rest of the fleet so security fixes propagate without manual bumps.
+resolutionMode: highest
+
+# Refuse to run if the pnpm version on PATH differs from the
+# packageManager field in package.json. Drift should fail fast, not
+# silently auto-download via @pnpm/exe.
+pmOnFail: error
+trustPolicy: no-downgrade
+
+# Auto-install missing peer deps. pnpm default; declared explicitly so
+# a future default flip can't silently change install behavior.
+autoInstallPeers: true
+
+# Run pre/post lifecycle scripts on the root (e.g. prepare -> husky).
+# pnpm default; declared explicitly to lock the behavior.
+enablePrePostScripts: true
+
+# Pin exact versions on `pnpm add` (no `^` / `~`). Matches the rest of
+# the fleet's discipline.
+saveExact: true
