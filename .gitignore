@@ -3,4 +3,5 @@ dist/
 *.tsbuildinfo
 .env
 .env.local
-.claude
+.claude/*
+!.claude/hooks/
