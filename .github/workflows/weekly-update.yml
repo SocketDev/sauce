@@ -1,0 +1,20 @@
+name: 🔄 Weekly Update
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  weekly-update:
+    uses: SocketDev/socket-registry/.github/workflows/weekly-update.yml@5b672d3b8459e61bdd423c058a2e155f92f79389 # main
+    with:
+      test-setup-script: ''
+      test-script: 'pnpm exec vitest run --config tests/vitest.config.ts'
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      BOT_GPG_PRIVATE_KEY: ${{ secrets.BOT_GPG_PRIVATE_KEY }}
+      SOCKET_API_TOKEN: ${{ secrets.SOCKET_API_TOKEN || secrets.SOCKET_API_KEY }}

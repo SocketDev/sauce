@@ -1,0 +1,31 @@
+name: ⚡ CI
+
+# Dependencies:
+#   - SocketDev/socket-registry/.github/workflows/ci.yml
+
+on:
+  push:
+    branches: [main]
+    tags: ['*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: Run CI Pipeline
+    uses: SocketDev/socket-registry/.github/workflows/ci.yml@5b672d3b8459e61bdd423c058a2e155f92f79389 # main
+    with:
+      # vitest config lives at tests/vitest.config.ts (per-repo path,
+      # not the fleet-canonical .config/vitest.config.mts). Skills'
+      # tests/ tree pre-dates fleet onboarding; the existing config
+      # path stays so the structural / api / e2e tier separation
+      # keeps working.
+      test-script: 'pnpm exec vitest run --config tests/vitest.config.ts'
