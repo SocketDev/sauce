@@ -3,4 +3,8 @@ dist/
 *.tsbuildinfo
 .env
 .env.local
-.claude
+.claude/*
+!.claude/agents/
+!.claude/commands/
+!.claude/hooks/
+!.claude/skills/

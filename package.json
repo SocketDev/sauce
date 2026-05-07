@@ -2,22 +2,33 @@
   "name": "socket-skills",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "pnpm@11.0.7",
+  "engines": {
+    "node": ">=20.18.0"
+  },
   "scripts": {
-    "prepare": "cp scripts/pre-commit .git/hooks/pre-commit",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
     "generate": "./scripts/publish.sh",
-    "check": "./scripts/publish.sh --check",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
+    "prepare": "husky",
+    "publish:check": "./scripts/publish.sh --check",
     "test": "vitest run --config tests/vitest.config.ts",
-    "test:structural": "vitest run --config tests/vitest.config.ts tier1-structural/",
-    "test:api": "SOCKET_SECURITY_API_KEY=${SOCKET_SECURITY_API_KEY} vitest run --config tests/vitest.config.ts tier2-api/",
+    "test:api": "SOCKET_API_TOKEN=${SOCKET_API_TOKEN} vitest run --config tests/vitest.config.ts tier2-api/",
     "test:e2e": "RUN_E2E=1 vitest run --config tests/vitest.config.ts tier3-e2e/",
     "test:integration": "RUN_E2E=1 vitest run --config tests/vitest.config.ts tier3-e2e/",
-    "test:integration:claude": "TEST_AGENT=claude-code npm run test:integration",
-    "test:integration:codex": "TEST_AGENT=codex npm run test:integration",
-    "test:integration:gemini": "TEST_AGENT=gemini npm run test:integration"
+    "test:integration:claude": "TEST_AGENT=claude-code pnpm run test:integration",
+    "test:integration:codex": "TEST_AGENT=codex pnpm run test:integration",
+    "test:integration:gemini": "TEST_AGENT=gemini pnpm run test:integration",
+    "test:structural": "vitest run --config tests/vitest.config.ts tier1-structural/"
   },
   "devDependencies": {
-    "tsx": "^4.19.0",
-    "typescript": "^5.7.0",
-    "vitest": "^4.0.18"
+    "husky": "9.1.7",
+    "oxfmt": "0.37.0",
+    "oxlint": "1.53.0",
+    "tsx": "4.19.0",
+    "typescript": "5.9.2",
+    "vitest": "4.0.3"
   }
 }
