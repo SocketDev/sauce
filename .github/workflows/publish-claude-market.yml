@@ -1,0 +1,147 @@
+name: 📦 Publish to Claude Code marketplace
+
+# User-initiated publish flow. Manual dispatch only — never fires on
+# push, schedule, or PR.
+#
+# What this workflow does (in order):
+#
+#   1. Re-runs `pnpm run generate` to make sure every artifact in the
+#      .claude-plugin/, .cursor-plugin/, gemini-extension.json,
+#      agents/, and the README skill table reflects the current
+#      SKILL.md / package.json / scripts/* source-of-truth.
+#   2. Verifies the regen produced no drift. If anything changed, the
+#      workflow fails — the dispatcher's job is to merge a PR that
+#      runs `pnpm run generate` first, *then* dispatch this workflow.
+#   3. Reads the version from package.json + .claude-plugin/marketplace.json.
+#   4. Creates a git tag (`v<version>`) on the current main commit.
+#   5. Creates a GitHub release with the tag, marketplace.json's
+#      description as the body, and the .claude-plugin/ tree attached
+#      as a release asset for offline-install consumers.
+#
+# What "publishing" means here:
+#
+# Claude Code's marketplace mechanism reads .claude-plugin/marketplace.json
+# directly from the GitHub repo URL — there is no npm registry step,
+# no API call to Anthropic, no upload to a third-party host. "Publishing"
+# is purely the act of (a) tagging a stable commit so users can pin
+# to it, and (b) creating a GitHub release as a discoverability /
+# changelog surface. Cursor (.cursor-plugin/) and Gemini
+# (gemini-extension.json) work the same way.
+#
+# Required permission: contents: write (for the tag + release).
+#
+# Dry-run lever:
+#   workflow_dispatch input `dry-run: true` runs steps 1-3 but skips
+#   the tag + release. Use this to verify a clean pass without
+#   committing to a tagged release.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Dry run — generate + verify only, no tag, no release'
+        type: boolean
+        default: true
+      release-notes:
+        description: 'Optional release notes (markdown). Defaults to marketplace.json description.'
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-claude-market
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish v${{ github.run_number }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@5b672d3b8459e61bdd423c058a2e155f92f79389 # main
+
+      - name: Regenerate artifacts
+        run: pnpm run generate
+
+      - name: Verify no drift after regenerate
+        run: |
+          if ! git diff --quiet; then
+            echo '::error::Generated artifacts are out of sync.'
+            echo 'Run `pnpm run generate` locally, commit the result, and re-dispatch.'
+            git diff --stat
+            exit 1
+          fi
+
+      - name: Read version
+        id: version
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          MKT_VERSION=$(node -p "require('./.claude-plugin/marketplace.json').metadata.version")
+          if [ "$PKG_VERSION" != "$MKT_VERSION" ]; then
+            echo "::error::package.json version ($PKG_VERSION) != marketplace.json version ($MKT_VERSION). Run pnpm run generate."
+            exit 1
+          fi
+          echo "version=$PKG_VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$PKG_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Resolved version: $PKG_VERSION"
+
+      - name: Check tag is unused
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          if git rev-parse --verify "refs/tags/${TAG}" >/dev/null 2>&1; then
+            echo "::error::Tag ${TAG} already exists. Bump the version in package.json + marketplace.json before publishing."
+            exit 1
+          fi
+
+      - name: Dry-run summary
+        if: ${{ inputs.dry-run }}
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          {
+            echo "## Dry-run complete (no tag, no release)"
+            echo ""
+            echo "**Version:** \`${VERSION}\`"
+            echo "**Tag (would create):** \`${TAG}\`"
+            echo ""
+            echo 'Re-dispatch with `dry-run: false` to publish for real.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Create tag
+        if: ${{ !inputs.dry-run }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ steps.version.outputs.tag }}
+          SHA: ${{ github.sha }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git tag -a "${TAG}" "${SHA}" -m "Release ${TAG}"
+          # One-shot authed push URL — never write the token into
+          # .git/config.
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" "${TAG}"
+
+      - name: Create GitHub release
+        if: ${{ !inputs.dry-run }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+          NOTES: ${{ inputs.release-notes }}
+        run: |
+          # Default release body: marketplace.json's description + a
+          # link back to the marketplace.json blob at this commit so
+          # users can see exactly what they're installing.
+          if [ -z "${NOTES}" ]; then
+            NOTES=$(node -p "require('./.claude-plugin/marketplace.json').metadata.description")
+            NOTES+=$'\n\n---\n\nInstall via Claude Code: `/plugin marketplace ${{ github.repository }}@'${TAG}'`'
+          fi
+          gh release create "${TAG}" \
+            --title "${TAG}" \
+            --notes "${NOTES}" \
+            --target "${{ github.sha }}"

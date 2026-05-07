@@ -9,11 +9,11 @@
   "scripts": {
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
-    "generate": "./scripts/publish.sh",
+    "generate": "node scripts/publish.mts",
+    "generate:check": "node scripts/publish.mts --check",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "prepare": "husky",
-    "publish:check": "./scripts/publish.sh --check",
     "test": "vitest run --config tests/vitest.config.ts",
     "test:api": "SOCKET_API_TOKEN=${SOCKET_API_TOKEN} vitest run --config tests/vitest.config.ts tier2-api/",
     "test:e2e": "RUN_E2E=1 vitest run --config tests/vitest.config.ts tier3-e2e/",

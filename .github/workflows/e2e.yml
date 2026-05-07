@@ -1,0 +1,49 @@
+name: 🧪 E2E
+
+# Tier 3 end-to-end tests. Costly — they hit real LLM APIs (Claude,
+# Codex, Gemini) and the Socket production API. Manual dispatch only;
+# CI on every PR uses `ci.yml` (Tier 1 structural tests).
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_agent:
+        description: 'Agent to use for E2E tests'
+        type: choice
+        options:
+          - claude-code
+          - codex
+          - gemini
+          - all
+        default: claude-code
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: E2E (${{ matrix.agent }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        agent: ${{ fromJson(
+          github.event.inputs.test_agent == 'all'
+            && '["claude-code","codex","gemini"]'
+            || format('["{0}"]', github.event.inputs.test_agent || 'claude-code')
+          ) }}
+    steps:
+      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@5b672d3b8459e61bdd423c058a2e155f92f79389 # main
+
+      # zizmor: ignore[secrets-outside-env]
+      - name: Run E2E tests (Tier 3)
+        env:
+          RUN_E2E: '1'
+          TEST_AGENT: ${{ matrix.agent }}
+          SOCKET_API_TOKEN: ${{ secrets.SOCKET_API_TOKEN || secrets.SOCKET_SECURITY_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: pnpm run test:e2e
