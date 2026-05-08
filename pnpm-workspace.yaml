@@ -29,6 +29,9 @@ minimumReleaseAgeExclude:
   - '@socketbin/*'
   - '@socketregistry/*'
   - '@socketsecurity/*'
+  # Network-mocking lib used in fleet test suites. v15 betas pre-date
+  # npm's `time` field for the major; allow pinned beta until v15 GA.
+  - 'nock@15.0.0-beta.11'
 
 # Refuse "exotic" subdeps (git URLs, tarballs, file: links) anywhere
 # in the dep graph. Forces every dep to come from a public registry
