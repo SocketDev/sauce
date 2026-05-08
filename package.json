@@ -7,13 +7,22 @@
     "node": ">=20.18.0"
   },
   "scripts": {
+    "build": "node scripts/publish.mts",
+    "check": "node scripts/check.mts",
+    "check:paths": "node scripts/check-paths.mts",
+    "clean": "node scripts/clean.mts",
+    "cover": "vitest run --config tests/vitest.config.ts --coverage",
+    "fix": "node scripts/fix.mts",
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
     "generate": "node scripts/publish.mts",
     "generate:check": "node scripts/publish.mts --check",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
+    "lockstep": "node scripts/lockstep.mts",
+    "lockstep:emit-schema": "node scripts/lockstep-emit-schema.mts",
     "prepare": "husky",
+    "security": "node scripts/security.mts",
     "test": "vitest run --config tests/vitest.config.ts",
     "test:api": "SOCKET_API_TOKEN=${SOCKET_API_TOKEN} vitest run --config tests/vitest.config.ts tier2-api/",
     "test:e2e": "RUN_E2E=1 vitest run --config tests/vitest.config.ts tier3-e2e/",
@@ -21,7 +30,8 @@
     "test:integration:claude": "TEST_AGENT=claude-code pnpm run test:integration",
     "test:integration:codex": "TEST_AGENT=codex pnpm run test:integration",
     "test:integration:gemini": "TEST_AGENT=gemini pnpm run test:integration",
-    "test:structural": "vitest run --config tests/vitest.config.ts tier1-structural/"
+    "test:structural": "vitest run --config tests/vitest.config.ts tier1-structural/",
+    "update": "node scripts/update.mts"
   },
   "devDependencies": {
     "husky": "9.1.7",
