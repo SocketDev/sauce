@@ -7,9 +7,9 @@ it.
 
 ## Why this rule
 
-The Socket fleet's xport harness uses the `# slug-version` annotation
+The Socket fleet's lockstep harness uses the `# slug-version` annotation
 to surface upstream version drift in its update reports. Without it,
-`pnpm run xport` can't tell whether a submodule pin reflects v1.0 or
+`pnpm run lockstep` can't tell whether a submodule pin reflects v1.0 or
 v3.5 of the upstream — the report is meaningless. Adding the comment
 costs one line; missing it silently breaks the drift surface.
 
@@ -37,7 +37,7 @@ The slug is short (no path); the version is whatever upstream tags
 
 - `ignore = dirty` — conventional but not blocked here. (It's a
   parallel-Claude-sessions concern, not a build break.)
-- Repository URL format / branch — those don't affect xport.
+- Repository URL format / branch — those don't affect lockstep.
 
 ## Override marker
 

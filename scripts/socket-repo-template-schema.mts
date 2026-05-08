@@ -14,7 +14,8 @@
  *   - This TypeBox source → `Static<typeof SocketRepoTemplateConfigSchema>`
  *     for typed reads in the runner.
  *   - `socket-repo-template-emit-schema.mts` writes
- *     `socket-repo-template-schema.json` (draft 2020-12) at the repo root.
+ *     `.config/socket-repo-template-schema.json` (draft 2020-12) next to
+ *     the per-repo config.
  *   - The per-repo config references the JSON Schema via its `$schema`
  *     field for IDE autocompletion.
  *
@@ -234,7 +235,7 @@ export const SocketRepoTemplateConfigSchema = Type.Object(
     $schema: Type.Optional(
       Type.String({
         description:
-          'JSON Schema reference for editor autocompletion. Conventionally `../socket-repo-template-schema.json` when the config lives at `.config/socket-repo-template.json`.',
+          'JSON Schema reference for editor autocompletion. Conventionally `./socket-repo-template-schema.json` — both the config and its schema live side-by-side in `.config/`.',
       }),
     ),
     schemaVersion: Type.Literal(1, {

@@ -4,7 +4,7 @@
 // Blocks Edit/Write tool calls that introduce a `[submodule "..."]`
 // section into `.gitmodules` without the canonical `# <name>-<version>`
 // comment immediately above it. Without that comment, the harness
-// can't surface upstream version drift in the `xport` reports — the
+// can't surface upstream version drift in the `lockstep` reports — the
 // fleet relies on this annotation to know what version each pinned
 // submodule represents.
 //
