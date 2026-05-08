@@ -1,14 +1,17 @@
 #!/usr/bin/env node
 /**
- * Clean runner — removes build artifacts, coverage, and TypeScript
- * incremental-build cache from the repo root.
+ * @fileoverview Clean runner with flag-based configuration.
+ *
+ * Mirrors the canonical fleet `clean.mts` flag surface (used by
+ * socket-packageurl-js, socket-sdk-js, etc.) but stays dep-free:
+ * single-package skill marketplaces don't need `del` / `fast-glob`
+ * for the small target set here. If this repo grows a real build
+ * graph, replace the body with the canonical lib-backed version.
+ *
+ * Removes build artifacts, coverage, and TypeScript incremental cache.
  *
  * Cross-platform: uses `node:fs`'s recursive `rm` instead of shelling
  * out to `rm -rf`, so it works the same on macOS / Linux / Windows.
- *
- * Usage:
- *   node scripts/clean.mts          # default: dist + coverage + tsbuildinfo
- *   node scripts/clean.mts --all    # also remove node_modules + caches
  */
 import { existsSync } from 'node:fs'
 import { readdir, rm } from 'node:fs/promises'
@@ -21,36 +24,138 @@ const rootPath = path.resolve(
   '..',
 )
 
-const args = process.argv.slice(2)
-const all = args.includes('--all')
-
-const targets = ['dist', 'coverage']
-if (all) {
-  targets.push('node_modules', '.cache')
+type Flags = {
+  readonly all: boolean
+  readonly cache: boolean
+  readonly coverage: boolean
+  readonly dist: boolean
+  readonly help: boolean
+  readonly modules: boolean
+  readonly quiet: boolean
+  readonly types: boolean
 }
 
-async function removeMatching(): Promise<void> {
-  // Walk the root for any *.tsbuildinfo files.
+function parseFlags(argv: readonly string[]): Flags {
+  const has = (flag: string): boolean => argv.includes(flag)
+  return {
+    all: has('--all'),
+    cache: has('--cache'),
+    coverage: has('--coverage'),
+    dist: has('--dist'),
+    help: has('--help') || has('-h'),
+    modules: has('--modules'),
+    quiet: has('--quiet') || has('--silent'),
+    types: has('--types'),
+  }
+}
+
+function printHelp(): void {
+  process.stdout.write(
+    [
+      'Clean Runner',
+      '',
+      'Usage: pnpm clean [options]',
+      '',
+      'Options:',
+      '  --help, -h          Show this help message',
+      '  --all               Clean everything (default if no flags)',
+      '  --cache             Clean cache directories',
+      '  --coverage          Clean coverage reports',
+      '  --dist              Clean build output',
+      '  --types             Clean TypeScript declarations only',
+      '  --modules           Clean node_modules',
+      '  --quiet, --silent   Suppress progress messages',
+      '',
+      'Examples:',
+      '  pnpm clean                  # Clean everything except node_modules',
+      '  pnpm clean --dist           # Clean build output only',
+      '  pnpm clean --cache --coverage  # Clean cache and coverage',
+      '  pnpm clean --all --modules  # Clean everything including node_modules',
+      '',
+    ].join('\n'),
+  )
+}
+
+async function removeIfExists(
+  rel: string,
+  quiet: boolean,
+): Promise<void> {
+  const full = path.join(rootPath, rel)
+  if (!existsSync(full)) {
+    if (!quiet) {
+      process.stdout.write(`  ${rel}/ already clean\n`)
+    }
+    return
+  }
+  await rm(full, { force: true, recursive: true })
+  if (!quiet) {
+    process.stdout.write(`  removed ${rel}/\n`)
+  }
+}
+
+async function removeTsBuildInfo(quiet: boolean): Promise<void> {
   const entries = await readdir(rootPath, { withFileTypes: true })
   for (const entry of entries) {
     if (entry.isFile() && entry.name.endsWith('.tsbuildinfo')) {
       const target = path.join(rootPath, entry.name)
       await rm(target, { force: true })
-      process.stdout.write(`  removed ${entry.name}\n`)
+      if (!quiet) {
+        process.stdout.write(`  removed ${entry.name}\n`)
+      }
     }
   }
 }
 
 async function main(): Promise<void> {
-  for (const target of targets) {
-    const fullPath = path.join(rootPath, target)
-    if (existsSync(fullPath)) {
-      await rm(fullPath, { force: true, recursive: true })
-      process.stdout.write(`  removed ${target}/\n`)
-    }
+  const flags = parseFlags(process.argv.slice(2))
+
+  if (flags.help) {
+    printHelp()
+    return
   }
-  await removeMatching()
-  process.stdout.write('  ✓ clean\n')
+
+  const cleanAll =
+    flags.all ||
+    (!flags.cache &&
+      !flags.coverage &&
+      !flags.dist &&
+      !flags.types &&
+      !flags.modules)
+
+  const tasks: Array<() => Promise<void>> = []
+
+  if (cleanAll || flags.dist) {
+    tasks.push(() => removeIfExists('dist', flags.quiet))
+    tasks.push(() => removeTsBuildInfo(flags.quiet))
+  } else if (flags.types) {
+    tasks.push(() => removeIfExists('dist/types', flags.quiet))
+  }
+  if (cleanAll || flags.coverage) {
+    tasks.push(() => removeIfExists('coverage', flags.quiet))
+  }
+  if (cleanAll || flags.cache) {
+    tasks.push(() => removeIfExists('.cache', flags.quiet))
+  }
+  if (flags.modules) {
+    tasks.push(() => removeIfExists('node_modules', flags.quiet))
+  }
+
+  if (tasks.length === 0) {
+    if (!flags.quiet) {
+      process.stdout.write('  Nothing to clean\n')
+    }
+    return
+  }
+
+  if (!flags.quiet) {
+    process.stdout.write('Cleaning project directories\n')
+  }
+  for (const task of tasks) {
+    await task()
+  }
+  if (!flags.quiet) {
+    process.stdout.write('  ✓ clean\n')
+  }
 }
 
 main().catch((e: unknown) => {
