@@ -5,12 +5,12 @@
  * and scoring rubrics instead of exact string comparisons.
  */
 
-import { expect } from "vitest";
+import { expect } from 'vitest'
 
 export interface AgentResponse {
-  output: string;
-  toolCalls?: Array<{ name: string; args?: Record<string, unknown> }>;
-  exitCode?: number;
+  output: string
+  toolCalls?: Array<{ name: string; args?: Record<string, unknown> }>
+  exitCode?: number
 }
 
 /**
@@ -18,14 +18,14 @@ export interface AgentResponse {
  */
 export function expectOutputContains(
   response: AgentResponse,
-  keywords: string[]
+  keywords: string[],
 ): void {
-  const lower = response.output.toLowerCase();
-  const missing = keywords.filter((kw) => !lower.includes(kw.toLowerCase()));
+  const lower = response.output.toLowerCase()
+  const missing = keywords.filter(kw => !lower.includes(kw.toLowerCase()))
   expect(
     missing,
-    `Output missing keywords: ${missing.join(", ")}\n\nOutput:\n${response.output.slice(0, 500)}`
-  ).toEqual([]);
+    `Output missing keywords: ${missing.join(', ')}\n\nOutput:\n${response.output.slice(0, 500)}`,
+  ).toEqual([])
 }
 
 /**
@@ -33,19 +33,17 @@ export function expectOutputContains(
  */
 export function expectToolCalled(
   response: AgentResponse,
-  toolName: string
+  toolName: string,
 ): void {
-  const calledStructured = response.toolCalls?.some(
-    (tc) => tc.name === toolName
-  );
+  const calledStructured = response.toolCalls?.some(tc => tc.name === toolName)
   const mentionedInOutput = response.output
     .toLowerCase()
-    .includes(toolName.toLowerCase());
+    .includes(toolName.toLowerCase())
 
   expect(
     calledStructured || mentionedInOutput,
-    `Expected tool '${toolName}' to be called but it was not found in tool calls or output`
-  ).toBe(true);
+    `Expected tool '${toolName}' to be called but it was not found in tool calls or output`,
+  ).toBe(true)
 }
 
 /**
@@ -57,19 +55,19 @@ export function expectToolCalled(
 export function expectScoreAboveThreshold(
   response: AgentResponse,
   criteria: string[],
-  threshold = 0.6
+  threshold = 0.6,
 ): void {
-  const lower = response.output.toLowerCase();
-  const matches = criteria.filter((c) => lower.includes(c.toLowerCase()));
-  const score = matches.length / criteria.length;
+  const lower = response.output.toLowerCase()
+  const matches = criteria.filter(c => lower.includes(c.toLowerCase()))
+  const score = matches.length / criteria.length
 
   expect(
     score,
     `Score ${(score * 100).toFixed(0)}% (${matches.length}/${criteria.length}) ` +
       `below threshold ${(threshold * 100).toFixed(0)}%.\n` +
-      `Matched: ${matches.join(", ")}\n` +
-      `Missing: ${criteria.filter((c) => !lower.includes(c.toLowerCase())).join(", ")}`
-  ).toBeGreaterThanOrEqual(threshold);
+      `Matched: ${matches.join(', ')}\n` +
+      `Missing: ${criteria.filter(c => !lower.includes(c.toLowerCase())).join(', ')}`,
+  ).toBeGreaterThanOrEqual(threshold)
 }
 
 /**
@@ -80,17 +78,17 @@ export function expectScoreAboveThreshold(
  */
 export function expectNoHallucinatedTools(
   response: AgentResponse,
-  validToolNames: string[]
+  validToolNames: string[],
 ): void {
-  if (!response.toolCalls) return;
+  if (!response.toolCalls) return
 
-  const validSet = new Set(validToolNames.map((t) => t.toLowerCase()));
+  const validSet = new Set(validToolNames.map(t => t.toLowerCase()))
   const hallucinated = response.toolCalls.filter(
-    (tc) => !validSet.has(tc.name.toLowerCase())
-  );
+    tc => !validSet.has(tc.name.toLowerCase()),
+  )
 
   expect(
-    hallucinated.map((tc) => tc.name),
-    `Hallucinated tools detected: ${hallucinated.map((tc) => tc.name).join(", ")}`
-  ).toEqual([]);
+    hallucinated.map(tc => tc.name),
+    `Hallucinated tools detected: ${hallucinated.map(tc => tc.name).join(', ')}`,
+  ).toEqual([])
 }

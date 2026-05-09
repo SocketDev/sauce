@@ -1,6 +1,7 @@
 ---
 name: socket-dep-patch
-description: Apply Socket's binary-level security patches without changing dependency
+description:
+  Apply Socket's binary-level security patches without changing dependency
   versions. Uses socket-patch apply to fix vulnerabilities in-place, then verifies
   automated patching is configured so patches persist across installs.
 ---
@@ -13,14 +14,14 @@ After applying patches, this skill checks whether the project is set up to **kee
 
 ## How This Differs from `/socket-dep-upgrade`
 
-| | `/socket-dep-patch` (this skill) | `/socket-dep-upgrade` |
-|---|---|---|
-| **Primary tool** | `socket-patch apply` | `socket fix` |
-| **What it does** | Applies binary-level patches without changing versions | Upgrades dependency versions to fix CVEs |
-| **Version changes?** | No | Yes |
-| **Code changes needed?** | No | Possibly (API migration for major bumps) |
-| **Scope** | All patchable packages at once | One dependency at a time |
-| **When to use** | You need fixes without version churn, or the upstream fix doesn't exist yet | You want to bring dependencies up to date |
+|                          | `/socket-dep-patch` (this skill)                                            | `/socket-dep-upgrade`                     |
+| ------------------------ | --------------------------------------------------------------------------- | ----------------------------------------- |
+| **Primary tool**         | `socket-patch apply`                                                        | `socket fix`                              |
+| **What it does**         | Applies binary-level patches without changing versions                      | Upgrades dependency versions to fix CVEs  |
+| **Version changes?**     | No                                                                          | Yes                                       |
+| **Code changes needed?** | No                                                                          | Possibly (API migration for major bumps)  |
+| **Scope**                | All patchable packages at once                                              | One dependency at a time                  |
+| **When to use**          | You need fixes without version churn, or the upstream fix doesn't exist yet | You want to bring dependencies up to date |
 
 Use `/socket-dep-patch` when you want to fix vulnerabilities without risking breaking changes from version upgrades. Use `/socket-dep-upgrade` when you want full version upgrades with automated code migration.
 
@@ -40,12 +41,12 @@ Use `/socket-dep-patch` when you want to fix vulnerabilities without risking bre
 
 Choose the installation method for your ecosystem:
 
-| Method | Command |
-|--------|---------|
-| npm (one-off) | `npx @socketsecurity/socket-patch apply` |
-| npm (global) | `npm install -g @socketsecurity/socket-patch` |
-| pip | `pip install socket-patch` |
-| cargo | `cargo install socket-patch-cli` |
+| Method                   | Command                                                                                     |
+| ------------------------ | ------------------------------------------------------------------------------------------- |
+| npm (one-off)            | `pnpm dlx @socketsecurity/socket-patch apply`                                                    |
+| npm (global)             | `npm install -g @socketsecurity/socket-patch`                                               |
+| pip                      | `pip install socket-patch`                                                                  |
+| cargo                    | `cargo install socket-patch-cli`                                                            |
 | Standalone (macOS/Linux) | `curl -fsSL https://raw.githubusercontent.com/SocketDev/socket-patch/main/install.sh \| sh` |
 
 Verify installation:
@@ -94,15 +95,15 @@ After patches are applied and verified, check whether the project is configured 
 
 Scan the project for evidence of automated patching in any of these locations:
 
-| Location | What Counts as Configured |
-|----------|--------------------------|
-| `package.json` `scripts.postinstall` | Contains `socket-patch scan` and `socket-patch apply` (or `@socketsecurity/socket-patch`) |
-| `.github/workflows/*.yml` | Contains `SocketDev/action@v1` with `mode: patch`, OR a step running `socket-patch scan` / `socket-patch apply` |
-| `.gitlab-ci.yml` | Contains a step running `socket-patch scan` / `socket-patch apply` |
-| `bitbucket-pipelines.yml` | Contains a step running `socket-patch scan` / `socket-patch apply` |
-| `Dockerfile` / `docker-compose.yml` | Contains a `RUN` layer with `socket-patch scan` / `socket-patch apply` |
-| `Makefile` / `Justfile` | Contains a target that runs `socket-patch scan` / `socket-patch apply` |
-| Other CI configs (`.circleci/config.yml`, `Jenkinsfile`, `azure-pipelines.yml`, `.travis.yml`) | Contains a step running `socket-patch scan` / `socket-patch apply` |
+| Location                                                                                       | What Counts as Configured                                                                                       |
+| ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `package.json` `scripts.postinstall`                                                           | Contains `socket-patch scan` and `socket-patch apply` (or `@socketsecurity/socket-patch`)                       |
+| `.github/workflows/*.yml`                                                                      | Contains `SocketDev/action@v1` with `mode: patch`, OR a step running `socket-patch scan` / `socket-patch apply` |
+| `.gitlab-ci.yml`                                                                               | Contains a step running `socket-patch scan` / `socket-patch apply`                                              |
+| `bitbucket-pipelines.yml`                                                                      | Contains a step running `socket-patch scan` / `socket-patch apply`                                              |
+| `Dockerfile` / `docker-compose.yml`                                                            | Contains a `RUN` layer with `socket-patch scan` / `socket-patch apply`                                          |
+| `Makefile` / `Justfile`                                                                        | Contains a target that runs `socket-patch scan` / `socket-patch apply`                                          |
+| Other CI configs (`.circleci/config.yml`, `Jenkinsfile`, `azure-pipelines.yml`, `.travis.yml`) | Contains a step running `socket-patch scan` / `socket-patch apply`                                              |
 
 ### Report Results
 
@@ -143,15 +144,15 @@ Set up automated patching so `socket-patch apply` runs after every dependency in
 
 Before configuring automation, scan the project to find ALL places where dependencies are installed and builds happen:
 
-| Location | What to Look For |
-|----------|-----------------|
-| `package.json` scripts | `install`, `postinstall`, `build`, `prebuild` |
-| CI configs (all formats) | install steps, build steps |
-| `Makefile` / `Justfile` | install and build targets |
-| `Dockerfile` / `docker-compose` | `RUN install`, `RUN build` layers |
-| Shell scripts (`*.sh`) | install/build commands |
-| `pyproject.toml` / `setup.py` | build system config |
-| `Cargo.toml` | build scripts |
+| Location                        | What to Look For                              |
+| ------------------------------- | --------------------------------------------- |
+| `package.json` scripts          | `install`, `postinstall`, `build`, `prebuild` |
+| CI configs (all formats)        | install steps, build steps                    |
+| `Makefile` / `Justfile`         | install and build targets                     |
+| `Dockerfile` / `docker-compose` | `RUN install`, `RUN build` layers             |
+| Shell scripts (`*.sh`)          | install/build commands                        |
+| `pyproject.toml` / `setup.py`   | build system config                           |
+| `Cargo.toml`                    | build scripts                                 |
 
 For each location, record the file path, the install command, and where to insert `socket-patch scan` and `socket-patch apply` (after install, before build).
 
@@ -161,16 +162,16 @@ Present findings to the user before making changes.
 
 Use the appropriate command to run `socket-patch` based on the project's package manager:
 
-| Package Manager | Run socket-patch |
-|----------------|-----------------|
-| npm | `npx @socketsecurity/socket-patch scan` then `npx @socketsecurity/socket-patch apply` |
-| pnpm | `pnpx @socketsecurity/socket-patch scan` then `pnpx @socketsecurity/socket-patch apply` |
-| yarn | `npx @socketsecurity/socket-patch scan` then `npx @socketsecurity/socket-patch apply` |
-| bun | `bunx @socketsecurity/socket-patch scan` then `bunx @socketsecurity/socket-patch apply` |
-| deno | `deno run npm:@socketsecurity/socket-patch scan` then `deno run npm:@socketsecurity/socket-patch apply` |
-| Python | `pipx run socket-patch scan && pipx run socket-patch apply` (if pipx available), else `pip install socket-patch && socket-patch scan && socket-patch apply` |
-| Standalone | `curl -fsSL https://raw.githubusercontent.com/SocketDev/socket-patch/main/install.sh | sh` then `socket-patch scan && socket-patch apply` |
-| GitHub Actions | `SocketDev/action@v1` with `mode: patch` (preferred — handles scan+apply automatically) |
+| Package Manager | Run socket-patch                                                                                                                                            |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| npm             | `pnpm dlx @socketsecurity/socket-patch scan` then `pnpm dlx @socketsecurity/socket-patch apply`                                                                       |
+| pnpm            | `pnpx @socketsecurity/socket-patch scan` then `pnpx @socketsecurity/socket-patch apply`                                                                     |
+| yarn            | `pnpm dlx @socketsecurity/socket-patch scan` then `pnpm dlx @socketsecurity/socket-patch apply`                                                                       |
+| bun             | `bunx @socketsecurity/socket-patch scan` then `bunx @socketsecurity/socket-patch apply`                                                                     |
+| deno            | `deno run npm:@socketsecurity/socket-patch scan` then `deno run npm:@socketsecurity/socket-patch apply`                                                     |
+| Python          | `pipx run socket-patch scan && pipx run socket-patch apply` (if pipx available), else `pip install socket-patch && socket-patch scan && socket-patch apply` |
+| Standalone      | `curl -fsSL https://raw.githubusercontent.com/SocketDev/socket-patch/main/install.sh                                                                        | sh`then`socket-patch scan && socket-patch apply` |
+| GitHub Actions  | `SocketDev/action@v1` with `mode: patch` (preferred — handles scan+apply automatically)                                                                     |
 
 Use the appropriate runner (`npx`, `pnpx`, `bunx`, etc.) based on the detected package manager in the sections below.
 
@@ -240,8 +241,8 @@ FROM node:20-alpine
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
-RUN npx @socketsecurity/socket-patch scan
-RUN npx @socketsecurity/socket-patch apply
+RUN pnpm dlx @socketsecurity/socket-patch scan
+RUN pnpm dlx @socketsecurity/socket-patch apply
 COPY . .
 RUN npm run build
 ```

@@ -52,7 +52,7 @@ const ESCALATION_PATTERNS = [
 
 function log(msg: string): void {
   if (!quiet) {
-    console.log(msg)
+    logger.log(msg)
   }
 }
 

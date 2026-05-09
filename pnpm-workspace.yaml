@@ -17,7 +17,9 @@ packages:
 # keeps the entire hook tree in lockstep without each hook duplicating
 # literal pins.
 catalog:
+  '@sinclair/typebox': 0.34.49
   '@socketsecurity/lib': 5.28.0
+  '@types/node': 24.9.2
 
 # Wait 7 days (10080 minutes) before installing newly published
 # packages. Reduces blast radius from hijacked-but-not-yet-detected
@@ -60,3 +62,7 @@ enablePrePostScripts: true
 # Pin exact versions on `pnpm add` (no `^` / `~`). Matches the rest
 # of the fleet's discipline.
 saveExact: true
+
+allowBuilds:
+  # esbuild is a transitive of vite/vitest (test-time only).
+  esbuild: true

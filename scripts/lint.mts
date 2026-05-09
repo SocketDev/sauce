@@ -28,6 +28,10 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+
+const logger = getDefaultLogger()
+
 const args = process.argv.slice(2)
 const mode: 'staged' | 'all' | 'modified' = args.includes('--all')
   ? 'all'
@@ -38,7 +42,7 @@ const fix = args.includes('--fix')
 const quiet = args.includes('--quiet') || args.includes('--silent')
 const stdio: ExecSyncOptions['stdio'] = quiet ? 'pipe' : 'inherit'
 
-const LINTABLE_EXTS = new Set(['.js', '.mjs', '.cjs', '.ts', '.cts', '.mts'])
+const LINTABLE_EXTS = new Set(['.cjs', '.cts', '.js', '.mjs', '.mts', '.ts'])
 
 // Paths that, when touched, force a full-workspace lint.
 const ESCALATION_PATTERNS = [
@@ -54,7 +58,7 @@ const ESCALATION_PATTERNS = [
 
 function log(msg: string): void {
   if (!quiet) {
-    console.log(msg)
+    logger.log(msg)
   }
 }
 

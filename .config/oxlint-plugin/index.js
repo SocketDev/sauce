@@ -24,6 +24,7 @@ import noTodoComments from './rules/no-todo-comments.js'
 import preferExistsSync from './rules/prefer-exists-sync.js'
 import preferSafeDelete from './rules/prefer-safe-delete.js'
 import preferUndefinedOverNull from './rules/prefer-undefined-over-null.js'
+import sortRegexAlternations from './rules/sort-regex-alternations.js'
 import sortSetArgs from './rules/sort-set-args.js'
 import sortSourceMethods from './rules/sort-source-methods.js'
 
@@ -45,6 +46,7 @@ const plugin = {
     'prefer-exists-sync': preferExistsSync,
     'prefer-safe-delete': preferSafeDelete,
     'prefer-undefined-over-null': preferUndefinedOverNull,
+    'sort-regex-alternations': sortRegexAlternations,
     'sort-set-args': sortSetArgs,
     'sort-source-methods': sortSourceMethods,
   },

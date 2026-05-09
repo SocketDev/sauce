@@ -1,6 +1,7 @@
 ---
 name: socket-fix
-description: Fix dependency security issues — either scan and fix everything (requires
+description:
+  Fix dependency security issues — either scan and fix everything (requires
   /socket-scan), or target a single named package. Orchestrates /socket-dep-cleanup,
   /socket-dep-replace, /socket-dep-patch, and /socket-dep-upgrade as subskills.
 ---
@@ -44,15 +45,16 @@ Scan the project with `/socket-scan`, then systematically resolve findings using
 **`/socket-scan` must be working.** Fix All mode requires a full scan to know what to fix.
 
 <!-- BEGIN_SECTION:cli-setup.md -->
+
 ### Socket CLI Setup
 
-Use `npx socket` to run the Socket CLI — this always fetches the latest version and requires no global install. Verify it works:
+Use `pnpm dlx socket` to run the Socket CLI — this always fetches the latest version and requires no global install. Verify it works:
 
 ```
-npx socket --version
+pnpm dlx socket --version
 ```
 
-All commands in this skill use the `npx socket` prefix (e.g., `npx socket scan create ...`).
+All commands in this skill use the `pnpm dlx socket` prefix (e.g., `pnpm dlx socket scan create ...`).
 
 **Optional global install:** If you prefer a global `socket` command, install with `npm install -g socket@latest` (must be version **1.0.0 or higher**).
 
@@ -61,24 +63,25 @@ All commands in this skill use the `npx socket` prefix (e.g., `npx socket scan c
 **For users without a Socket account:** Configure the public demo token directly:
 
 ```
-npx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api --no-banner --no-spinner
-npx socket config set defaultOrg SocketDemo --no-banner --no-spinner
+pnpm dlx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api --no-banner --no-spinner
+pnpm dlx socket config set defaultOrg SocketDemo --no-banner --no-spinner
 ```
 
-This provides limited access to CLI features like `npx socket fix`, `npx socket package score`, `sfw`, and `socket-patch` with rate limits. No account creation is needed for basic usage. **Note:** The public demo token cannot create scans (`npx socket scan create` requires the `full-scans:create` permission). For scanning and full-rate access, create a free account at https://socket.dev.
+This provides limited access to CLI features like `pnpm dlx socket fix`, `pnpm dlx socket package score`, `sfw`, and `socket-patch` with rate limits. No account creation is needed for basic usage. **Note:** The public demo token cannot create scans (`pnpm dlx socket scan create` requires the `full-scans:create` permission). For scanning and full-rate access, create a free account at https://socket.dev.
 
 **For users with an account:** Authenticate with one of:
 
-- **Interactive login**: `npx socket login` (stores credentials in `~/.socket/`)
+- **Interactive login**: `pnpm dlx socket login` (stores credentials in `~/.socket/`)
 - **Environment variable**: Set `SOCKET_CLI_API_TOKEN` in your shell profile or CI environment
 
 Verify account authentication:
 
 ```
-npx socket organization list
+pnpm dlx socket organization list
 ```
 
 If authentication fails or the CLI is not installed, use the `/socket-setup` skill for detailed guidance including Node.js installation, PATH troubleshooting, and CI/CD token configuration.
+
 <!-- END_SECTION:cli-setup.md -->
 
 **Do not proceed with Fix All mode until scanning works.** If the user cannot or will not set up Socket, offer Fix Package mode instead (which has lower requirements per subskill).
@@ -134,11 +137,11 @@ Environment detected:
 
 Ask the user which level they want, or auto-detect from their prompt:
 
-| Level | Name | What It Does |
-|-------|------|-------------|
-| 1 | **Conservative** | Only non-breaking changes: remove trivially unused deps + apply binary patches |
-| 2 | **Cautious** | Everything in Level 1, plus propose ONE risky change for user approval |
-| 3 | **Full** | Safe upgrades, aggressive cleanup, patching, and risky major upgrades — skip and continue on failure |
+| Level | Name             | What It Does                                                                                         |
+| ----- | ---------------- | ---------------------------------------------------------------------------------------------------- |
+| 1     | **Conservative** | Only non-breaking changes: remove trivially unused deps + apply binary patches                       |
+| 2     | **Cautious**     | Everything in Level 1, plus propose ONE risky change for user approval                               |
+| 3     | **Full**         | Safe upgrades, aggressive cleanup, patching, and risky major upgrades — skip and continue on failure |
 
 If the user says "fix everything", "full repair", or "aggressive" → Level 3.
 If the user says "safe", "conservative", or "don't break anything" → Level 1.
@@ -173,8 +176,8 @@ Execute the `/socket-dep-patch` workflow:
 1. Ensure dependencies are installed (should have been verified in Step 2)
 2. Run `socket-patch scan` to discover available patches
 3. Apply all patches with `socket-patch apply`
-3. Build and test to verify nothing broke
-4. Commit the patch manifest (`.socket/manifest.json`)
+4. Build and test to verify nothing broke
+5. Commit the patch manifest (`.socket/manifest.json`)
 
 ---
 
@@ -192,7 +195,7 @@ After Level 1 completes, use the scan results from Step 1 to identify the single
 
 1. **Critical/high CVE upgrade** — a dependency with a known critical or high severity vulnerability that requires a version bump
 2. **Replacement of a flagged dependency** — a dependency with a low Socket score or known maintenance issues that should be swapped for a better alternative (use `/socket-dep-replace`)
-3. **Ambiguous unused dependency** — a package that is *probably* unused but was excluded from Phase 1a due to ambiguity (e.g., a `@types/*` package whose base package is not used, or a build plugin that may no longer be needed)
+3. **Ambiguous unused dependency** — a package that is _probably_ unused but was excluded from Phase 1a due to ambiguity (e.g., a `@types/*` package whose base package is not used, or a build plugin that may no longer be needed)
 4. **Safe minor version bump** — a dependency with a minor/patch update available that fixes a medium-severity issue
 
 Present the proposed change to the user with full context:
@@ -248,8 +251,8 @@ Aggressive repair. Apply everything possible, skip and continue on individual fa
 
 1. Run `socket-patch scan` to discover patches for remaining dependencies
 2. Run `socket-patch apply` to apply all discovered patches
-2. Build and test
-3. Commit patch manifest
+3. Build and test
+4. Commit patch manifest
 
 ### Phase 3d: Risky Major Upgrades
 
@@ -293,6 +296,7 @@ Target a single named package and resolve its issues. Does not require a full sc
 ## Step 1: Identify the Target
 
 The user may specify a package by:
+
 - **Package name** — `lodash`, `express`
 - **Name + version** — `lodash@4.17.20`
 - **PURL** — `pkg:npm/lodash@4.17.20`

@@ -5,69 +5,66 @@
  * marketplace.json stays in sync with discovered skills.
  */
 
-import * as fs from "fs";
-import * as path from "path";
-import { parseFrontmatter } from "./frontmatter";
+import * as fs from 'node:fs'
+import * as path from 'node:path'
+import { parseFrontmatter } from './frontmatter'
 
 export interface ValidationError {
-  field: string;
-  message: string;
+  field: string
+  message: string
 }
 
 export interface Skill {
-  name: string;
-  description: string;
-  path: string;
+  name: string
+  description: string
+  path: string
 }
 
 interface MarketplacePlugin {
-  name: string;
-  source: string;
-  skills: string;
-  description: string;
+  name: string
+  source: string
+  skills: string
+  description: string
 }
 
 interface Marketplace {
-  name: string;
-  owner: { name: string };
-  metadata: { description: string; version: string };
-  plugins: MarketplacePlugin[];
+  name: string
+  owner: { name: string }
+  metadata: { description: string; version: string }
+  plugins: MarketplacePlugin[]
 }
 
 /**
  * Collect all skills from the skills directory, including subskills nested
  * inside a parent skill directory.
  */
-export function collectSkills(skillsDir: string, basePath = "skills"): Skill[] {
-  if (!fs.existsSync(skillsDir)) return [];
+export function collectSkills(skillsDir: string, basePath = 'skills'): Skill[] {
+  if (!fs.existsSync(skillsDir)) return []
 
-  const skills: Skill[] = [];
+  const skills: Skill[] = []
   for (const entry of fs.readdirSync(skillsDir, { withFileTypes: true })) {
-    if (!entry.isDirectory() || entry.name.startsWith("_")) continue;
-    const skillMd = path.join(skillsDir, entry.name, "SKILL.md");
-    if (!fs.existsSync(skillMd)) continue;
+    if (!entry.isDirectory() || entry.name.startsWith('_')) continue
+    const skillMd = path.join(skillsDir, entry.name, 'SKILL.md')
+    if (!fs.existsSync(skillMd)) continue
 
-    const meta = parseFrontmatter(fs.readFileSync(skillMd, "utf-8"));
-    if (!meta.name || !meta.description) continue;
+    const meta = parseFrontmatter(fs.readFileSync(skillMd, 'utf-8'))
+    if (!meta.name || !meta.description) continue
 
-    const skillPath = `${basePath}/${entry.name}`;
+    const skillPath = `${basePath}/${entry.name}`
     skills.push({
       name: meta.name,
       description: meta.description,
       path: skillPath,
-    });
+    })
 
     // Recurse into subdirectories to discover subskills
-    const subSkills = collectSkills(
-      path.join(skillsDir, entry.name),
-      skillPath
-    );
-    skills.push(...subSkills);
+    const subSkills = collectSkills(path.join(skillsDir, entry.name), skillPath)
+    skills.push(...subSkills)
   }
 
   return skills.sort((a, b) =>
-    a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-  );
+    a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
+  )
 }
 
 /**
@@ -77,50 +74,50 @@ export function collectSkills(skillsDir: string, basePath = "skills"): Skill[] {
  */
 export function validateMarketplace(
   skillsDir: string,
-  marketplacePath: string
+  marketplacePath: string,
 ): ValidationError[] {
-  const errors: ValidationError[] = [];
+  const errors: ValidationError[] = []
 
   if (!fs.existsSync(marketplacePath)) {
     errors.push({
-      field: "marketplace.json",
+      field: 'marketplace.json',
       message: `File not found at ${marketplacePath}`,
-    });
-    return errors;
+    })
+    return errors
   }
 
-  const skills = collectSkills(skillsDir);
+  const skills = collectSkills(skillsDir)
   const marketplace: Marketplace = JSON.parse(
-    fs.readFileSync(marketplacePath, "utf-8")
-  );
-  const plugins = marketplace.plugins;
+    fs.readFileSync(marketplacePath, 'utf-8'),
+  )
+  const plugins = marketplace.plugins
 
-  const skillBySource = new Map<string, Skill>();
+  const skillBySource = new Map<string, Skill>()
   for (const s of skills) {
-    skillBySource.set(`./${s.path}`, s);
+    skillBySource.set(`./${s.path}`, s)
   }
 
-  const pluginBySource = new Map<string, MarketplacePlugin>();
+  const pluginBySource = new Map<string, MarketplacePlugin>()
   for (const p of plugins) {
-    pluginBySource.set(p.source, p);
+    pluginBySource.set(p.source, p)
   }
 
   // Every skill should have a marketplace entry
   for (const skill of skills) {
-    const expectedSource = `./${skill.path}`;
-    const plugin = pluginBySource.get(expectedSource);
+    const expectedSource = `./${skill.path}`
+    const plugin = pluginBySource.get(expectedSource)
     if (!plugin) {
       errors.push({
         field: `skills.${skill.name}`,
         message: `Skill '${skill.name}' at '${skill.path}' is missing from marketplace.json`,
-      });
+      })
     } else if (plugin.name !== skill.name) {
       errors.push({
         field: `plugins.${plugin.name}`,
         message:
           `Name mismatch at '${expectedSource}': ` +
           `SKILL.md='${skill.name}', marketplace.json='${plugin.name}'`,
-      });
+      })
     }
   }
 
@@ -130,28 +127,28 @@ export function validateMarketplace(
       errors.push({
         field: `plugins.${plugin.name}`,
         message: `Marketplace plugin '${plugin.name}' at '${plugin.source}' has no SKILL.md`,
-      });
+      })
     }
   }
 
   // Check for duplicates
-  const names = plugins.map((p) => p.name);
-  const nameSet = new Set(names);
+  const names = plugins.map(p => p.name)
+  const nameSet = new Set(names)
   if (nameSet.size !== names.length) {
     errors.push({
-      field: "plugins",
-      message: "Duplicate plugin names found in marketplace.json",
-    });
+      field: 'plugins',
+      message: 'Duplicate plugin names found in marketplace.json',
+    })
   }
 
-  const sources = plugins.map((p) => p.source);
-  const sourceSet = new Set(sources);
+  const sources = plugins.map(p => p.source)
+  const sourceSet = new Set(sources)
   if (sourceSet.size !== sources.length) {
     errors.push({
-      field: "plugins",
-      message: "Duplicate plugin sources found in marketplace.json",
-    });
+      field: 'plugins',
+      message: 'Duplicate plugin sources found in marketplace.json',
+    })
   }
 
-  return errors;
+  return errors
 }

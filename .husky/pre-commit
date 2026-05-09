@@ -31,8 +31,15 @@ else
 fi
 
 if [ -z "${DISABLE_PRECOMMIT_TEST}" ]; then
-  # Only run tests if there are staged test files
-  pnpm test --staged
+  # Only run tests if there are staged test/source files. The test
+  # runner (vitest, node:test) doesn't accept --staged; we filter the
+  # staged set ourselves and skip the run when nothing relevant is in
+  # the index. Match: any *.test.* file, or anything under src/, lib/,
+  # packages/<x>/{src,lib}/.
+  STAGED=$(git diff --cached --name-only --diff-filter=ACM)
+  if echo "$STAGED" | grep -qE '\.(spec|test)\.(cts|mts|m?[jt]s|tsx?)$|^lib/|^src/|^packages/[^/]+/(lib|src)/'; then
+    pnpm test
+  fi
 else
   echo "Skipping testing due to DISABLE_PRECOMMIT_TEST env var"
 fi

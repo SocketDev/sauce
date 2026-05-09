@@ -70,7 +70,7 @@ async function runGenerate(): Promise<void> {
 
 async function runCheck(): Promise<void> {
   // Snapshot SHAs before regenerating so we can detect drift after.
-  const before: Record<string, string> = Object.create(null)
+  const before: Record<string, string> = Object.create(undefined)
   for (const p of GENERATED_FILES) {
     before[p] = fileSig(p)
   }

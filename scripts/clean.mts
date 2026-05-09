@@ -76,10 +76,7 @@ function printHelp(): void {
   )
 }
 
-async function removeIfExists(
-  rel: string,
-  quiet: boolean,
-): Promise<void> {
+async function removeIfExists(rel: string, quiet: boolean): Promise<void> {
   const full = path.join(rootPath, rel)
   if (!existsSync(full)) {
     if (!quiet) {

@@ -18,15 +18,16 @@ Use the `socket fix` command to discover vulnerable dependencies, compute safe u
 ## Prerequisites
 
 <!-- BEGIN_SECTION:cli-setup.md -->
+
 ### Socket CLI Setup
 
-Use `npx socket` to run the Socket CLI — this always fetches the latest version and requires no global install. Verify it works:
+Use `pnpm dlx socket` to run the Socket CLI — this always fetches the latest version and requires no global install. Verify it works:
 
 ```
-npx socket --version
+pnpm dlx socket --version
 ```
 
-All commands in this skill use the `npx socket` prefix (e.g., `npx socket scan create ...`).
+All commands in this skill use the `pnpm dlx socket` prefix (e.g., `pnpm dlx socket scan create ...`).
 
 **Optional global install:** If you prefer a global `socket` command, install with `npm install -g socket@latest` (must be version **1.0.0 or higher**).
 
@@ -35,24 +36,25 @@ All commands in this skill use the `npx socket` prefix (e.g., `npx socket scan c
 **For users without a Socket account:** Configure the public demo token directly:
 
 ```
-npx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api --no-banner --no-spinner
-npx socket config set defaultOrg SocketDemo --no-banner --no-spinner
+pnpm dlx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api --no-banner --no-spinner
+pnpm dlx socket config set defaultOrg SocketDemo --no-banner --no-spinner
 ```
 
-This provides limited access to CLI features like `npx socket fix`, `npx socket package score`, `sfw`, and `socket-patch` with rate limits. No account creation is needed for basic usage. **Note:** The public demo token cannot create scans (`npx socket scan create` requires the `full-scans:create` permission). For scanning and full-rate access, create a free account at https://socket.dev.
+This provides limited access to CLI features like `pnpm dlx socket fix`, `pnpm dlx socket package score`, `sfw`, and `socket-patch` with rate limits. No account creation is needed for basic usage. **Note:** The public demo token cannot create scans (`pnpm dlx socket scan create` requires the `full-scans:create` permission). For scanning and full-rate access, create a free account at https://socket.dev.
 
 **For users with an account:** Authenticate with one of:
 
-- **Interactive login**: `npx socket login` (stores credentials in `~/.socket/`)
+- **Interactive login**: `pnpm dlx socket login` (stores credentials in `~/.socket/`)
 - **Environment variable**: Set `SOCKET_CLI_API_TOKEN` in your shell profile or CI environment
 
 Verify account authentication:
 
 ```
-npx socket organization list
+pnpm dlx socket organization list
 ```
 
 If authentication fails or the CLI is not installed, use the `/socket-setup` skill for detailed guidance including Node.js installation, PATH troubleshooting, and CI/CD token configuration.
+
 <!-- END_SECTION:cli-setup.md -->
 
 ## Update Strategy
@@ -115,15 +117,15 @@ Once you understand what will change from the dry run, apply upgrades **one vuln
 
 **Useful flags:**
 
-| Flag | Purpose |
-|---|---|
-| `--no-major-updates` | Skip fixes that require major version bumps (safer, fewer breaking changes) |
-| `--range-style pin` | Pin to exact versions instead of preserving range style |
-| `--minimum-release-age 2d` | Only suggest versions published at least 2 days ago |
-| `--output-file fixes.json` | Save computed upgrades to a JSON file for inspection |
-| `--ecosystems npm,pypi` | Limit to specific ecosystems |
-| `--include "packages/*"` | Only fix matching workspaces |
-| `--exclude "packages/legacy"` | Skip matching workspaces |
+| Flag                          | Purpose                                                                     |
+| ----------------------------- | --------------------------------------------------------------------------- |
+| `--no-major-updates`          | Skip fixes that require major version bumps (safer, fewer breaking changes) |
+| `--range-style pin`           | Pin to exact versions instead of preserving range style                     |
+| `--minimum-release-age 2d`    | Only suggest versions published at least 2 days ago                         |
+| `--output-file fixes.json`    | Save computed upgrades to a JSON file for inspection                        |
+| `--ecosystems npm,pypi`       | Limit to specific ecosystems                                                |
+| `--include "packages/*"`      | Only fix matching workspaces                                                |
+| `--exclude "packages/legacy"` | Skip matching workspaces                                                    |
 
 After `socket fix` completes, review the changes it made to manifest and lock files (e.g. `package.json`, `package-lock.json`, `requirements.txt`, `go.mod`).
 
@@ -157,6 +159,7 @@ Iterate until everything passes:
 4. **Re-run `socket fix --all --no-apply-fixes --json`** to verify no fixable vulnerabilities remain
 
 If tests fail after fixing, investigate each failure:
+
 - Determine whether the failure is caused by a breaking API change or a pre-existing issue
 - Apply targeted code fixes, re-run tests, and repeat until green
 
@@ -195,6 +198,7 @@ Some agents (Codex, Gemini CLI) do not support spawning subagents. In this case,
 3. After all fixes, run `socket fix --all --no-apply-fixes --json` to verify no vulnerabilities remain
 
 To manage context window limits without subagents:
+
 - Redirect build and test output to files (e.g., `npm test > test-output.txt 2>&1`) and only read them if failures occur
 - Process one vulnerability at a time and commit between each to keep diffs small
 - If the context window is getting full, stop and report progress so far
@@ -209,12 +213,12 @@ To manage context window limits without subagents:
 
 ## How This Differs from `/socket-dep-patch`
 
-| | `/socket-dep-upgrade` (this skill) | `/socket-dep-patch` |
-|---|---|---|
-| **Primary tool** | `socket fix` | `socket-patch apply` |
-| **What it does** | Upgrades dependency versions to fix CVEs | Applies binary-level patches without changing versions |
-| **Version changes?** | Yes | No |
-| **Code changes needed?** | Possibly (API migration for major bumps) | No |
+|                          | `/socket-dep-upgrade` (this skill)       | `/socket-dep-patch`                                    |
+| ------------------------ | ---------------------------------------- | ------------------------------------------------------ |
+| **Primary tool**         | `socket fix`                             | `socket-patch apply`                                   |
+| **What it does**         | Upgrades dependency versions to fix CVEs | Applies binary-level patches without changing versions |
+| **Version changes?**     | Yes                                      | No                                                     |
+| **Code changes needed?** | Possibly (API migration for major bumps) | No                                                     |
 
 Use `/socket-dep-upgrade` when you want full version upgrades. Use `/socket-dep-patch` when you need fixes without version churn.
 

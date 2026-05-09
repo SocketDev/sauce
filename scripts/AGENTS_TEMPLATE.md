@@ -5,7 +5,8 @@ You have additional SKILLs documented in directories containing a "SKILL.md" fil
 ## Available Skills
 
 | Skill | Description |
-|-------|-------------|
+| ----- | ----------- |
+
 {{#skills}}
 | {{name}} | {{description}} |
 {{/skills}}
@@ -22,5 +23,6 @@ Paths referenced within SKILL folders are relative to that SKILL. For example th
 
 The skills are located in:
 {{#skills}}
+
 - `{{path}}/SKILL.md`
-{{/skills}}
+  {{/skills}}

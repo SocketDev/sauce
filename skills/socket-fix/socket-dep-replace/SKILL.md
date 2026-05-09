@@ -1,6 +1,7 @@
 ---
 name: socket-dep-replace
-description: Replace a dependency with an alternative package, eliminate it via code
+description:
+  Replace a dependency with an alternative package, eliminate it via code
   rewrite, or use socket-optimize for optimized replacements.
 ---
 
@@ -26,6 +27,7 @@ Replace a dependency with an alternative package, eliminate it via code rewrite,
 If the user specifies a package name, use that. If they also specify a replacement, note it for Step 5.
 
 If the user isn't sure which package to replace, help them pick one:
+
 - Suggest running `/socket-scan` first to identify flagged or low-score dependencies
 - Check for packages with known maintenance issues or security alerts
 - Look for trivial utility packages that could be inlined
@@ -36,17 +38,17 @@ If the user isn't sure which package to replace, help them pick one:
 
 Identify which ecosystem the target package belongs to by checking manifest and lock files:
 
-| Ecosystem | Manifest Files |
-|-----------|---------------|
-| npm | `package.json` + `package-lock.json` |
-| pnpm | `package.json` + `pnpm-lock.yaml` |
-| yarn | `package.json` + `yarn.lock` |
-| PyPI | `requirements.txt`, `pyproject.toml`, `setup.py`, `setup.cfg`, `Pipfile` |
-| Cargo | `Cargo.toml` |
-| Bundler | `Gemfile` |
-| Maven | `pom.xml` |
-| NuGet | `*.csproj`, `packages.config` |
-| Go | `go.mod` |
+| Ecosystem | Manifest Files                                                           |
+| --------- | ------------------------------------------------------------------------ |
+| npm       | `package.json` + `package-lock.json`                                     |
+| pnpm      | `package.json` + `pnpm-lock.yaml`                                        |
+| yarn      | `package.json` + `yarn.lock`                                             |
+| PyPI      | `requirements.txt`, `pyproject.toml`, `setup.py`, `setup.cfg`, `Pipfile` |
+| Cargo     | `Cargo.toml`                                                             |
+| Bundler   | `Gemfile`                                                                |
+| Maven     | `pom.xml`                                                                |
+| NuGet     | `*.csproj`, `packages.config`                                            |
+| Go        | `go.mod`                                                                 |
 
 For npm, pnpm, and yarn: differentiate by which lock file is present (`package-lock.json`, `pnpm-lock.yaml`, or `yarn.lock`).
 
@@ -56,15 +58,15 @@ Search the **entire codebase** for every reference to the target package. Be tho
 
 ### Direct Import/Require Patterns
 
-| Ecosystem | Patterns to Search |
-|-----------|-------------------|
-| npm/pnpm/yarn | `require('pkg')`, `require("pkg")`, `import ... from 'pkg'`, `import ... from "pkg"`, `import 'pkg'`, `import "pkg"`, `import('pkg')`, `import("pkg")`. Also check for subpath imports like `pkg/sub`. |
-| PyPI | `import pkg`, `from pkg import ...`. **Note:** the package name on PyPI often differs from the import name (e.g. `Pillow` → `PIL`, `beautifulsoup4` → `bs4`, `python-dotenv` → `dotenv`, `scikit-learn` → `sklearn`, `PyYAML` → `yaml`). Check both the package name and common import aliases. **Tip:** run `pip show <package-name>` — the output includes a `Location` field and the actual top-level package names are the directories at that location matching the package. Alternatively, check `top_level.txt` in the package's `.dist-info` directory. |
-| Cargo | `use crate_name::`, `extern crate crate_name`, references in proc-macro attributes. **Note:** hyphens in crate names become underscores in Rust code (e.g. `serde-json` → `serde_json`). |
-| Bundler | `require 'gem_name'`, `require "gem_name"`, autoload references. |
-| Maven | `import groupId.artifactId.` or subpackage patterns in `.java` and `.kt` files. Match on the groupId prefix. |
-| NuGet | `using Namespace;` and `using static Namespace.` in `.cs` files. Match on the package's root namespace. |
-| Go | Import paths in `.go` files matching the module path from `go.mod` `require` entries. |
+| Ecosystem     | Patterns to Search                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| npm/pnpm/yarn | `require('pkg')`, `require("pkg")`, `import ... from 'pkg'`, `import ... from "pkg"`, `import 'pkg'`, `import "pkg"`, `import('pkg')`, `import("pkg")`. Also check for subpath imports like `pkg/sub`.                                                                                                                                                                                                                                                                                                                                                          |
+| PyPI          | `import pkg`, `from pkg import ...`. **Note:** the package name on PyPI often differs from the import name (e.g. `Pillow` → `PIL`, `beautifulsoup4` → `bs4`, `python-dotenv` → `dotenv`, `scikit-learn` → `sklearn`, `PyYAML` → `yaml`). Check both the package name and common import aliases. **Tip:** run `pip show <package-name>` — the output includes a `Location` field and the actual top-level package names are the directories at that location matching the package. Alternatively, check `top_level.txt` in the package's `.dist-info` directory. |
+| Cargo         | `use crate_name::`, `extern crate crate_name`, references in proc-macro attributes. **Note:** hyphens in crate names become underscores in Rust code (e.g. `serde-json` → `serde_json`).                                                                                                                                                                                                                                                                                                                                                                        |
+| Bundler       | `require 'gem_name'`, `require "gem_name"`, autoload references.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Maven         | `import groupId.artifactId.` or subpackage patterns in `.java` and `.kt` files. Match on the groupId prefix.                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| NuGet         | `using Namespace;` and `using static Namespace.` in `.cs` files. Match on the package's root namespace.                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Go            | Import paths in `.go` files matching the module path from `go.mod` `require` entries.                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 
 ### Indirect Usage Detection
 
@@ -84,6 +86,7 @@ Some dependencies are used indirectly and will not appear in import statements. 
 ### Where to Search
 
 Search beyond just source code:
+
 - Source files (`.ts`, `.js`, `.py`, `.rs`, `.go`, `.java`, `.cs`, `.rb`, etc.)
 - Configuration files (`.eslintrc`, `babel.config.*`, `jest.config.*`, `webpack.config.*`, `vite.config.*`, etc.)
 - `package.json` `scripts` block
@@ -95,6 +98,7 @@ Search beyond just source code:
 ### Build the Usage Map
 
 **This is what distinguishes dep-replace from dep-cleanup.** For each call site, record:
+
 - The **file path and line number**
 - The **specific APIs used** (named imports, method calls, constructor invocations)
 - The **usage pattern** (e.g., "uses `merge` for deep object merging", "uses `format` for date formatting")
@@ -179,6 +183,7 @@ Coverage: dayjs 5/5, date-fns 5/5, luxon 5/5
 ### Strategy C: Inline Elimination
 
 Suitable when ALL of the following are true:
+
 - The package implements less than ~50 lines of logic
 - The package has no or minimal transitive dependencies
 - Only 1-3 APIs from the package are used in the codebase
@@ -195,17 +200,17 @@ If the package qualifies:
 
 ### 6a. Install Replacement Package (Strategies A & B)
 
-| Ecosystem | Install Command |
-|-----------|----------------|
-| npm | `npm install {package}` |
-| pnpm | `pnpm add {package}` |
-| yarn | `yarn add {package}` |
-| PyPI | `pip install {package}` or add to `requirements.txt` / `pyproject.toml` |
-| Cargo | `cargo add {package}` |
-| Bundler | Add to `Gemfile`, then `bundle install` |
-| Maven | Add `<dependency>` to `pom.xml`, then `mvn dependency:resolve` |
-| NuGet | `dotnet add package {package}` |
-| Go | `go get {package}` |
+| Ecosystem | Install Command                                                         |
+| --------- | ----------------------------------------------------------------------- |
+| npm       | `npm install {package}`                                                 |
+| pnpm      | `pnpm add {package}`                                                    |
+| yarn      | `yarn add {package}`                                                    |
+| PyPI      | `pip install {package}` or add to `requirements.txt` / `pyproject.toml` |
+| Cargo     | `cargo add {package}`                                                   |
+| Bundler   | Add to `Gemfile`, then `bundle install`                                 |
+| Maven     | Add `<dependency>` to `pom.xml`, then `mvn dependency:resolve`          |
+| NuGet     | `dotnet add package {package}`                                          |
+| Go        | `go get {package}`                                                      |
 
 For Strategy C (inline), skip this step.
 
@@ -226,17 +231,17 @@ Using the usage map from Step 3, rewrite each call site:
 
 ### 6d. Remove Original Package
 
-| Ecosystem | Removal Command |
-|-----------|----------------|
-| npm | `npm uninstall {package}` |
-| pnpm | `pnpm remove {package}` |
-| yarn | `yarn remove {package}` |
-| PyPI | Edit `requirements.txt` / `pyproject.toml` directly to remove the line, then `pip install -r requirements.txt` or `poetry lock` |
-| Cargo | `cargo remove {package}` |
-| Bundler | Edit `Gemfile` to remove the entry, then `bundle install` |
-| Maven | Edit `pom.xml` to remove the `<dependency>` block, then `mvn dependency:resolve` |
-| NuGet | `dotnet remove package {package}` |
-| Go | Edit `go.mod` to remove the entry, then `go mod tidy` |
+| Ecosystem | Removal Command                                                                                                                 |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| npm       | `npm uninstall {package}`                                                                                                       |
+| pnpm      | `pnpm remove {package}`                                                                                                         |
+| yarn      | `yarn remove {package}`                                                                                                         |
+| PyPI      | Edit `requirements.txt` / `pyproject.toml` directly to remove the line, then `pip install -r requirements.txt` or `poetry lock` |
+| Cargo     | `cargo remove {package}`                                                                                                        |
+| Bundler   | Edit `Gemfile` to remove the entry, then `bundle install`                                                                       |
+| Maven     | Edit `pom.xml` to remove the `<dependency>` block, then `mvn dependency:resolve`                                                |
+| NuGet     | `dotnet remove package {package}`                                                                                               |
+| Go        | Edit `go.mod` to remove the entry, then `go mod tidy`                                                                           |
 
 ### 6e. Handle `@types/*` Packages
 
@@ -246,6 +251,7 @@ Using the usage map from Step 3, rewrite each call site:
 ### 6f. Clean Up Config References
 
 Update any configuration files that reference the old package:
+
 - ESLint/Babel/Jest/Prettier plugin lists
 - Build tool config (webpack loaders, Vite plugins, etc.)
 - `package.json` scripts that use the package's CLI
@@ -270,13 +276,13 @@ Follow the standard build & test verification workflow (see `skills/_shared/veri
 
 ## How This Differs from /socket-dep-cleanup
 
-| Aspect | /socket-dep-cleanup | /socket-dep-replace |
-|--------|-------------|-------------|
-| **Goal** | Remove an unused dependency | Swap a used dependency for an alternative |
-| **Precondition** | Package is (suspected) unused | Package IS used but needs replacement |
-| **Usage search** | Determines IF the package is used | Builds a detailed map of WHAT APIs are used |
-| **Code changes** | Remove dead imports and code | Rewrite imports and call sites to use the replacement |
-| **Outcome** | Fewer dependencies | Same or fewer dependencies, different package |
+| Aspect           | /socket-dep-cleanup               | /socket-dep-replace                                   |
+| ---------------- | --------------------------------- | ----------------------------------------------------- |
+| **Goal**         | Remove an unused dependency       | Swap a used dependency for an alternative             |
+| **Precondition** | Package is (suspected) unused     | Package IS used but needs replacement                 |
+| **Usage search** | Determines IF the package is used | Builds a detailed map of WHAT APIs are used           |
+| **Code changes** | Remove dead imports and code      | Rewrite imports and call sites to use the replacement |
+| **Outcome**      | Fewer dependencies                | Same or fewer dependencies, different package         |
 
 ## Tips
 

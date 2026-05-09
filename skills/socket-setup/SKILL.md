@@ -8,6 +8,7 @@ description: Set up Socket — prompt for API key, install the CLI, authenticate
 # Setup
 
 ## When to Use
+
 - User wants to get started with Socket
 - User needs to install/configure the Socket CLI
 - User wants to authenticate with Socket
@@ -29,10 +30,16 @@ node scripts/helpers/socket-setup.mjs check-prereqs --dir .
 ```
 
 Output example:
+
 ```json
 {
   "node": { "installed": true, "version": "20.11.0", "ok": true },
-  "socketCli": { "installed": true, "version": "1.2.3", "ok": true, "needsUpdate": false },
+  "socketCli": {
+    "installed": true,
+    "version": "1.2.3",
+    "ok": true,
+    "needsUpdate": false
+  },
   "sfw": { "installed": false },
   "socketPatch": { "installed": false },
   "packageManager": "npm"
@@ -62,6 +69,7 @@ Ask the user whether they have or want to create a Socket account. There are thr
 Store the tier choice for subsequent steps.
 
 ## Step 3: Install the CLI
+
 - Prerequisites: Node.js 18+ (verified in Step 1)
 - `npm install -g socket`
 - Verify: `socket --version`
@@ -79,8 +87,8 @@ Store the tier choice for subsequent steps.
 If the user chose no-account in Step 2, configure the public demo token directly:
 
 ```
-npx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api --no-banner --no-spinner
-npx socket config set defaultOrg SocketDemo --no-banner --no-spinner
+pnpm dlx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api --no-banner --no-spinner
+pnpm dlx socket config set defaultOrg SocketDemo --no-banner --no-spinner
 ```
 
 This configures the CLI with a limited public token that provides access to features like `socket fix`, `socket package score`, `sfw`, and `socket-patch` with rate limits. No user interaction is needed — run this in the background as part of setup. **Note:** The demo token cannot create scans (`socket scan create` requires a free account).
@@ -143,10 +151,11 @@ If any tool fails to install, check PATH and retry. The npm global bin directory
 Run the CI detection helper for automated detection:
 
 ```
-npx tsx scripts/helpers/detect-ci.ts
+pnpm dlx tsx scripts/helpers/detect-ci.ts
 ```
 
 Or manually detect:
+
 - Run `git remote -v` to detect the SCM:
   - github.com → GitHub
   - gitlab.com or self-hosted GitLab → GitLab
@@ -166,18 +175,19 @@ Or manually detect:
 
 ### Installing sfw per Package Manager
 
-| Package Manager | Install sfw |
-|----------------|------------|
-| npm | `npm install -g sfw` |
-| pnpm | `pnpm add -g sfw` |
-| bun | `bun add -g sfw` |
-| Standalone | `curl -fsSL https://socket.dev/download/sfw/latest/{platform} -o /usr/local/bin/sfw && chmod +x /usr/local/bin/sfw` |
+| Package Manager | Install sfw                                                                                                         |
+| --------------- | ------------------------------------------------------------------------------------------------------------------- |
+| npm             | `npm install -g sfw`                                                                                                |
+| pnpm            | `pnpm add -g sfw`                                                                                                   |
+| bun             | `bun add -g sfw`                                                                                                    |
+| Standalone      | `curl -fsSL https://socket.dev/download/sfw/latest/{platform} -o /usr/local/bin/sfw && chmod +x /usr/local/bin/sfw` |
 
 Replace `{platform}` with `linux-x64`, `darwin-arm64`, etc. as appropriate.
 
 All Socket tools (sfw, socket-patch, socket CLI) are npm packages. The standalone curl method remains available for CI environments that may not have npm.
 
 ### GitHub Actions
+
 - Use SocketDev/action@v1
 - Free tier: mode: firewall-free (no socket-token needed)
 - Enterprise: mode: firewall, socket-token: ${{ secrets.SOCKET_API_KEY }}
@@ -188,6 +198,7 @@ All Socket tools (sfw, socket-patch, socket CLI) are npm packages. The standalon
   (github.com/apps/socket-security) for automatic PR scanning
 
 ### GitLab CI
+
 - Add a `before_script` or dedicated stage to install `sfw`
 - Install via npm: `npm install -g sfw`
 - Or install standalone binary:
@@ -198,6 +209,7 @@ All Socket tools (sfw, socket-patch, socket CLI) are npm packages. The standalon
 - Enterprise: set `SOCKET_CLI_API_TOKEN` as CI/CD variable in GitLab settings
 
 ### Bitbucket Pipelines
+
 - Add pipe step to install `sfw` binary:
   ```bash
   curl -fsSL https://socket.dev/download/sfw/latest/linux-x64 -o /usr/local/bin/sfw && chmod +x /usr/local/bin/sfw
@@ -206,6 +218,7 @@ All Socket tools (sfw, socket-patch, socket CLI) are npm packages. The standalon
 - Enterprise: set `SOCKET_CLI_API_TOKEN` as repository variable
 
 ### Generic CI/CD
+
 - Download `sfw` binary:
   ```bash
   # Linux x64
@@ -218,6 +231,7 @@ All Socket tools (sfw, socket-patch, socket CLI) are npm packages. The standalon
 - Set `SOCKET_CLI_API_TOKEN` as env var for enterprise
 
 ### Local Development
+
 - `npm install -g sfw` (or standalone binary as above)
 - Usage: `sfw npm install`, `sfw pip install`, etc.
 
@@ -230,20 +244,20 @@ Set up automated patching so `socket-patch apply` runs after every dependency in
 Run the CI detection helper to identify the project's CI/CD system:
 
 ```
-npx tsx scripts/helpers/detect-ci.ts
+pnpm dlx tsx scripts/helpers/detect-ci.ts
 ```
 
 Before configuring automation, scan the project to find ALL places where dependencies are installed and builds happen:
 
-| Location | What to Look For |
-|----------|-----------------|
-| `package.json` scripts | `install`, `postinstall`, `build`, `prebuild` |
-| CI configs (all formats) | install steps, build steps |
-| `Makefile` / `Justfile` | install and build targets |
-| `Dockerfile` / `docker-compose` | `RUN install`, `RUN build` layers |
-| Shell scripts (`*.sh`) | install/build commands |
-| `pyproject.toml` / `setup.py` | build system config |
-| `Cargo.toml` | build scripts |
+| Location                        | What to Look For                              |
+| ------------------------------- | --------------------------------------------- |
+| `package.json` scripts          | `install`, `postinstall`, `build`, `prebuild` |
+| CI configs (all formats)        | install steps, build steps                    |
+| `Makefile` / `Justfile`         | install and build targets                     |
+| `Dockerfile` / `docker-compose` | `RUN install`, `RUN build` layers             |
+| Shell scripts (`*.sh`)          | install/build commands                        |
+| `pyproject.toml` / `setup.py`   | build system config                           |
+| `Cargo.toml`                    | build scripts                                 |
 
 For each location, record the file path, the install command, and where to insert `socket-patch scan` and `socket-patch apply` (after install, before build).
 
@@ -253,16 +267,16 @@ Present findings to the user before making changes.
 
 Use the appropriate command to run `socket-patch` based on the project's package manager:
 
-| Package Manager | Run socket-patch |
-|----------------|-----------------|
-| npm | `npx @socketsecurity/socket-patch scan` then `npx @socketsecurity/socket-patch apply` |
-| pnpm | `pnpx @socketsecurity/socket-patch scan` then `pnpx @socketsecurity/socket-patch apply` |
-| yarn | `npx @socketsecurity/socket-patch scan` then `npx @socketsecurity/socket-patch apply` |
-| bun | `bunx @socketsecurity/socket-patch scan` then `bunx @socketsecurity/socket-patch apply` |
-| deno | `deno run npm:@socketsecurity/socket-patch scan` then `deno run npm:@socketsecurity/socket-patch apply` |
-| Python | `pipx run socket-patch scan && pipx run socket-patch apply` (if pipx available), else `pip install socket-patch && socket-patch scan && socket-patch apply` |
-| Standalone | `curl -fsSL https://raw.githubusercontent.com/SocketDev/socket-patch/main/install.sh | sh` then `socket-patch scan && socket-patch apply` |
-| GitHub Actions | `SocketDev/action@v1` with `mode: patch` (preferred — handles scan+apply automatically) |
+| Package Manager | Run socket-patch                                                                                                                                            |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| npm             | `pnpm dlx @socketsecurity/socket-patch scan` then `pnpm dlx @socketsecurity/socket-patch apply`                                                                       |
+| pnpm            | `pnpx @socketsecurity/socket-patch scan` then `pnpx @socketsecurity/socket-patch apply`                                                                     |
+| yarn            | `pnpm dlx @socketsecurity/socket-patch scan` then `pnpm dlx @socketsecurity/socket-patch apply`                                                                       |
+| bun             | `bunx @socketsecurity/socket-patch scan` then `bunx @socketsecurity/socket-patch apply`                                                                     |
+| deno            | `deno run npm:@socketsecurity/socket-patch scan` then `deno run npm:@socketsecurity/socket-patch apply`                                                     |
+| Python          | `pipx run socket-patch scan && pipx run socket-patch apply` (if pipx available), else `pip install socket-patch && socket-patch scan && socket-patch apply` |
+| Standalone      | `curl -fsSL https://raw.githubusercontent.com/SocketDev/socket-patch/main/install.sh                                                                        | sh`then`socket-patch scan && socket-patch apply` |
+| GitHub Actions  | `SocketDev/action@v1` with `mode: patch` (preferred — handles scan+apply automatically)                                                                     |
 
 Use the appropriate runner (`npx`, `pnpx`, `bunx`, etc.) based on the detected package manager in the sections below.
 
@@ -332,8 +346,8 @@ FROM node:20-alpine
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
-RUN npx @socketsecurity/socket-patch scan
-RUN npx @socketsecurity/socket-patch apply
+RUN pnpm dlx @socketsecurity/socket-patch scan
+RUN pnpm dlx @socketsecurity/socket-patch apply
 COPY . .
 RUN npm run build
 ```
@@ -373,6 +387,7 @@ node scripts/helpers/socket-setup.mjs detect-dockerfiles --dir .
 ```
 
 Output example:
+
 ```json
 {
   "dockerfiles": [
@@ -399,10 +414,11 @@ For each Dockerfile that has install steps, read the file and apply edits direct
 **For each install line** reported by `detect-dockerfiles`:
 
 - **Firewall mode**: Insert `RUN npm install -g sfw` on a new line before the install step. Prefix the install command with `sfw` (e.g., `RUN npm ci` → `RUN sfw npm ci`).
-- **Patch mode**: Insert `RUN npx @socketsecurity/socket-patch scan` and `RUN npx @socketsecurity/socket-patch apply` on new lines after the install step, before any build or COPY steps.
+- **Patch mode**: Insert `RUN pnpm dlx @socketsecurity/socket-patch scan` and `RUN pnpm dlx @socketsecurity/socket-patch apply` on new lines after the install step, before any build or COPY steps.
 - **Both modes**: Apply both sets of changes (sfw install + prefix before, socket-patch after).
 
 **Rules**:
+
 - Only modify stages that have dependency install steps (multi-stage build awareness — check for `FROM` lines to identify stage boundaries)
 - Skip lines that already contain `sfw` (check `hasSfw` from detection output) or `socket-patch` (check `hasPatch`) to ensure idempotency
 - Use the appropriate package manager runner for socket-patch (`npx` for npm, `pnpx` for pnpm, `bunx` for bun — see Package Manager Reference table)
@@ -410,14 +426,16 @@ For each Dockerfile that has install steps, read the file and apply edits direct
 ### Step 3: Present Changes for Approval
 
 Before writing the modified Dockerfile, present the proposed changes to the user and explain each edit:
+
 - **Firewall**: inserts `RUN npm install -g sfw` before the install step, prefixes the install command with `sfw`
-- **Patches**: inserts `RUN npx @socketsecurity/socket-patch scan` and `RUN npx @socketsecurity/socket-patch apply` after the install step, before build/copy steps
+- **Patches**: inserts `RUN pnpm dlx @socketsecurity/socket-patch scan` and `RUN pnpm dlx @socketsecurity/socket-patch apply` after the install step, before build/copy steps
 
 Only write the file after the user approves.
 
 **Example** — a Dockerfile before and after (both modes):
 
 Before:
+
 ```dockerfile
 FROM node:20-alpine
 WORKDIR /app
@@ -428,14 +446,15 @@ RUN npm run build
 ```
 
 After:
+
 ```dockerfile
 FROM node:20-alpine
 WORKDIR /app
 COPY package*.json ./
 RUN npm install -g sfw
 RUN sfw npm ci
-RUN npx @socketsecurity/socket-patch scan
-RUN npx @socketsecurity/socket-patch apply
+RUN pnpm dlx @socketsecurity/socket-patch scan
+RUN pnpm dlx @socketsecurity/socket-patch apply
 COPY . .
 RUN npm run build
 ```
@@ -460,35 +479,36 @@ This creates a `socket.yml` with `version: 2` and default issue rules:
 version: 2
 issueRules:
   # CVE severity thresholds
-  criticalCVE: error        # Block on critical CVEs
-  highCVE: warn              # Warn on high CVEs
-  mediumCVE: ignore          # Ignore medium CVEs
+  criticalCVE: error # Block on critical CVEs
+  highCVE: warn # Warn on high CVEs
+  mediumCVE: ignore # Ignore medium CVEs
 
   # Supply-chain alerts
-  installScripts: error      # Block packages with install scripts
-  networkAccess: warn        # Warn on unexpected network access
-  shellAccess: warn          # Warn on shell execution
-  filesystemAccess: ignore   # Ignore filesystem access alerts
-  envVarsAccess: warn        # Warn on environment variable reads
-  obfuscatedCode: error      # Block obfuscated code
+  installScripts: error # Block packages with install scripts
+  networkAccess: warn # Warn on unexpected network access
+  shellAccess: warn # Warn on shell execution
+  filesystemAccess: ignore # Ignore filesystem access alerts
+  envVarsAccess: warn # Warn on environment variable reads
+  obfuscatedCode: error # Block obfuscated code
 
   # Malware
-  malware: error             # Always block malware
+  malware: error # Always block malware
 
   # License compliance
-  gplLicense: warn           # Warn on GPL licenses
-  noLicense: warn            # Warn on packages with no license
+  gplLicense: warn # Warn on GPL licenses
+  noLicense: warn # Warn on packages with no license
   nonPermissiveLicense: warn # Warn on restrictive licenses
 
 projectIgnorePaths:
-  - "test/**"
-  - "tests/**"
-  - "examples/**"
-  - "docs/**"
-  - "__fixtures__/**"
+  - 'test/**'
+  - 'tests/**'
+  - 'examples/**'
+  - 'docs/**'
+  - '__fixtures__/**'
 ```
 
 Issue rule values:
+
 - `error` — fail the check / block the PR
 - `warn` — report but don't fail
 - `ignore` — suppress entirely
@@ -516,11 +536,11 @@ Different Socket features use different tokens. Set up the appropriate tokens fo
 
 ### Token Types
 
-| Token | Environment Variable | Used By | Required For |
-|-------|---------------------|---------|--------------|
-| CLI API Token | `SOCKET_CLI_API_TOKEN` | Socket CLI (`socket` commands), CI/CD | Enterprise scans, `socket fix`, `socket organization list` |
-| Security API Key | `SOCKET_SECURITY_API_KEY` | Batch PURL API (`api.socket.dev`) | Package inspection, license auditing |
-| GitHub Action Token | `socket-token` (GitHub secret) | `SocketDev/action@v1` | Enterprise firewall mode in GitHub Actions |
+| Token               | Environment Variable           | Used By                               | Required For                                               |
+| ------------------- | ------------------------------ | ------------------------------------- | ---------------------------------------------------------- |
+| CLI API Token       | `SOCKET_CLI_API_TOKEN`         | Socket CLI (`socket` commands), CI/CD | Enterprise scans, `socket fix`, `socket organization list` |
+| Security API Key    | `SOCKET_SECURITY_API_KEY`      | Batch PURL API (`api.socket.dev`)     | Package inspection, license auditing                       |
+| GitHub Action Token | `socket-token` (GitHub secret) | `SocketDev/action@v1`                 | Enterprise firewall mode in GitHub Actions                 |
 
 ### Creating Tokens
 
@@ -531,14 +551,14 @@ Different Socket features use different tokens. Set up the appropriate tokens fo
 
 ### Setting Tokens per CI System
 
-| CI System | How to Set Secrets |
-|-----------|-------------------|
-| GitHub Actions | Repository Settings → Secrets and variables → Actions → New repository secret |
-| GitLab CI | Settings → CI/CD → Variables → Add variable (masked, protected) |
-| Bitbucket Pipelines | Repository settings → Repository variables |
-| CircleCI | Project Settings → Environment Variables |
-| Jenkins | Credentials → Add Credentials → Secret text |
-| Azure Pipelines | Pipelines → Library → Variable groups |
+| CI System           | How to Set Secrets                                                            |
+| ------------------- | ----------------------------------------------------------------------------- |
+| GitHub Actions      | Repository Settings → Secrets and variables → Actions → New repository secret |
+| GitLab CI           | Settings → CI/CD → Variables → Add variable (masked, protected)               |
+| Bitbucket Pipelines | Repository settings → Repository variables                                    |
+| CircleCI            | Project Settings → Environment Variables                                      |
+| Jenkins             | Credentials → Add Credentials → Secret text                                   |
+| Azure Pipelines     | Pipelines → Library → Variable groups                                         |
 
 ### Local Development
 
@@ -561,8 +581,9 @@ For local development, authenticate using one of:
 - **Dockerfile editing issues**: Run `detect-dockerfiles` to verify which files and lines need changes. Only edit stages with dependency install steps and skip lines that already contain `sfw` or `socket-patch`.
 
 ## Tips
+
 - Never commit API tokens. Use `socket login` locally, env vars in CI.
-- For users without an account, configure the public demo token with `npx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api` and `npx socket config set defaultOrg SocketDemo`. This gives limited access to CLI features like `socket fix`, `socket package score`, `sfw`, and `socket-patch` with rate limits. The demo token cannot create scans — `socket scan create` requires a free account at https://socket.dev. Always configure the demo token for no-account users during setup so the CLI is functional immediately.
+- For users without an account, configure the public demo token with `pnpm dlx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api` and `pnpm dlx socket config set defaultOrg SocketDemo`. This gives limited access to CLI features like `socket fix`, `socket package score`, `sfw`, and `socket-patch` with rate limits. The demo token cannot create scans — `socket scan create` requires a free account at https://socket.dev. Always configure the demo token for no-account users during setup so the CLI is functional immediately.
 - For full-rate access, dashboard, and organization features, users need a free or enterprise account at https://socket.dev.
 - Use `SocketDev/action@v1` (correct casing) in GitHub workflow files.
 - For monorepos, use `patch-cwd` to target specific directories.
