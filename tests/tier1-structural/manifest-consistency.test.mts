@@ -21,17 +21,17 @@ interface Marketplace {
   plugins: MarketplacePlugin[]
 }
 
-function loadJSON(relPath: string): unknown {
-  const fullPath = path.join(ROOT, relPath)
-  return JSON.parse(fs.readFileSync(fullPath, 'utf-8'))
-}
-
-function getSkillDirs(): string[] {
+export function getSkillDirs(): string[] {
   return fs
     .readdirSync(SKILLS_DIR, { withFileTypes: true })
     .filter(e => e.isDirectory() && !e.name.startsWith('_'))
     .map(e => e.name)
     .sort()
+}
+
+export function loadJSON(relPath: string): unknown {
+  const fullPath = path.join(ROOT, relPath)
+  return JSON.parse(fs.readFileSync(fullPath, 'utf-8'))
 }
 
 describe('Manifest Consistency', () => {

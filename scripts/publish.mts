@@ -44,7 +44,7 @@ const GENERATED_FILES = [
 
 const MISSING = '__MISSING__'
 
-function fileSig(relPath: string): string {
+export function fileSig(relPath: string): string {
   const abs = path.join(rootDir, relPath)
   try {
     const buf = readFileSync(abs)
@@ -54,21 +54,7 @@ function fileSig(relPath: string): string {
   }
 }
 
-async function runTsx(scriptRelPath: string, ...args: string[]): Promise<void> {
-  await spawn('pnpm', ['exec', 'tsx', scriptRelPath, ...args], {
-    cwd: rootDir,
-    stdio: 'inherit',
-  })
-}
-
-async function runGenerate(): Promise<void> {
-  await runTsx('scripts/inline-shared.ts')
-  await runTsx('scripts/sync-versions.ts')
-  await runTsx('scripts/generate-agents.ts')
-  await runTsx('scripts/generate-cursor-plugin.ts')
-}
-
-async function runCheck(): Promise<void> {
+export async function runCheck(): Promise<void> {
   // Snapshot SHAs before regenerating so we can detect drift after.
   const before: Record<string, string> = Object.create(undefined)
   for (const p of GENERATED_FILES) {
@@ -99,6 +85,20 @@ async function runCheck(): Promise<void> {
   await runTsx('scripts/inline-shared.ts', '--check')
 
   process.stdout.write('All generated artifacts are up to date.\n')
+}
+
+export async function runGenerate(): Promise<void> {
+  await runTsx('scripts/inline-shared.ts')
+  await runTsx('scripts/sync-versions.ts')
+  await runTsx('scripts/generate-agents.ts')
+  await runTsx('scripts/generate-cursor-plugin.ts')
+}
+
+export async function runTsx(scriptRelPath: string, ...args: string[]): Promise<void> {
+  await spawn('pnpm', ['exec', 'tsx', scriptRelPath, ...args], {
+    cwd: rootDir,
+    stdio: 'inherit',
+  })
 }
 
 const arg = process.argv[2]

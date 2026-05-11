@@ -16,7 +16,7 @@ interface UsageMatch {
   match: string
 }
 
-function parseArgs(): { pkg: string; ecosystem?: string; dir: string } {
+export function parseArgs(): { pkg: string; ecosystem?: string; dir: string } {
   const args = process.argv.slice(2)
   let pkg = ''
   let ecosystem: string | undefined
@@ -69,7 +69,7 @@ const SOURCE_EXTENSIONS = new Set([
   '.tsx',
 ])
 
-function getPatterns(pkg: string, ecosystem?: string): RegExp[] {
+export function getPatterns(pkg: string, ecosystem?: string): RegExp[] {
   const escaped = pkg.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   const patterns: RegExp[] = []
 
@@ -117,7 +117,7 @@ function getPatterns(pkg: string, ecosystem?: string): RegExp[] {
   return patterns
 }
 
-function walkDir(dir: string, callback: (filePath: string) => void): void {
+export function walkDir(dir: string, callback: (filePath: string) => void): void {
   let entries: fs.Dirent[]
   try {
     entries = fs.readdirSync(dir, { withFileTypes: true })

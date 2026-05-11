@@ -16,46 +16,7 @@ const CURSOR_MCP_CONFIG = path.join(ROOT, '.mcp.json')
 
 const PLUGIN_NAME_RE = /^[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$/
 
-function loadJson(filePath: string): Record<string, unknown> {
-  if (!fs.existsSync(filePath)) {
-    throw new Error(`Missing required file: ${filePath}`)
-  }
-  return JSON.parse(fs.readFileSync(filePath, 'utf-8'))
-}
-
-function collectSkillNames(dir?: string): string[] {
-  const skillsDir = dir ?? path.join(ROOT, 'skills')
-  if (!fs.existsSync(skillsDir)) return []
-
-  const names: string[] = []
-  for (const entry of fs
-    .readdirSync(skillsDir, { withFileTypes: true })
-    .sort((a, b) => a.name.localeCompare(b.name))) {
-    if (!entry.isDirectory() || entry.name.startsWith('_')) continue
-    const skillMd = path.join(skillsDir, entry.name, 'SKILL.md')
-    if (!fs.existsSync(skillMd)) continue
-
-    const meta = parseFrontmatter(fs.readFileSync(skillMd, 'utf-8'))
-    const name = meta.name?.trim()
-    if (name) names.push(name)
-
-    // Recurse into subdirectories to discover subskills
-    names.push(...collectSkillNames(path.join(skillsDir, entry.name)))
-  }
-
-  return names
-}
-
-function validatePluginName(name: string): void {
-  if (!PLUGIN_NAME_RE.test(name)) {
-    throw new Error(
-      `Invalid plugin name in .claude-plugin/plugin.json: '${name}'. ` +
-        `Must be lowercase and match ${PLUGIN_NAME_RE.source}`,
-    )
-  }
-}
-
-function buildCursorPluginManifest(): Record<string, unknown> {
+export function buildCursorPluginManifest(): Record<string, unknown> {
   const src = loadJson(CLAUDE_PLUGIN_MANIFEST)
 
   const name = src.name
@@ -93,17 +54,56 @@ function buildCursorPluginManifest(): Record<string, unknown> {
   return manifest
 }
 
-function buildMcpConfig(): Record<string, unknown> {
+export function buildMcpConfig(): Record<string, unknown> {
   return {
     mcpServers: {},
   }
 }
 
-function renderJson(data: Record<string, unknown>): string {
+export function collectSkillNames(dir?: string): string[] {
+  const skillsDir = dir ?? path.join(ROOT, 'skills')
+  if (!fs.existsSync(skillsDir)) return []
+
+  const names: string[] = []
+  for (const entry of fs
+    .readdirSync(skillsDir, { withFileTypes: true })
+    .sort((a, b) => a.name.localeCompare(b.name))) {
+    if (!entry.isDirectory() || entry.name.startsWith('_')) continue
+    const skillMd = path.join(skillsDir, entry.name, 'SKILL.md')
+    if (!fs.existsSync(skillMd)) continue
+
+    const meta = parseFrontmatter(fs.readFileSync(skillMd, 'utf-8'))
+    const name = meta.name?.trim()
+    if (name) names.push(name)
+
+    // Recurse into subdirectories to discover subskills
+    names.push(...collectSkillNames(path.join(skillsDir, entry.name)))
+  }
+
+  return names
+}
+
+export function loadJson(filePath: string): Record<string, unknown> {
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Missing required file: ${filePath}`)
+  }
+  return JSON.parse(fs.readFileSync(filePath, 'utf-8'))
+}
+
+export function renderJson(data: Record<string, unknown>): string {
   return JSON.stringify(data, null, 2) + '\n'
 }
 
-function writeOrCheck(
+export function validatePluginName(name: string): void {
+  if (!PLUGIN_NAME_RE.test(name)) {
+    throw new Error(
+      `Invalid plugin name in .claude-plugin/plugin.json: '${name}'. ` +
+        `Must be lowercase and match ${PLUGIN_NAME_RE.source}`,
+    )
+  }
+}
+
+export function writeOrCheck(
   filePath: string,
   content: string,
   check: boolean,

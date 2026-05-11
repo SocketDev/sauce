@@ -5,7 +5,11 @@ import * as path from 'node:path'
 const ROOT = path.resolve(__dirname, '../..')
 const SKILLS_DIR = path.join(ROOT, 'skills')
 
-function getSkillDirs(): string[] {
+export function getSkillContent(dir: string): string {
+  return fs.readFileSync(path.join(SKILLS_DIR, dir, 'SKILL.md'), 'utf-8')
+}
+
+export function getSkillDirs(): string[] {
   return fs
     .readdirSync(SKILLS_DIR, { withFileTypes: true })
     .filter(e => e.isDirectory() && !e.name.startsWith('_'))
@@ -13,12 +17,8 @@ function getSkillDirs(): string[] {
     .sort()
 }
 
-function getSkillContent(dir: string): string {
-  return fs.readFileSync(path.join(SKILLS_DIR, dir, 'SKILL.md'), 'utf-8')
-}
-
 /** Strip YAML frontmatter and return only the body content. */
-function stripFrontmatter(text: string): string {
+export function stripFrontmatter(text: string): string {
   return text.replace(/^---\s*\n[\s\S]*?\n---\s*\n?/, '')
 }
 

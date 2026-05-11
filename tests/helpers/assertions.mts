@@ -14,6 +14,29 @@ export interface AgentResponse {
 }
 
 /**
+ * Negative assertion: ensure the agent didn't hallucinate non-existent tools.
+ *
+ * Looks for patterns like "tool_name(" or "calling tool_name" in the output
+ * that aren't in the valid tools list.
+ */
+export function expectNoHallucinatedTools(
+  response: AgentResponse,
+  validToolNames: string[],
+): void {
+  if (!response.toolCalls) return
+
+  const validSet = new Set(validToolNames.map(t => t.toLowerCase()))
+  const hallucinated = response.toolCalls.filter(
+    tc => !validSet.has(tc.name.toLowerCase()),
+  )
+
+  expect(
+    hallucinated.map(tc => tc.name),
+    `Hallucinated tools detected: ${hallucinated.map(tc => tc.name).join(', ')}`,
+  ).toEqual([])
+}
+
+/**
  * Assert that the agent output contains all given keywords (case-insensitive).
  */
 export function expectOutputContains(
@@ -26,24 +49,6 @@ export function expectOutputContains(
     missing,
     `Output missing keywords: ${missing.join(', ')}\n\nOutput:\n${response.output.slice(0, 500)}`,
   ).toEqual([])
-}
-
-/**
- * Assert that a specific tool was called (checks structured tool calls or raw output).
- */
-export function expectToolCalled(
-  response: AgentResponse,
-  toolName: string,
-): void {
-  const calledStructured = response.toolCalls?.some(tc => tc.name === toolName)
-  const mentionedInOutput = response.output
-    .toLowerCase()
-    .includes(toolName.toLowerCase())
-
-  expect(
-    calledStructured || mentionedInOutput,
-    `Expected tool '${toolName}' to be called but it was not found in tool calls or output`,
-  ).toBe(true)
 }
 
 /**
@@ -71,24 +76,19 @@ export function expectScoreAboveThreshold(
 }
 
 /**
- * Negative assertion: ensure the agent didn't hallucinate non-existent tools.
- *
- * Looks for patterns like "tool_name(" or "calling tool_name" in the output
- * that aren't in the valid tools list.
+ * Assert that a specific tool was called (checks structured tool calls or raw output).
  */
-export function expectNoHallucinatedTools(
+export function expectToolCalled(
   response: AgentResponse,
-  validToolNames: string[],
+  toolName: string,
 ): void {
-  if (!response.toolCalls) return
-
-  const validSet = new Set(validToolNames.map(t => t.toLowerCase()))
-  const hallucinated = response.toolCalls.filter(
-    tc => !validSet.has(tc.name.toLowerCase()),
-  )
+  const calledStructured = response.toolCalls?.some(tc => tc.name === toolName)
+  const mentionedInOutput = response.output
+    .toLowerCase()
+    .includes(toolName.toLowerCase())
 
   expect(
-    hallucinated.map(tc => tc.name),
-    `Hallucinated tools detected: ${hallucinated.map(tc => tc.name).join(', ')}`,
-  ).toEqual([])
+    calledStructured || mentionedInOutput,
+    `Expected tool '${toolName}' to be called but it was not found in tool calls or output`,
+  ).toBe(true)
 }

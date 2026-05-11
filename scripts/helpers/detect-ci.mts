@@ -31,18 +31,7 @@ const CI_PATTERNS: Array<{ system: string; path: string }> = [
   { system: 'azure-pipelines', path: 'azure-pipelines.yml' },
 ]
 
-function parseArgs(): { dir: string } {
-  const args = process.argv.slice(2)
-  let dir = '.'
-  for (let i = 0; i < args.length; i++) {
-    if (args[i] === '--dir' && args[i + 1]) {
-      dir = args[++i]
-    }
-  }
-  return { dir: path.resolve(dir) }
-}
-
-function detectCI(dir: string): CISystem[] {
+export function detectCI(dir: string): CISystem[] {
   const results: CISystem[] = []
 
   for (const pattern of CI_PATTERNS) {
@@ -76,7 +65,7 @@ function detectCI(dir: string): CISystem[] {
   return results
 }
 
-function detectSCM(dir: string): SCMInfo {
+export function detectSCM(dir: string): SCMInfo {
   try {
     const remote = execSync('git remote get-url origin', {
       cwd: dir,
@@ -102,6 +91,17 @@ function detectSCM(dir: string): SCMInfo {
     }
     return { provider: 'none' }
   }
+}
+
+export function parseArgs(): { dir: string } {
+  const args = process.argv.slice(2)
+  let dir = '.'
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--dir' && args[i + 1]) {
+      dir = args[++i]
+    }
+  }
+  return { dir: path.resolve(dir) }
 }
 
 function main(): void {

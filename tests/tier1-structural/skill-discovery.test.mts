@@ -31,25 +31,7 @@ const EXPECTED_SKILLS = [
   ...Object.values(EXPECTED_SUBSKILLS).flat(),
 ]
 
-function getSkillDirs(): string[] {
-  return fs
-    .readdirSync(SKILLS_DIR, { withFileTypes: true })
-    .filter(e => e.isDirectory() && !e.name.startsWith('_'))
-    .map(e => e.name)
-    .sort()
-}
-
-function getSubSkillDirs(parent: string): string[] {
-  const parentDir = path.join(SKILLS_DIR, parent)
-  if (!fs.existsSync(parentDir)) return []
-  return fs
-    .readdirSync(parentDir, { withFileTypes: true })
-    .filter(e => e.isDirectory() && !e.name.startsWith('_'))
-    .map(e => e.name)
-    .sort()
-}
-
-/** All skill directory paths (top-level as name, subskills as parent/name) */
+export /** All skill directory paths (top-level as name, subskills as parent/name) */
 function getAllSkillPaths(): string[] {
   const paths: string[] = []
   for (const dir of getSkillDirs()) {
@@ -59,6 +41,24 @@ function getAllSkillPaths(): string[] {
     }
   }
   return paths.sort()
+}
+
+export function getSkillDirs(): string[] {
+  return fs
+    .readdirSync(SKILLS_DIR, { withFileTypes: true })
+    .filter(e => e.isDirectory() && !e.name.startsWith('_'))
+    .map(e => e.name)
+    .sort()
+}
+
+export function getSubSkillDirs(parent: string): string[] {
+  const parentDir = path.join(SKILLS_DIR, parent)
+  if (!fs.existsSync(parentDir)) return []
+  return fs
+    .readdirSync(parentDir, { withFileTypes: true })
+    .filter(e => e.isDirectory() && !e.name.startsWith('_'))
+    .map(e => e.name)
+    .sort()
 }
 
 describe('Skill Discovery', () => {

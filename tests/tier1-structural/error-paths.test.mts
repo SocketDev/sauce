@@ -7,6 +7,7 @@ import {
   validateMarketplace,
   collectSkills,
 } from '../../scripts/lib/validate-marketplace'
+import { safeDeleteSync } from '@socketsecurity/lib/fs'
 
 const ROOT = path.resolve(__dirname, '../..')
 const SKILLS_DIR = path.join(ROOT, 'skills')
@@ -73,7 +74,7 @@ describe('Error Paths', () => {
         const result = collectSkills(tmpDir)
         expect(result).toEqual([])
       } finally {
-        fs.rmSync(tmpDir, { recursive: true, force: true })
+        safeDeleteSync(tmpDir)
       }
     })
 
@@ -90,7 +91,7 @@ describe('Error Paths', () => {
         const result = collectSkills(tmpDir)
         expect(result).toEqual([])
       } finally {
-        fs.rmSync(tmpDir, { recursive: true, force: true })
+        safeDeleteSync(tmpDir)
       }
     })
 
@@ -105,7 +106,7 @@ describe('Error Paths', () => {
         const result = collectSkills(tmpDir)
         expect(result).toEqual([])
       } finally {
-        fs.rmSync(tmpDir, { recursive: true, force: true })
+        safeDeleteSync(tmpDir)
       }
     })
 
@@ -122,7 +123,7 @@ describe('Error Paths', () => {
         const result = collectSkills(tmpDir)
         expect(result).toEqual([])
       } finally {
-        fs.rmSync(tmpDir, { recursive: true, force: true })
+        safeDeleteSync(tmpDir)
       }
     })
   })
@@ -180,7 +181,7 @@ describe('Error Paths', () => {
         )
         expect(errors.some(e => e.message.includes('ghost-skill'))).toBe(true)
       } finally {
-        fs.rmSync(tmpDir, { recursive: true, force: true })
+        safeDeleteSync(tmpDir)
       }
     })
 
@@ -228,7 +229,7 @@ describe('Error Paths', () => {
         )
         expect(errors.some(e => e.message.includes('skill-b'))).toBe(true)
       } finally {
-        fs.rmSync(tmpDir, { recursive: true, force: true })
+        safeDeleteSync(tmpDir)
       }
     })
   })

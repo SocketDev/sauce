@@ -38,11 +38,11 @@ interface Marketplace {
   plugins: MarketplacePlugin[]
 }
 
-function loadTemplate(): string {
+export function loadTemplate(): string {
   return fs.readFileSync(TEMPLATE_PATH, 'utf-8')
 }
 
-function render(template: string, skills: Skill[]): string {
+export function render(template: string, skills: Skill[]): string {
   return template.replace(
     /\{\{#skills\}\}([\s\S]*?)\{\{\/skills\}\}/g,
     (_match, block: string) => {
@@ -59,7 +59,7 @@ function render(template: string, skills: Skill[]): string {
   )
 }
 
-function loadMarketplace(): Marketplace {
+export function loadMarketplace(): Marketplace {
   if (!fs.existsSync(MARKETPLACE_PATH)) {
     throw new Error(`marketplace.json not found at ${MARKETPLACE_PATH}`)
   }
@@ -98,7 +98,7 @@ const CATEGORIES: Array<[string, CategoryDef]> = [
   ],
 ]
 
-function getCategory(skillName: string): string {
+export function getCategory(skillName: string): string {
   if (skillName === 'socket-setup') return 'setup'
   if (skillName === 'socket-scan' || skillName === 'socket-inspect')
     return 'analysis'
@@ -107,7 +107,7 @@ function getCategory(skillName: string): string {
   return 'setup'
 }
 
-function generateReadmeTable(skills: Skill[]): string {
+export function generateReadmeTable(skills: Skill[]): string {
   const marketplace = loadMarketplace()
   const pluginsBySource = new Map<string, MarketplacePlugin>()
   for (const p of marketplace.plugins) {
@@ -156,7 +156,7 @@ function generateReadmeTable(skills: Skill[]): string {
   return lines.join('\n')
 }
 
-function updateReadme(skills: Skill[]): boolean {
+export function updateReadme(skills: Skill[]): boolean {
   if (!fs.existsSync(README_PATH)) {
     logger.fail(`Warning: README.md not found at ${README_PATH}`)
     return false

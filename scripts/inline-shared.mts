@@ -29,7 +29,7 @@ interface Replacement {
   section: string
 }
 
-function findSkillFiles(dir: string): string[] {
+export function findSkillFiles(dir: string): string[] {
   const results: string[] = []
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     if (entry.name.startsWith('_')) continue
@@ -46,15 +46,7 @@ function findSkillFiles(dir: string): string[] {
   return results
 }
 
-function loadShared(name: string): string {
-  const filePath = path.join(SHARED_DIR, name)
-  if (!fs.existsSync(filePath)) {
-    throw new Error(`Shared file not found: ${filePath}`)
-  }
-  return fs.readFileSync(filePath, 'utf-8').trimEnd()
-}
-
-function inlineShared(filePath: string): Replacement[] {
+export function inlineShared(filePath: string): Replacement[] {
   const content = fs.readFileSync(filePath, 'utf-8')
   const lines = content.split('\n')
   const output: string[] = []
@@ -109,6 +101,14 @@ function inlineShared(filePath: string): Replacement[] {
   }
 
   return replacements
+}
+
+export function loadShared(name: string): string {
+  const filePath = path.join(SHARED_DIR, name)
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Shared file not found: ${filePath}`)
+  }
+  return fs.readFileSync(filePath, 'utf-8').trimEnd()
 }
 
 function main(): void {

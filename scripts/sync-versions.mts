@@ -8,11 +8,11 @@ import * as path from 'node:path'
 
 const ROOT = path.resolve(__dirname, '..')
 
-function readJSON(filePath: string): any {
+export function readJSON(filePath: string): any {
   return JSON.parse(fs.readFileSync(filePath, 'utf-8'))
 }
 
-function writeJSON(filePath: string, data: any): void {
+export function writeJSON(filePath: string, data: any): void {
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n', 'utf-8')
 }
 

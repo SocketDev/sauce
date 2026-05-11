@@ -34,25 +34,7 @@ const ECOSYSTEM_PATTERNS: Record<string, string[]> = {
   go: ['go.mod', 'go.sum'],
 }
 
-function parseArgs(): { dir: string } {
-  const args = process.argv.slice(2)
-  let dir = '.'
-  for (let i = 0; i < args.length; i++) {
-    if (args[i] === '--dir' && args[i + 1]) {
-      dir = args[++i]
-    }
-  }
-  return { dir: path.resolve(dir) }
-}
-
-function matchesPattern(filename: string, pattern: string): boolean {
-  if (pattern.startsWith('*')) {
-    return filename.endsWith(pattern.slice(1))
-  }
-  return filename === pattern
-}
-
-function detectEcosystems(dir: string): EcosystemMatch[] {
+export function detectEcosystems(dir: string): EcosystemMatch[] {
   if (!fs.existsSync(dir)) {
     return []
   }
@@ -97,6 +79,24 @@ function detectEcosystems(dir: string): EcosystemMatch[] {
   }
 
   return results.sort((a, b) => a.name.localeCompare(b.name))
+}
+
+export function matchesPattern(filename: string, pattern: string): boolean {
+  if (pattern.startsWith('*')) {
+    return filename.endsWith(pattern.slice(1))
+  }
+  return filename === pattern
+}
+
+export function parseArgs(): { dir: string } {
+  const args = process.argv.slice(2)
+  let dir = '.'
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--dir' && args[i + 1]) {
+      dir = args[++i]
+    }
+  }
+  return { dir: path.resolve(dir) }
 }
 
 function main(): void {

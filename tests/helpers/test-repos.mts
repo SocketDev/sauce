@@ -7,34 +7,10 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as os from 'node:os'
+import { safeDeleteSync } from '@socketsecurity/lib/fs'
 
 const ROOT = path.resolve(__dirname, '../..')
 const FIXTURES_DIR = path.resolve(__dirname, '..', 'fixtures')
-
-/**
- * Copy a fixture directory to a temp location and return the path.
- * The caller is responsible for cleanup via `cleanupTestRepo()`.
- */
-export function copyFixture(fixtureName: string): string {
-  const src = path.join(FIXTURES_DIR, fixtureName)
-  if (!fs.existsSync(src)) {
-    throw new Error(`Fixture '${fixtureName}' not found at ${src}`)
-  }
-
-  const tmpDir = fs.mkdtempSync(
-    path.join(os.tmpdir(), `socket-skills-test-${fixtureName}-`),
-  )
-
-  copyDirSync(src, tmpDir)
-  return tmpDir
-}
-
-/**
- * Clean up a test repo directory.
- */
-export function cleanupTestRepo(dir: string): void {
-  fs.rmSync(dir, { recursive: true, force: true })
-}
 
 /**
  * Build a prompt with skill instructions injected.
@@ -57,7 +33,14 @@ export function buildSkillPrompt(
   )
 }
 
-function copyDirSync(src: string, dest: string): void {
+/**
+ * Clean up a test repo directory.
+ */
+export function cleanupTestRepo(dir: string): void {
+  safeDeleteSync(dir)
+}
+
+export function copyDirSync(src: string, dest: string): void {
   fs.mkdirSync(dest, { recursive: true })
   for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
     const srcPath = path.join(src, entry.name)
@@ -68,4 +51,22 @@ function copyDirSync(src: string, dest: string): void {
       fs.copyFileSync(srcPath, destPath)
     }
   }
+}
+
+/**
+ * Copy a fixture directory to a temp location and return the path.
+ * The caller is responsible for cleanup via `cleanupTestRepo()`.
+ */
+export function copyFixture(fixtureName: string): string {
+  const src = path.join(FIXTURES_DIR, fixtureName)
+  if (!fs.existsSync(src)) {
+    throw new Error(`Fixture '${fixtureName}' not found at ${src}`)
+  }
+
+  const tmpDir = fs.mkdtempSync(
+    path.join(os.tmpdir(), `socket-skills-test-${fixtureName}-`),
+  )
+
+  copyDirSync(src, tmpDir)
+  return tmpDir
 }

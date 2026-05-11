@@ -35,7 +35,7 @@ type Flags = {
   readonly types: boolean
 }
 
-function parseFlags(argv: readonly string[]): Flags {
+export function parseFlags(argv: readonly string[]): Flags {
   const has = (flag: string): boolean => argv.includes(flag)
   return {
     all: has('--all'),
@@ -49,7 +49,7 @@ function parseFlags(argv: readonly string[]): Flags {
   }
 }
 
-function printHelp(): void {
+export function printHelp(): void {
   process.stdout.write(
     [
       'Clean Runner',
@@ -76,7 +76,7 @@ function printHelp(): void {
   )
 }
 
-async function removeIfExists(rel: string, quiet: boolean): Promise<void> {
+export async function removeIfExists(rel: string, quiet: boolean): Promise<void> {
   const full = path.join(rootPath, rel)
   if (!existsSync(full)) {
     if (!quiet) {
@@ -90,7 +90,7 @@ async function removeIfExists(rel: string, quiet: boolean): Promise<void> {
   }
 }
 
-async function removeTsBuildInfo(quiet: boolean): Promise<void> {
+export async function removeTsBuildInfo(quiet: boolean): Promise<void> {
   const entries = await readdir(rootPath, { withFileTypes: true })
   for (const entry of entries) {
     if (entry.isFile() && entry.name.endsWith('.tsbuildinfo')) {

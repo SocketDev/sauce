@@ -17,7 +17,7 @@ interface Dependency {
   ecosystem: string
 }
 
-function parseArgs(): { ecosystem?: string; dir: string } {
+export function parseArgs(): { ecosystem?: string; dir: string } {
   const args = process.argv.slice(2)
   let ecosystem: string | undefined
   let dir = '.'
@@ -31,7 +31,7 @@ function parseArgs(): { ecosystem?: string; dir: string } {
   return { ecosystem, dir: path.resolve(dir) }
 }
 
-function parseNpm(dir: string): Dependency[] {
+export function parseNpm(dir: string): Dependency[] {
   const pkgPath = path.join(dir, 'package.json')
   if (!fs.existsSync(pkgPath)) return []
 
@@ -71,7 +71,7 @@ function parseNpm(dir: string): Dependency[] {
   return deps
 }
 
-function parsePypi(dir: string): Dependency[] {
+export function parsePypi(dir: string): Dependency[] {
   const deps: Dependency[] = []
   const reqPath = path.join(dir, 'requirements.txt')
   if (fs.existsSync(reqPath)) {
@@ -114,7 +114,7 @@ function parsePypi(dir: string): Dependency[] {
   return deps
 }
 
-function parseCargo(dir: string): Dependency[] {
+export function parseCargo(dir: string): Dependency[] {
   const tomlPath = path.join(dir, 'Cargo.toml')
   if (!fs.existsSync(tomlPath)) return []
 
@@ -145,7 +145,7 @@ function parseCargo(dir: string): Dependency[] {
   return deps
 }
 
-function parseGo(dir: string): Dependency[] {
+export function parseGo(dir: string): Dependency[] {
   const modPath = path.join(dir, 'go.mod')
   if (!fs.existsSync(modPath)) return []
 
@@ -189,7 +189,7 @@ function parseGo(dir: string): Dependency[] {
   return deps
 }
 
-function parseMaven(dir: string): Dependency[] {
+export function parseMaven(dir: string): Dependency[] {
   const pomPath = path.join(dir, 'pom.xml')
   if (!fs.existsSync(pomPath)) return []
 
@@ -212,7 +212,7 @@ function parseMaven(dir: string): Dependency[] {
   return deps
 }
 
-function parseBundler(dir: string): Dependency[] {
+export function parseBundler(dir: string): Dependency[] {
   const gemfilePath = path.join(dir, 'Gemfile')
   if (!fs.existsSync(gemfilePath)) return []
 
@@ -249,7 +249,7 @@ function parseBundler(dir: string): Dependency[] {
   return deps
 }
 
-function parseNuget(dir: string): Dependency[] {
+export function parseNuget(dir: string): Dependency[] {
   const deps: Dependency[] = []
   const entries = fs.readdirSync(dir)
 

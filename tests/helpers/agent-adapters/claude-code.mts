@@ -5,7 +5,7 @@ import type { AgentResponse } from '../assertions.js'
 /** Environment variables that must be removed to avoid nested-session detection. */
 const CLAUDE_ENV_VARS = ['CLAUDECODE', 'CLAUDE_CODE_ENTRYPOINT', 'NODE_PATH']
 
-function cleanEnv(): NodeJS.ProcessEnv {
+export function cleanEnv(): NodeJS.ProcessEnv {
   const env = { ...process.env }
   for (const key of CLAUDE_ENV_VARS) {
     delete env[key]

@@ -21,7 +21,7 @@ import { execSync } from 'node:child_process'
 // Argument parsing
 // ---------------------------------------------------------------------------
 
-function parseArgs() {
+export function parseArgs() {
   const argv = process.argv.slice(2)
   const subcommand = argv[0]
   const opts = {
@@ -62,19 +62,19 @@ function parseArgs() {
 // Version helpers
 // ---------------------------------------------------------------------------
 
-function parseVersion(raw) {
+export function parseVersion(raw) {
   const m = raw.match(/(\d+)\.(\d+)\.(\d+)/)
   if (!m) return undefined
   return { major: Number(m[1]), minor: Number(m[2]), patch: Number(m[3]) }
 }
 
-function versionGte(v, major, minor = 0, patch = 0) {
+export function versionGte(v, major, minor = 0, patch = 0) {
   if (v.major !== major) return v.major > major
   if (v.minor !== minor) return v.minor > minor
   return v.patch >= patch
 }
 
-function runCmd(cmd) {
+export function runCmd(cmd) {
   try {
     return execSync(cmd, {
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -90,7 +90,7 @@ function runCmd(cmd) {
 // check-prereqs
 // ---------------------------------------------------------------------------
 
-function checkPrereqs(dir) {
+export function checkPrereqs(dir) {
   // Node
   const nodeRaw = runCmd('node --version')
   const nodeVersion = nodeRaw ? parseVersion(nodeRaw) : undefined
@@ -146,7 +146,7 @@ function checkPrereqs(dir) {
   }
 }
 
-function detectPackageManager(dir) {
+export function detectPackageManager(dir) {
   try {
     const entries = fs.readdirSync(dir)
     if (entries.includes('pnpm-lock.yaml')) return 'pnpm'
@@ -165,7 +165,7 @@ function detectPackageManager(dir) {
 // generate-config
 // ---------------------------------------------------------------------------
 
-function generateConfig(tier) {
+export function generateConfig(tier) {
   const lines = [
     'version: 2',
     'issueRules:',
@@ -217,7 +217,7 @@ const INSTALL_PATTERNS = [
   { re: /\bgo\s+(mod\s+download|install)\b/, ecosystem: 'go' },
 ]
 
-function detectDockerfiles(dir) {
+export function detectDockerfiles(dir) {
   let entries
   try {
     entries = fs.readdirSync(dir)
