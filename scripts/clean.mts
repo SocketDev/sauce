@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-/* oxlint-disable socket/no-status-emoji -- dev script output; emoji prefixes provide at-a-glance status. */
 /**
  * @fileoverview Clean runner with flag-based configuration.
  *
@@ -155,7 +154,7 @@ async function main(): Promise<void> {
     await task()
   }
   if (!flags.quiet) {
-    process.stdout.write('  ✓ clean\n')
+    process.stdout.write('  clean complete\n')
   }
 }
 
