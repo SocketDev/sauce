@@ -1,3 +1,5 @@
+/* oxlint-disable socket/no-status-emoji -- dev script output; emoji prefixes provide at-a-glance status. */
+
 #!/usr/bin/env node
 /**
  * @fileoverview Clean runner with flag-based configuration.
