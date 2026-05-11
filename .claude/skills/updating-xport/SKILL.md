@@ -11,7 +11,7 @@ Act on drift findings in `xport.json`. Auto-apply mechanical version-pin bumps; 
 </task>
 
 <context>
-**xport** is a cross-project lock-step manifest. Not every repo has one; this skill exits cleanly when `xport.json` is absent. See `xport.schema.json` (deployed via `socket-repo-template/sync-scaffolding.mjs`) for the five row kinds.
+**xport** is a cross-project lock-step manifest. Not every repo has one; this skill exits cleanly when `xport.json` is absent. See `xport.schema.json` (deployed via `socket-wheelhouse/sync-scaffolding.mjs`) for the five row kinds.
 
 The harness at `scripts/xport.mts` emits JSON reports with `severity ∈ {ok, drift, error}` per row. This skill consumes that JSON.
 
