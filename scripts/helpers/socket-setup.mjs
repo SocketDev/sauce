@@ -17,78 +17,17 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { execSync } from 'node:child_process'
 
-// ---------------------------------------------------------------------------
-// Argument parsing
-// ---------------------------------------------------------------------------
-
-export function parseArgs() {
-  const argv = process.argv.slice(2)
-  const subcommand = argv[0]
-  const opts = {
-    dir: '.',
-    tier: 'free',
-    mode: 'both',
-    dryRun: false,
-    file: undefined,
-  }
-
-  for (let i = 1; i < argv.length; i++) {
-    switch (argv[i]) {
-      case '--dir':
-        opts.dir = argv[++i]
-        break
-      case '--tier':
-        opts.tier = argv[++i]
-        break
-      case '--mode':
-        opts.mode = argv[++i]
-        break
-      case '--dry-run':
-        opts.dryRun = true
-        break
-      default:
-        if (!opts.file && !argv[i].startsWith('--')) {
-          opts.file = argv[i]
-        }
-        break
-    }
-  }
-
-  opts.dir = path.resolve(opts.dir)
-  return { subcommand, opts }
-}
-
-// ---------------------------------------------------------------------------
-// Version helpers
-// ---------------------------------------------------------------------------
-
-export function parseVersion(raw) {
-  const m = raw.match(/(\d+)\.(\d+)\.(\d+)/)
-  if (!m) return undefined
-  return { major: Number(m[1]), minor: Number(m[2]), patch: Number(m[3]) }
-}
-
-export function versionGte(v, major, minor = 0, patch = 0) {
-  if (v.major !== major) return v.major > major
-  if (v.minor !== minor) return v.minor > minor
-  return v.patch >= patch
-}
-
-export function runCmd(cmd) {
-  try {
-    return execSync(cmd, {
-      stdio: ['pipe', 'pipe', 'pipe'],
-      encoding: 'utf-8',
-      timeout: 10000,
-    }).trim()
-  } catch {
-    return undefined
-  }
-}
-
-// ---------------------------------------------------------------------------
-// check-prereqs
-// ---------------------------------------------------------------------------
+const INSTALL_PATTERNS = [
+  { re: /\bnpm\s+(ci|install)\b/, ecosystem: 'npm' },
+  { re: /\byarn\s+(install)?\b/, ecosystem: 'yarn' },
+  { re: /\bpnpm\s+(install|i)\b/, ecosystem: 'pnpm' },
+  { re: /\bbun\s+install\b/, ecosystem: 'bun' },
+  { re: /\bpip\s+install\b/, ecosystem: 'pip' },
+  { re: /\bpip3\s+install\b/, ecosystem: 'pip' },
+  { re: /\bbundle\s+install\b/, ecosystem: 'bundler' },
+  { re: /\bcargo\s+(build|install)\b/, ecosystem: 'cargo' },
+  { re: /\bgo\s+(mod\s+download|install)\b/, ecosystem: 'go' },
+]
 
 export function checkPrereqs(dir) {
   // Node
@@ -145,77 +84,6 @@ export function checkPrereqs(dir) {
     packageManager,
   }
 }
-
-export function detectPackageManager(dir) {
-  try {
-    const entries = fs.readdirSync(dir)
-    if (entries.includes('pnpm-lock.yaml')) return 'pnpm'
-    if (entries.includes('yarn.lock')) return 'yarn'
-    if (entries.includes('bun.lockb') || entries.includes('bun.lock'))
-      return 'bun'
-    if (entries.includes('package-lock.json')) return 'npm'
-    if (entries.includes('package.json')) return 'npm'
-  } catch {
-    // ignore
-  }
-  return undefined
-}
-
-// ---------------------------------------------------------------------------
-// generate-config
-// ---------------------------------------------------------------------------
-
-export function generateConfig(tier) {
-  const lines = [
-    'version: 2',
-    'issueRules:',
-    '  # CVE severity thresholds',
-    '  criticalCVE: error        # Block on critical CVEs',
-    '  highCVE: warn              # Warn on high CVEs',
-    '  mediumCVE: ignore          # Ignore medium CVEs',
-    '',
-    '  # Supply-chain alerts',
-    '  installScripts: error      # Block packages with install scripts',
-    '  networkAccess: warn        # Warn on unexpected network access',
-    '  shellAccess: warn          # Warn on shell execution',
-    '  filesystemAccess: ignore   # Ignore filesystem access alerts',
-    '  envVarsAccess: warn        # Warn on environment variable reads',
-    '  obfuscatedCode: error      # Block obfuscated code',
-    '',
-    '  # Malware',
-    '  malware: error             # Always block malware',
-    '',
-    '  # License compliance',
-    '  gplLicense: warn           # Warn on GPL licenses',
-    '  noLicense: warn            # Warn on packages with no license',
-    '  nonPermissiveLicense: warn # Warn on restrictive licenses',
-    '',
-    'projectIgnorePaths:',
-    '  - "test/**"',
-    '  - "tests/**"',
-    '  - "examples/**"',
-    '  - "docs/**"',
-    '  - "__fixtures__/**"',
-  ]
-
-  return lines.join('\n') + '\n'
-}
-
-// ---------------------------------------------------------------------------
-// detect-dockerfiles
-// ---------------------------------------------------------------------------
-
-const INSTALL_PATTERNS = [
-  { re: /\bnpm\s+(ci|install)\b/, ecosystem: 'npm' },
-  { re: /\byarn\s+(install)?\b/, ecosystem: 'yarn' },
-  { re: /\bpnpm\s+(install|i)\b/, ecosystem: 'pnpm' },
-  { re: /\bbun\s+install\b/, ecosystem: 'bun' },
-  { re: /\bpip\s+install\b/, ecosystem: 'pip' },
-  { re: /\bpip3\s+install\b/, ecosystem: 'pip' },
-  { re: /\bbundle\s+install\b/, ecosystem: 'bundler' },
-  { re: /\bcargo\s+(build|install)\b/, ecosystem: 'cargo' },
-  { re: /\bgo\s+(mod\s+download|install)\b/, ecosystem: 'go' },
-]
 
 export function detectDockerfiles(dir) {
   let entries
@@ -278,9 +146,117 @@ export function detectDockerfiles(dir) {
   return { dockerfiles }
 }
 
-// ---------------------------------------------------------------------------
-// Main
-// ---------------------------------------------------------------------------
+export function detectPackageManager(dir) {
+  try {
+    const entries = fs.readdirSync(dir)
+    if (entries.includes('pnpm-lock.yaml')) return 'pnpm'
+    if (entries.includes('yarn.lock')) return 'yarn'
+    if (entries.includes('bun.lockb') || entries.includes('bun.lock'))
+      return 'bun'
+    if (entries.includes('package-lock.json')) return 'npm'
+    if (entries.includes('package.json')) return 'npm'
+  } catch {
+    // ignore
+  }
+  return undefined
+}
+
+export function generateConfig(tier) {
+  const lines = [
+    'version: 2',
+    'issueRules:',
+    '  # CVE severity thresholds',
+    '  criticalCVE: error        # Block on critical CVEs',
+    '  highCVE: warn              # Warn on high CVEs',
+    '  mediumCVE: ignore          # Ignore medium CVEs',
+    '',
+    '  # Supply-chain alerts',
+    '  installScripts: error      # Block packages with install scripts',
+    '  networkAccess: warn        # Warn on unexpected network access',
+    '  shellAccess: warn          # Warn on shell execution',
+    '  filesystemAccess: ignore   # Ignore filesystem access alerts',
+    '  envVarsAccess: warn        # Warn on environment variable reads',
+    '  obfuscatedCode: error      # Block obfuscated code',
+    '',
+    '  # Malware',
+    '  malware: error             # Always block malware',
+    '',
+    '  # License compliance',
+    '  gplLicense: warn           # Warn on GPL licenses',
+    '  noLicense: warn            # Warn on packages with no license',
+    '  nonPermissiveLicense: warn # Warn on restrictive licenses',
+    '',
+    'projectIgnorePaths:',
+    '  - "test/**"',
+    '  - "tests/**"',
+    '  - "examples/**"',
+    '  - "docs/**"',
+    '  - "__fixtures__/**"',
+  ]
+
+  return lines.join('\n') + '\n'
+}
+
+export function parseArgs() {
+  const argv = process.argv.slice(2)
+  const subcommand = argv[0]
+  const opts = {
+    dir: '.',
+    tier: 'free',
+    mode: 'both',
+    dryRun: false,
+    file: undefined,
+  }
+
+  for (let i = 1; i < argv.length; i++) {
+    switch (argv[i]) {
+      case '--dir':
+        opts.dir = argv[++i]
+        break
+      case '--tier':
+        opts.tier = argv[++i]
+        break
+      case '--mode':
+        opts.mode = argv[++i]
+        break
+      case '--dry-run':
+        opts.dryRun = true
+        break
+      default:
+        if (!opts.file && !argv[i].startsWith('--')) {
+          opts.file = argv[i]
+        }
+        break
+    }
+  }
+
+  opts.dir = path.resolve(opts.dir)
+  return { subcommand, opts }
+}
+
+export function parseVersion(raw) {
+  const m = raw.match(/(\d+)\.(\d+)\.(\d+)/)
+  if (!m) return undefined
+  return { major: Number(m[1]), minor: Number(m[2]), patch: Number(m[3]) }
+}
+
+export function runCmd(cmd) {
+  try {
+    return execSync(cmd, {
+      stdio: ['pipe', 'pipe', 'pipe'],
+      encoding: 'utf-8',
+      timeout: 10000,
+    }).trim()
+  } catch {
+    return undefined
+  }
+}
+
+export function versionGte(v, major, minor = 0, patch = 0) {
+  if (v.major !== major) return v.major > major
+  if (v.minor !== minor) return v.minor > minor
+  return v.patch >= patch
+}
 
 function main() {
   const { subcommand, opts } = parseArgs()

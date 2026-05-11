@@ -1,6 +1,5 @@
-/* oxlint-disable socket/no-status-emoji -- dev script output; emoji prefixes provide at-a-glance status. */
-
 #!/usr/bin/env node
+/* oxlint-disable socket/no-status-emoji -- dev script output; emoji prefixes provide at-a-glance status. */
 /**
  * @fileoverview Clean runner with flag-based configuration.
  *
@@ -78,7 +77,10 @@ export function printHelp(): void {
   )
 }
 
-export async function removeIfExists(rel: string, quiet: boolean): Promise<void> {
+export async function removeIfExists(
+  rel: string,
+  quiet: boolean,
+): Promise<void> {
   const full = path.join(rootPath, rel)
   if (!existsSync(full)) {
     if (!quiet) {

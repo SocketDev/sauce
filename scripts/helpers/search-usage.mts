@@ -16,26 +16,6 @@ interface UsageMatch {
   match: string
 }
 
-export function parseArgs(): { pkg: string; ecosystem?: string; dir: string } {
-  const args = process.argv.slice(2)
-  let pkg = ''
-  let ecosystem: string | undefined
-  let dir = '.'
-  for (let i = 0; i < args.length; i++) {
-    if (args[i] === '--package' && args[i + 1]) {
-      pkg = args[++i]
-    } else if (args[i] === '--ecosystem' && args[i + 1]) {
-      ecosystem = args[++i]
-    } else if (args[i] === '--dir' && args[i + 1]) {
-      dir = args[++i]
-    }
-  }
-  if (!pkg) {
-    throw new Error('--package is required')
-  }
-  return { pkg, ecosystem, dir: path.resolve(dir) }
-}
-
 const SKIP_DIRS = new Set([
   '.git',
   '.next',
@@ -117,7 +97,30 @@ export function getPatterns(pkg: string, ecosystem?: string): RegExp[] {
   return patterns
 }
 
-export function walkDir(dir: string, callback: (filePath: string) => void): void {
+export function parseArgs(): { pkg: string; ecosystem?: string; dir: string } {
+  const args = process.argv.slice(2)
+  let pkg = ''
+  let ecosystem: string | undefined
+  let dir = '.'
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--package' && args[i + 1]) {
+      pkg = args[++i]
+    } else if (args[i] === '--ecosystem' && args[i + 1]) {
+      ecosystem = args[++i]
+    } else if (args[i] === '--dir' && args[i + 1]) {
+      dir = args[++i]
+    }
+  }
+  if (!pkg) {
+    throw new Error('--package is required')
+  }
+  return { pkg, ecosystem, dir: path.resolve(dir) }
+}
+
+export function walkDir(
+  dir: string,
+  callback: (filePath: string) => void,
+): void {
   let entries: fs.Dirent[]
   try {
     entries = fs.readdirSync(dir, { withFileTypes: true })

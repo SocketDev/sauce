@@ -1,8 +1,20 @@
 import { describe, it, expect } from 'vitest'
+import { httpRequest } from '@socketsecurity/lib/http-request'
 
 const API_KEY = process.env.SOCKET_SECURITY_API_KEY
 const ORG = process.env.SOCKET_ORG || 'SocketDemo'
 const BATCH_PURL_URL = `https://api.socket.dev/v0/orgs/${ORG}/purl`
+
+export function postPurls(purls: string[]) {
+  return httpRequest(BATCH_PURL_URL, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ purls }),
+  })
+}
 
 describe('Batch PURL API Connection', () => {
   it('successfully connects and returns data', async () => {
@@ -13,14 +25,7 @@ describe('Batch PURL API Connection', () => {
       )
     }
 
-    const response = await fetch(BATCH_PURL_URL, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ purls: ['pkg:npm/lodash@4.17.21'] }),
-    })
+    const response = await postPurls(['pkg:npm/lodash@4.17.21'])
 
     expect(response.ok, `API returned status ${response.status}`).toBe(true)
     const data = await response.json()
@@ -32,14 +37,7 @@ describe('Batch PURL API Connection', () => {
       throw new Error('SOCKET_SECURITY_API_KEY is required for API tests.')
     }
 
-    const response = await fetch(BATCH_PURL_URL, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ purls: ['pkg:npm/lodash@4.17.21'] }),
-    })
+    const response = await postPurls(['pkg:npm/lodash@4.17.21'])
 
     expect(response.ok).toBe(true)
     const data = await response.json()
@@ -54,16 +52,10 @@ describe('Batch PURL API Connection', () => {
       throw new Error('SOCKET_SECURITY_API_KEY is required for API tests.')
     }
 
-    const response = await fetch(BATCH_PURL_URL, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        purls: ['pkg:npm/lodash@4.17.21', 'pkg:npm/express@4.18.2'],
-      }),
-    })
+    const response = await postPurls([
+      'pkg:npm/lodash@4.17.21',
+      'pkg:npm/express@4.18.2',
+    ])
 
     expect(response.ok).toBe(true)
     const data = await response.json()
@@ -75,18 +67,9 @@ describe('Batch PURL API Connection', () => {
       throw new Error('SOCKET_SECURITY_API_KEY is required for API tests.')
     }
 
-    const response = await fetch(BATCH_PURL_URL, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        purls: [
-          'pkg:npm/this-package-definitely-does-not-exist-xyz-12345@0.0.0',
-        ],
-      }),
-    })
+    const response = await postPurls([
+      'pkg:npm/this-package-definitely-does-not-exist-xyz-12345@0.0.0',
+    ])
 
     // Should not crash — either returns an error indication or empty results
     expect(response).toBeDefined()

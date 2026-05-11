@@ -31,83 +31,37 @@ export function parseArgs(): { ecosystem?: string; dir: string } {
   return { ecosystem, dir: path.resolve(dir) }
 }
 
-export function parseNpm(dir: string): Dependency[] {
-  const pkgPath = path.join(dir, 'package.json')
-  if (!fs.existsSync(pkgPath)) return []
+export function parseBundler(dir: string): Dependency[] {
+  const gemfilePath = path.join(dir, 'Gemfile')
+  if (!fs.existsSync(gemfilePath)) return []
 
-  const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'))
+  const content = fs.readFileSync(gemfilePath, 'utf-8')
   const deps: Dependency[] = []
+  let currentGroup = 'default'
 
-  for (const [name, version] of Object.entries(pkg.dependencies ?? {})) {
-    deps.push({
-      name,
-      version: String(version),
-      type: 'production',
-      ecosystem: 'npm',
-    })
-  }
-  for (const [name, version] of Object.entries(pkg.devDependencies ?? {})) {
-    deps.push({ name, version: String(version), type: 'dev', ecosystem: 'npm' })
-  }
-  for (const [name, version] of Object.entries(pkg.peerDependencies ?? {})) {
-    deps.push({
-      name,
-      version: String(version),
-      type: 'peer',
-      ecosystem: 'npm',
-    })
-  }
-  for (const [name, version] of Object.entries(
-    pkg.optionalDependencies ?? {},
-  )) {
-    deps.push({
-      name,
-      version: String(version),
-      type: 'optional',
-      ecosystem: 'npm',
-    })
-  }
-
-  return deps
-}
-
-export function parsePypi(dir: string): Dependency[] {
-  const deps: Dependency[] = []
-  const reqPath = path.join(dir, 'requirements.txt')
-  if (fs.existsSync(reqPath)) {
-    const lines = fs.readFileSync(reqPath, 'utf-8').split('\n')
-    for (const line of lines) {
-      const trimmed = line.trim()
-      if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('-'))
-        continue
-      const match = trimmed.match(/^([a-zA-Z0-9._-]+)\s*([><=!~]+\s*[\d.]+)?/)
-      if (match) {
-        deps.push({
-          name: match[1],
-          version: match[2]?.trim() ?? '*',
-          type: 'production',
-          ecosystem: 'pypi',
-        })
-      }
+  for (const line of content.split('\n')) {
+    const groupMatch = line.match(/group\s+:(\w+)/)
+    if (groupMatch) {
+      currentGroup = groupMatch[1]
+      continue
     }
-  }
+    if (line.trim() === 'end') {
+      currentGroup = 'default'
+      continue
+    }
 
-  const devReqPath = path.join(dir, 'requirements-dev.txt')
-  if (fs.existsSync(devReqPath)) {
-    const lines = fs.readFileSync(devReqPath, 'utf-8').split('\n')
-    for (const line of lines) {
-      const trimmed = line.trim()
-      if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('-'))
-        continue
-      const match = trimmed.match(/^([a-zA-Z0-9._-]+)\s*([><=!~]+\s*[\d.]+)?/)
-      if (match) {
-        deps.push({
-          name: match[1],
-          version: match[2]?.trim() ?? '*',
-          type: 'dev',
-          ecosystem: 'pypi',
-        })
-      }
+    const gemMatch = line.match(
+      /gem\s+['"]([^'"]+)['"](?:\s*,\s*['"]([^'"]+)['"])?/,
+    )
+    if (gemMatch) {
+      deps.push({
+        name: gemMatch[1],
+        version: gemMatch[2] ?? '*',
+        type: ['development', 'test'].includes(currentGroup)
+          ? 'dev'
+          : 'production',
+        ecosystem: 'bundler',
+      })
     }
   }
 
@@ -212,38 +166,41 @@ export function parseMaven(dir: string): Dependency[] {
   return deps
 }
 
-export function parseBundler(dir: string): Dependency[] {
-  const gemfilePath = path.join(dir, 'Gemfile')
-  if (!fs.existsSync(gemfilePath)) return []
+export function parseNpm(dir: string): Dependency[] {
+  const pkgPath = path.join(dir, 'package.json')
+  if (!fs.existsSync(pkgPath)) return []
 
-  const content = fs.readFileSync(gemfilePath, 'utf-8')
+  const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'))
   const deps: Dependency[] = []
-  let currentGroup = 'default'
 
-  for (const line of content.split('\n')) {
-    const groupMatch = line.match(/group\s+:(\w+)/)
-    if (groupMatch) {
-      currentGroup = groupMatch[1]
-      continue
-    }
-    if (line.trim() === 'end') {
-      currentGroup = 'default'
-      continue
-    }
-
-    const gemMatch = line.match(
-      /gem\s+['"]([^'"]+)['"](?:\s*,\s*['"]([^'"]+)['"])?/,
-    )
-    if (gemMatch) {
-      deps.push({
-        name: gemMatch[1],
-        version: gemMatch[2] ?? '*',
-        type: ['development', 'test'].includes(currentGroup)
-          ? 'dev'
-          : 'production',
-        ecosystem: 'bundler',
-      })
-    }
+  for (const [name, version] of Object.entries(pkg.dependencies ?? {})) {
+    deps.push({
+      name,
+      version: String(version),
+      type: 'production',
+      ecosystem: 'npm',
+    })
+  }
+  for (const [name, version] of Object.entries(pkg.devDependencies ?? {})) {
+    deps.push({ name, version: String(version), type: 'dev', ecosystem: 'npm' })
+  }
+  for (const [name, version] of Object.entries(pkg.peerDependencies ?? {})) {
+    deps.push({
+      name,
+      version: String(version),
+      type: 'peer',
+      ecosystem: 'npm',
+    })
+  }
+  for (const [name, version] of Object.entries(
+    pkg.optionalDependencies ?? {},
+  )) {
+    deps.push({
+      name,
+      version: String(version),
+      type: 'optional',
+      ecosystem: 'npm',
+    })
   }
 
   return deps
@@ -265,6 +222,49 @@ export function parseNuget(dir: string): Dependency[] {
           version: match[2],
           type: 'production',
           ecosystem: 'nuget',
+        })
+      }
+    }
+  }
+
+  return deps
+}
+
+export function parsePypi(dir: string): Dependency[] {
+  const deps: Dependency[] = []
+  const reqPath = path.join(dir, 'requirements.txt')
+  if (fs.existsSync(reqPath)) {
+    const lines = fs.readFileSync(reqPath, 'utf-8').split('\n')
+    for (const line of lines) {
+      const trimmed = line.trim()
+      if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('-'))
+        continue
+      const match = trimmed.match(/^([a-zA-Z0-9._-]+)\s*([><=!~]+\s*[\d.]+)?/)
+      if (match) {
+        deps.push({
+          name: match[1],
+          version: match[2]?.trim() ?? '*',
+          type: 'production',
+          ecosystem: 'pypi',
+        })
+      }
+    }
+  }
+
+  const devReqPath = path.join(dir, 'requirements-dev.txt')
+  if (fs.existsSync(devReqPath)) {
+    const lines = fs.readFileSync(devReqPath, 'utf-8').split('\n')
+    for (const line of lines) {
+      const trimmed = line.trim()
+      if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('-'))
+        continue
+      const match = trimmed.match(/^([a-zA-Z0-9._-]+)\s*([><=!~]+\s*[\d.]+)?/)
+      if (match) {
+        deps.push({
+          name: match[1],
+          version: match[2]?.trim() ?? '*',
+          type: 'dev',
+          ecosystem: 'pypi',
         })
       }
     }

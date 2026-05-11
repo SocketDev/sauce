@@ -94,7 +94,10 @@ export async function runGenerate(): Promise<void> {
   await runTsx('scripts/generate-cursor-plugin.ts')
 }
 
-export async function runTsx(scriptRelPath: string, ...args: string[]): Promise<void> {
+export async function runTsx(
+  scriptRelPath: string,
+  ...args: string[]
+): Promise<void> {
   await spawn('pnpm', ['exec', 'tsx', scriptRelPath, ...args], {
     cwd: rootDir,
     stdio: 'inherit',

@@ -29,7 +29,9 @@ export async function validateEsbuildMinify(): Promise<MinifyViolation[]> {
   const configPath = path.join(rootPath, '.config/esbuild.config.mts')
 
   try {
-    // Dynamic import of the esbuild config
+    // Dynamic import: target path is resolved at runtime relative to the
+    // consuming repo's root, not statically resolvable at compile time.
+    // oxlint-disable-next-line socket/no-dynamic-import-outside-bundle -- runtime-resolved validator target
     const config = await import(configPath)
 
     const violations: MinifyViolation[] = []

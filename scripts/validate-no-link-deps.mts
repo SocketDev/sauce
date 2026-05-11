@@ -16,36 +16,6 @@ const logger = getDefaultLogger()
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootPath = path.join(__dirname, '..')
 
-/**
- * Find all package.json files in the repository.
- */
-export async function findPackageJsonFiles(dir: string): Promise<string[]> {
-  const files: string[] = []
-  const entries = await fs.readdir(dir, { withFileTypes: true })
-
-  for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name)
-
-    // Skip node_modules, .git, and build directories.
-    if (
-      entry.name === 'node_modules' ||
-      entry.name === '.git' ||
-      entry.name === 'build' ||
-      entry.name === 'dist'
-    ) {
-      continue
-    }
-
-    if (entry.isDirectory()) {
-      files.push(...(await findPackageJsonFiles(fullPath)))
-    } else if (entry.name === 'package.json') {
-      files.push(fullPath)
-    }
-  }
-
-  return files
-}
-
 interface LinkViolation {
   file: string
   field: string
@@ -56,7 +26,9 @@ interface LinkViolation {
 /**
  * Check if a package.json contains link: dependencies.
  */
-export async function checkPackageJson(filePath: string): Promise<LinkViolation[]> {
+export async function checkPackageJson(
+  filePath: string,
+): Promise<LinkViolation[]> {
   const content = await fs.readFile(filePath, 'utf8')
   let pkg: Record<string, Record<string, string> | undefined>
   try {
@@ -130,6 +102,36 @@ export async function checkPackageJson(filePath: string): Promise<LinkViolation[
   }
 
   return violations
+}
+
+/**
+ * Find all package.json files in the repository.
+ */
+export async function findPackageJsonFiles(dir: string): Promise<string[]> {
+  const files: string[] = []
+  const entries = await fs.readdir(dir, { withFileTypes: true })
+
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name)
+
+    // Skip node_modules, .git, and build directories.
+    if (
+      entry.name === 'node_modules' ||
+      entry.name === '.git' ||
+      entry.name === 'build' ||
+      entry.name === 'dist'
+    ) {
+      continue
+    }
+
+    if (entry.isDirectory()) {
+      files.push(...(await findPackageJsonFiles(fullPath)))
+    } else if (entry.name === 'package.json') {
+      files.push(fullPath)
+    }
+  }
+
+  return files
 }
 
 async function main(): Promise<void> {

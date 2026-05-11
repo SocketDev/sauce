@@ -28,6 +28,10 @@ import type { ExecSyncOptions } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import process from 'node:process'
 
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+
+const logger = getDefaultLogger()
+
 const args = process.argv.slice(2)
 const mode: 'staged' | 'all' | 'modified' = args.includes('--all')
   ? 'all'
@@ -111,10 +115,18 @@ export function resolveTestPatterns(files: string[]): string[] {
   return [...patterns]
 }
 
+// Skills repo's vitest config lives at tests/vitest.config.mts (non-standard
+// location: keeps the tests/ tier-organized fixtures next to the config).
+// vitest doesn't auto-discover that path, so the wrapper always passes
+// --config explicitly.
+const VITEST_CONFIG = 'tests/vitest.config.mts'
+
 export function runAll(): number {
   log('Test scope: all')
   try {
-    execSync('pnpm exec vitest run', { stdio })
+    execFileSync('pnpm', ['exec', 'vitest', 'run', '--config', VITEST_CONFIG], {
+      stdio,
+    })
     log('All tests passed')
     return 0
   } catch {
@@ -137,7 +149,15 @@ export function runPatterns(patterns: string[]): number {
   try {
     execFileSync(
       'pnpm',
-      ['exec', 'vitest', 'run', '--passWithNoTests', ...patterns],
+      [
+        'exec',
+        'vitest',
+        'run',
+        '--config',
+        VITEST_CONFIG,
+        '--passWithNoTests',
+        ...patterns,
+      ],
       { stdio },
     )
     log('All tests passed')

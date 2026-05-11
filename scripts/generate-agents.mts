@@ -38,34 +38,6 @@ interface Marketplace {
   plugins: MarketplacePlugin[]
 }
 
-export function loadTemplate(): string {
-  return fs.readFileSync(TEMPLATE_PATH, 'utf-8')
-}
-
-export function render(template: string, skills: Skill[]): string {
-  return template.replace(
-    /\{\{#skills\}\}([\s\S]*?)\{\{\/skills\}\}/g,
-    (_match, block: string) => {
-      const trimmed = block.replace(/^\n/, '').replace(/\n$/, '')
-      return skills
-        .map(skill =>
-          trimmed
-            .replace(/\{\{name\}\}/g, skill.name)
-            .replace(/\{\{description\}\}/g, skill.description)
-            .replace(/\{\{path\}\}/g, skill.path),
-        )
-        .join('\n')
-    },
-  )
-}
-
-export function loadMarketplace(): Marketplace {
-  if (!fs.existsSync(MARKETPLACE_PATH)) {
-    throw new Error(`marketplace.json not found at ${MARKETPLACE_PATH}`)
-  }
-  return JSON.parse(fs.readFileSync(MARKETPLACE_PATH, 'utf-8'))
-}
-
 interface CategoryDef {
   label: string
   description: string
@@ -97,15 +69,6 @@ const CATEGORIES: Array<[string, CategoryDef]> = [
     },
   ],
 ]
-
-export function getCategory(skillName: string): string {
-  if (skillName === 'socket-setup') return 'setup'
-  if (skillName === 'socket-scan' || skillName === 'socket-inspect')
-    return 'analysis'
-  if (skillName.startsWith('socket-dep-') || skillName === 'socket-fix')
-    return 'fix'
-  return 'setup'
-}
 
 export function generateReadmeTable(skills: Skill[]): string {
   const marketplace = loadMarketplace()
@@ -154,6 +117,43 @@ export function generateReadmeTable(skills: Skill[]): string {
   }
 
   return lines.join('\n')
+}
+
+export function getCategory(skillName: string): string {
+  if (skillName === 'socket-setup') return 'setup'
+  if (skillName === 'socket-scan' || skillName === 'socket-inspect')
+    return 'analysis'
+  if (skillName.startsWith('socket-dep-') || skillName === 'socket-fix')
+    return 'fix'
+  return 'setup'
+}
+
+export function loadMarketplace(): Marketplace {
+  if (!fs.existsSync(MARKETPLACE_PATH)) {
+    throw new Error(`marketplace.json not found at ${MARKETPLACE_PATH}`)
+  }
+  return JSON.parse(fs.readFileSync(MARKETPLACE_PATH, 'utf-8'))
+}
+
+export function loadTemplate(): string {
+  return fs.readFileSync(TEMPLATE_PATH, 'utf-8')
+}
+
+export function render(template: string, skills: Skill[]): string {
+  return template.replace(
+    /\{\{#skills\}\}([\s\S]*?)\{\{\/skills\}\}/g,
+    (_match, block: string) => {
+      const trimmed = block.replace(/^\n/, '').replace(/\n$/, '')
+      return skills
+        .map(skill =>
+          trimmed
+            .replace(/\{\{name\}\}/g, skill.name)
+            .replace(/\{\{description\}\}/g, skill.description)
+            .replace(/\{\{path\}\}/g, skill.path),
+        )
+        .join('\n')
+    },
+  )
 }
 
 export function updateReadme(skills: Skill[]): boolean {

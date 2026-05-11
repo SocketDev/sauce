@@ -29,147 +29,11 @@ const BUILTIN_MODULES = new Set([
 ])
 
 /**
- * Find all JavaScript files in dist directory.
- */
-export async function findDistFiles(distPath: string): Promise<string[]> {
-  const files: string[] = []
-
-  try {
-    const entries = await fs.readdir(distPath, { withFileTypes: true })
-
-    for (const entry of entries) {
-      const fullPath = path.join(distPath, entry.name)
-
-      if (entry.isDirectory()) {
-        files.push(...(await findDistFiles(fullPath)))
-      } else if (
-        entry.name.endsWith('.js') ||
-        entry.name.endsWith('.mjs') ||
-        entry.name.endsWith('.cjs')
-      ) {
-        files.push(fullPath)
-      }
-    }
-  } catch {
-    // Directory doesn't exist or can't be read
-    return []
-  }
-
-  return files
-}
-
-/**
- * Check if a string is a valid package specifier.
- */
-export function isValidPackageSpecifier(specifier: string): boolean {
-  // Relative imports
-  if (specifier.startsWith('.') || specifier.startsWith('/')) {
-    return false
-  }
-
-  // Subpath imports (Node.js internal imports starting with #)
-  if (specifier.startsWith('#')) {
-    return false
-  }
-
-  // Filter out invalid patterns
-  if (
-    specifier.includes('${') ||
-    specifier.includes('"}') ||
-    specifier.includes('`') ||
-    specifier === 'true' ||
-    specifier === 'false' ||
-    specifier === 'null' ||
-    specifier === 'undefined' ||
-    specifier === 'name' ||
-    specifier === 'dependencies' ||
-    specifier === 'devDependencies' ||
-    specifier === 'peerDependencies' ||
-    specifier === 'version' ||
-    specifier === 'description' ||
-    specifier.length === 0 ||
-    // Filter out strings that look like code fragments
-    specifier.includes('\n') ||
-    specifier.includes(';') ||
-    specifier.includes('function') ||
-    specifier.includes('const ') ||
-    specifier.includes('let ') ||
-    specifier.includes('var ')
-  ) {
-    return false
-  }
-
-  return true
-}
-
-/**
- * Extract external package names from require() and import statements in built files.
- */
-export async function extractExternalPackages(filePath: string): Promise<Set<string>> {
-  const content = await fs.readFile(filePath, 'utf8')
-  const externals = new Set<string>()
-
-  // Match require('package') or require("package")
-  const requirePattern = /require\s*\(\s*['"]([^'"]+)['"]\s*\)/g
-  // Match import from 'package' or import from "package"
-  const importPattern = /(?:from|import)\s+['"]([^'"]+)['"]/g
-  // Match dynamic import() calls
-  const dynamicImportPattern = /import\s*\(\s*['"]([^'"]+)['"]\s*\)/g
-
-  let match: RegExpExecArray | null
-
-  // Extract from require()
-  while ((match = requirePattern.exec(content)) !== null) {
-    const specifier = match[1]
-    if (!specifier) {
-      continue
-    }
-    // Skip internal src/external/ wrapper paths (used by socket-lib pattern)
-    if (specifier.includes('/external/')) {
-      continue
-    }
-    if (isValidPackageSpecifier(specifier)) {
-      externals.add(specifier)
-    }
-  }
-
-  // Extract from import statements
-  while ((match = importPattern.exec(content)) !== null) {
-    const specifier = match[1]
-    if (!specifier) {
-      continue
-    }
-    // Skip internal src/external/ wrapper paths (used by socket-lib pattern)
-    if (specifier.includes('/external/')) {
-      continue
-    }
-    if (isValidPackageSpecifier(specifier)) {
-      externals.add(specifier)
-    }
-  }
-
-  // Extract from dynamic import()
-  while ((match = dynamicImportPattern.exec(content)) !== null) {
-    const specifier = match[1]
-    if (!specifier) {
-      continue
-    }
-    // Skip internal src/external/ wrapper paths (used by socket-lib pattern)
-    if (specifier.includes('/external/')) {
-      continue
-    }
-    if (isValidPackageSpecifier(specifier)) {
-      externals.add(specifier)
-    }
-  }
-
-  return externals
-}
-
-/**
  * Extract bundled package names from node_modules paths in comments and code.
  */
-export async function extractBundledPackages(filePath: string): Promise<Set<string>> {
+export async function extractBundledPackages(
+  filePath: string,
+): Promise<Set<string>> {
   const content = await fs.readFile(filePath, 'utf8')
   const bundled = new Set<string>()
 
@@ -232,6 +96,102 @@ export async function extractBundledPackages(filePath: string): Promise<Set<stri
 }
 
 /**
+ * Extract external package names from require() and import statements in built files.
+ */
+export async function extractExternalPackages(
+  filePath: string,
+): Promise<Set<string>> {
+  const content = await fs.readFile(filePath, 'utf8')
+  const externals = new Set<string>()
+
+  // Match require('package') or require("package")
+  const requirePattern = /require\s*\(\s*['"]([^'"]+)['"]\s*\)/g
+  // Match import from 'package' or import from "package"
+  const importPattern = /(?:from|import)\s+['"]([^'"]+)['"]/g
+  // Match dynamic import() calls
+  const dynamicImportPattern = /import\s*\(\s*['"]([^'"]+)['"]\s*\)/g
+
+  let match: RegExpExecArray | null
+
+  // Extract from require()
+  while ((match = requirePattern.exec(content)) !== null) {
+    const specifier = match[1]
+    if (!specifier) {
+      continue
+    }
+    // Skip internal src/external/ wrapper paths (used by socket-lib pattern)
+    if (specifier.includes('/external/')) {
+      continue
+    }
+    if (isValidPackageSpecifier(specifier)) {
+      externals.add(specifier)
+    }
+  }
+
+  // Extract from import statements
+  while ((match = importPattern.exec(content)) !== null) {
+    const specifier = match[1]
+    if (!specifier) {
+      continue
+    }
+    // Skip internal src/external/ wrapper paths (used by socket-lib pattern)
+    if (specifier.includes('/external/')) {
+      continue
+    }
+    if (isValidPackageSpecifier(specifier)) {
+      externals.add(specifier)
+    }
+  }
+
+  // Extract from dynamic import()
+  while ((match = dynamicImportPattern.exec(content)) !== null) {
+    const specifier = match[1]
+    if (!specifier) {
+      continue
+    }
+    // Skip internal src/external/ wrapper paths (used by socket-lib pattern)
+    if (specifier.includes('/external/')) {
+      continue
+    }
+    if (isValidPackageSpecifier(specifier)) {
+      externals.add(specifier)
+    }
+  }
+
+  return externals
+}
+
+/**
+ * Find all JavaScript files in dist directory.
+ */
+export async function findDistFiles(distPath: string): Promise<string[]> {
+  const files: string[] = []
+
+  try {
+    const entries = await fs.readdir(distPath, { withFileTypes: true })
+
+    for (const entry of entries) {
+      const fullPath = path.join(distPath, entry.name)
+
+      if (entry.isDirectory()) {
+        files.push(...(await findDistFiles(fullPath)))
+      } else if (
+        entry.name.endsWith('.js') ||
+        entry.name.endsWith('.mjs') ||
+        entry.name.endsWith('.cjs')
+      ) {
+        files.push(fullPath)
+      }
+    }
+  } catch {
+    // Directory doesn't exist or can't be read
+    return []
+  }
+
+  return files
+}
+
+/**
  * Get package name from a module specifier (strip subpaths).
  */
 export function getPackageName(specifier: string): string | undefined {
@@ -282,6 +242,50 @@ export function getPackageName(specifier: string): string | undefined {
   // Regular package: package or package/subpath
   const parts = specifier.split('/')
   return parts[0] || undefined
+}
+
+/**
+ * Check if a string is a valid package specifier.
+ */
+export function isValidPackageSpecifier(specifier: string): boolean {
+  // Relative imports
+  if (specifier.startsWith('.') || specifier.startsWith('/')) {
+    return false
+  }
+
+  // Subpath imports (Node.js internal imports starting with #)
+  if (specifier.startsWith('#')) {
+    return false
+  }
+
+  // Filter out invalid patterns
+  if (
+    specifier.includes('${') ||
+    specifier.includes('"}') ||
+    specifier.includes('`') ||
+    specifier === 'true' ||
+    specifier === 'false' ||
+    specifier === 'null' ||
+    specifier === 'undefined' ||
+    specifier === 'name' ||
+    specifier === 'dependencies' ||
+    specifier === 'devDependencies' ||
+    specifier === 'peerDependencies' ||
+    specifier === 'version' ||
+    specifier === 'description' ||
+    specifier.length === 0 ||
+    // Filter out strings that look like code fragments
+    specifier.includes('\n') ||
+    specifier.includes(';') ||
+    specifier.includes('function') ||
+    specifier.includes('const ') ||
+    specifier.includes('let ') ||
+    specifier.includes('var ')
+  ) {
+    return false
+  }
+
+  return true
 }
 
 interface PackageJson {
