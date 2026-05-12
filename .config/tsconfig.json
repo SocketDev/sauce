@@ -1,12 +1,13 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "Node16",
-    "moduleResolution": "Node16",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "outDir": "../dist"
+    "declarationMap": false,
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "noEmit": true,
+    "sourceMap": false,
+    "types": ["node"]
   },
-  "include": ["../scripts/**/*.ts", "../tests/**/*.ts"]
+  "include": ["../scripts/**/*.mts", "../tests/**/*.mts"],
+  "exclude": ["../.cache", "../dist", "../node_modules"]
 }
