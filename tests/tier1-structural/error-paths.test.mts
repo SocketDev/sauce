@@ -1,11 +1,11 @@
-import { describe, it, expect } from 'vitest'
-import * as fs from 'node:fs'
+import { describe, expect, it } from 'vitest'
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import * as path from 'node:path'
 import * as os from 'node:os'
 import { parseFrontmatter } from '../../scripts/lib/frontmatter'
 import {
-  validateMarketplace,
   collectSkills,
+  validateMarketplace,
 } from '../../scripts/lib/validate-marketplace'
 import { safeDeleteSync } from '@socketsecurity/lib/fs'
 
@@ -67,9 +67,7 @@ describe('Error Paths', () => {
     })
 
     it('returns empty array for empty directory', () => {
-      const tmpDir = fs.mkdtempSync(
-        path.join(os.tmpdir(), 'socket-test-empty-'),
-      )
+      const tmpDir = mkdtempSync(path.join(os.tmpdir(), 'socket-test-empty-'))
       try {
         const result = collectSkills(tmpDir)
         expect(result).toEqual([])
@@ -79,12 +77,10 @@ describe('Error Paths', () => {
     })
 
     it('skips directories without SKILL.md', () => {
-      const tmpDir = fs.mkdtempSync(
-        path.join(os.tmpdir(), 'socket-test-noskill-'),
-      )
+      const tmpDir = mkdtempSync(path.join(os.tmpdir(), 'socket-test-noskill-'))
       try {
-        fs.mkdirSync(path.join(tmpDir, 'fake-skill'))
-        fs.writeFileSync(
+        mkdirSync(path.join(tmpDir, 'fake-skill'))
+        writeFileSync(
           path.join(tmpDir, 'fake-skill', 'README.md'),
           'not a skill',
         )
@@ -96,10 +92,10 @@ describe('Error Paths', () => {
     })
 
     it('skips SKILL.md files with no frontmatter', () => {
-      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'socket-test-nofm-'))
+      const tmpDir = mkdtempSync(path.join(os.tmpdir(), 'socket-test-nofm-'))
       try {
-        fs.mkdirSync(path.join(tmpDir, 'bad-skill'))
-        fs.writeFileSync(
+        mkdirSync(path.join(tmpDir, 'bad-skill'))
+        writeFileSync(
           path.join(tmpDir, 'bad-skill', 'SKILL.md'),
           '# No Frontmatter\nJust content.',
         )
@@ -111,12 +107,10 @@ describe('Error Paths', () => {
     })
 
     it('skips underscore-prefixed directories', () => {
-      const tmpDir = fs.mkdtempSync(
-        path.join(os.tmpdir(), 'socket-test-shared-'),
-      )
+      const tmpDir = mkdtempSync(path.join(os.tmpdir(), 'socket-test-shared-'))
       try {
-        fs.mkdirSync(path.join(tmpDir, '_shared'))
-        fs.writeFileSync(
+        mkdirSync(path.join(tmpDir, '_shared'))
+        writeFileSync(
           path.join(tmpDir, '_shared', 'SKILL.md'),
           '---\nname: shared\ndescription: a shared component\n---\nContent',
         )
@@ -139,21 +133,19 @@ describe('Error Paths', () => {
     })
 
     it('returns errors for extra plugin entry', () => {
-      const tmpDir = fs.mkdtempSync(
-        path.join(os.tmpdir(), 'socket-test-extra-'),
-      )
+      const tmpDir = mkdtempSync(path.join(os.tmpdir(), 'socket-test-extra-'))
       const tmpMarketplace = path.join(tmpDir, 'marketplace.json')
       try {
         // Create a skill
-        fs.mkdirSync(path.join(tmpDir, 'skills', 'real-skill'), {
+        mkdirSync(path.join(tmpDir, 'skills', 'real-skill'), {
           recursive: true,
         })
-        fs.writeFileSync(
+        writeFileSync(
           path.join(tmpDir, 'skills', 'real-skill', 'SKILL.md'),
           '---\nname: real-skill\ndescription: a real skill\n---\nContent',
         )
         // Create marketplace with an extra entry
-        fs.writeFileSync(
+        writeFileSync(
           tmpMarketplace,
           JSON.stringify({
             name: 'test',
@@ -186,28 +178,26 @@ describe('Error Paths', () => {
     })
 
     it('returns errors for missing plugin entry', () => {
-      const tmpDir = fs.mkdtempSync(
-        path.join(os.tmpdir(), 'socket-test-missing-'),
-      )
+      const tmpDir = mkdtempSync(path.join(os.tmpdir(), 'socket-test-missing-'))
       const tmpMarketplace = path.join(tmpDir, 'marketplace.json')
       try {
         // Create two skills
-        fs.mkdirSync(path.join(tmpDir, 'skills', 'skill-a'), {
+        mkdirSync(path.join(tmpDir, 'skills', 'skill-a'), {
           recursive: true,
         })
-        fs.writeFileSync(
+        writeFileSync(
           path.join(tmpDir, 'skills', 'skill-a', 'SKILL.md'),
           '---\nname: skill-a\ndescription: skill a\n---\nContent',
         )
-        fs.mkdirSync(path.join(tmpDir, 'skills', 'skill-b'), {
+        mkdirSync(path.join(tmpDir, 'skills', 'skill-b'), {
           recursive: true,
         })
-        fs.writeFileSync(
+        writeFileSync(
           path.join(tmpDir, 'skills', 'skill-b', 'SKILL.md'),
           '---\nname: skill-b\ndescription: skill b\n---\nContent',
         )
         // Marketplace only has one
-        fs.writeFileSync(
+        writeFileSync(
           tmpMarketplace,
           JSON.stringify({
             name: 'test',

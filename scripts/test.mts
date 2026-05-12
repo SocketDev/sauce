@@ -49,7 +49,7 @@ const ESCALATION_PATTERNS = [
   /^tsconfig.*\.json$/,
   /^\.oxlintrc\.json$/,
   /^\.oxfmtrc\.json$/,
-  /^vitest\.config\.(mjs|mts|js|ts)$/,
+  /^vitest\.config\.(js|mjs|mts|ts)$/,
   /^package\.json$/,
   /^xport\.schema\.json$/,
 ]
@@ -93,7 +93,8 @@ export function log(msg: string): void {
  */
 export function resolveTestPatterns(files: string[]): string[] {
   const patterns = new Set<string>()
-  for (const f of files) {
+  for (let i = 0, { length } = files; i < length; i += 1) {
+    const f = files[i]
     // Test file itself.
     if (/\.test\.(m?[jt]s)$/.test(f)) {
       patterns.add(f)
@@ -169,8 +170,10 @@ export function runPatterns(patterns: string[]): number {
 }
 
 export function shouldEscalate(files: string[]): boolean {
-  for (const f of files) {
-    for (const pattern of ESCALATION_PATTERNS) {
+  for (let i = 0, { length } = files; i < length; i += 1) {
+    const f = files[i]
+    for (let i = 0, { length } = ESCALATION_PATTERNS; i < length; i += 1) {
+      const pattern = ESCALATION_PATTERNS[i]
       if (pattern.test(f)) {
         return true
       }

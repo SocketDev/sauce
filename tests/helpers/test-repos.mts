@@ -4,7 +4,14 @@
  * Each test gets its own copy of a fixture directory so tests don't interfere.
  */
 
-import * as fs from 'node:fs'
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+} from 'node:fs'
 import * as path from 'node:path'
 import * as os from 'node:os'
 import { safeDeleteSync } from '@socketsecurity/lib/fs'
@@ -23,10 +30,10 @@ export function buildSkillPrompt(
   userPrompt: string,
 ): string {
   const skillPath = path.join(ROOT, 'skills', skillName, 'SKILL.md')
-  if (!fs.existsSync(skillPath)) {
+  if (!existsSync(skillPath)) {
     throw new Error(`Skill '${skillName}' not found at ${skillPath}`)
   }
-  const skillContent = fs.readFileSync(skillPath, 'utf-8')
+  const skillContent = readFileSync(skillPath, 'utf-8')
   return (
     `You have access to the following skill:\n\n${skillContent}\n\n` +
     `Task: ${userPrompt}`
@@ -41,14 +48,16 @@ export function cleanupTestRepo(dir: string): void {
 }
 
 export function copyDirSync(src: string, dest: string): void {
-  fs.mkdirSync(dest, { recursive: true })
-  for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
+  mkdirSync(dest, { recursive: true })
+  const entries = readdirSync(src, { withFileTypes: true })
+  for (let i = 0, { length } = entries; i < length; i += 1) {
+    const entry = entries[i]
     const srcPath = path.join(src, entry.name)
     const destPath = path.join(dest, entry.name)
     if (entry.isDirectory()) {
       copyDirSync(srcPath, destPath)
     } else {
-      fs.copyFileSync(srcPath, destPath)
+      copyFileSync(srcPath, destPath)
     }
   }
 }
@@ -59,11 +68,11 @@ export function copyDirSync(src: string, dest: string): void {
  */
 export function copyFixture(fixtureName: string): string {
   const src = path.join(FIXTURES_DIR, fixtureName)
-  if (!fs.existsSync(src)) {
+  if (!existsSync(src)) {
     throw new Error(`Fixture '${fixtureName}' not found at ${src}`)
   }
 
-  const tmpDir = fs.mkdtempSync(
+  const tmpDir = mkdtempSync(
     path.join(os.tmpdir(), `socket-skills-test-${fixtureName}-`),
   )
 

@@ -1,17 +1,16 @@
-import { describe, it, expect } from 'vitest'
-import * as fs from 'node:fs'
+import { describe, expect, it } from 'vitest'
+import { readFileSync, readdirSync } from 'node:fs'
 import * as path from 'node:path'
 
 const ROOT = path.resolve(__dirname, '../..')
 const SKILLS_DIR = path.join(ROOT, 'skills')
 
 export function getSkillContent(dir: string): string {
-  return fs.readFileSync(path.join(SKILLS_DIR, dir, 'SKILL.md'), 'utf-8')
+  return readFileSync(path.join(SKILLS_DIR, dir, 'SKILL.md'), 'utf-8')
 }
 
 export function getSkillDirs(): string[] {
-  return fs
-    .readdirSync(SKILLS_DIR, { withFileTypes: true })
+  return readdirSync(SKILLS_DIR, { withFileTypes: true })
     .filter(e => e.isDirectory() && !e.name.startsWith('_'))
     .map(e => e.name)
     .sort()
@@ -25,7 +24,8 @@ export function stripFrontmatter(text: string): string {
 describe('Skill Content Quality', () => {
   const skills = getSkillDirs()
 
-  for (const skill of skills) {
+  for (let i = 0, { length } = skills; i < length; i += 1) {
+    const skill = skills[i]
     describe(skill, () => {
       const content = getSkillContent(skill)
       const body = stripFrontmatter(content)

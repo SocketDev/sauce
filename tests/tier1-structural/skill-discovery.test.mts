@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import * as fs from 'node:fs'
+import { describe, expect, it } from 'vitest'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import * as path from 'node:path'
 import { parseFrontmatter } from '../../scripts/lib/frontmatter'
 
@@ -34,18 +34,20 @@ const EXPECTED_SKILLS = [
 export /** All skill directory paths (top-level as name, subskills as parent/name) */
 function getAllSkillPaths(): string[] {
   const paths: string[] = []
-  for (const dir of getSkillDirs()) {
+  const dirs = getSkillDirs()
+  for (let i = 0, { length } = dirs; i < length; i += 1) {
+    const dir = dirs[i]
     paths.push(dir)
-    for (const sub of getSubSkillDirs(dir)) {
-      paths.push(`${dir}/${sub}`)
+    const subs = getSubSkillDirs(dir)
+    for (let j = 0, sublen = subs.length; j < sublen; j += 1) {
+      paths.push(`${dir}/${subs[j]}`)
     }
   }
   return paths.sort()
 }
 
 export function getSkillDirs(): string[] {
-  return fs
-    .readdirSync(SKILLS_DIR, { withFileTypes: true })
+  return readdirSync(SKILLS_DIR, { withFileTypes: true })
     .filter(e => e.isDirectory() && !e.name.startsWith('_'))
     .map(e => e.name)
     .sort()
@@ -53,9 +55,8 @@ export function getSkillDirs(): string[] {
 
 export function getSubSkillDirs(parent: string): string[] {
   const parentDir = path.join(SKILLS_DIR, parent)
-  if (!fs.existsSync(parentDir)) return []
-  return fs
-    .readdirSync(parentDir, { withFileTypes: true })
+  if (!existsSync(parentDir)) return []
+  return readdirSync(parentDir, { withFileTypes: true })
     .filter(e => e.isDirectory() && !e.name.startsWith('_'))
     .map(e => e.name)
     .sort()
@@ -63,17 +64,21 @@ export function getSubSkillDirs(parent: string): string[] {
 
 describe('Skill Discovery', () => {
   it('skills directory exists', () => {
-    expect(fs.existsSync(SKILLS_DIR)).toBe(true)
+    expect(existsSync(SKILLS_DIR)).toBe(true)
   })
 
   it('every expected skill directory exists', () => {
     const dirs = getSkillDirs()
-    for (const skill of EXPECTED_TOP_LEVEL) {
+    for (let i = 0, { length } = EXPECTED_TOP_LEVEL; i < length; i += 1) {
+      const skill = EXPECTED_TOP_LEVEL[i]
       expect(dirs, `missing skill directory: ${skill}`).toContain(skill)
     }
-    for (const [parent, subs] of Object.entries(EXPECTED_SUBSKILLS)) {
+    const subskillEntries = Object.entries(EXPECTED_SUBSKILLS)
+    for (let j = 0, sjlen = subskillEntries.length; j < sjlen; j += 1) {
+      const [parent, subs] = subskillEntries[j]
       const subDirs = getSubSkillDirs(parent)
-      for (const sub of subs) {
+      for (let i = 0, { length } = subs; i < length; i += 1) {
+        const sub = subs[i]
         expect(
           subDirs,
           `missing subskill directory: ${parent}/${sub}`,
@@ -83,19 +88,22 @@ describe('Skill Discovery', () => {
   })
 
   it('every skill directory contains a SKILL.md', () => {
-    for (const skillPath of getAllSkillPaths()) {
+    const skillPaths = getAllSkillPaths()
+    for (let i = 0, { length } = skillPaths; i < length; i += 1) {
+      const skillPath = skillPaths[i]
       const skillMd = path.join(SKILLS_DIR, skillPath, 'SKILL.md')
-      expect(
-        fs.existsSync(skillMd),
-        `${skillPath}/SKILL.md does not exist`,
-      ).toBe(true)
+      expect(existsSync(skillMd), `${skillPath}/SKILL.md does not exist`).toBe(
+        true,
+      )
     }
   })
 
   it('every SKILL.md has valid YAML frontmatter with name and description', () => {
-    for (const skillPath of getAllSkillPaths()) {
+    const skillPaths = getAllSkillPaths()
+    for (let i = 0, { length } = skillPaths; i < length; i += 1) {
+      const skillPath = skillPaths[i]
       const skillMd = path.join(SKILLS_DIR, skillPath, 'SKILL.md')
-      const content = fs.readFileSync(skillMd, 'utf-8')
+      const content = readFileSync(skillMd, 'utf-8')
       const meta = parseFrontmatter(content)
 
       expect(
@@ -110,10 +118,12 @@ describe('Skill Discovery', () => {
   })
 
   it('frontmatter name matches the directory name', () => {
-    for (const skillPath of getAllSkillPaths()) {
+    const skillPaths = getAllSkillPaths()
+    for (let i = 0, { length } = skillPaths; i < length; i += 1) {
+      const skillPath = skillPaths[i]
       const dirName = path.basename(skillPath)
       const skillMd = path.join(SKILLS_DIR, skillPath, 'SKILL.md')
-      const content = fs.readFileSync(skillMd, 'utf-8')
+      const content = readFileSync(skillMd, 'utf-8')
       const meta = parseFrontmatter(content)
 
       expect(
@@ -125,7 +135,7 @@ describe('Skill Discovery', () => {
 
   it('no orphan skill directories (dirs without SKILL.md)', () => {
     const orphans = getAllSkillPaths().filter(
-      skillPath => !fs.existsSync(path.join(SKILLS_DIR, skillPath, 'SKILL.md')),
+      skillPath => !existsSync(path.join(SKILLS_DIR, skillPath, 'SKILL.md')),
     )
     expect(orphans, `orphan directories: ${orphans.join(', ')}`).toEqual([])
   })
@@ -139,7 +149,9 @@ describe('Skill Discovery', () => {
         `Update EXPECTED_TOP_LEVEL in this test if intentional.`,
     ).toEqual([])
 
-    for (const [parent, expectedSubs] of Object.entries(EXPECTED_SUBSKILLS)) {
+    const subskillEntries = Object.entries(EXPECTED_SUBSKILLS)
+    for (let i = 0, { length } = subskillEntries; i < length; i += 1) {
+      const [parent, expectedSubs] = subskillEntries[i]
       const subDirs = getSubSkillDirs(parent)
       const unexpectedSubs = subDirs.filter(d => !expectedSubs.includes(d))
       expect(

@@ -6,13 +6,10 @@
  * and updates the skills table in README.md.
  */
 
-import * as fs from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import * as path from 'node:path'
-import {
-  collectSkills,
-  validateMarketplace,
-  type Skill,
-} from './lib/validate-marketplace'
+import { collectSkills, validateMarketplace } from './lib/validate-marketplace'
+import type { Skill } from './lib/validate-marketplace'
 
 const ROOT = path.resolve(__dirname, '..')
 const TEMPLATE_PATH = path.join(ROOT, 'scripts', 'AGENTS_TEMPLATE.md')
@@ -73,22 +70,27 @@ const CATEGORIES: Array<[string, CategoryDef]> = [
 export function generateReadmeTable(skills: Skill[]): string {
   const marketplace = loadMarketplace()
   const pluginsBySource = new Map<string, MarketplacePlugin>()
-  for (const p of marketplace.plugins) {
+  const plugins = marketplace.plugins
+  for (let i = 0, { length } = plugins; i < length; i += 1) {
+    const p = plugins[i]
     pluginsBySource.set(p.source, p)
   }
 
   const grouped = new Map<string, Skill[]>()
-  for (const [key] of CATEGORIES) {
+  for (let i = 0, { length } = CATEGORIES; i < length; i += 1) {
+    const key = CATEGORIES[i][0]
     grouped.set(key, [])
   }
-  for (const skill of skills) {
+  for (let i = 0, { length } = skills; i < length; i += 1) {
+    const skill = skills[i]
     const cat = getCategory(skill.name)
     grouped.get(cat)?.push(skill)
   }
 
   const lines: string[] = []
 
-  for (const [key, def] of CATEGORIES) {
+  for (let i = 0, { length } = CATEGORIES; i < length; i += 1) {
+    const [key, def] = CATEGORIES[i]
     const catSkills = grouped.get(key)
     if (!catSkills || catSkills.length === 0) continue
 
@@ -99,7 +101,8 @@ export function generateReadmeTable(skills: Skill[]): string {
     lines.push('| Name | Description | Documentation |')
     lines.push('|------|-------------|---------------|')
 
-    for (const skill of catSkills) {
+    for (let i = 0, { length } = catSkills; i < length; i += 1) {
+      const skill = catSkills[i]
       const source = `./${skill.path}`
       const plugin = pluginsBySource.get(source)
       const name = plugin?.name ?? skill.name
@@ -121,7 +124,7 @@ export function generateReadmeTable(skills: Skill[]): string {
 
 export function getCategory(skillName: string): string {
   if (skillName === 'socket-setup') return 'setup'
-  if (skillName === 'socket-scan' || skillName === 'socket-inspect')
+  if (skillName === 'socket-inspect' || skillName === 'socket-scan')
     return 'analysis'
   if (skillName.startsWith('socket-dep-') || skillName === 'socket-fix')
     return 'fix'
@@ -129,14 +132,14 @@ export function getCategory(skillName: string): string {
 }
 
 export function loadMarketplace(): Marketplace {
-  if (!fs.existsSync(MARKETPLACE_PATH)) {
+  if (!existsSync(MARKETPLACE_PATH)) {
     throw new Error(`marketplace.json not found at ${MARKETPLACE_PATH}`)
   }
-  return JSON.parse(fs.readFileSync(MARKETPLACE_PATH, 'utf-8'))
+  return JSON.parse(readFileSync(MARKETPLACE_PATH, 'utf-8'))
 }
 
 export function loadTemplate(): string {
-  return fs.readFileSync(TEMPLATE_PATH, 'utf-8')
+  return readFileSync(TEMPLATE_PATH, 'utf-8')
 }
 
 export function render(template: string, skills: Skill[]): string {
@@ -157,12 +160,12 @@ export function render(template: string, skills: Skill[]): string {
 }
 
 export function updateReadme(skills: Skill[]): boolean {
-  if (!fs.existsSync(README_PATH)) {
+  if (!existsSync(README_PATH)) {
     logger.fail(`Warning: README.md not found at ${README_PATH}`)
     return false
   }
 
-  const content = fs.readFileSync(README_PATH, 'utf-8')
+  const content = readFileSync(README_PATH, 'utf-8')
   const startIdx = content.indexOf(README_TABLE_START)
   const endIdx = content.indexOf(README_TABLE_END)
 
@@ -187,7 +190,7 @@ export function updateReadme(skills: Skill[]): boolean {
     '\n' +
     content.slice(endIdx)
 
-  fs.writeFileSync(README_PATH, newContent, 'utf-8')
+  writeFileSync(README_PATH, newContent, 'utf-8')
   return true
 }
 
@@ -197,11 +200,11 @@ function main(): void {
   const output = render(template, skills)
 
   const outputDir = path.dirname(OUTPUT_PATH)
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true })
+  if (!existsSync(outputDir)) {
+    mkdirSync(outputDir, { recursive: true })
   }
 
-  fs.writeFileSync(OUTPUT_PATH, output, 'utf-8')
+  writeFileSync(OUTPUT_PATH, output, 'utf-8')
   logger.log(
     `Wrote ${path.relative(ROOT, OUTPUT_PATH)} with ${skills.length} skills.`,
   )
@@ -209,7 +212,8 @@ function main(): void {
   const errors = validateMarketplace(SKILLS_DIR, MARKETPLACE_PATH)
   if (errors.length > 0) {
     logger.fail('\nMarketplace.json validation errors:')
-    for (const error of errors) {
+    for (let i = 0, { length } = errors; i < length; i += 1) {
+      const error = errors[i]
       logger.fail(`  - ${error.message}`)
     }
     process.exit(1)

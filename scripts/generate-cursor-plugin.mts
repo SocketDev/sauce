@@ -4,7 +4,13 @@
  * from .claude-plugin/plugin.json.
  */
 
-import * as fs from 'node:fs'
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  writeFileSync,
+} from 'node:fs'
 import * as path from 'node:path'
 import { parseFrontmatter } from './lib/frontmatter'
 
@@ -36,7 +42,7 @@ export function buildCursorPluginManifest(): Record<string, unknown> {
     mcpServers: '.mcp.json',
   }
 
-  for (const key of [
+  const optionalKeys = [
     'description',
     'version',
     'author',
@@ -45,7 +51,9 @@ export function buildCursorPluginManifest(): Record<string, unknown> {
     'license',
     'keywords',
     'logo',
-  ]) {
+  ]
+  for (let i = 0, { length } = optionalKeys; i < length; i += 1) {
+    const key = optionalKeys[i]
     if (key in src) {
       manifest[key] = src[key]
     }
@@ -62,17 +70,19 @@ export function buildMcpConfig(): Record<string, unknown> {
 
 export function collectSkillNames(dir?: string): string[] {
   const skillsDir = dir ?? path.join(ROOT, 'skills')
-  if (!fs.existsSync(skillsDir)) return []
+  if (!existsSync(skillsDir)) return []
 
   const names: string[] = []
-  for (const entry of fs
-    .readdirSync(skillsDir, { withFileTypes: true })
-    .sort((a, b) => a.name.localeCompare(b.name))) {
+  const entries = readdirSync(skillsDir, { withFileTypes: true }).sort((a, b) =>
+    a.name.localeCompare(b.name),
+  )
+  for (let i = 0, { length } = entries; i < length; i += 1) {
+    const entry = entries[i]
     if (!entry.isDirectory() || entry.name.startsWith('_')) continue
     const skillMd = path.join(skillsDir, entry.name, 'SKILL.md')
-    if (!fs.existsSync(skillMd)) continue
+    if (!existsSync(skillMd)) continue
 
-    const meta = parseFrontmatter(fs.readFileSync(skillMd, 'utf-8'))
+    const meta = parseFrontmatter(readFileSync(skillMd, 'utf-8'))
     const name = meta.name?.trim()
     if (name) names.push(name)
 
@@ -84,10 +94,10 @@ export function collectSkillNames(dir?: string): string[] {
 }
 
 export function loadJson(filePath: string): Record<string, unknown> {
-  if (!fs.existsSync(filePath)) {
+  if (!existsSync(filePath)) {
     throw new Error(`Missing required file: ${filePath}`)
   }
-  return JSON.parse(fs.readFileSync(filePath, 'utf-8'))
+  return JSON.parse(readFileSync(filePath, 'utf-8'))
 }
 
 export function renderJson(data: Record<string, unknown>): string {
@@ -109,8 +119,8 @@ export function writeOrCheck(
   check: boolean,
 ): boolean {
   let current: string | null = undefined
-  if (fs.existsSync(filePath)) {
-    current = fs.readFileSync(filePath, 'utf-8')
+  if (existsSync(filePath)) {
+    current = readFileSync(filePath, 'utf-8')
   }
 
   if (current === content) return true
@@ -118,10 +128,10 @@ export function writeOrCheck(
   if (check) return false
 
   const dir = path.dirname(filePath)
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true })
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true })
   }
-  fs.writeFileSync(filePath, content, 'utf-8')
+  writeFileSync(filePath, content, 'utf-8')
   return true
 }
 
@@ -145,10 +155,11 @@ function main(): void {
 
     if (outdated.length > 0) {
       logger.fail('Generated Cursor artifacts are out of date:')
-      for (const item of outdated) {
+      for (let i = 0, { length } = outdated; i < length; i += 1) {
+        const item = outdated[i]
         logger.fail(`  - ${item}`)
       }
-      logger.fail('Run: pnpm dlx tsx scripts/generate-cursor-plugin.ts')
+      logger.fail('Run: pnpm exec tsx scripts/generate-cursor-plugin.ts')
       process.exit(1)
     }
 

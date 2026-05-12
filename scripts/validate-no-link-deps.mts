@@ -47,7 +47,9 @@ export async function checkPackageJson(
 
   // Check dependencies.
   if (pkg['dependencies']) {
-    for (const [name, version] of Object.entries(pkg['dependencies'])) {
+    const entries = Object.entries(pkg['dependencies'])
+    for (let i = 0, { length } = entries; i < length; i += 1) {
+      const [name, version] = entries[i]
       if (typeof version === 'string' && version.startsWith('link:')) {
         violations.push({
           file: filePath,
@@ -61,7 +63,9 @@ export async function checkPackageJson(
 
   // Check devDependencies.
   if (pkg['devDependencies']) {
-    for (const [name, version] of Object.entries(pkg['devDependencies'])) {
+    const entries = Object.entries(pkg['devDependencies'])
+    for (let i = 0, { length } = entries; i < length; i += 1) {
+      const [name, version] = entries[i]
       if (typeof version === 'string' && version.startsWith('link:')) {
         violations.push({
           file: filePath,
@@ -75,7 +79,9 @@ export async function checkPackageJson(
 
   // Check peerDependencies.
   if (pkg['peerDependencies']) {
-    for (const [name, version] of Object.entries(pkg['peerDependencies'])) {
+    const entries = Object.entries(pkg['peerDependencies'])
+    for (let i = 0, { length } = entries; i < length; i += 1) {
+      const [name, version] = entries[i]
       if (typeof version === 'string' && version.startsWith('link:')) {
         violations.push({
           file: filePath,
@@ -89,7 +95,9 @@ export async function checkPackageJson(
 
   // Check optionalDependencies.
   if (pkg['optionalDependencies']) {
-    for (const [name, version] of Object.entries(pkg['optionalDependencies'])) {
+    const entries = Object.entries(pkg['optionalDependencies'])
+    for (let i = 0, { length } = entries; i < length; i += 1) {
+      const [name, version] = entries[i]
       if (typeof version === 'string' && version.startsWith('link:')) {
         violations.push({
           file: filePath,
@@ -111,15 +119,16 @@ export async function findPackageJsonFiles(dir: string): Promise<string[]> {
   const files: string[] = []
   const entries = await fs.readdir(dir, { withFileTypes: true })
 
-  for (const entry of entries) {
+  for (let i = 0, { length } = entries; i < length; i += 1) {
+    const entry = entries[i]
     const fullPath = path.join(dir, entry.name)
 
     // Skip node_modules, .git, and build directories.
     if (
-      entry.name === 'node_modules' ||
       entry.name === '.git' ||
       entry.name === 'build' ||
-      entry.name === 'dist'
+      entry.name === 'dist' ||
+      entry.name === 'node_modules'
     ) {
       continue
     }
@@ -138,7 +147,8 @@ async function main(): Promise<void> {
   const packageJsonFiles = await findPackageJsonFiles(rootPath)
   const allViolations: LinkViolation[] = []
 
-  for (const file of packageJsonFiles) {
+  for (let i = 0, { length } = packageJsonFiles; i < length; i += 1) {
+    const file = packageJsonFiles[i]
     const violations = await checkPackageJson(file)
     allViolations.push(...violations)
   }
@@ -151,7 +161,8 @@ async function main(): Promise<void> {
     )
     logger.error('')
 
-    for (const violation of allViolations) {
+    for (let i = 0, { length } = allViolations; i < length; i += 1) {
+      const violation = allViolations[i]
       const relativePath = path.relative(rootPath, violation.file)
       logger.error(`  ${relativePath}`)
       logger.error(

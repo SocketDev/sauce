@@ -7,7 +7,7 @@
  * Outputs JSON: { ci: [{ system, configFile }], scm: { provider, remote? } }
  */
 
-import * as fs from 'node:fs'
+import { existsSync, readdirSync } from 'node:fs'
 import * as path from 'node:path'
 import { execSync } from 'node:child_process'
 
@@ -34,17 +34,19 @@ const CI_PATTERNS: Array<{ system: string; path: string }> = [
 export function detectCI(dir: string): CISystem[] {
   const results: CISystem[] = []
 
-  for (const pattern of CI_PATTERNS) {
+  for (let i = 0, { length } = CI_PATTERNS; i < length; i += 1) {
+    const pattern = CI_PATTERNS[i]
     const fullPath = path.join(dir, pattern.path)
-    if (fs.existsSync(fullPath)) {
+    if (existsSync(fullPath)) {
       if (pattern.system === 'github-actions') {
         // Check for actual workflow files
         try {
-          const files = fs.readdirSync(fullPath)
+          const files = readdirSync(fullPath)
           const workflows = files.filter(
             f => f.endsWith('.yml') || f.endsWith('.yaml'),
           )
-          for (const wf of workflows) {
+          for (let i = 0, { length } = workflows; i < length; i += 1) {
+            const wf = workflows[i]
             results.push({
               system: 'github-actions',
               configFile: path.join(pattern.path, wf),
@@ -85,7 +87,7 @@ export function detectSCM(dir: string): SCMInfo {
     return { provider: 'other', remote }
   } catch {
     // Not a git repo or no remote
-    const isGit = fs.existsSync(path.join(dir, '.git'))
+    const isGit = existsSync(path.join(dir, '.git'))
     if (isGit) {
       return { provider: 'git-local' }
     }

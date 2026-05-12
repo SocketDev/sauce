@@ -1,12 +1,10 @@
-import { describe, it, beforeAll, afterAll, beforeEach } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, it } from 'vitest'
+import { getAdapter } from '../helpers/agent-adapters/index.js'
+import type { AgentAdapter } from '../helpers/agent-adapters/index.js'
 import {
-  getAdapter,
-  type AgentAdapter,
-} from '../helpers/agent-adapters/index.js'
-import {
-  copyFixture,
-  cleanupTestRepo,
   buildSkillPrompt,
+  cleanupTestRepo,
+  copyFixture,
 } from '../helpers/test-repos.js'
 import { expectScoreAboveThreshold } from '../helpers/assertions.js'
 

@@ -3,17 +3,17 @@
  * Sync the version from package.json into all config files.
  */
 
-import * as fs from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
 import * as path from 'node:path'
 
 const ROOT = path.resolve(__dirname, '..')
 
 export function readJSON(filePath: string): any {
-  return JSON.parse(fs.readFileSync(filePath, 'utf-8'))
+  return JSON.parse(readFileSync(filePath, 'utf-8'))
 }
 
 export function writeJSON(filePath: string, data: any): void {
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n', 'utf-8')
+  writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n', 'utf-8')
 }
 
 function main(): void {
@@ -30,7 +30,8 @@ function main(): void {
     path.join(ROOT, 'gemini-extension.json'),
   ]
 
-  for (const target of targets) {
+  for (let i = 0, { length } = targets; i < length; i += 1) {
+    const target = targets[i]
     const data = readJSON(target)
     if (target.endsWith('marketplace.json')) {
       data.metadata.version = version

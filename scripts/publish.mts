@@ -21,7 +21,7 @@
  * structural assertions the SHA comparison wouldn't catch.
  */
 
-import { createHash } from 'node:crypto'
+import crypto from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
@@ -57,14 +57,16 @@ export function fileSig(relPath: string): string {
 export async function runCheck(): Promise<void> {
   // Snapshot SHAs before regenerating so we can detect drift after.
   const before: Record<string, string> = Object.create(undefined)
-  for (const p of GENERATED_FILES) {
+  for (let i = 0, { length } = GENERATED_FILES; i < length; i += 1) {
+    const p = GENERATED_FILES[i]
     before[p] = fileSig(p)
   }
 
   await runGenerate()
 
   const changed: string[] = []
-  for (const p of GENERATED_FILES) {
+  for (let i = 0, { length } = GENERATED_FILES; i < length; i += 1) {
+    const p = GENERATED_FILES[i]
     if (fileSig(p) !== before[p]) {
       changed.push(p)
     }
@@ -74,7 +76,8 @@ export async function runCheck(): Promise<void> {
     process.stderr.write('Generated artifacts are outdated.\n')
     process.stderr.write('Run: pnpm run generate\n\n')
     process.stderr.write('Changed files:\n')
-    for (const p of changed) {
+    for (let i = 0, { length } = changed; i < length; i += 1) {
+      const p = changed[i]
       process.stderr.write(`  ${p}\n`)
     }
     process.exit(1)
@@ -110,7 +113,7 @@ if (arg === undefined) {
   process.stdout.write('Publish artifacts generated successfully.\n')
 } else if (arg === '--check') {
   await runCheck()
-} else if (arg === '-h' || arg === '--help') {
+} else if (arg === '--help' || arg === '-h') {
   process.stdout.write(`Usage:
   node scripts/publish.mts          Generate all publish artifacts
   node scripts/publish.mts --check  Verify generated artifacts are up to date

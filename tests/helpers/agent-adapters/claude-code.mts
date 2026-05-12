@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process'
+import { spawn } from '@socketsecurity/lib/spawn'
 import type { AgentAdapter, RunPromptOptions } from './types.js'
 import type { AgentResponse } from '../assertions.js'
 
@@ -7,7 +7,8 @@ const CLAUDE_ENV_VARS = ['CLAUDECODE', 'CLAUDE_CODE_ENTRYPOINT', 'NODE_PATH']
 
 export function cleanEnv(): NodeJS.ProcessEnv {
   const env = { ...process.env }
-  for (const key of CLAUDE_ENV_VARS) {
+  for (let i = 0, { length } = CLAUDE_ENV_VARS; i < length; i += 1) {
+    const key = CLAUDE_ENV_VARS[i]
     delete env[key]
   }
   // Ensure the Socket CLI can authenticate using whichever key is available

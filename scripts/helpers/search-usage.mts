@@ -7,7 +7,8 @@
  * Outputs JSON: { package, found: boolean, files: [{ path, line, match }] }
  */
 
-import * as fs from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
+import type { Dirent } from 'node:fs'
 import * as path from 'node:path'
 
 interface UsageMatch {
@@ -121,14 +122,15 @@ export function walkDir(
   dir: string,
   callback: (filePath: string) => void,
 ): void {
-  let entries: fs.Dirent[]
+  let entries: Dirent[]
   try {
-    entries = fs.readdirSync(dir, { withFileTypes: true })
+    entries = readdirSync(dir, { withFileTypes: true })
   } catch {
     return
   }
 
-  for (const entry of entries) {
+  for (let i = 0, { length } = entries; i < length; i += 1) {
+    const entry = entries[i]
     if (SKIP_DIRS.has(entry.name)) continue
     const fullPath = path.join(dir, entry.name)
     if (entry.isDirectory()) {
@@ -151,14 +153,15 @@ function main(): void {
     walkDir(dir, filePath => {
       let content: string
       try {
-        content = fs.readFileSync(filePath, 'utf-8')
+        content = readFileSync(filePath, 'utf-8')
       } catch {
         return
       }
 
       const lines = content.split('\n')
       for (let i = 0; i < lines.length; i++) {
-        for (const pattern of patterns) {
+        for (let i = 0, { length } = patterns; i < length; i += 1) {
+          const pattern = patterns[i]
           pattern.lastIndex = 0
           const m = pattern.exec(lines[i])
           if (m) {

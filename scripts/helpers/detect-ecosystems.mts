@@ -7,7 +7,7 @@
  * Outputs JSON: { ecosystems: [{ name, manifests: [string] }] }
  */
 
-import * as fs from 'node:fs'
+import { existsSync, readdirSync } from 'node:fs'
 import * as path from 'node:path'
 
 interface EcosystemMatch {
@@ -35,20 +35,22 @@ const ECOSYSTEM_PATTERNS: Record<string, string[]> = {
 }
 
 export function detectEcosystems(dir: string): EcosystemMatch[] {
-  if (!fs.existsSync(dir)) {
+  if (!existsSync(dir)) {
     return []
   }
 
   let entries: string[]
   try {
-    entries = fs.readdirSync(dir)
+    entries = readdirSync(dir)
   } catch {
     return []
   }
 
   const results: EcosystemMatch[] = []
 
-  for (const [ecosystem, patterns] of Object.entries(ECOSYSTEM_PATTERNS)) {
+  const ecosystemEntries = Object.entries(ECOSYSTEM_PATTERNS)
+  for (let i = 0, { length } = ecosystemEntries; i < length; i += 1) {
+    const [ecosystem, patterns] = ecosystemEntries[i]
     const found = patterns.filter(pattern =>
       entries.some(entry => matchesPattern(entry, pattern)),
     )

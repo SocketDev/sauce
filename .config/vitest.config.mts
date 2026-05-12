@@ -1,6 +1,7 @@
 /**
  * @fileoverview Vitest configuration.
  */
+// oxlint-disable socket/no-default-export -- Vitest requires a default export from config files.
 import process from 'node:process'
 
 import { defineConfig } from 'vitest/config'
@@ -9,7 +10,7 @@ const isCoverageEnabled =
   process.env.COVERAGE === 'true' ||
   process.argv.some(arg => arg.includes('coverage'))
 
-export default defineConfig({
+const config = defineConfig({
   test: {
     deps: {
       interopDefault: false,
@@ -51,3 +52,5 @@ export default defineConfig({
     },
   },
 })
+
+export default config

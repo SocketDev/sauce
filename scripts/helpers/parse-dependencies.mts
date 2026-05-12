@@ -7,7 +7,7 @@
  * Outputs JSON: { dependencies: [{ name, version, type, ecosystem }] }
  */
 
-import * as fs from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import * as path from 'node:path'
 
 interface Dependency {
@@ -33,13 +33,15 @@ export function parseArgs(): { ecosystem?: string; dir: string } {
 
 export function parseBundler(dir: string): Dependency[] {
   const gemfilePath = path.join(dir, 'Gemfile')
-  if (!fs.existsSync(gemfilePath)) return []
+  if (!existsSync(gemfilePath)) return []
 
-  const content = fs.readFileSync(gemfilePath, 'utf-8')
+  const content = readFileSync(gemfilePath, 'utf-8')
   const deps: Dependency[] = []
   let currentGroup = 'default'
 
-  for (const line of content.split('\n')) {
+  const lines = content.split('\n')
+  for (let i = 0, { length } = lines; i < length; i += 1) {
+    const line = lines[i]
     const groupMatch = line.match(/group\s+:(\w+)/)
     if (groupMatch) {
       currentGroup = groupMatch[1]
@@ -70,13 +72,15 @@ export function parseBundler(dir: string): Dependency[] {
 
 export function parseCargo(dir: string): Dependency[] {
   const tomlPath = path.join(dir, 'Cargo.toml')
-  if (!fs.existsSync(tomlPath)) return []
+  if (!existsSync(tomlPath)) return []
 
-  const content = fs.readFileSync(tomlPath, 'utf-8')
+  const content = readFileSync(tomlPath, 'utf-8')
   const deps: Dependency[] = []
   let section = ''
 
-  for (const line of content.split('\n')) {
+  const lines = content.split('\n')
+  for (let i = 0, { length } = lines; i < length; i += 1) {
+    const line = lines[i]
     const sectionMatch = line.match(/^\[(.+)\]/)
     if (sectionMatch) {
       section = sectionMatch[1].trim()
@@ -101,13 +105,15 @@ export function parseCargo(dir: string): Dependency[] {
 
 export function parseGo(dir: string): Dependency[] {
   const modPath = path.join(dir, 'go.mod')
-  if (!fs.existsSync(modPath)) return []
+  if (!existsSync(modPath)) return []
 
-  const content = fs.readFileSync(modPath, 'utf-8')
+  const content = readFileSync(modPath, 'utf-8')
   const deps: Dependency[] = []
   let inRequire = false
 
-  for (const line of content.split('\n')) {
+  const lines = content.split('\n')
+  for (let i = 0, { length } = lines; i < length; i += 1) {
+    const line = lines[i]
     if (line.trim() === 'require (') {
       inRequire = true
       continue
@@ -145,9 +151,9 @@ export function parseGo(dir: string): Dependency[] {
 
 export function parseMaven(dir: string): Dependency[] {
   const pomPath = path.join(dir, 'pom.xml')
-  if (!fs.existsSync(pomPath)) return []
+  if (!existsSync(pomPath)) return []
 
-  const content = fs.readFileSync(pomPath, 'utf-8')
+  const content = readFileSync(pomPath, 'utf-8')
   const deps: Dependency[] = []
 
   const depRegex =
@@ -168,12 +174,14 @@ export function parseMaven(dir: string): Dependency[] {
 
 export function parseNpm(dir: string): Dependency[] {
   const pkgPath = path.join(dir, 'package.json')
-  if (!fs.existsSync(pkgPath)) return []
+  if (!existsSync(pkgPath)) return []
 
-  const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'))
+  const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'))
   const deps: Dependency[] = []
 
-  for (const [name, version] of Object.entries(pkg.dependencies ?? {})) {
+  const prodEntries = Object.entries(pkg.dependencies ?? {})
+  for (let i = 0, { length } = prodEntries; i < length; i += 1) {
+    const [name, version] = prodEntries[i]
     deps.push({
       name,
       version: String(version),
@@ -181,10 +189,14 @@ export function parseNpm(dir: string): Dependency[] {
       ecosystem: 'npm',
     })
   }
-  for (const [name, version] of Object.entries(pkg.devDependencies ?? {})) {
+  const devEntries = Object.entries(pkg.devDependencies ?? {})
+  for (let i = 0, { length } = devEntries; i < length; i += 1) {
+    const [name, version] = devEntries[i]
     deps.push({ name, version: String(version), type: 'dev', ecosystem: 'npm' })
   }
-  for (const [name, version] of Object.entries(pkg.peerDependencies ?? {})) {
+  const peerEntries = Object.entries(pkg.peerDependencies ?? {})
+  for (let i = 0, { length } = peerEntries; i < length; i += 1) {
+    const [name, version] = peerEntries[i]
     deps.push({
       name,
       version: String(version),
@@ -192,9 +204,9 @@ export function parseNpm(dir: string): Dependency[] {
       ecosystem: 'npm',
     })
   }
-  for (const [name, version] of Object.entries(
-    pkg.optionalDependencies ?? {},
-  )) {
+  const optionalEntries = Object.entries(pkg.optionalDependencies ?? {})
+  for (let i = 0, { length } = optionalEntries; i < length; i += 1) {
+    const [name, version] = optionalEntries[i]
     deps.push({
       name,
       version: String(version),
@@ -208,11 +220,12 @@ export function parseNpm(dir: string): Dependency[] {
 
 export function parseNuget(dir: string): Dependency[] {
   const deps: Dependency[] = []
-  const entries = fs.readdirSync(dir)
+  const entries = readdirSync(dir)
 
-  for (const entry of entries) {
+  for (let i = 0, { length } = entries; i < length; i += 1) {
+    const entry = entries[i]
     if (entry.endsWith('.csproj')) {
-      const content = fs.readFileSync(path.join(dir, entry), 'utf-8')
+      const content = readFileSync(path.join(dir, entry), 'utf-8')
       const pkgRegex =
         /<PackageReference\s+Include="([^"]+)"\s+Version="([^"]+)"/g
       let match
@@ -233,9 +246,10 @@ export function parseNuget(dir: string): Dependency[] {
 export function parsePypi(dir: string): Dependency[] {
   const deps: Dependency[] = []
   const reqPath = path.join(dir, 'requirements.txt')
-  if (fs.existsSync(reqPath)) {
-    const lines = fs.readFileSync(reqPath, 'utf-8').split('\n')
-    for (const line of lines) {
+  if (existsSync(reqPath)) {
+    const lines = readFileSync(reqPath, 'utf-8').split('\n')
+    for (let i = 0, { length } = lines; i < length; i += 1) {
+      const line = lines[i]
       const trimmed = line.trim()
       if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('-'))
         continue
@@ -252,9 +266,10 @@ export function parsePypi(dir: string): Dependency[] {
   }
 
   const devReqPath = path.join(dir, 'requirements-dev.txt')
-  if (fs.existsSync(devReqPath)) {
-    const lines = fs.readFileSync(devReqPath, 'utf-8').split('\n')
-    for (const line of lines) {
+  if (existsSync(devReqPath)) {
+    const lines = readFileSync(devReqPath, 'utf-8').split('\n')
+    for (let i = 0, { length } = lines; i < length; i += 1) {
+      const line = lines[i]
       const trimmed = line.trim()
       if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('-'))
         continue
@@ -299,8 +314,9 @@ function main(): void {
       }
       allDeps = parser(dir)
     } else {
-      for (const parser of Object.values(PARSERS)) {
-        allDeps.push(...parser(dir))
+      const parsers = Object.values(PARSERS)
+      for (let i = 0, { length } = parsers; i < length; i += 1) {
+        allDeps.push(...parsers[i](dir))
       }
     }
 

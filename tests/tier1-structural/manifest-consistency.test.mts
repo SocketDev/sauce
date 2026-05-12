@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import * as fs from 'node:fs'
+import { describe, expect, it } from 'vitest'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import * as path from 'node:path'
 import { validateMarketplace } from '../../scripts/lib/validate-marketplace'
 
@@ -22,8 +22,7 @@ interface Marketplace {
 }
 
 export function getSkillDirs(): string[] {
-  return fs
-    .readdirSync(SKILLS_DIR, { withFileTypes: true })
+  return readdirSync(SKILLS_DIR, { withFileTypes: true })
     .filter(e => e.isDirectory() && !e.name.startsWith('_'))
     .map(e => e.name)
     .sort()
@@ -31,7 +30,7 @@ export function getSkillDirs(): string[] {
 
 export function loadJSON(relPath: string): unknown {
   const fullPath = path.join(ROOT, relPath)
-  return JSON.parse(fs.readFileSync(fullPath, 'utf-8'))
+  return JSON.parse(readFileSync(fullPath, 'utf-8'))
 }
 
 describe('Manifest Consistency', () => {
@@ -42,10 +41,7 @@ describe('Manifest Consistency', () => {
   const geminiJson = loadJSON('gemini-extension.json') as {
     version: string
   }
-  const agentsMd = fs.readFileSync(
-    path.join(ROOT, 'agents', 'AGENTS.md'),
-    'utf-8',
-  )
+  const agentsMd = readFileSync(path.join(ROOT, 'agents', 'AGENTS.md'), 'utf-8')
 
   describe('marketplace.json', () => {
     it('passes shared validation (skills ↔ marketplace sync)', () => {
@@ -57,10 +53,12 @@ describe('Manifest Consistency', () => {
     })
 
     it('every plugin source path resolves to a real SKILL.md', () => {
-      for (const plugin of marketplace.plugins) {
+      const plugins = marketplace.plugins
+      for (let i = 0, { length } = plugins; i < length; i += 1) {
+        const plugin = plugins[i]
         const skillMd = path.join(ROOT, plugin.source, 'SKILL.md')
         expect(
-          fs.existsSync(skillMd),
+          existsSync(skillMd),
           `plugin '${plugin.name}' source '${plugin.source}' has no SKILL.md`,
         ).toBe(true)
       }
@@ -69,7 +67,9 @@ describe('Manifest Consistency', () => {
 
   describe('AGENTS.md', () => {
     it('references all skill paths', () => {
-      for (const dir of getSkillDirs()) {
+      const dirs = getSkillDirs()
+      for (let i = 0, { length } = dirs; i < length; i += 1) {
+        const dir = dirs[i]
         expect(
           agentsMd,
           `AGENTS.md does not reference skills/${dir}/SKILL.md`,
@@ -78,7 +78,9 @@ describe('Manifest Consistency', () => {
     })
 
     it('lists all skill names in the table', () => {
-      for (const dir of getSkillDirs()) {
+      const dirs = getSkillDirs()
+      for (let i = 0, { length } = dirs; i < length; i += 1) {
+        const dir = dirs[i]
         // Markdown tables pad column values with spaces; match the
         // skill-dir cell with a regex that tolerates the padding.
         const tableRowRe = new RegExp(`\\|\\s*${dir}\\s*\\|`)

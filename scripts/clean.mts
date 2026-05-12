@@ -95,7 +95,8 @@ export async function removeIfExists(
 
 export async function removeTsBuildInfo(quiet: boolean): Promise<void> {
   const entries = await readdir(rootPath, { withFileTypes: true })
-  for (const entry of entries) {
+  for (let i = 0, { length } = entries; i < length; i += 1) {
+    const entry = entries[i]
     if (entry.isFile() && entry.name.endsWith('.tsbuildinfo')) {
       const target = path.join(rootPath, entry.name)
       await rm(target, { force: true })
@@ -150,7 +151,8 @@ async function main(): Promise<void> {
   if (!flags.quiet) {
     process.stdout.write('Cleaning project directories\n')
   }
-  for (const task of tasks) {
+  for (let i = 0, { length } = tasks; i < length; i += 1) {
+    const task = tasks[i]
     await task()
   }
   if (!flags.quiet) {

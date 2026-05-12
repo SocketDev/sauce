@@ -5,7 +5,7 @@
  * marketplace.json stays in sync with discovered skills.
  */
 
-import * as fs from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import * as path from 'node:path'
 import { parseFrontmatter } from './frontmatter'
 
@@ -39,15 +39,17 @@ interface Marketplace {
  * inside a parent skill directory.
  */
 export function collectSkills(skillsDir: string, basePath = 'skills'): Skill[] {
-  if (!fs.existsSync(skillsDir)) return []
+  if (!existsSync(skillsDir)) return []
 
   const skills: Skill[] = []
-  for (const entry of fs.readdirSync(skillsDir, { withFileTypes: true })) {
+  const entries = readdirSync(skillsDir, { withFileTypes: true })
+  for (let i = 0, { length } = entries; i < length; i += 1) {
+    const entry = entries[i]
     if (!entry.isDirectory() || entry.name.startsWith('_')) continue
     const skillMd = path.join(skillsDir, entry.name, 'SKILL.md')
-    if (!fs.existsSync(skillMd)) continue
+    if (!existsSync(skillMd)) continue
 
-    const meta = parseFrontmatter(fs.readFileSync(skillMd, 'utf-8'))
+    const meta = parseFrontmatter(readFileSync(skillMd, 'utf-8'))
     if (!meta.name || !meta.description) continue
 
     const skillPath = `${basePath}/${entry.name}`
@@ -78,7 +80,7 @@ export function validateMarketplace(
 ): ValidationError[] {
   const errors: ValidationError[] = []
 
-  if (!fs.existsSync(marketplacePath)) {
+  if (!existsSync(marketplacePath)) {
     errors.push({
       field: 'marketplace.json',
       message: `File not found at ${marketplacePath}`,
@@ -88,22 +90,25 @@ export function validateMarketplace(
 
   const skills = collectSkills(skillsDir)
   const marketplace: Marketplace = JSON.parse(
-    fs.readFileSync(marketplacePath, 'utf-8'),
+    readFileSync(marketplacePath, 'utf-8'),
   )
   const plugins = marketplace.plugins
 
   const skillBySource = new Map<string, Skill>()
-  for (const s of skills) {
+  for (let i = 0, { length } = skills; i < length; i += 1) {
+    const s = skills[i]
     skillBySource.set(`./${s.path}`, s)
   }
 
   const pluginBySource = new Map<string, MarketplacePlugin>()
-  for (const p of plugins) {
+  for (let i = 0, { length } = plugins; i < length; i += 1) {
+    const p = plugins[i]
     pluginBySource.set(p.source, p)
   }
 
   // Every skill should have a marketplace entry
-  for (const skill of skills) {
+  for (let i = 0, { length } = skills; i < length; i += 1) {
+    const skill = skills[i]
     const expectedSource = `./${skill.path}`
     const plugin = pluginBySource.get(expectedSource)
     if (!plugin) {
@@ -122,7 +127,8 @@ export function validateMarketplace(
   }
 
   // Every marketplace entry should have a skill
-  for (const plugin of plugins) {
+  for (let i = 0, { length } = plugins; i < length; i += 1) {
+    const plugin = plugins[i]
     if (!skillBySource.has(plugin.source)) {
       errors.push({
         field: `plugins.${plugin.name}`,

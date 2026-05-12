@@ -14,7 +14,7 @@
  * Run as part of the publish pipeline to keep shared sections in sync.
  */
 
-import * as fs from 'node:fs'
+import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import * as path from 'node:path'
 
 const ROOT = path.resolve(__dirname, '..')
@@ -31,12 +31,14 @@ interface Replacement {
 
 export function findSkillFiles(dir: string): string[] {
   const results: string[] = []
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+  const entries = readdirSync(dir, { withFileTypes: true })
+  for (let i = 0, { length } = entries; i < length; i += 1) {
+    const entry = entries[i]
     if (entry.name.startsWith('_')) continue
     const full = path.join(dir, entry.name)
     if (entry.isDirectory()) {
       const skillMd = path.join(full, 'SKILL.md')
-      if (fs.existsSync(skillMd)) {
+      if (existsSync(skillMd)) {
         results.push(skillMd)
       }
       // Recurse for subskills
@@ -47,7 +49,7 @@ export function findSkillFiles(dir: string): string[] {
 }
 
 export function inlineShared(filePath: string): Replacement[] {
-  const content = fs.readFileSync(filePath, 'utf-8')
+  const content = readFileSync(filePath, 'utf-8')
   const lines = content.split('\n')
   const output: string[] = []
   const replacements: Replacement[] = []
@@ -97,7 +99,7 @@ export function inlineShared(filePath: string): Replacement[] {
 
   const newContent = output.join('\n')
   if (newContent !== content) {
-    fs.writeFileSync(filePath, newContent, 'utf-8')
+    writeFileSync(filePath, newContent, 'utf-8')
   }
 
   return replacements
@@ -105,10 +107,10 @@ export function inlineShared(filePath: string): Replacement[] {
 
 export function loadShared(name: string): string {
   const filePath = path.join(SHARED_DIR, name)
-  if (!fs.existsSync(filePath)) {
+  if (!existsSync(filePath)) {
     throw new Error(`Shared file not found: ${filePath}`)
   }
-  return fs.readFileSync(filePath, 'utf-8').trimEnd()
+  return readFileSync(filePath, 'utf-8').trimEnd()
 }
 
 function main(): void {
@@ -117,21 +119,23 @@ function main(): void {
   let totalReplacements = 0
   const outdated: string[] = []
 
-  for (const file of files) {
+  for (let i = 0, { length } = files; i < length; i += 1) {
+    const file = files[i]
     if (checkMode) {
       // Read content, compute what it should be, compare
-      const original = fs.readFileSync(file, 'utf-8')
+      const original = readFileSync(file, 'utf-8')
       const replacements = inlineShared(file)
-      const updated = fs.readFileSync(file, 'utf-8')
+      const updated = readFileSync(file, 'utf-8')
       if (original !== updated) {
         outdated.push(path.relative(ROOT, file))
         // Restore original for check mode
-        fs.writeFileSync(file, original, 'utf-8')
+        writeFileSync(file, original, 'utf-8')
       }
       totalReplacements += replacements.length
     } else {
       const replacements = inlineShared(file)
-      for (const r of replacements) {
+      for (let i = 0, { length } = replacements; i < length; i += 1) {
+        const r = replacements[i]
         logger.log(`  ${r.file}: inlined ${r.section}`)
       }
       totalReplacements += replacements.length
@@ -141,10 +145,11 @@ function main(): void {
   if (checkMode) {
     if (outdated.length > 0) {
       logger.fail('Shared sections are out of date:')
-      for (const f of outdated) {
+      for (let i = 0, { length } = outdated; i < length; i += 1) {
+        const f = outdated[i]
         logger.fail(`  - ${f}`)
       }
-      logger.fail('Run: pnpm dlx tsx scripts/inline-shared.ts')
+      logger.fail('Run: pnpm exec tsx scripts/inline-shared.ts')
       process.exit(1)
     }
     logger.log(

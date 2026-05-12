@@ -1,12 +1,10 @@
-import { describe, it, beforeAll, afterAll, beforeEach } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, it } from 'vitest'
+import { getAdapter } from '../helpers/agent-adapters/index.js'
+import type { AgentAdapter } from '../helpers/agent-adapters/index.js'
 import {
-  getAdapter,
-  type AgentAdapter,
-} from '../helpers/agent-adapters/index.js'
-import {
-  copyFixture,
-  cleanupTestRepo,
   buildSkillPrompt,
+  cleanupTestRepo,
+  copyFixture,
 } from '../helpers/test-repos.js'
 import {
   expectOutputContains,
@@ -56,7 +54,7 @@ describe('Dep Upgrade E2E', () => {
     const response = await adapter.runPrompt({
       prompt: buildSkillPrompt(
         'socket-dep-upgrade',
-        'What version should lodash be updated to for security? Try `pnpm dlx socket npm/lodash` to check, but if the command fails, use your knowledge of lodash CVEs to recommend a safe version.',
+        'What version should lodash be updated to for security? Try `pnpm exec socket npm/lodash` to check, but if the command fails, use your knowledge of lodash CVEs to recommend a safe version.',
       ),
       workingDir: testDir,
       timeoutMs: 240_000,

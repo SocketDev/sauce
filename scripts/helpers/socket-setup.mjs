@@ -13,20 +13,20 @@
  * All output is JSON to stdout, errors to stderr.
  */
 
-import * as fs from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 import * as path from 'node:path'
 import { execSync } from 'node:child_process'
 
 const INSTALL_PATTERNS = [
   { re: /\bnpm\s+(ci|install)\b/, ecosystem: 'npm' },
   { re: /\byarn\s+(install)?\b/, ecosystem: 'yarn' },
-  { re: /\bpnpm\s+(install|i)\b/, ecosystem: 'pnpm' },
+  { re: /\bpnpm\s+(i|install)\b/, ecosystem: 'pnpm' },
   { re: /\bbun\s+install\b/, ecosystem: 'bun' },
   { re: /\bpip\s+install\b/, ecosystem: 'pip' },
   { re: /\bpip3\s+install\b/, ecosystem: 'pip' },
   { re: /\bbundle\s+install\b/, ecosystem: 'bundler' },
   { re: /\bcargo\s+(build|install)\b/, ecosystem: 'cargo' },
-  { re: /\bgo\s+(mod\s+download|install)\b/, ecosystem: 'go' },
+  { re: /\bgo\s+(install|mod\s+download)\b/, ecosystem: 'go' },
 ]
 
 export function checkPrereqs(dir) {
@@ -64,7 +64,7 @@ export function checkPrereqs(dir) {
 
   // socket-patch
   const patchRaw =
-    runCmd('pnpm dlx @socketsecurity/socket-patch --version 2>/dev/null') ||
+    runCmd('pnpm exec @socketsecurity/socket-patch --version 2>/dev/null') ||
     runCmd('socket-patch --version')
   const patchInfo = { installed: !!patchRaw }
   if (patchRaw) {
@@ -88,7 +88,7 @@ export function checkPrereqs(dir) {
 export function detectDockerfiles(dir) {
   let entries
   try {
-    entries = fs.readdirSync(dir)
+    entries = readdirSync(dir)
   } catch {
     return { dockerfiles: [] }
   }
@@ -104,11 +104,12 @@ export function detectDockerfiles(dir) {
 
   const dockerfiles = []
 
-  for (const name of dockerfileNames) {
+  for (let i = 0, { length } = dockerfileNames; i < length; i += 1) {
+    const name = dockerfileNames[i]
     const filePath = path.join(dir, name)
     let content
     try {
-      content = fs.readFileSync(filePath, 'utf-8')
+      content = readFileSync(filePath, 'utf-8')
     } catch {
       continue
     }
@@ -123,7 +124,8 @@ export function detectDockerfiles(dir) {
       if (!/^\s*RUN\s/i.test(line)) continue
       const cmd = line.replace(/^\s*RUN\s+/i, '').trim()
 
-      for (const pat of INSTALL_PATTERNS) {
+      for (let j = 0, { length } = INSTALL_PATTERNS; j < length; j += 1) {
+        const pat = INSTALL_PATTERNS[j]
         if (pat.re.test(cmd)) {
           installLines.push({
             line: i + 1,
@@ -148,7 +150,7 @@ export function detectDockerfiles(dir) {
 
 export function detectPackageManager(dir) {
   try {
-    const entries = fs.readdirSync(dir)
+    const entries = readdirSync(dir)
     if (entries.includes('pnpm-lock.yaml')) return 'pnpm'
     if (entries.includes('yarn.lock')) return 'yarn'
     if (entries.includes('bun.lockb') || entries.includes('bun.lock'))

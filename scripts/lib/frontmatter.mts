@@ -23,7 +23,9 @@ export function parseFrontmatter(
   // end of the section.
   let pendingKey: string | undefined
 
-  for (const line of match[1].split('\n')) {
+  const lines = match[1].split('\n')
+  for (let li = 0, { length } = lines; li < length; li += 1) {
+    const line = lines[li]
     // Continuation line: starts with whitespace and follows a key.
     if (pendingKey !== undefined && /^\s+/.test(line)) {
       const trimmed = line.trim()
@@ -60,7 +62,9 @@ export function parseFrontmatter(
   // Drop keys that never received a value (empty `key:` with no
   // continuation). Keeps `parseFrontmatter('---\nname:\n---').name`
   // → undefined for callers that test with `meta.name && meta.description`.
-  for (const k of Object.keys(data)) {
+  const keys = Object.keys(data)
+  for (let i = 0, { length } = keys; i < length; i += 1) {
+    const k = keys[i]
     if (data[k] === '') {
       delete data[k]
     }
