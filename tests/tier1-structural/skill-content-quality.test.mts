@@ -25,7 +25,7 @@ describe('Skill Content Quality', () => {
   const skills = getSkillDirs()
 
   for (let i = 0, { length } = skills; i < length; i += 1) {
-    const skill = skills[i]
+    const skill = skills[i]!
     describe(skill, () => {
       const content = getSkillContent(skill)
       const body = stripFrontmatter(content)
@@ -46,7 +46,7 @@ describe('Skill Content Quality', () => {
           `${skill}/SKILL.md: could not find content after '## When to Use'`,
         ).toBeTruthy()
 
-        const bullets = match![1]
+        const bullets = match![1]!
           .split('\n')
           .filter(line => /^\s*- /.test(line))
         expect(

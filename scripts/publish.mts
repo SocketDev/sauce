@@ -48,7 +48,7 @@ export function fileSig(relPath: string): string {
   const abs = path.join(rootDir, relPath)
   try {
     const buf = readFileSync(abs)
-    return createHash('sha256').update(buf).digest('hex')
+    return crypto.createHash('sha256').update(buf).digest('hex')
   } catch {
     return MISSING
   }
@@ -56,9 +56,9 @@ export function fileSig(relPath: string): string {
 
 export async function runCheck(): Promise<void> {
   // Snapshot SHAs before regenerating so we can detect drift after.
-  const before: Record<string, string> = Object.create(undefined)
+  const before: Record<string, string> = Object.create(null)
   for (let i = 0, { length } = GENERATED_FILES; i < length; i += 1) {
-    const p = GENERATED_FILES[i]
+    const p = GENERATED_FILES[i]!
     before[p] = fileSig(p)
   }
 
@@ -66,7 +66,7 @@ export async function runCheck(): Promise<void> {
 
   const changed: string[] = []
   for (let i = 0, { length } = GENERATED_FILES; i < length; i += 1) {
-    const p = GENERATED_FILES[i]
+    const p = GENERATED_FILES[i]!
     if (fileSig(p) !== before[p]) {
       changed.push(p)
     }
@@ -77,7 +77,7 @@ export async function runCheck(): Promise<void> {
     process.stderr.write('Run: pnpm run generate\n\n')
     process.stderr.write('Changed files:\n')
     for (let i = 0, { length } = changed; i < length; i += 1) {
-      const p = changed[i]
+      const p = changed[i]!
       process.stderr.write(`  ${p}\n`)
     }
     process.exit(1)

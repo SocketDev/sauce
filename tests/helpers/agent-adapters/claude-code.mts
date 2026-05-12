@@ -1,6 +1,6 @@
 import { spawn } from '@socketsecurity/lib/spawn'
-import type { AgentAdapter, RunPromptOptions } from './types.js'
-import type { AgentResponse } from '../assertions.js'
+import type { AgentAdapter, RunPromptOptions } from './types.mts'
+import type { AgentResponse } from '../assertions.mts'
 
 /** Environment variables that must be removed to avoid nested-session detection. */
 const CLAUDE_ENV_VARS = ['CLAUDECODE', 'CLAUDE_CODE_ENTRYPOINT', 'NODE_PATH']
@@ -8,12 +8,12 @@ const CLAUDE_ENV_VARS = ['CLAUDECODE', 'CLAUDE_CODE_ENTRYPOINT', 'NODE_PATH']
 export function cleanEnv(): NodeJS.ProcessEnv {
   const env = { ...process.env }
   for (let i = 0, { length } = CLAUDE_ENV_VARS; i < length; i += 1) {
-    const key = CLAUDE_ENV_VARS[i]
+    const key = CLAUDE_ENV_VARS[i]!
     delete env[key]
   }
   // Ensure the Socket CLI can authenticate using whichever key is available
-  if (!env.SOCKET_CLI_API_TOKEN && env.SOCKET_SECURITY_API_KEY) {
-    env.SOCKET_CLI_API_TOKEN = env.SOCKET_SECURITY_API_KEY
+  if (!env['SOCKET_CLI_API_TOKEN'] && env['SOCKET_API_TOKEN']) {
+    env['SOCKET_CLI_API_TOKEN'] = env['SOCKET_API_TOKEN']
   }
   return env
 }
@@ -27,8 +27,8 @@ export class ClaudeCodeAdapter implements AgentAdapter {
         stdio: ['ignore', 'pipe', 'pipe'],
         env: cleanEnv(),
       })
-      proc.on('close', code => resolve(code === 0))
-      proc.on('error', () => resolve(false))
+      proc.process.on('close', code => resolve(code === 0))
+      proc.process.on('error', () => resolve(false))
     })
   }
 
@@ -55,15 +55,15 @@ export class ClaudeCodeAdapter implements AgentAdapter {
 
       let stdout = ''
       let stderr = ''
-      proc.stdout.on('data', (d: Buffer) => {
+      proc.process.stdout?.on('data', (d: Buffer) => {
         stdout += d
       })
-      proc.stderr.on('data', (d: Buffer) => {
+      proc.process.stderr?.on('data', (d: Buffer) => {
         stderr += d
       })
 
       const timer = setTimeout(() => {
-        proc.kill('SIGTERM')
+        proc.process.kill('SIGTERM')
         reject(
           new Error(
             `claude --print timed out after ${timeout}ms\nstderr: ${stderr.slice(0, 500)}`,
@@ -71,7 +71,7 @@ export class ClaudeCodeAdapter implements AgentAdapter {
         )
       }, timeout)
 
-      proc.on('close', code => {
+      proc.process.on('close', code => {
         clearTimeout(timer)
 
         if (code !== 0 && !stdout) {
@@ -100,7 +100,9 @@ export class ClaudeCodeAdapter implements AgentAdapter {
 
           resolve({
             output,
-            toolCalls: parsed.tool_calls,
+            ...(parsed.tool_calls !== undefined && {
+              toolCalls: parsed.tool_calls,
+            }),
             exitCode: code ?? 0,
           })
         } catch {
@@ -111,7 +113,7 @@ export class ClaudeCodeAdapter implements AgentAdapter {
         }
       })
 
-      proc.on('error', e => {
+      proc.process.on('error', (e: Error) => {
         clearTimeout(timer)
         reject(e)
       })

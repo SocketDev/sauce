@@ -20,6 +20,9 @@ importers:
 
   .:
     devDependencies:
+      '@sinclair/typebox':
+        specifier: 'catalog:'
+        version: 0.34.49
       '@socketsecurity/lib':
         specifier: 'catalog:'
         version: 5.28.0(typescript@5.9.2)

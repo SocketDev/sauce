@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import * as path from 'node:path'
-import { validateMarketplace } from '../../scripts/lib/validate-marketplace'
+import { validateMarketplace } from '../../scripts/lib/validate-marketplace.mts'
 
 const ROOT = path.resolve(__dirname, '../..')
 const SKILLS_DIR = path.join(ROOT, 'skills')
@@ -55,7 +55,7 @@ describe('Manifest Consistency', () => {
     it('every plugin source path resolves to a real SKILL.md', () => {
       const plugins = marketplace.plugins
       for (let i = 0, { length } = plugins; i < length; i += 1) {
-        const plugin = plugins[i]
+        const plugin = plugins[i]!
         const skillMd = path.join(ROOT, plugin.source, 'SKILL.md')
         expect(
           existsSync(skillMd),

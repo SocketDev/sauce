@@ -5,6 +5,9 @@
 
 import { readFileSync, writeFileSync } from 'node:fs'
 import * as path from 'node:path'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+
+const logger = getDefaultLogger()
 
 const ROOT = path.resolve(__dirname, '..')
 
@@ -31,7 +34,7 @@ function main(): void {
   ]
 
   for (let i = 0, { length } = targets; i < length; i += 1) {
-    const target = targets[i]
+    const target = targets[i]!
     const data = readJSON(target)
     if (target.endsWith('marketplace.json')) {
       data.metadata.version = version

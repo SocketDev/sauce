@@ -7,7 +7,7 @@
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import * as path from 'node:path'
-import { parseFrontmatter } from './frontmatter'
+import { parseFrontmatter } from './frontmatter.mts'
 
 export interface ValidationError {
   field: string
@@ -44,18 +44,20 @@ export function collectSkills(skillsDir: string, basePath = 'skills'): Skill[] {
   const skills: Skill[] = []
   const entries = readdirSync(skillsDir, { withFileTypes: true })
   for (let i = 0, { length } = entries; i < length; i += 1) {
-    const entry = entries[i]
+    const entry = entries[i]!
     if (!entry.isDirectory() || entry.name.startsWith('_')) continue
     const skillMd = path.join(skillsDir, entry.name, 'SKILL.md')
     if (!existsSync(skillMd)) continue
 
     const meta = parseFrontmatter(readFileSync(skillMd, 'utf-8'))
-    if (!meta.name || !meta.description) continue
+    const metaName = meta['name']
+    const metaDescription = meta['description']
+    if (!metaName || !metaDescription) continue
 
     const skillPath = `${basePath}/${entry.name}`
     skills.push({
-      name: meta.name,
-      description: meta.description,
+      name: metaName,
+      description: metaDescription,
       path: skillPath,
     })
 
@@ -96,19 +98,19 @@ export function validateMarketplace(
 
   const skillBySource = new Map<string, Skill>()
   for (let i = 0, { length } = skills; i < length; i += 1) {
-    const s = skills[i]
+    const s = skills[i]!
     skillBySource.set(`./${s.path}`, s)
   }
 
   const pluginBySource = new Map<string, MarketplacePlugin>()
   for (let i = 0, { length } = plugins; i < length; i += 1) {
-    const p = plugins[i]
+    const p = plugins[i]!
     pluginBySource.set(p.source, p)
   }
 
   // Every skill should have a marketplace entry
   for (let i = 0, { length } = skills; i < length; i += 1) {
-    const skill = skills[i]
+    const skill = skills[i]!
     const expectedSource = `./${skill.path}`
     const plugin = pluginBySource.get(expectedSource)
     if (!plugin) {
@@ -128,7 +130,7 @@ export function validateMarketplace(
 
   // Every marketplace entry should have a skill
   for (let i = 0, { length } = plugins; i < length; i += 1) {
-    const plugin = plugins[i]
+    const plugin = plugins[i]!
     if (!skillBySource.has(plugin.source)) {
       errors.push({
         field: `plugins.${plugin.name}`,

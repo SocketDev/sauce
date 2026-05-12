@@ -1,4 +1,4 @@
-import type { AgentResponse } from '../assertions.js'
+import type { AgentResponse } from '../assertions.mts'
 
 export interface RunPromptOptions {
   prompt: string

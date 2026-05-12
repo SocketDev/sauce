@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process'
-import type { AgentAdapter, RunPromptOptions } from './types.js'
-import type { AgentResponse } from '../assertions.js'
+import type { AgentAdapter, RunPromptOptions } from './types.mts'
+import type { AgentResponse } from '../assertions.mts'
 
 export class CodexAdapter implements AgentAdapter {
   name = 'codex'
@@ -31,9 +31,10 @@ export class CodexAdapter implements AgentAdapter {
             return
           }
 
+          const errCode = err?.code
           resolve({
             output: stdout || stderr,
-            exitCode: err?.code ?? 0,
+            exitCode: typeof errCode === 'number' ? errCode : 0,
           })
         },
       )

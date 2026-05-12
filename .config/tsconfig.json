@@ -5,6 +5,7 @@
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "noEmit": true,
+    "rewriteRelativeImportExtensions": true,
     "sourceMap": false,
     "types": ["node"]
   },

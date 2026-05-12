@@ -50,7 +50,7 @@ export function detectEcosystems(dir: string): EcosystemMatch[] {
 
   const ecosystemEntries = Object.entries(ECOSYSTEM_PATTERNS)
   for (let i = 0, { length } = ecosystemEntries; i < length; i += 1) {
-    const [ecosystem, patterns] = ecosystemEntries[i]
+    const [ecosystem, patterns] = ecosystemEntries[i]!
     const found = patterns.filter(pattern =>
       entries.some(entry => matchesPattern(entry, pattern)),
     )
@@ -95,7 +95,7 @@ export function parseArgs(): { dir: string } {
   let dir = '.'
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--dir' && args[i + 1]) {
-      dir = args[++i]
+      dir = args[++i]!
     }
   }
   return { dir: path.resolve(dir) }

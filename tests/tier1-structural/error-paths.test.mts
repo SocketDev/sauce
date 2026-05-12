@@ -2,16 +2,15 @@ import { describe, expect, it } from 'vitest'
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import * as path from 'node:path'
 import * as os from 'node:os'
-import { parseFrontmatter } from '../../scripts/lib/frontmatter'
+import { parseFrontmatter } from '../../scripts/lib/frontmatter.mts'
 import {
   collectSkills,
   validateMarketplace,
-} from '../../scripts/lib/validate-marketplace'
+} from '../../scripts/lib/validate-marketplace.mts'
 import { safeDeleteSync } from '@socketsecurity/lib/fs'
 
 const ROOT = path.resolve(__dirname, '../..')
 const SKILLS_DIR = path.join(ROOT, 'skills')
-const MARKETPLACE_PATH = path.join(ROOT, '.claude-plugin', 'marketplace.json')
 
 describe('Error Paths', () => {
   describe('parseFrontmatter()', () => {
@@ -32,31 +31,31 @@ describe('Error Paths', () => {
 
     it('returns partial data when name is present but description missing', () => {
       const result = parseFrontmatter('---\nname: test\n---\ncontent')
-      expect(result.name).toBe('test')
-      expect(result.description).toBeUndefined()
+      expect(result['name']).toBe('test')
+      expect(result['description']).toBeUndefined()
     })
 
     it('returns partial data when description is present but name missing', () => {
       const result = parseFrontmatter(
         '---\ndescription: a test skill\n---\ncontent',
       )
-      expect(result.description).toBe('a test skill')
-      expect(result.name).toBeUndefined()
+      expect(result['description']).toBe('a test skill')
+      expect(result['name']).toBeUndefined()
     })
 
     it('handles malformed YAML (lines without colons)', () => {
       const result = parseFrontmatter(
         '---\nname: test\nthis is not yaml\ndescription: desc\n---',
       )
-      expect(result.name).toBe('test')
-      expect(result.description).toBe('desc')
+      expect(result['name']).toBe('test')
+      expect(result['description']).toBe('desc')
     })
 
     it('handles empty values after colon', () => {
       const result = parseFrontmatter('---\nname:\ndescription: valid\n---')
       // Empty value should not be set
-      expect(result.name).toBeUndefined()
-      expect(result.description).toBe('valid')
+      expect(result['name']).toBeUndefined()
+      expect(result['description']).toBe('valid')
     })
   })
 
@@ -129,7 +128,7 @@ describe('Error Paths', () => {
         '/tmp/nonexistent-marketplace.json',
       )
       expect(errors.length).toBeGreaterThan(0)
-      expect(errors[0].message).toContain('not found')
+      expect(errors[0]!.message).toContain('not found')
     })
 
     it('returns errors for extra plugin entry', () => {

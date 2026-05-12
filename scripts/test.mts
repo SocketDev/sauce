@@ -94,7 +94,7 @@ export function log(msg: string): void {
 export function resolveTestPatterns(files: string[]): string[] {
   const patterns = new Set<string>()
   for (let i = 0, { length } = files; i < length; i += 1) {
-    const f = files[i]
+    const f = files[i]!
     // Test file itself.
     if (/\.test\.(m?[jt]s)$/.test(f)) {
       patterns.add(f)
@@ -104,8 +104,8 @@ export function resolveTestPatterns(files: string[]): string[] {
     // packages without a test/ directory are skipped rather than making
     // vitest error on an unknown pattern.
     const wsMatch = f.match(/^(packages\/[^/]+)\/src\//)
-    if (wsMatch && existsSync(`${wsMatch[1]}/test`)) {
-      patterns.add(`${wsMatch[1]}/test`)
+    if (wsMatch && existsSync(`${wsMatch[1]!}/test`)) {
+      patterns.add(`${wsMatch[1]!}/test`)
       continue
     }
     // Single-repo source file.
@@ -171,9 +171,9 @@ export function runPatterns(patterns: string[]): number {
 
 export function shouldEscalate(files: string[]): boolean {
   for (let i = 0, { length } = files; i < length; i += 1) {
-    const f = files[i]
+    const f = files[i]!
     for (let i = 0, { length } = ESCALATION_PATTERNS; i < length; i += 1) {
-      const pattern = ESCALATION_PATTERNS[i]
+      const pattern = ESCALATION_PATTERNS[i]!
       if (pattern.test(f)) {
         return true
       }

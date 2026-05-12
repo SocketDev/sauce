@@ -1,7 +1,7 @@
-import type { AgentAdapter } from './types.js'
-import { ClaudeCodeAdapter } from './claude-code.js'
-import { CodexAdapter } from './codex.js'
-import { GeminiAdapter } from './gemini.js'
+import type { AgentAdapter } from './types.mts'
+import { ClaudeCodeAdapter } from './claude-code.mts'
+import { CodexAdapter } from './codex.mts'
+import { GeminiAdapter } from './gemini.mts'
 
 const adapters: Record<string, () => AgentAdapter> = {
   'claude-code': () => new ClaudeCodeAdapter(),
@@ -14,7 +14,7 @@ const adapters: Record<string, () => AgentAdapter> = {
  * Defaults to the TEST_AGENT environment variable, or "claude-code".
  */
 export function getAdapter(name?: string): AgentAdapter {
-  const agentName = name ?? process.env.TEST_AGENT ?? 'claude-code'
+  const agentName = name ?? process.env['TEST_AGENT'] ?? 'claude-code'
   const factory = adapters[agentName]
   if (!factory) {
     throw new Error(
@@ -24,4 +24,4 @@ export function getAdapter(name?: string): AgentAdapter {
   return factory()
 }
 
-export type { AgentAdapter, RunPromptOptions } from './types.js'
+export type { AgentAdapter, RunPromptOptions } from './types.mts'

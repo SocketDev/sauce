@@ -84,7 +84,7 @@ export function getPatterns(pkg: string, ecosystem?: string): RegExp[] {
   if (!ecosystem || ecosystem === 'maven') {
     const parts = pkg.split(':')
     if (parts.length >= 2) {
-      const groupEscaped = parts[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      const groupEscaped = parts[0]!.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
       patterns.push(new RegExp(`import\\s+${groupEscaped}\\.`, 'g'))
     }
   }
@@ -105,17 +105,21 @@ export function parseArgs(): { pkg: string; ecosystem?: string; dir: string } {
   let dir = '.'
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--package' && args[i + 1]) {
-      pkg = args[++i]
+      pkg = args[++i]!
     } else if (args[i] === '--ecosystem' && args[i + 1]) {
-      ecosystem = args[++i]
+      ecosystem = args[++i]!
     } else if (args[i] === '--dir' && args[i + 1]) {
-      dir = args[++i]
+      dir = args[++i]!
     }
   }
   if (!pkg) {
     throw new Error('--package is required')
   }
-  return { pkg, ecosystem, dir: path.resolve(dir) }
+  return {
+    pkg,
+    ...(ecosystem !== undefined && { ecosystem }),
+    dir: path.resolve(dir),
+  }
 }
 
 export function walkDir(
@@ -130,7 +134,7 @@ export function walkDir(
   }
 
   for (let i = 0, { length } = entries; i < length; i += 1) {
-    const entry = entries[i]
+    const entry = entries[i]!
     if (SKIP_DIRS.has(entry.name)) continue
     const fullPath = path.join(dir, entry.name)
     if (entry.isDirectory()) {
@@ -159,15 +163,16 @@ function main(): void {
       }
 
       const lines = content.split('\n')
-      for (let i = 0; i < lines.length; i++) {
-        for (let i = 0, { length } = patterns; i < length; i += 1) {
-          const pattern = patterns[i]
+      for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+        const line = lines[lineIdx]!
+        for (let pi = 0, { length } = patterns; pi < length; pi += 1) {
+          const pattern = patterns[pi]!
           pattern.lastIndex = 0
-          const m = pattern.exec(lines[i])
+          const m = pattern.exec(line)
           if (m) {
             matches.push({
               path: path.relative(dir, filePath),
-              line: i + 1,
+              line: lineIdx + 1,
               match: m[0],
             })
           }

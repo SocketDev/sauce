@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import * as path from 'node:path'
-import { parseFrontmatter } from '../../scripts/lib/frontmatter'
+import { parseFrontmatter } from '../../scripts/lib/frontmatter.mts'
 
 const ROOT = path.resolve(__dirname, '../..')
 const SKILLS_DIR = path.join(ROOT, 'skills')
@@ -25,22 +25,16 @@ const EXPECTED_SUBSKILLS: Record<string, string[]> = {
   'socket-scan': ['socket-scan-setup'],
 }
 
-/** All expected skill names (top-level + subskills) */
-const EXPECTED_SKILLS = [
-  ...EXPECTED_TOP_LEVEL,
-  ...Object.values(EXPECTED_SUBSKILLS).flat(),
-]
-
 export /** All skill directory paths (top-level as name, subskills as parent/name) */
 function getAllSkillPaths(): string[] {
   const paths: string[] = []
   const dirs = getSkillDirs()
   for (let i = 0, { length } = dirs; i < length; i += 1) {
-    const dir = dirs[i]
+    const dir = dirs[i]!
     paths.push(dir)
     const subs = getSubSkillDirs(dir)
     for (let j = 0, sublen = subs.length; j < sublen; j += 1) {
-      paths.push(`${dir}/${subs[j]}`)
+      paths.push(`${dir}/${subs[j]!}`)
     }
   }
   return paths.sort()
@@ -70,15 +64,15 @@ describe('Skill Discovery', () => {
   it('every expected skill directory exists', () => {
     const dirs = getSkillDirs()
     for (let i = 0, { length } = EXPECTED_TOP_LEVEL; i < length; i += 1) {
-      const skill = EXPECTED_TOP_LEVEL[i]
+      const skill = EXPECTED_TOP_LEVEL[i]!
       expect(dirs, `missing skill directory: ${skill}`).toContain(skill)
     }
     const subskillEntries = Object.entries(EXPECTED_SUBSKILLS)
     for (let j = 0, sjlen = subskillEntries.length; j < sjlen; j += 1) {
-      const [parent, subs] = subskillEntries[j]
+      const [parent, subs] = subskillEntries[j]!
       const subDirs = getSubSkillDirs(parent)
       for (let i = 0, { length } = subs; i < length; i += 1) {
-        const sub = subs[i]
+        const sub = subs[i]!
         expect(
           subDirs,
           `missing subskill directory: ${parent}/${sub}`,
@@ -90,7 +84,7 @@ describe('Skill Discovery', () => {
   it('every skill directory contains a SKILL.md', () => {
     const skillPaths = getAllSkillPaths()
     for (let i = 0, { length } = skillPaths; i < length; i += 1) {
-      const skillPath = skillPaths[i]
+      const skillPath = skillPaths[i]!
       const skillMd = path.join(SKILLS_DIR, skillPath, 'SKILL.md')
       expect(existsSync(skillMd), `${skillPath}/SKILL.md does not exist`).toBe(
         true,
@@ -101,17 +95,17 @@ describe('Skill Discovery', () => {
   it('every SKILL.md has valid YAML frontmatter with name and description', () => {
     const skillPaths = getAllSkillPaths()
     for (let i = 0, { length } = skillPaths; i < length; i += 1) {
-      const skillPath = skillPaths[i]
+      const skillPath = skillPaths[i]!
       const skillMd = path.join(SKILLS_DIR, skillPath, 'SKILL.md')
       const content = readFileSync(skillMd, 'utf-8')
       const meta = parseFrontmatter(content)
 
       expect(
-        meta.name,
+        meta['name'],
         `${skillPath}/SKILL.md missing 'name' in frontmatter`,
       ).toBeTruthy()
       expect(
-        meta.description,
+        meta['description'],
         `${skillPath}/SKILL.md missing 'description' in frontmatter`,
       ).toBeTruthy()
     }
@@ -120,15 +114,15 @@ describe('Skill Discovery', () => {
   it('frontmatter name matches the directory name', () => {
     const skillPaths = getAllSkillPaths()
     for (let i = 0, { length } = skillPaths; i < length; i += 1) {
-      const skillPath = skillPaths[i]
+      const skillPath = skillPaths[i]!
       const dirName = path.basename(skillPath)
       const skillMd = path.join(SKILLS_DIR, skillPath, 'SKILL.md')
       const content = readFileSync(skillMd, 'utf-8')
       const meta = parseFrontmatter(content)
 
       expect(
-        meta.name,
-        `${skillPath}/SKILL.md: frontmatter name '${meta.name}' does not match directory '${dirName}'`,
+        meta['name'],
+        `${skillPath}/SKILL.md: frontmatter name '${meta['name']}' does not match directory '${dirName}'`,
       ).toBe(dirName)
     }
   })
@@ -151,7 +145,7 @@ describe('Skill Discovery', () => {
 
     const subskillEntries = Object.entries(EXPECTED_SUBSKILLS)
     for (let i = 0, { length } = subskillEntries; i < length; i += 1) {
-      const [parent, expectedSubs] = subskillEntries[i]
+      const [parent, expectedSubs] = subskillEntries[i]!
       const subDirs = getSubSkillDirs(parent)
       const unexpectedSubs = subDirs.filter(d => !expectedSubs.includes(d))
       expect(

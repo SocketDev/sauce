@@ -12,7 +12,10 @@ import {
   writeFileSync,
 } from 'node:fs'
 import * as path from 'node:path'
-import { parseFrontmatter } from './lib/frontmatter'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { parseFrontmatter } from './lib/frontmatter.mts'
+
+const logger = getDefaultLogger()
 
 const ROOT = path.resolve(__dirname, '..')
 const CLAUDE_PLUGIN_MANIFEST = path.join(ROOT, '.claude-plugin', 'plugin.json')
@@ -25,7 +28,7 @@ const PLUGIN_NAME_RE = /^[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$/
 export function buildCursorPluginManifest(): Record<string, unknown> {
   const src = loadJson(CLAUDE_PLUGIN_MANIFEST)
 
-  const name = src.name
+  const name = src['name']
   if (typeof name !== 'string' || !name) {
     throw new Error(".claude-plugin/plugin.json must define a non-empty 'name'")
   }
@@ -53,7 +56,7 @@ export function buildCursorPluginManifest(): Record<string, unknown> {
     'logo',
   ]
   for (let i = 0, { length } = optionalKeys; i < length; i += 1) {
-    const key = optionalKeys[i]
+    const key = optionalKeys[i]!
     if (key in src) {
       manifest[key] = src[key]
     }
@@ -77,13 +80,13 @@ export function collectSkillNames(dir?: string): string[] {
     a.name.localeCompare(b.name),
   )
   for (let i = 0, { length } = entries; i < length; i += 1) {
-    const entry = entries[i]
+    const entry = entries[i]!
     if (!entry.isDirectory() || entry.name.startsWith('_')) continue
     const skillMd = path.join(skillsDir, entry.name, 'SKILL.md')
     if (!existsSync(skillMd)) continue
 
     const meta = parseFrontmatter(readFileSync(skillMd, 'utf-8'))
-    const name = meta.name?.trim()
+    const name = meta['name']?.trim()
     if (name) names.push(name)
 
     // Recurse into subdirectories to discover subskills
@@ -118,7 +121,7 @@ export function writeOrCheck(
   content: string,
   check: boolean,
 ): boolean {
-  let current: string | null = undefined
+  let current: string | undefined
   if (existsSync(filePath)) {
     current = readFileSync(filePath, 'utf-8')
   }

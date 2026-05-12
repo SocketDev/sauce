@@ -23,12 +23,15 @@ export function parseArgs(): { ecosystem?: string; dir: string } {
   let dir = '.'
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--ecosystem' && args[i + 1]) {
-      ecosystem = args[++i]
+      ecosystem = args[++i]!
     } else if (args[i] === '--dir' && args[i + 1]) {
-      dir = args[++i]
+      dir = args[++i]!
     }
   }
-  return { ecosystem, dir: path.resolve(dir) }
+  return {
+    ...(ecosystem !== undefined && { ecosystem }),
+    dir: path.resolve(dir),
+  }
 }
 
 export function parseBundler(dir: string): Dependency[] {
@@ -41,10 +44,10 @@ export function parseBundler(dir: string): Dependency[] {
 
   const lines = content.split('\n')
   for (let i = 0, { length } = lines; i < length; i += 1) {
-    const line = lines[i]
+    const line = lines[i]!
     const groupMatch = line.match(/group\s+:(\w+)/)
     if (groupMatch) {
-      currentGroup = groupMatch[1]
+      currentGroup = groupMatch[1]!
       continue
     }
     if (line.trim() === 'end') {
@@ -57,7 +60,7 @@ export function parseBundler(dir: string): Dependency[] {
     )
     if (gemMatch) {
       deps.push({
-        name: gemMatch[1],
+        name: gemMatch[1]!,
         version: gemMatch[2] ?? '*',
         type: ['development', 'test'].includes(currentGroup)
           ? 'dev'
@@ -80,10 +83,10 @@ export function parseCargo(dir: string): Dependency[] {
 
   const lines = content.split('\n')
   for (let i = 0, { length } = lines; i < length; i += 1) {
-    const line = lines[i]
+    const line = lines[i]!
     const sectionMatch = line.match(/^\[(.+)\]/)
     if (sectionMatch) {
-      section = sectionMatch[1].trim()
+      section = sectionMatch[1]!.trim()
       continue
     }
 
@@ -91,8 +94,8 @@ export function parseCargo(dir: string): Dependency[] {
       const depMatch = line.match(/^(\S+)\s*=\s*"([^"]+)"/)
       if (depMatch) {
         deps.push({
-          name: depMatch[1],
-          version: depMatch[2],
+          name: depMatch[1]!,
+          version: depMatch[2]!,
           type: section === 'dev-dependencies' ? 'dev' : 'production',
           ecosystem: 'cargo',
         })
@@ -113,7 +116,7 @@ export function parseGo(dir: string): Dependency[] {
 
   const lines = content.split('\n')
   for (let i = 0, { length } = lines; i < length; i += 1) {
-    const line = lines[i]
+    const line = lines[i]!
     if (line.trim() === 'require (') {
       inRequire = true
       continue
@@ -127,8 +130,8 @@ export function parseGo(dir: string): Dependency[] {
       const match = line.trim().match(/^(\S+)\s+(\S+)/)
       if (match) {
         deps.push({
-          name: match[1],
-          version: match[2],
+          name: match[1]!,
+          version: match[2]!,
           type: 'production',
           ecosystem: 'go',
         })
@@ -138,8 +141,8 @@ export function parseGo(dir: string): Dependency[] {
     const singleMatch = line.match(/^require\s+(\S+)\s+(\S+)/)
     if (singleMatch) {
       deps.push({
-        name: singleMatch[1],
-        version: singleMatch[2],
+        name: singleMatch[1]!,
+        version: singleMatch[2]!,
         type: 'production',
         ecosystem: 'go',
       })
@@ -162,7 +165,7 @@ export function parseMaven(dir: string): Dependency[] {
   while ((match = depRegex.exec(content)) !== null) {
     const scope = match[4] ?? 'compile'
     deps.push({
-      name: `${match[1]}:${match[2]}`,
+      name: `${match[1]!}:${match[2]!}`,
       version: match[3] ?? 'latest',
       type: scope === 'test' ? 'dev' : 'production',
       ecosystem: 'maven',
@@ -181,7 +184,7 @@ export function parseNpm(dir: string): Dependency[] {
 
   const prodEntries = Object.entries(pkg.dependencies ?? {})
   for (let i = 0, { length } = prodEntries; i < length; i += 1) {
-    const [name, version] = prodEntries[i]
+    const [name, version] = prodEntries[i]!
     deps.push({
       name,
       version: String(version),
@@ -191,12 +194,12 @@ export function parseNpm(dir: string): Dependency[] {
   }
   const devEntries = Object.entries(pkg.devDependencies ?? {})
   for (let i = 0, { length } = devEntries; i < length; i += 1) {
-    const [name, version] = devEntries[i]
+    const [name, version] = devEntries[i]!
     deps.push({ name, version: String(version), type: 'dev', ecosystem: 'npm' })
   }
   const peerEntries = Object.entries(pkg.peerDependencies ?? {})
   for (let i = 0, { length } = peerEntries; i < length; i += 1) {
-    const [name, version] = peerEntries[i]
+    const [name, version] = peerEntries[i]!
     deps.push({
       name,
       version: String(version),
@@ -206,7 +209,7 @@ export function parseNpm(dir: string): Dependency[] {
   }
   const optionalEntries = Object.entries(pkg.optionalDependencies ?? {})
   for (let i = 0, { length } = optionalEntries; i < length; i += 1) {
-    const [name, version] = optionalEntries[i]
+    const [name, version] = optionalEntries[i]!
     deps.push({
       name,
       version: String(version),
@@ -223,7 +226,7 @@ export function parseNuget(dir: string): Dependency[] {
   const entries = readdirSync(dir)
 
   for (let i = 0, { length } = entries; i < length; i += 1) {
-    const entry = entries[i]
+    const entry = entries[i]!
     if (entry.endsWith('.csproj')) {
       const content = readFileSync(path.join(dir, entry), 'utf-8')
       const pkgRegex =
@@ -231,8 +234,8 @@ export function parseNuget(dir: string): Dependency[] {
       let match
       while ((match = pkgRegex.exec(content)) !== null) {
         deps.push({
-          name: match[1],
-          version: match[2],
+          name: match[1]!,
+          version: match[2]!,
           type: 'production',
           ecosystem: 'nuget',
         })
@@ -249,14 +252,14 @@ export function parsePypi(dir: string): Dependency[] {
   if (existsSync(reqPath)) {
     const lines = readFileSync(reqPath, 'utf-8').split('\n')
     for (let i = 0, { length } = lines; i < length; i += 1) {
-      const line = lines[i]
+      const line = lines[i]!
       const trimmed = line.trim()
       if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('-'))
         continue
       const match = trimmed.match(/^([a-zA-Z0-9._-]+)\s*([><=!~]+\s*[\d.]+)?/)
       if (match) {
         deps.push({
-          name: match[1],
+          name: match[1]!,
           version: match[2]?.trim() ?? '*',
           type: 'production',
           ecosystem: 'pypi',
@@ -269,14 +272,14 @@ export function parsePypi(dir: string): Dependency[] {
   if (existsSync(devReqPath)) {
     const lines = readFileSync(devReqPath, 'utf-8').split('\n')
     for (let i = 0, { length } = lines; i < length; i += 1) {
-      const line = lines[i]
+      const line = lines[i]!
       const trimmed = line.trim()
       if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('-'))
         continue
       const match = trimmed.match(/^([a-zA-Z0-9._-]+)\s*([><=!~]+\s*[\d.]+)?/)
       if (match) {
         deps.push({
-          name: match[1],
+          name: match[1]!,
           version: match[2]?.trim() ?? '*',
           type: 'dev',
           ecosystem: 'pypi',
@@ -316,7 +319,7 @@ function main(): void {
     } else {
       const parsers = Object.values(PARSERS)
       for (let i = 0, { length } = parsers; i < length; i += 1) {
-        allDeps.push(...parsers[i](dir))
+        allDeps.push(...parsers[i]!(dir))
       }
     }
 

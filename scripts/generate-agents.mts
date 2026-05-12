@@ -8,8 +8,14 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import * as path from 'node:path'
-import { collectSkills, validateMarketplace } from './lib/validate-marketplace'
-import type { Skill } from './lib/validate-marketplace'
+import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import {
+  collectSkills,
+  validateMarketplace,
+} from './lib/validate-marketplace.mts'
+import type { Skill } from './lib/validate-marketplace.mts'
+
+const logger = getDefaultLogger()
 
 const ROOT = path.resolve(__dirname, '..')
 const TEMPLATE_PATH = path.join(ROOT, 'scripts', 'AGENTS_TEMPLATE.md')
@@ -72,17 +78,17 @@ export function generateReadmeTable(skills: Skill[]): string {
   const pluginsBySource = new Map<string, MarketplacePlugin>()
   const plugins = marketplace.plugins
   for (let i = 0, { length } = plugins; i < length; i += 1) {
-    const p = plugins[i]
+    const p = plugins[i]!
     pluginsBySource.set(p.source, p)
   }
 
   const grouped = new Map<string, Skill[]>()
   for (let i = 0, { length } = CATEGORIES; i < length; i += 1) {
-    const key = CATEGORIES[i][0]
+    const key = CATEGORIES[i]![0]
     grouped.set(key, [])
   }
   for (let i = 0, { length } = skills; i < length; i += 1) {
-    const skill = skills[i]
+    const skill = skills[i]!
     const cat = getCategory(skill.name)
     grouped.get(cat)?.push(skill)
   }
@@ -90,7 +96,7 @@ export function generateReadmeTable(skills: Skill[]): string {
   const lines: string[] = []
 
   for (let i = 0, { length } = CATEGORIES; i < length; i += 1) {
-    const [key, def] = CATEGORIES[i]
+    const [key, def] = CATEGORIES[i]!
     const catSkills = grouped.get(key)
     if (!catSkills || catSkills.length === 0) continue
 
@@ -102,7 +108,7 @@ export function generateReadmeTable(skills: Skill[]): string {
     lines.push('|------|-------------|---------------|')
 
     for (let i = 0, { length } = catSkills; i < length; i += 1) {
-      const skill = catSkills[i]
+      const skill = catSkills[i]!
       const source = `./${skill.path}`
       const plugin = pluginsBySource.get(source)
       const name = plugin?.name ?? skill.name
@@ -213,7 +219,7 @@ function main(): void {
   if (errors.length > 0) {
     logger.fail('\nMarketplace.json validation errors:')
     for (let i = 0, { length } = errors; i < length; i += 1) {
-      const error = errors[i]
+      const error = errors[i]!
       logger.fail(`  - ${error.message}`)
     }
     process.exit(1)

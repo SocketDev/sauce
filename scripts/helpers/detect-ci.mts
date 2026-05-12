@@ -35,7 +35,7 @@ export function detectCI(dir: string): CISystem[] {
   const results: CISystem[] = []
 
   for (let i = 0, { length } = CI_PATTERNS; i < length; i += 1) {
-    const pattern = CI_PATTERNS[i]
+    const pattern = CI_PATTERNS[i]!
     const fullPath = path.join(dir, pattern.path)
     if (existsSync(fullPath)) {
       if (pattern.system === 'github-actions') {
@@ -46,7 +46,7 @@ export function detectCI(dir: string): CISystem[] {
             f => f.endsWith('.yml') || f.endsWith('.yaml'),
           )
           for (let i = 0, { length } = workflows; i < length; i += 1) {
-            const wf = workflows[i]
+            const wf = workflows[i]!
             results.push({
               system: 'github-actions',
               configFile: path.join(pattern.path, wf),
@@ -100,7 +100,7 @@ export function parseArgs(): { dir: string } {
   let dir = '.'
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--dir' && args[i + 1]) {
-      dir = args[++i]
+      dir = args[++i]!
     }
   }
   return { dir: path.resolve(dir) }

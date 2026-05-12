@@ -1,15 +1,15 @@
 import { afterAll, beforeAll, beforeEach, describe, it } from 'vitest'
-import { getAdapter } from '../helpers/agent-adapters/index.js'
-import type { AgentAdapter } from '../helpers/agent-adapters/index.js'
+import { getAdapter } from '../helpers/agent-adapters/index.mts'
+import type { AgentAdapter } from '../helpers/agent-adapters/index.mts'
 import {
   buildSkillPrompt,
   cleanupTestRepo,
   copyFixture,
-} from '../helpers/test-repos.js'
+} from '../helpers/test-repos.mts'
 import {
   expectOutputContains,
   expectScoreAboveThreshold,
-} from '../helpers/assertions.js'
+} from '../helpers/assertions.mts'
 
 describe('Scan E2E', () => {
   let adapter: AgentAdapter

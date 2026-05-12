@@ -145,9 +145,9 @@ export function runFiles(files: string[]): number {
 
 export function shouldEscalate(files: string[]): boolean {
   for (let i = 0, { length } = files; i < length; i += 1) {
-    const f = files[i]
+    const f = files[i]!
     for (let i = 0, { length } = ESCALATION_PATTERNS; i < length; i += 1) {
-      const pattern = ESCALATION_PATTERNS[i]
+      const pattern = ESCALATION_PATTERNS[i]!
       if (pattern.test(f)) {
         return true
       }

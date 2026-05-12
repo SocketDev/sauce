@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { httpRequest } from '@socketsecurity/lib/http-request'
 
-const API_KEY = process.env.SOCKET_API_TOKEN
-const ORG = process.env.SOCKET_ORG || 'SocketDemo'
+const API_KEY = process.env['SOCKET_API_TOKEN']
+const ORG = process.env['SOCKET_ORG'] || 'SocketDemo'
 const BATCH_PURL_URL = `https://api.socket.dev/v0/orgs/${ORG}/purl`
 
 export function postPurls(purls: string[]) {
