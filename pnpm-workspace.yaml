@@ -63,6 +63,14 @@ enablePrePostScripts: true
 # of the fleet's discipline.
 saveExact: true
 
+# Force-raise transitive esbuild to a CVE-patched version. tsx@4.19.0
+# pulls esbuild@0.23.1 which is vulnerable to CVE-2024-?: dev-server
+# permits any origin via Access-Control-Allow-Origin: * (fix >= 0.25.0).
+# Override the whole tree to a well-aged 0.25.x; vite/vitest already
+# pull 0.27.x on the other branch of the graph.
+overrides:
+  esbuild: 0.25.12
+
 allowBuilds:
   # esbuild is a transitive of vite/vitest (test-time only).
   esbuild: true
