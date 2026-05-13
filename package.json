@@ -21,7 +21,7 @@
     "lint:fix": "node scripts/lint.mts --fix",
     "lockstep": "node scripts/lockstep.mts",
     "lockstep:emit-schema": "node scripts/lockstep-emit-schema.mts",
-    "prepare": "husky",
+    "prepare": "node scripts/install-git-hooks.mts",
     "security": "node scripts/security.mts",
     "test": "node scripts/test.mts",
     "test:api": "SOCKET_API_TOKEN=${SOCKET_API_TOKEN} vitest run --config tests/vitest.config.mts tier2-api/",
