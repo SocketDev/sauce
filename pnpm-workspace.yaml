@@ -50,6 +50,9 @@ resolutionMode: highest
 # silently auto-download via @pnpm/exe.
 pmOnFail: error
 trustPolicy: no-downgrade
+trustPolicyExclude:
+  - 'compromise@14.15.0'
+
 
 # Auto-install missing peer deps. pnpm default; declared explicitly
 # so a future default flip can't silently change install behavior.
