@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow -- nested cached-length for-loops intentionally reuse `i`/`length` names for the fleet-wide cached-loop idiom; renaming would diverge from the codebase pattern. */
 /**
  * @fileoverview Validates that bundled vs external dependencies are correctly declared in package.json.
  *
@@ -15,7 +16,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger'
 
 const logger = getDefaultLogger()
 
@@ -29,11 +30,148 @@ const BUILTIN_MODULES = new Set([
 ])
 
 /**
+ * Find all JavaScript files in dist directory.
+ */
+async function findDistFiles(distPath: string): Promise<string[]> {
+  const files: string[] = []
+
+  try {
+    const entries = await fs.readdir(distPath, { withFileTypes: true })
+
+    for (let i = 0, { length } = entries; i < length; i += 1) {
+      const entry = entries[i]
+      const fullPath = path.join(distPath, entry.name)
+
+      if (entry.isDirectory()) {
+        files.push(...(await findDistFiles(fullPath)))
+      } else if (
+        entry.name.endsWith('.js') ||
+        entry.name.endsWith('.mjs') ||
+        entry.name.endsWith('.cjs')
+      ) {
+        files.push(fullPath)
+      }
+    }
+  } catch {
+    // Directory doesn't exist or can't be read
+    return []
+  }
+
+  return files
+}
+
+/**
+ * Check if a string is a valid package specifier.
+ */
+function isValidPackageSpecifier(specifier: string): boolean {
+  // Relative imports
+  if (specifier.startsWith('.') || specifier.startsWith('/')) {
+    return false
+  }
+
+  // Subpath imports (Node.js internal imports starting with #)
+  if (specifier.startsWith('#')) {
+    return false
+  }
+
+  // Filter out invalid patterns
+  if (
+    specifier.includes('${') ||
+    specifier.includes('"}') ||
+    specifier.includes('`') ||
+    specifier === 'true' ||
+    specifier === 'false' ||
+    specifier === 'null' ||
+    specifier === 'undefined' ||
+    specifier === 'name' ||
+    specifier === 'dependencies' ||
+    specifier === 'devDependencies' ||
+    specifier === 'peerDependencies' ||
+    specifier === 'version' ||
+    specifier === 'description' ||
+    specifier.length === 0 ||
+    // Filter out strings that look like code fragments
+    specifier.includes('\n') ||
+    specifier.includes(';') ||
+    specifier.includes('function') ||
+    specifier.includes('const ') ||
+    specifier.includes('let ') ||
+    specifier.includes('var ')
+  ) {
+    return false
+  }
+
+  return true
+}
+
+/**
+ * Extract external package names from require() and import statements in built files.
+ */
+async function extractExternalPackages(filePath: string): Promise<Set<string>> {
+  const content = await fs.readFile(filePath, 'utf8')
+  const externals = new Set<string>()
+
+  // Match require('package') or require("package")
+  const requirePattern = /require\s*\(\s*['"]([^'"]+)['"]\s*\)/g
+  // Match import from 'package' or import from "package"
+  const importPattern = /(?:from|import)\s+['"]([^'"]+)['"]/g
+  // Match dynamic import() calls
+  const dynamicImportPattern = /import\s*\(\s*['"]([^'"]+)['"]\s*\)/g
+
+  let match: RegExpExecArray | null
+
+  // Extract from require()
+  while ((match = requirePattern.exec(content)) !== null) {
+    const specifier = match[1]
+    if (!specifier) {
+      continue
+    }
+    // Skip internal src/external/ wrapper paths (used by socket-lib pattern)
+    if (specifier.includes('/external/')) {
+      continue
+    }
+    if (isValidPackageSpecifier(specifier)) {
+      externals.add(specifier)
+    }
+  }
+
+  // Extract from import statements
+  while ((match = importPattern.exec(content)) !== null) {
+    const specifier = match[1]
+    if (!specifier) {
+      continue
+    }
+    // Skip internal src/external/ wrapper paths (used by socket-lib pattern)
+    if (specifier.includes('/external/')) {
+      continue
+    }
+    if (isValidPackageSpecifier(specifier)) {
+      externals.add(specifier)
+    }
+  }
+
+  // Extract from dynamic import()
+  while ((match = dynamicImportPattern.exec(content)) !== null) {
+    const specifier = match[1]
+    if (!specifier) {
+      continue
+    }
+    // Skip internal src/external/ wrapper paths (used by socket-lib pattern)
+    if (specifier.includes('/external/')) {
+      continue
+    }
+    if (isValidPackageSpecifier(specifier)) {
+      externals.add(specifier)
+    }
+  }
+
+  return externals
+}
+
+/**
  * Extract bundled package names from node_modules paths in comments and code.
  */
-export async function extractBundledPackages(
-  filePath: string,
-): Promise<Set<string>> {
+async function extractBundledPackages(filePath: string): Promise<Set<string>> {
   const content = await fs.readFile(filePath, 'utf8')
   const bundled = new Set<string>()
 
@@ -96,106 +234,9 @@ export async function extractBundledPackages(
 }
 
 /**
- * Extract external package names from require() and import statements in built files.
- */
-export async function extractExternalPackages(
-  filePath: string,
-): Promise<Set<string>> {
-  const content = await fs.readFile(filePath, 'utf8')
-  const externals = new Set<string>()
-
-  // Match require('package') or require("package")
-  const requirePattern = /require\s*\(\s*['"]([^'"]+)['"]\s*\)/g
-  // Match import from 'package' or import from "package"
-  const importPattern = /(?:from|import)\s+['"]([^'"]+)['"]/g
-  // Match dynamic import() calls
-  const dynamicImportPattern = /import\s*\(\s*['"]([^'"]+)['"]\s*\)/g
-
-  let match: RegExpExecArray | null
-
-  // Extract from require()
-  while ((match = requirePattern.exec(content)) !== null) {
-    const specifier = match[1]
-    if (!specifier) {
-      continue
-    }
-    // Skip internal src/external/ wrapper paths (used by socket-lib pattern)
-    if (specifier.includes('/external/')) {
-      continue
-    }
-    if (isValidPackageSpecifier(specifier)) {
-      externals.add(specifier)
-    }
-  }
-
-  // Extract from import statements
-  while ((match = importPattern.exec(content)) !== null) {
-    const specifier = match[1]
-    if (!specifier) {
-      continue
-    }
-    // Skip internal src/external/ wrapper paths (used by socket-lib pattern)
-    if (specifier.includes('/external/')) {
-      continue
-    }
-    if (isValidPackageSpecifier(specifier)) {
-      externals.add(specifier)
-    }
-  }
-
-  // Extract from dynamic import()
-  while ((match = dynamicImportPattern.exec(content)) !== null) {
-    const specifier = match[1]
-    if (!specifier) {
-      continue
-    }
-    // Skip internal src/external/ wrapper paths (used by socket-lib pattern)
-    if (specifier.includes('/external/')) {
-      continue
-    }
-    if (isValidPackageSpecifier(specifier)) {
-      externals.add(specifier)
-    }
-  }
-
-  return externals
-}
-
-/**
- * Find all JavaScript files in dist directory.
- */
-export async function findDistFiles(distPath: string): Promise<string[]> {
-  const files: string[] = []
-
-  try {
-    const entries = await fs.readdir(distPath, { withFileTypes: true })
-
-    for (let i = 0, { length } = entries; i < length; i += 1) {
-      const entry = entries[i]!
-      const fullPath = path.join(distPath, entry.name)
-
-      if (entry.isDirectory()) {
-        files.push(...(await findDistFiles(fullPath)))
-      } else if (
-        entry.name.endsWith('.js') ||
-        entry.name.endsWith('.mjs') ||
-        entry.name.endsWith('.cjs')
-      ) {
-        files.push(fullPath)
-      }
-    }
-  } catch {
-    // Directory doesn't exist or can't be read
-    return []
-  }
-
-  return files
-}
-
-/**
  * Get package name from a module specifier (strip subpaths).
  */
-export function getPackageName(specifier: string): string | undefined {
+function getPackageName(specifier: string): string | undefined {
   // Relative imports are not packages
   if (specifier.startsWith('.') || specifier.startsWith('/')) {
     return undefined
@@ -245,66 +286,22 @@ export function getPackageName(specifier: string): string | undefined {
   return parts[0] || undefined
 }
 
-/**
- * Check if a string is a valid package specifier.
- */
-export function isValidPackageSpecifier(specifier: string): boolean {
-  // Relative imports
-  if (specifier.startsWith('.') || specifier.startsWith('/')) {
-    return false
-  }
-
-  // Subpath imports (Node.js internal imports starting with #)
-  if (specifier.startsWith('#')) {
-    return false
-  }
-
-  // Filter out invalid patterns
-  if (
-    specifier.includes('${') ||
-    specifier.includes('"}') ||
-    specifier.includes('`') ||
-    specifier === 'true' ||
-    specifier === 'false' ||
-    specifier === 'null' ||
-    specifier === 'undefined' ||
-    specifier === 'name' ||
-    specifier === 'dependencies' ||
-    specifier === 'devDependencies' ||
-    specifier === 'peerDependencies' ||
-    specifier === 'version' ||
-    specifier === 'description' ||
-    specifier.length === 0 ||
-    // Filter out strings that look like code fragments
-    specifier.includes('\n') ||
-    specifier.includes(';') ||
-    specifier.includes('function') ||
-    specifier.includes('const ') ||
-    specifier.includes('let ') ||
-    specifier.includes('var ')
-  ) {
-    return false
-  }
-
-  return true
-}
-
 interface PackageJson {
-  name?: string
-  version?: string
-  main?: string
-  types?: string
-  dependencies?: Record<string, string>
-  devDependencies?: Record<string, string>
-  peerDependencies?: Record<string, string>
-  optionalDependencies?: Record<string, string>
-  exports?: Record<string, string | Record<string, string>>
+  name?: string | undefined
+  version?: string | undefined
+  main?: string | undefined
+  types?: string | undefined
+  dependencies?: Record<string, string> | undefined
+  devDependencies?: Record<string, string> | undefined
+  peerDependencies?: Record<string, string> | undefined
+  optionalDependencies?: Record<string, string> | undefined
+  exports?: Record<string, string | Record<string, string>> | undefined
 }
 
 /**
  * Read and parse package.json.
  */
-export async function readPackageJson(): Promise<PackageJson> {
+async function readPackageJson(): Promise<PackageJson> {
   const packageJsonPath = path.join(rootPath, 'package.json')
   const content = await fs.readFile(packageJsonPath, 'utf8')
   try {
@@ -339,7 +336,7 @@ interface ValidationResult {
 /**
  * Validate bundle dependencies.
  */
-export async function validateBundleDeps(): Promise<ValidationResult> {
+async function validateBundleDeps(): Promise<ValidationResult> {
   const distPath = path.join(rootPath, 'dist')
   const pkg = await readPackageJson()
 
@@ -361,19 +358,23 @@ export async function validateBundleDeps(): Promise<ValidationResult> {
 
   for (let i = 0, { length } = distFiles; i < length; i += 1) {
     const file = distFiles[i]!
-    const externals = Array.from(await extractExternalPackages(file))
-    const bundled = Array.from(await extractBundledPackages(file))
+    const externals = await extractExternalPackages(file)
+    const bundled = await extractBundledPackages(file)
 
-    for (let j = 0, { length } = externals; j < length; j += 1) {
-      const ext = externals[j]!
+    // externals + bundled are Set<string> — materialize to arrays for
+    // indexed iteration (Set has .size, not .length; isn't indexable).
+    const externalsArr = Array.from(externals)
+    for (let j = 0, { length: el } = externalsArr; j < el; j += 1) {
+      const ext = externalsArr[j]!
       const packageName = getPackageName(ext)
       if (packageName && !BUILTIN_MODULES.has(packageName)) {
         allExternals.add(packageName)
       }
     }
 
-    for (let j = 0, { length } = bundled; j < length; j += 1) {
-      const bun = bundled[j]!
+    const bundledArr = Array.from(bundled)
+    for (let j = 0, { length: bl } = bundledArr; j < bl; j += 1) {
+      const bun = bundledArr[j]!
       allBundled.add(bun)
     }
   }
@@ -381,10 +382,11 @@ export async function validateBundleDeps(): Promise<ValidationResult> {
   const violations: Violation[] = []
   const warnings: Warning[] = []
 
-  // Validate external packages are in dependencies or peerDependencies
-  const externalsList = Array.from(allExternals)
-  for (let i = 0, { length } = externalsList; i < length; i += 1) {
-    const packageName = externalsList[i]!
+  // Validate external packages are in dependencies or peerDependencies.
+  // allExternals is a Set; same materialization as above.
+  const allExternalsArr = Array.from(allExternals)
+  for (let i = 0, { length } = allExternalsArr; i < length; i += 1) {
+    const packageName = allExternalsArr[i]!
     if (!dependencies.has(packageName) && !peerDependencies.has(packageName)) {
       violations.push({
         type: 'external-not-in-deps',
@@ -398,9 +400,9 @@ export async function validateBundleDeps(): Promise<ValidationResult> {
   }
 
   // Validate bundled packages are in devDependencies (not dependencies)
-  const bundledList = Array.from(allBundled)
-  for (let i = 0, { length } = bundledList; i < length; i += 1) {
-    const packageName = bundledList[i]!
+  const allBundledArr = Array.from(allBundled)
+  for (let i = 0, { length } = allBundledArr; i < length; i += 1) {
+    const packageName = allBundledArr[i]!
     if (dependencies.has(packageName)) {
       violations.push({
         type: 'bundled-in-deps',
@@ -434,10 +436,11 @@ async function main(): Promise<void> {
     }
 
     if (violations.length > 0) {
-      logger.fail('Bundle dependencies validation failed\n')
+      logger.fail('Bundle dependencies validation failed')
+      logger.error('')
 
       for (let i = 0, { length } = violations; i < length; i += 1) {
-        const violation = violations[i]!
+        const violation = violations[i]
         logger.error(`  ${violation.message}`)
         logger.error(`  ${violation.fix}`)
         logger.error('')
@@ -445,12 +448,14 @@ async function main(): Promise<void> {
     }
 
     if (warnings.length > 0) {
-      logger.warn('Warnings:\n')
+      logger.warn('Warnings:')
+      logger.error('')
 
       for (let i = 0, { length } = warnings; i < length; i += 1) {
-        const warning = warnings[i]!
+        const warning = warnings[i]
         logger.log(`  ${warning.message}`)
-        logger.log(`  ${warning.fix}\n`)
+        logger.log(`  ${warning.fix}`)
+        logger.log('')
       }
     }
 
