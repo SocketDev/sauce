@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   weekly-update:
-    uses: SocketDev/socket-registry/.github/workflows/weekly-update.yml@b5b9f01d8a2741bf2b6024589790bf922455c306 # main
+    uses: SocketDev/socket-registry/.github/workflows/weekly-update.yml@27eee5cbe49334ac7e0e2f69dcdfdd501300e04f # main
     with:
       test-setup-script: ''
       test-script: 'pnpm exec vitest run --config tests/vitest.config.ts'
