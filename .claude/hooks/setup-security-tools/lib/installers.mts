@@ -930,7 +930,9 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((e: unknown) => {
-  logger.error(errorMessage(e))
-  process.exitCode = 1
-})
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  main().catch((e: unknown) => {
+    logger.error(errorMessage(e))
+    process.exitCode = 1
+  })
+}
