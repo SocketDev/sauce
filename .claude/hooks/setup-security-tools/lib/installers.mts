@@ -888,41 +888,41 @@ async function main(): Promise<void> {
   // absent; janus is opt-in and mac-only; cdxgen + synp are consumed
   // by socket-cli scan/lockfile codepaths). Install in parallel since
   // they don't share state.
-  const [trufflehogOk, trivyOk, opengrepOk, uvOk, janusOk, cdxgenOk, synpOk] =
+  const [cdxgenOk, janusOk, opengrepOk, synpOk, trivyOk, trufflehogOk, uvOk] =
     await Promise.all([
-      setupTrufflehog(),
-      setupTrivy(),
-      setupOpengrep(),
-      setupUv(),
-      setupJanus(),
       setupCdxgen(),
+      setupJanus(),
+      setupOpengrep(),
       setupSynp(),
+      setupTrivy(),
+      setupTrufflehog(),
+      setupUv(),
     ])
   logger.log('')
 
   logger.log('=== Summary ===')
   logger.log(`AgentShield: ${agentshieldOk ? 'ready' : 'NOT AVAILABLE'}`)
-  logger.log(`Zizmor:      ${zizmorOk ? 'ready' : 'FAILED'}`)
-  logger.log(`SFW:         ${sfwOk ? 'ready' : 'FAILED'}`)
-  logger.log(`TruffleHog:  ${trufflehogOk ? 'ready' : 'FAILED'}`)
-  logger.log(`Trivy:       ${trivyOk ? 'ready' : 'FAILED'}`)
-  logger.log(`OpenGrep:    ${opengrepOk ? 'ready' : 'FAILED'}`)
-  logger.log(`uv:          ${uvOk ? 'ready' : 'FAILED'}`)
-  logger.log(`janus:       ${janusOk ? 'ready' : 'FAILED'}`)
   logger.log(`cdxgen:      ${cdxgenOk ? 'ready' : 'FAILED'}`)
+  logger.log(`janus:       ${janusOk ? 'ready' : 'FAILED'}`)
+  logger.log(`OpenGrep:    ${opengrepOk ? 'ready' : 'FAILED'}`)
+  logger.log(`SFW:         ${sfwOk ? 'ready' : 'FAILED'}`)
   logger.log(`synp:        ${synpOk ? 'ready' : 'FAILED'}`)
+  logger.log(`Trivy:       ${trivyOk ? 'ready' : 'FAILED'}`)
+  logger.log(`TruffleHog:  ${trufflehogOk ? 'ready' : 'FAILED'}`)
+  logger.log(`uv:          ${uvOk ? 'ready' : 'FAILED'}`)
+  logger.log(`Zizmor:      ${zizmorOk ? 'ready' : 'FAILED'}`)
 
   const allOk =
     agentshieldOk &&
-    zizmorOk &&
-    sfwOk &&
-    trufflehogOk &&
-    trivyOk &&
-    opengrepOk &&
-    uvOk &&
-    janusOk &&
     cdxgenOk &&
-    synpOk
+    janusOk &&
+    opengrepOk &&
+    sfwOk &&
+    synpOk &&
+    trivyOk &&
+    trufflehogOk &&
+    uvOk &&
+    zizmorOk
   if (allOk) {
     logger.log('\nAll security tools ready.')
   } else {

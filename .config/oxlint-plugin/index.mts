@@ -45,6 +45,7 @@ import preferSeparateTypeImport from './rules/prefer-separate-type-import.mts'
 import preferStaticTypeImport from './rules/prefer-static-type-import.mts'
 import preferUndefinedOverNull from './rules/prefer-undefined-over-null.mts'
 import socketApiTokenEnv from './rules/socket-api-token-env.mts'
+import sortBooleanChains from './rules/sort-boolean-chains.mts'
 import sortEqualityDisjunctions from './rules/sort-equality-disjunctions.mts'
 import sortNamedImports from './rules/sort-named-imports.mts'
 import sortRegexAlternations from './rules/sort-regex-alternations.mts'
@@ -97,6 +98,7 @@ const plugin = {
     'prefer-static-type-import': preferStaticTypeImport,
     'prefer-undefined-over-null': preferUndefinedOverNull,
     'socket-api-token-env': socketApiTokenEnv,
+    'sort-boolean-chains': sortBooleanChains,
     'sort-equality-disjunctions': sortEqualityDisjunctions,
     'sort-named-imports': sortNamedImports,
     'sort-regex-alternations': sortRegexAlternations,
