@@ -2,7 +2,7 @@
   "name": "socket-skills",
   "version": "1.0.0",
   "private": true,
-  "packageManager": "pnpm@11.1.2",
+  "packageManager": "pnpm@11.1.3",
   "engines": {
     "node": ">=20.18.0"
   },
