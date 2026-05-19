@@ -12,12 +12,15 @@
 import exportTopLevelFunctions from './rules/export-top-level-functions.mts'
 import inclusiveLanguage from './rules/inclusive-language.mts'
 import maxFileLines from './rules/max-file-lines.mts'
+import noBareCryptoNamedUsage from './rules/no-bare-crypto-named-usage.mts'
 import noCachedForOnIterable from './rules/no-cached-for-on-iterable.mts'
 import noConsolePreferLogger from './rules/no-console-prefer-logger.mts'
 import noDefaultExport from './rules/no-default-export.mts'
 import noDynamicImportOutsideBundle from './rules/no-dynamic-import-outside-bundle.mts'
+import noEslintBiomeConfigRef from './rules/no-eslint-biome-config-ref.mts'
 import noFetchPreferHttpRequest from './rules/no-fetch-prefer-http-request.mts'
 import noFileScopeOxlintDisable from './rules/no-file-scope-oxlint-disable.mts'
+import noInlineDeferAsync from './rules/no-inline-defer-async.mts'
 import noInlineLogger from './rules/no-inline-logger.mts'
 import noLoggerNewlineLiteral from './rules/no-logger-newline-literal.mts'
 import noNpxDlx from './rules/no-npx-dlx.mts'
@@ -26,10 +29,12 @@ import noProcessCwdInScriptsHooks from './rules/no-process-cwd-in-scripts-hooks.
 import noPromiseRace from './rules/no-promise-race.mts'
 import noPromiseRaceInLoop from './rules/no-promise-race-in-loop.mts'
 import noStatusEmoji from './rules/no-status-emoji.mts'
+import noSyncRmInTestLifecycle from './rules/no-sync-rm-in-test-lifecycle.mts'
 import optionalExplicitUndefined from './rules/optional-explicit-undefined.mts'
 import personalPathPlaceholders from './rules/personal-path-placeholders.mts'
 import preferAsyncSpawn from './rules/prefer-async-spawn.mts'
 import preferCachedForLoop from './rules/prefer-cached-for-loop.mts'
+import preferEnvAsBoolean from './rules/prefer-env-as-boolean.mts'
 import preferExistsSync from './rules/prefer-exists-sync.mts'
 import preferFunctionDeclaration from './rules/prefer-function-declaration.mts'
 import preferNodeBuiltinImports from './rules/prefer-node-builtin-imports.mts'
@@ -44,6 +49,7 @@ import sortNamedImports from './rules/sort-named-imports.mts'
 import sortRegexAlternations from './rules/sort-regex-alternations.mts'
 import sortSetArgs from './rules/sort-set-args.mts'
 import sortSourceMethods from './rules/sort-source-methods.mts'
+import useFleetCanonicalApiTokenGetter from './rules/use-fleet-canonical-api-token-getter.mts'
 
 /**
  * @type {import('eslint').ESLint.Plugin}
@@ -57,12 +63,15 @@ const plugin = {
     'export-top-level-functions': exportTopLevelFunctions,
     'inclusive-language': inclusiveLanguage,
     'max-file-lines': maxFileLines,
+    'no-bare-crypto-named-usage': noBareCryptoNamedUsage,
     'no-cached-for-on-iterable': noCachedForOnIterable,
     'no-console-prefer-logger': noConsolePreferLogger,
     'no-default-export': noDefaultExport,
     'no-dynamic-import-outside-bundle': noDynamicImportOutsideBundle,
+    'no-eslint-biome-config-ref': noEslintBiomeConfigRef,
     'no-fetch-prefer-http-request': noFetchPreferHttpRequest,
     'no-file-scope-oxlint-disable': noFileScopeOxlintDisable,
+    'no-inline-defer-async': noInlineDeferAsync,
     'no-inline-logger': noInlineLogger,
     'no-logger-newline-literal': noLoggerNewlineLiteral,
     'no-npx-dlx': noNpxDlx,
@@ -71,10 +80,12 @@ const plugin = {
     'no-promise-race': noPromiseRace,
     'no-promise-race-in-loop': noPromiseRaceInLoop,
     'no-status-emoji': noStatusEmoji,
+    'no-sync-rm-in-test-lifecycle': noSyncRmInTestLifecycle,
     'optional-explicit-undefined': optionalExplicitUndefined,
     'personal-path-placeholders': personalPathPlaceholders,
     'prefer-async-spawn': preferAsyncSpawn,
     'prefer-cached-for-loop': preferCachedForLoop,
+    'prefer-env-as-boolean': preferEnvAsBoolean,
     'prefer-exists-sync': preferExistsSync,
     'prefer-function-declaration': preferFunctionDeclaration,
     'prefer-node-builtin-imports': preferNodeBuiltinImports,
@@ -89,6 +100,7 @@ const plugin = {
     'sort-regex-alternations': sortRegexAlternations,
     'sort-set-args': sortSetArgs,
     'sort-source-methods': sortSourceMethods,
+    'use-fleet-canonical-api-token-getter': useFleetCanonicalApiTokenGetter,
   },
 }
 
