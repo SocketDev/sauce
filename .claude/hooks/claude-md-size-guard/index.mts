@@ -2,7 +2,7 @@
 // Claude Code PreToolUse hook — claude-md-size-guard.
 //
 // Blocks Edit/Write tool calls that would push the CLAUDE.md
-// fleet-canonical block above the 40KB size cap. The fleet block lives
+// fleet-canonical block above the 48KB size cap. The fleet block lives
 // between `<!-- BEGIN FLEET-CANONICAL -->` and `<!-- END FLEET-CANONICAL -->`
 // markers; everything outside is per-repo content owned by the host
 // repo (different cap, evaluated separately).
@@ -24,8 +24,9 @@
 //      remediation (move detail into `docs/references/<topic>.md`).
 //
 // Cap policy:
-//   - Default: 40 KB (40_960 bytes). Override per-repo by setting
-//     `CLAUDE_MD_FLEET_BLOCK_BYTES` in the env (rarely needed).
+//   - Default: 48 KB (49_152 bytes). Sized to leave room for per-repo
+//     CLAUDE.md additions outside the fleet block. Override per-repo by
+//     setting `CLAUDE_MD_FLEET_BLOCK_BYTES` in the env (rarely needed).
 //   - Whole-file cap: NOT enforced here. Per-repo content can grow
 //     freely; this hook only protects the fleet block.
 //
@@ -44,63 +45,9 @@ import process from 'node:process'
 
 import { readStdin } from '../_shared/transcript.mts'
 
-const DEFAULT_CAP_BYTES = 40 * 1024
+const DEFAULT_CAP_BYTES = 48 * 1024
 const FLEET_BEGIN_MARKER = '<!-- BEGIN FLEET-CANONICAL'
 const FLEET_END_MARKER = '<!-- END FLEET-CANONICAL'
-
-type ToolInput = {
-  tool_input?:
-    | {
-        content?: string | undefined
-        file_path?: string | undefined
-        new_string?: string | undefined
-        old_string?: string | undefined
-      }
-    | undefined
-  tool_name?: string | undefined
-}
-
-function isClaudeMd(filePath: string | undefined): boolean {
-  if (!filePath) {
-    return false
-  }
-  const base = filePath.split('/').pop() ?? ''
-  return base === 'CLAUDE.md'
-}
-
-function getCap(): number {
-  const env = process.env['CLAUDE_MD_FLEET_BLOCK_BYTES']
-  if (!env) {
-    return DEFAULT_CAP_BYTES
-  }
-  const n = Number.parseInt(env, 10)
-  if (!Number.isFinite(n) || n <= 0) {
-    return DEFAULT_CAP_BYTES
-  }
-  return n
-}
-
-/**
- * Extract the fleet-canonical block from a CLAUDE.md text. Returns undefined if
- * the markers aren't present (per-repo CLAUDE.md may not have them, in which
- * case the cap doesn't apply).
- */
-function extractFleetBlock(text: string): string | undefined {
-  const beginIdx = text.indexOf(FLEET_BEGIN_MARKER)
-  if (beginIdx === -1) {
-    return undefined
-  }
-  const endIdx = text.indexOf(FLEET_END_MARKER, beginIdx)
-  if (endIdx === -1) {
-    return undefined
-  }
-  // Include both markers in the measured block.
-  const blockEnd = text.indexOf('-->', endIdx)
-  if (blockEnd === -1) {
-    return undefined
-  }
-  return text.slice(beginIdx, blockEnd + 3)
-}
 
 /**
  * Compute the post-edit text. For Write, that's just `content`. For Edit,
@@ -108,7 +55,7 @@ function extractFleetBlock(text: string): string | undefined {
  * on-disk file isn't readable or `old_string` doesn't match exactly, return
  * undefined (caller fails open).
  */
-function computePostEditText(
+export function computePostEditText(
   toolName: string,
   filePath: string,
   newString: string | undefined,
@@ -145,7 +92,7 @@ function computePostEditText(
   return raw.slice(0, idx) + newString + raw.slice(idx + oldString.length)
 }
 
-function emitBlock(
+export function emitBlock(
   filePath: string,
   blockBytes: number,
   capBytes: number,
@@ -178,6 +125,60 @@ function emitBlock(
   lines.push('  See `docs/references/bypass-phrases.md` for an example of the')
   lines.push('  one-paragraph + reference shape.')
   process.stderr.write(lines.join('\n') + '\n')
+}
+
+/**
+ * Extract the fleet-canonical block from a CLAUDE.md text. Returns undefined if
+ * the markers aren't present (per-repo CLAUDE.md may not have them, in which
+ * case the cap doesn't apply).
+ */
+export function extractFleetBlock(text: string): string | undefined {
+  const beginIdx = text.indexOf(FLEET_BEGIN_MARKER)
+  if (beginIdx === -1) {
+    return undefined
+  }
+  const endIdx = text.indexOf(FLEET_END_MARKER, beginIdx)
+  if (endIdx === -1) {
+    return undefined
+  }
+  // Include both markers in the measured block.
+  const blockEnd = text.indexOf('-->', endIdx)
+  if (blockEnd === -1) {
+    return undefined
+  }
+  return text.slice(beginIdx, blockEnd + 3)
+}
+
+export function getCap(): number {
+  const env = process.env['CLAUDE_MD_FLEET_BLOCK_BYTES']
+  if (!env) {
+    return DEFAULT_CAP_BYTES
+  }
+  const n = Number.parseInt(env, 10)
+  if (!Number.isFinite(n) || n <= 0) {
+    return DEFAULT_CAP_BYTES
+  }
+  return n
+}
+
+type ToolInput = {
+  tool_input?:
+    | {
+        content?: string | undefined
+        file_path?: string | undefined
+        new_string?: string | undefined
+        old_string?: string | undefined
+      }
+    | undefined
+  tool_name?: string | undefined
+}
+
+export function isClaudeMd(filePath: string | undefined): boolean {
+  if (!filePath) {
+    return false
+  }
+  const base = filePath.split('/').pop() ?? ''
+  return base === 'CLAUDE.md'
 }
 
 async function main(): Promise<void> {

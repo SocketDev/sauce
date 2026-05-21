@@ -29,7 +29,7 @@ import { isBuiltin } from 'node:module'
 import path from 'node:path'
 import process from 'node:process'
 
-import { spawn } from '@socketsecurity/lib-stable/spawn'
+import { spawn } from '@socketsecurity/lib-stable/spawn/spawn'
 
 // Probe for node:smol-power. Lives in socket-btm's node-smol binary
 // — `isBuiltin()` returns true on those builds and false on system
@@ -96,7 +96,8 @@ async function detectLinux(): Promise<boolean> {
   }
   try {
     const entries = await fs.readdir(psDir)
-    for (const entry of entries) {
+    for (let i = 0, { length } = entries; i < length; i += 1) {
+      const entry = entries[i]!
       const onlineFile = path.join(psDir, entry, 'online')
       if (!existsSync(onlineFile)) {
         continue
