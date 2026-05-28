@@ -1,34 +1,38 @@
+/* eslint-disable no-shadow -- nested cached-length for-loops intentionally reuse `i`/`length` names for the fleet-wide cached-loop idiom; renaming would diverge from the codebase pattern. */
 /**
- * @fileoverview Canonical minimal test runner for socket-* repos.
+ * @file Canonical minimal test runner for socket-* repos. Delegates the
+ *   scope-to-tests mapping to vitest itself rather than rolling a basename-
+ *   based mapper that would inevitably drift from the actual module graph.
  *
- * Scope modes:
- *   (default)   Run tests covering files modified in the working tree vs HEAD.
- *   --staged    Run tests covering files in the git index (pre-commit hook).
- *   --all       Run the full test suite.
+ *   Scope modes:
  *
- * Flags:
- *   --quiet     Suppress progress output.
+ *   - `(default)` — local-dev scope. Runs `vitest --changed`, vitest's
+ *     compare-vs-HEAD-with-uncommitted mode. Walks the actual import graph
+ *     so a change to a util shared by many tests runs every affected test
+ *     file, not the union of two guesses.
+ *   - `--staged` — pre-commit hook scope. Hands `git diff --cached` filenames
+ *     to `vitest related <files…> --run`. Same module-graph walk, but rooted
+ *     at the staged delta. The `--run` flag is mandatory: `vitest related`
+ *     defaults to watch mode just like the bare `vitest` invocation, which
+ *     would hang the pre-commit hook.
+ *   - `--all` — run the full suite (`vitest run`). Used in CI and on explicit
+ *     opt-in.
  *
- * Scope-to-tests mapping (adapt per repo layout):
- *   - Changed test files run themselves.
- *   - Changed source files under `packages/<pkg>/src/` run the sibling
- *     `packages/<pkg>/test/` folder. Non-workspace repos can adapt the
- *     resolveTestPatterns() function to their layout (e.g. single src/ +
- *     test/ at root, or tests colocated with source).
- *   - Config / infrastructure changes escalate to the full suite.
+ *   Flags: `--quiet` / `--silent` suppress progress output.
  *
- * This is the minimal zero-dependency reference implementation. Larger repos
- * (socket-registry, socket-sdk-js, socket-packageurl-js, etc.) use a richer
- * version; this one keeps the same CLI contract so pre-commit hooks and CI
- * work identically across repos.
+ *   Config / infrastructure changes (`vitest.config*`, `tsconfig*`,
+ *   `.oxlintrc.json`, `.oxfmtrc.json`, `pnpm-lock.yaml`, `package.json`,
+ *   anything under `.config/` or `scripts/`) still escalate to `all` —
+ *   module-graph traversal doesn't capture config-derived discovery + alias
+ *   changes. See https://vitest.dev/guide/cli.html#vitest-related.
  */
 
-import { execFileSync, execSync } from 'node:child_process'
-import type { ExecSyncOptions } from 'node:child_process'
-import { existsSync } from 'node:fs'
+// prefer-async-spawn: sync-required — top-level CLI runner; entire
+// flow is sync (test runner invocation + exit-code aggregation).
+import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
+import type { SpawnSyncOptions } from 'node:child_process'
 import process from 'node:process'
-
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 const logger = getDefaultLogger()
 
@@ -39,7 +43,11 @@ const mode: 'staged' | 'all' | 'modified' = args.includes('--all')
     ? 'staged'
     : 'modified'
 const quiet = args.includes('--quiet') || args.includes('--silent')
-const stdio: ExecSyncOptions['stdio'] = quiet ? 'pipe' : 'inherit'
+const stdio: SpawnSyncOptions['stdio'] = quiet ? 'pipe' : 'inherit'
+// On Windows, `pnpm` is a .cmd shim that Node refuses to exec directly via
+// spawnSync (CVE-2024-27980 hardening). Wrap through the shell on Windows
+// only; POSIX keeps direct invocation.
+const useShell = process.platform === 'win32'
 
 // Paths that, when changed, force the full suite to run.
 const ESCALATION_PATTERNS = [
@@ -51,125 +59,40 @@ const ESCALATION_PATTERNS = [
   /^\.oxfmtrc\.json$/,
   /^vitest\.config\.(js|mjs|mts|ts)$/,
   /^package\.json$/,
-  /^xport\.schema\.json$/,
+  /^lockstep\.schema\.json$/,
 ]
 
-export function getModifiedFiles(): string[] {
-  return gitFiles('git diff --name-only --diff-filter=ACMR HEAD')
-}
-
-export function getStagedFiles(): string[] {
-  return gitFiles('git diff --cached --name-only --diff-filter=ACMR')
-}
-
-export function gitFiles(command: string): string[] {
-  try {
-    const out = execSync(command, {
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe'],
-    })
-    return out
-      .split('\n')
-      .map(s => s.trim())
-      .filter(s => s.length > 0)
-  } catch {
-    return []
-  }
-}
-
-export function log(msg: string): void {
+function log(msg: string): void {
   if (!quiet) {
     logger.log(msg)
   }
 }
 
-/**
- * Map changed files to vitest test patterns.
- *
- * Default implementation handles two common layouts:
- *   - pnpm workspace: packages/<pkg>/src/... → packages/<pkg>/test
- *   - single repo:    src/... → test
- * Adapt to your repo's layout if different.
- */
-export function resolveTestPatterns(files: string[]): string[] {
-  const patterns = new Set<string>()
-  for (let i = 0, { length } = files; i < length; i += 1) {
-    const f = files[i]!
-    // Test file itself.
-    if (/\.test\.(m?[jt]s)$/.test(f)) {
-      patterns.add(f)
-      continue
-    }
-    // Workspace source file. Only emit the pattern if the test dir exists;
-    // packages without a test/ directory are skipped rather than making
-    // vitest error on an unknown pattern.
-    const wsMatch = f.match(/^(packages\/[^/]+)\/src\//)
-    if (wsMatch && existsSync(`${wsMatch[1]!}/test`)) {
-      patterns.add(`${wsMatch[1]!}/test`)
-      continue
-    }
-    // Single-repo source file.
-    if (f.startsWith('src/') && existsSync('test')) {
-      patterns.add('test')
-    }
+function gitFiles(args: string[]): string[] {
+  // spawnSync with array args — no shell interpolation. Matches the
+  // socket/prefer-spawn-over-execsync rule contract.
+  const r = spawnSync('git', args, {
+    stdio: ['ignore', 'pipe', 'pipe'],
+    stdioString: true,
+  })
+  if (r.status !== 0 || typeof r.stdout !== 'string') {
+    return []
   }
-  return [...patterns]
+  return r.stdout
+    .split('\n')
+    .map(s => s.trim())
+    .filter(s => s.length > 0)
 }
 
-// Skills repo's vitest config lives at tests/vitest.config.mts (non-standard
-// location: keeps the tests/ tier-organized fixtures next to the config).
-// vitest doesn't auto-discover that path, so the wrapper always passes
-// --config explicitly.
-const VITEST_CONFIG = 'tests/vitest.config.mts'
-
-export function runAll(): number {
-  log('Test scope: all')
-  try {
-    execFileSync('pnpm', ['exec', 'vitest', 'run', '--config', VITEST_CONFIG], {
-      stdio,
-    })
-    log('All tests passed')
-    return 0
-  } catch {
-    log('Tests failed')
-    return 1
-  }
+function getStagedFiles(): string[] {
+  return gitFiles(['diff', '--cached', '--name-only', '--diff-filter=ACMR'])
 }
 
-export function runPatterns(patterns: string[]): number {
-  if (patterns.length === 0) {
-    log('No tests to run; skipping.')
-    return 0
-  }
-  log(`Test scope: ${mode} (${patterns.length} pattern(s))`)
-  // --passWithNoTests: if a pattern produces zero matches (e.g. a freshly
-  // added package with an empty test dir, or a source change that doesn't
-  // touch any testable code), vitest treats it as success rather than a
-  // "no test files found" error. Scoped-by-default runs shouldn't fail
-  // just because the change didn't happen to touch a testable file.
-  try {
-    execFileSync(
-      'pnpm',
-      [
-        'exec',
-        'vitest',
-        'run',
-        '--config',
-        VITEST_CONFIG,
-        '--passWithNoTests',
-        ...patterns,
-      ],
-      { stdio },
-    )
-    log('All tests passed')
-    return 0
-  } catch {
-    log('Tests failed')
-    return 1
-  }
+function getModifiedFiles(): string[] {
+  return gitFiles(['diff', '--name-only', '--diff-filter=ACMR', 'HEAD'])
 }
 
-export function shouldEscalate(files: string[]): boolean {
+function shouldEscalate(files: string[]): boolean {
   for (let i = 0, { length } = files; i < length; i += 1) {
     const f = files[i]!
     for (let i = 0, { length } = ESCALATION_PATTERNS; i < length; i += 1) {
@@ -180,6 +103,44 @@ export function shouldEscalate(files: string[]): boolean {
     }
   }
   return false
+}
+
+function runVitest(vitestArgs: string[], label: string): number {
+  log(`Test scope: ${label}`)
+  const r = spawnSync(
+    'pnpm',
+    ['exec', 'vitest', ...vitestArgs, '--config', '.config/vitest.config.mts'],
+    // Windows shell-shim rationale: see useShell at file top.
+    { shell: useShell, stdio },
+  )
+  if (r.status !== 0) {
+    log('Tests failed')
+    return 1
+  }
+  log('All tests passed')
+  return 0
+}
+
+function runAll(): number {
+  return runVitest(['run'], 'all')
+}
+
+// --passWithNoTests: a scoped run where the changed files don't resolve
+// to any test file should succeed rather than error with "No test files
+// found". Keeps pre-commit hooks passing when an edit touches only
+// non-testable code.
+function runChanged(): number {
+  return runVitest(['run', '--changed', '--passWithNoTests'], 'changed')
+}
+
+function runRelated(files: string[]): number {
+  // `vitest related <files…>` defaults to watch mode; `--run` forces a
+  // single non-watch execution. Pass the staged file list as positionals;
+  // vitest walks the module graph from each.
+  return runVitest(
+    ['related', ...files, '--run', '--passWithNoTests'],
+    `staged (${files.length} file(s))`,
+  )
 }
 
 function main(): void {
@@ -201,8 +162,14 @@ function main(): void {
     return
   }
 
-  const patterns = resolveTestPatterns(files)
-  process.exitCode = runPatterns(patterns)
+  if (mode === 'staged') {
+    process.exitCode = runRelated(files)
+    return
+  }
+
+  // Working-tree changed → vitest's native --changed (it re-detects the
+  // file list via git itself, including uncommitted edits).
+  process.exitCode = runChanged()
 }
 
 main()
