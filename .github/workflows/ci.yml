@@ -21,7 +21,7 @@ concurrency:
 jobs:
   ci:
     name: Run CI Pipeline
-    uses: SocketDev/socket-registry/.github/workflows/ci.yml@30c9d1e8ee7d2f9997eb0d6150c4baca23a776d4 # main
+    uses: SocketDev/socket-registry/.github/workflows/ci.yml@f09a1cd39868ae45d304cfcead2d4f19a5325d8a # main
     with:
       # Tier 1 = structural tests (cheap, no API keys needed). Tier 2
       # (api) and Tier 3 (e2e) are not part of CI on every PR — Tier 2
