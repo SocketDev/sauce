@@ -4,7 +4,7 @@
  *   immediately. The author intent (wait for DOMContentLoaded) is silently
  *   ignored. Past incident: same shape bit a fleet project twice; rendered
  *   pages went silently broken when the script tried to operate on DOM nodes
- *   that didn't exist yet. Sibling: `.claude/hooks/inline-script-defer-guard/`
+ *   that didn't exist yet. Sibling: `.claude/hooks/fleet/inline-script-defer-guard/`
  *   catches this at edit time. This lint rule catches it at commit time when
  *   edits happened outside Claude. Detects: string literals (single-quoted,
  *   double-quoted, or template) containing `<script ...defer...>` or `<script
@@ -14,9 +14,16 @@
  *   the error message.
  */
 
+import { makeBypassChecker } from '../lib/comment-markers.mts'
+import { isPluginSelfFile } from '../lib/fleet-paths.mts'
 import type { AstNode, RuleContext, RuleFixer } from '../lib/rule-types.mts'
 
 const SCRIPT_OPENER_RE = /<script\b([^>]*)>/gi
+
+// socket-hook: allow inline-defer -- opt-out for a string that contains a
+// `<script ...>` snippet as DATA (e.g. a hook's own diagnostic text describing
+// the banned shape), not as real inline-script markup.
+const BYPASS_RE = /socket-hook:\s*allow\s+inline-defer/
 
 interface Match {
   /**
@@ -72,9 +79,14 @@ const rule = {
   },
 
   create(context: RuleContext) {
+    // The rule's own source + fixtures contain `<script defer>` as data.
+    if (isPluginSelfFile(context)) {
+      return {}
+    }
     const sourceCode = context.getSourceCode
       ? context.getSourceCode()
       : context.sourceCode
+    const hasBypassComment = makeBypassChecker(context, BYPASS_RE)
 
     function checkLiteralText(
       node: AstNode,
@@ -85,6 +97,9 @@ const rule = {
     ): void {
       const found = findInlineDeferOrAsync(text)
       if (!found) {
+        return
+      }
+      if (hasBypassComment(node)) {
         return
       }
 

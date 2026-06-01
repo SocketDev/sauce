@@ -277,11 +277,15 @@ function checkCommitGpgsign(): CheckResult {
 }
 
 function checkSocketTokenInEnv(): CheckResult {
+  // This audit reports whether the raw env slots are wired up; the
+  // keychain-fallback getter would defeat the check.
   const env =
+    // socket-api-token-getter: allow direct-env
     // oxlint-disable-next-line socket/socket-api-token-env -- audit script: must check the primary slot because that's literally what's being audited (whether the install hook's primary export is wired up).
     process.env['SOCKET_API_KEY'] || process.env['SOCKET_API_TOKEN']
   if (env) {
-    const source = process.env['SOCKET_API_KEY']
+    // socket-api-token-getter: allow direct-env -- audit reports which raw env name is set.
+    const source = process.env['SOCKET_API_TOKEN']
       ? // oxlint-disable-next-line socket/socket-api-token-env -- audit script: reports which name was found, including the primary slot.
         'SOCKET_API_KEY'
       : 'SOCKET_API_TOKEN'
@@ -322,7 +326,7 @@ function checkSocketTokenInEnv(): CheckResult {
     detail:
       'SOCKET_API_KEY is not in the current env AND no shell-rc-bridge block is wired up. Hooks fall through to the keychain, which prompts on first access.',
     fix:
-      'node .claude/hooks/setup-security-tools/install.mts\n' +
+      'node .claude/hooks/fleet/setup-security-tools/install.mts\n' +
       '  # installs the shell-rc-bridge block; exports the token in every fresh shell',
   }
 }
@@ -341,7 +345,7 @@ function checkKeychainTokenAcl(): CheckResult {
   // entry exists via the non-password-fetching form.
   const r = spawnSync(
     'security',
-    ['find-generic-password', '-s', 'socket-cli', '-a', 'SOCKET_API_KEY'],
+    ['find-generic-password', '-s', 'socket-cli', '-a', 'SOCKET_API_TOKEN'],
     { stdio: ['ignore', 'pipe', 'pipe'] },
   )
   if (r.status !== 0) {
@@ -351,7 +355,7 @@ function checkKeychainTokenAcl(): CheckResult {
       detail:
         'No socket-cli/SOCKET_API_KEY entry in the Keychain. Tools that fall back to keychain (when env is empty) will prompt for input on first use.',
       fix:
-        'node .claude/hooks/setup-security-tools/install.mts\n' +
+        'node .claude/hooks/fleet/setup-security-tools/install.mts\n' +
         '  # prompts for the token interactively and persists it to the Keychain with -T "" (any app can read).',
     }
   }

@@ -35,11 +35,19 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
+import { discoverAiAgents } from '@socketsecurity/lib-stable/ai/discover'
+import { AI_PROFILE } from '@socketsecurity/lib-stable/ai/profiles'
+import { spawnAiAgent } from '@socketsecurity/lib-stable/ai/spawn'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { isSpawnError } from '@socketsecurity/lib-stable/process/spawn/errors'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
-import { AI_HANDLED_RULES, RULE_GUIDANCE } from './rule-guidance.mts'
+import {
+  AI_HANDLED_RULES,
+  RULE_GUIDANCE,
+  TIER_MODEL,
+  escalateTier,
+} from './rule-guidance.mts'
 
 const logger = getDefaultLogger()
 
@@ -204,7 +212,7 @@ function bucketFindings(files: OxlintFile[]): Map<string, OxlintMessage[]> {
   for (let i = 0, { length } = files; i < length; i += 1) {
     const f = files[i]!
     const handled = f.messages.filter(
-      m => m.ruleId && AI_HANDLED_RULES.has(m.ruleId),
+      m => m.ruleId !== undefined && AI_HANDLED_RULES.has(m.ruleId),
     )
     if (handled.length === 0) {
       continue
@@ -326,68 +334,31 @@ async function runClaudeFix(
   _filePath: string,
   prompt: string,
   cwd: string,
+  model: string,
 ): Promise<{ exitCode: number; stdout: string; stderr: string }> {
-  const claudeArgs = [
-    '--print',
-    '--model',
-    'claude-sonnet-4-6',
-    '--permission-mode',
-    'acceptEdits',
-    '--no-session-persistence',
-    '--add-dir',
+  // AI_PROFILE.edit = in-place edits only (Edit on existing files, no
+  // Write/MultiEdit) — exactly the lint-fix contract: the prompt forbids
+  // creating files. spawnAiAgent owns the --no-session-persistence /
+  // --add-dir / 529-retry the hand-rolled version used to duplicate.
+  // The model is picked per-file by the caller via escalateTier() — see
+  // RULE_MODEL_TIER in rule-guidance.mts. Simple regex-shaped rewrites
+  // run on Haiku; control-flow + caller-chain rewrites run on Sonnet;
+  // module-split refactors (`socket/max-file-lines`) run on Opus.
+  const { exitCode, stderr, stdout } = await spawnAiAgent({
+    ...AI_PROFILE.edit,
     cwd,
-    '--allowedTools',
-    'Read',
-    'Edit',
-    'Grep',
-    'Glob',
-    '--disallowedTools',
-    'Bash',
-    'Write',
-    'WebFetch',
-    'WebSearch',
-    'Agent',
-  ]
-  let stdout = ''
-  let stderr = ''
-  let exitCode = 0
-  try {
-    const child = spawn('claude', claudeArgs, {
-      cwd,
-      stdio: 'pipe',
-      stdioString: true,
-      timeout: 5 * 60 * 1000,
-    })
-    child.stdin?.end(prompt)
-    const result = await child
-    stdout = String(result.stdout ?? '')
-    stderr = String(result.stderr ?? '')
-    exitCode = result.code ?? 0
-  } catch (e) {
-    if (isSpawnError(e)) {
-      stdout = String(e.stdout ?? '')
-      stderr = String(e.stderr ?? '')
-      exitCode = e.code ?? 1
-    } else {
-      stderr = e instanceof Error ? e.message : String(e)
-      exitCode = 1
-    }
-  }
+    model,
+    prompt,
+    timeoutMs: 5 * 60 * 1000,
+  })
   return { exitCode, stderr, stdout }
 }
 
-async function hasClaudeCli(): Promise<boolean> {
-  try {
-    const result = await spawn('claude', ['--version'], {
-      shell: process.platform === 'win32',
-      stdio: 'pipe',
-      stdioString: true,
-      timeout: 5000,
-    })
-    return result.code === 0
-  } catch {
-    return false
-  }
+async function hasClaudeCli(cwd: string): Promise<boolean> {
+  // discoverAiAgents resolves each known agent CLI via `which`; claude
+  // is present iff it's a key in the returned map.
+  const discovered = await discoverAiAgents({ repoRoot: cwd })
+  return 'claude' in discovered
 }
 
 async function main(): Promise<void> {
@@ -408,7 +379,10 @@ async function main(): Promise<void> {
     return
   }
 
-  if (!(await hasClaudeCli())) {
+  // oxlint-disable-next-line socket/no-process-cwd-in-scripts-hooks -- relative path for log output; user invokes `pnpm run fix` from their cwd and expects paths relative to where they ran.
+  const cwd = process.cwd()
+
+  if (!(await hasClaudeCli(cwd))) {
     const total = [...byFile.values()].reduce((n, m) => n + m.length, 0)
     logger.warn(
       `${total} AI-handled lint findings remain in ${byFile.size} files; skipping AI-fix step (claude CLI not on PATH).`,
@@ -416,16 +390,25 @@ async function main(): Promise<void> {
     return
   }
 
-  // oxlint-disable-next-line socket/no-process-cwd-in-scripts-hooks -- relative path for log output; user invokes `pnpm run fix` from their cwd and expects paths relative to where they ran.
-  const cwd = process.cwd()
   let totalEdits = 0
   let totalErrors = 0
 
   for (const [filePath, findings] of byFile) {
     const rel = path.relative(cwd, filePath)
-    logger.log(`AI-fix ${rel} (${findings.length} findings)…`)
+    // Pick the model from the highest-tier rule in this file's batch.
+    // Pure-Haiku files (identifier renames, null→undefined, etc.) run
+    // cheap; any caller-chain rewrite escalates to Sonnet; a
+    // `socket/max-file-lines` finding escalates to Opus.
+    const ruleIds = findings
+      .map(f => f.ruleId)
+      .filter((r): r is string => typeof r === 'string')
+    const tier = escalateTier(ruleIds)
+    const model = TIER_MODEL[tier]
+    logger.log(
+      `AI-fix ${rel} (${findings.length} findings, ${tier})…`,
+    )
     const prompt = buildPrompt(filePath, findings)
-    const { exitCode, stderr } = await runClaudeFix(filePath, prompt, cwd)
+    const { exitCode, stderr } = await runClaudeFix(filePath, prompt, cwd, model)
     if (exitCode === 0) {
       totalEdits += findings.length
       continue

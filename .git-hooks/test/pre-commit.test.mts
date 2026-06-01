@@ -6,17 +6,20 @@
 
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { spawn, spawnSync } from 'node:child_process'
-import { mkdtempSync, rmSync, writeFileSync, mkdirSync } from 'node:fs'
+import {
+  spawn,
+  spawnSync,
+} from '@socketsecurity/lib-stable/process/spawn/child'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
-import { tmpdir } from 'node:os'
+import os from 'node:os'
 import { fileURLToPath } from 'node:url'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const HOOK = path.join(here, '..', 'pre-commit.mts')
 
 function setupRepo(): string {
-  const dir = mkdtempSync(path.join(tmpdir(), 'pre-commit-test-'))
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'pre-commit-test-'))
   spawnSync('git', ['init', '-q'], { cwd: dir })
   spawnSync('git', ['config', 'user.email', 'test@example.com'], { cwd: dir })
   spawnSync('git', ['config', 'user.name', 'Test'], { cwd: dir })

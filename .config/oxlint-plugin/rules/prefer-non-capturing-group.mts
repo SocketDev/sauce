@@ -60,7 +60,7 @@ const CAPTURE_USAGE_RES: readonly RegExp[] = [
   /\bRegExp\.\$\d\b/,
   // `match.groups.name` / `m.groups.name` — named-capture usage means
   // the author knows their captures matter; stay out.
-  /\b(?:match|result|m|res)\.groups\b/,
+  /\b(?:m|match|res|result)\.groups\b/,
   // `.replace(re, '...$1...')` — even if the replacement isn't a
   // string literal we matched above, the call signature suggests
   // capture-aware usage.
@@ -204,6 +204,16 @@ const rule = {
         return
       }
       const pattern: string = node.regex.pattern
+      // Whole-pattern backreference guard: a `\1`–`\9` anywhere in the pattern
+      // means SOME group is referenced by position. `innerIsAutofixSafe` only
+      // catches a backref INSIDE a group's own text; it can't see that
+      // `(["']?)(?:x)\1` references group 1 from outside. Converting any
+      // capturing group then renumbers/breaks that backref. Too fiddly to
+      // reason about per-group, so stay silent for the whole literal. (A `\0`
+      // is a null-char escape, not a backref — the `[1-9]` class excludes it.)
+      if (/\\[1-9]/.test(pattern)) {
+        return
+      }
       const groups = findBareCaptureGroups(pattern)
       if (groups.length === 0) {
         return

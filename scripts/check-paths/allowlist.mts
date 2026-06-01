@@ -244,7 +244,11 @@ export const loadAllowlist = (repoRoot: string): AllowlistEntry[] => {
  */
 export const snippetHash = (snippet: string): string => {
   const normalized = snippet.replace(/\s+/g, ' ').trim()
-  return createHash('sha256').update(normalized).digest('hex').slice(0, 12)
+  return crypto
+    .createHash('sha256')
+    .update(normalized)
+    .digest('hex')
+    .slice(0, 12)
 }
 
 /**

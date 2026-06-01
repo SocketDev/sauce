@@ -2,7 +2,7 @@
   "name": "socket-skills",
   "version": "1.0.0",
   "private": true,
-  "packageManager": "pnpm@11.3.0",
+  "packageManager": "pnpm@11.4.0",
   "engines": {
     "node": ">=20.18.0"
   },
@@ -46,5 +46,8 @@
     "tsx": "4.19.0",
     "typescript": "5.9.2",
     "vitest": "4.0.3"
+  },
+  "allowScripts": {
+    "esbuild": true
   }
 }

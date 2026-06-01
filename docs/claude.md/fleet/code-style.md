@@ -20,7 +20,7 @@ Use `undefined`. `null` is allowed only for `__proto__: null` or external API re
 
 ## Imports
 
-No dynamic `await import()`. `node:fs` is the canonical fs source. One import per file: `import { existsSync, promises as fs } from 'node:fs'`. Sync APIs may be cherry-picked (`existsSync`, `copyFileSync`, `readFileSync`, etc.). Async APIs MUST go through the `promises as fs` namespace. Never cherry-pick from `node:fs/promises` (`import { rename } from 'node:fs/promises'` is forbidden; use `fs.rename(...)` instead). Rationale: a single canonical handle for async fs keeps the call sites uniform across the fleet and avoids two imports for what's logically one module. `path` / `os` / `url` / `crypto` use default imports. Exception: `fileURLToPath` from `node:url`.
+No dynamic `await import()`. `node:fs` is the canonical fs source. One import per file: `import { existsSync, promises as fs } from 'node:fs'`. Sync APIs may be cherry-picked (`existsSync`, `copyFileSync`, `readFileSync`, etc.). Async APIs MUST go through the `promises as fs` namespace. Never cherry-pick from `node:fs/promises` (`import { rename } from 'node:fs/promises'` is forbidden; use `fs.rename(...)` instead). Rationale: a single canonical handle for async fs keeps the call sites uniform across the fleet and avoids two imports for what's logically one module. `path` / `os` / `crypto` use default imports. `node:url` is cherry-picked like `node:fs` (`import { fileURLToPath, pathToFileURL } from 'node:url'`) — callers use just those symbols and `url.fileURLToPath(...)` reads worse than the named form.
 
 ## HTTP
 
@@ -64,15 +64,15 @@ Sort alphanumerically (literal byte order, ASCII before letters). Applies to: ob
 
 ## Logger
 
-`getDefaultLogger()` from `@socketsecurity/lib-stable/logger` over `console.*` / `process.stderr.write` / `process.stdout.write` (enforced by `.claude/hooks/logger-guard/`). The logger wraps level routing, transcript-safe rendering, and the token-minifier proxy.
+`getDefaultLogger()` from `@socketsecurity/lib-stable/logger` over `console.*` / `process.stderr.write` / `process.stdout.write` (enforced by `.claude/hooks/fleet/logger-guard/`). The logger wraps level routing, transcript-safe rendering, and the token-minifier proxy.
 
 ## Doc filenames
 
-`lowercase-with-hyphens.md` under `docs/` or `.claude/` (enforced by `.claude/hooks/markdown-filename-guard/`). One canonical form; no spaces, no PascalCase, no underscores.
+`lowercase-with-hyphens.md` under `docs/` or `.claude/` (enforced by `.claude/hooks/fleet/markdown-filename-guard/`). One canonical form; no spaces, no PascalCase, no underscores.
 
 ## Inline `<script>` defer/async
 
-`<script defer>` and `<script async>` without a `src=` attribute are a spec no-op. The HTML parser ignores the deferral on inline scripts. Wrap the body in a `DOMContentLoaded` listener instead. Enforced by `.claude/hooks/inline-script-defer-guard/` + the `socket/no-inline-defer-async` oxlint rule. Bypass: `Allow inline-defer bypass`.
+`<script defer>` and `<script async>` without a `src=` attribute are a spec no-op. The HTML parser ignores the deferral on inline scripts. Wrap the body in a `DOMContentLoaded` listener instead. Enforced by `.claude/hooks/fleet/inline-script-defer-guard/` + the `socket/no-inline-defer-async` oxlint rule. Bypass: `Allow inline-defer bypass`.
 
 ## ESLint / Biome config refs
 
@@ -80,15 +80,23 @@ Stale. The fleet runs oxlint / oxfmt. Don't reference `.eslintrc` / `eslint-conf
 
 ## `structuredClone` vs JSON round-trip
 
-`structuredClone(x)` is banned for JSON-shaped data. `JSON.parse(JSON.stringify(x))` (or `JSONParse(JSONStringify(x))` from `@socketsecurity/lib/primordials/json`) is 3-5× faster because it skips the full HTML structured-clone algorithm (type tagging, transferable handling, prototype preservation, cycle detection; none of which the JSON subset needs). The common case is "defensive-copy a `JSON.parse`d value to defend against caller mutation". That's purely JSON-shaped by construction. Opt back in per-line with `// oxlint-disable-next-line socket/no-structured-clone-prefer-json -- <reason>` when the value contains `Date` / `Map` / `Set` / `RegExp` / `ArrayBuffer` / typed-array shapes. Enforced edit-time by `.claude/hooks/no-structured-clone-prefer-json-guard/` + the `socket/no-structured-clone-prefer-json` oxlint rule. Bypass: `Allow no-structured-clone-prefer-json bypass`.
+`structuredClone(x)` is banned for JSON-shaped data. `JSON.parse(JSON.stringify(x))` (or `JSONParse(JSONStringify(x))` from `@socketsecurity/lib/primordials/json`) is 3-5× faster because it skips the full HTML structured-clone algorithm (type tagging, transferable handling, prototype preservation, cycle detection; none of which the JSON subset needs). The common case is "defensive-copy a `JSON.parse`d value to defend against caller mutation". That's purely JSON-shaped by construction. Opt back in per-line with `// oxlint-disable-next-line socket/no-structured-clone-prefer-json -- <reason>` when the value contains `Date` / `Map` / `Set` / `RegExp` / `ArrayBuffer` / typed-array shapes. Enforced edit-time by `.claude/hooks/fleet/no-structured-clone-prefer-json-guard/` + the `socket/no-structured-clone-prefer-json` oxlint rule. Bypass: `Allow no-structured-clone-prefer-json bypass`.
+
+## Ellipsis character, not three dots
+
+In user-facing text (string / template / comment), a trailing ellipsis is the single character `…` (U+2026), not three literal dots `...`. It reads as one glyph and matches fleet typography. Only WORD-FINAL ellipses are flagged (`Loading...` → `Loading…`); the spread/rest operator (`...args`), path globs (`/Users/<user>/...`), and CLI placeholder notation (`[path...]`, `args...`) are left untouched. Enforced + auto-fixed by the `socket/prefer-ellipsis-char` oxlint rule. Bypass for an intentional three-dot form: `// socket-hook: allow literal-ellipsis`.
+
+## Binary resolution: `node_modules/.bin`, not global `which`
+
+Don't shell out to `which` / `command -v` / `where` to locate a project binary — those search the GLOBAL PATH. Fleet binaries are linked into `node_modules/.bin` by `pnpm install`; a global lookup returns nothing on a normal checkout (so the caller silently degrades) or, worse, finds a different-version binary and runs against the wrong engine. Resolve the installed package instead: `require.resolve('<pkg>/package.json')` → read its `bin` field → `resolveBinaryPath()` from `@socketsecurity/lib-stable/dlx/binary-resolution` for the platform `.cmd`/`.ps1` wrapper. (`@socketsecurity/lib-stable/bin/which`'s `whichSync` is the right tool when you genuinely need a PATH search, e.g. the user's system `git`.) Enforced by the `socket/no-which-for-local-bin` oxlint rule. Bypass for a genuine global lookup: `// socket-hook: allow which-lookup`.
 
 ## Comments: cross-port Lock-step
 
-See [`parser-comments.md`](parser-comments.md) §5–7 for the full Lock-step comment spec (port provenance, byte-identical header block, deviation paragraphs). Enforced edit-time by `.claude/hooks/lock-step-ref-guard/` and CI-gate-time by `scripts/check-lock-step-refs.mts` + `scripts/check-lock-step-header.mts`. Bypass: `Allow lock-step bypass`.
+See [`parser-comments.md`](parser-comments.md) §5–7 for the full Lock-step comment spec (port provenance, byte-identical header block, deviation paragraphs). Enforced edit-time by `.claude/hooks/fleet/lock-step-ref-guard/` and CI-gate-time by `scripts/check-lock-step-refs.mts` + `scripts/check-lock-step-header.mts`. Bypass: `Allow lock-step bypass`.
 
 ## Pointer comments
 
-`// see X` comments need both a destination and an inline one-line claim of what's at the destination (enforced by `.claude/hooks/pointer-comment-guard/`). "see X" alone forces the reader to chase the link to learn anything; "see X: it does Y" gives the reader Y up front and X for verification.
+`// see X` comments need both a destination and an inline one-line claim of what's at the destination (enforced by `.claude/hooks/fleet/pointer-comment-guard/`). "see X" alone forces the reader to chase the link to learn anything; "see X: it does Y" gives the reader Y up front and X for verification.
 
 ## `Promise.race` / `Promise.any` in loops
 
