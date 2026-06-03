@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 /**
  * @file User-invoked installer / health-fixer for the Socket security tools
- *   (AgentShield, Zizmor, SFW). Runs interactively. Differs from `index.mts`
- *   (the Stop hook):
+ *   (AgentShield, SkillSpector, Zizmor, SFW, + TruffleHog/Trivy/OpenGrep/uv/
+ *   janus/cdxgen/synp). Runs interactively. Differs from `index.mts` (the Stop
+ *   hook):
  *
  *   - This script PROMPTS for missing config (e.g. SOCKET_API_KEY) and persists
  *     to the OS keychain.
@@ -17,12 +18,12 @@
  *     falls back to sfw-free (the auth- free SFW build) and continues without
  *     persisting a token. Invocation: node
  *     .claude/hooks/fleet/setup-security-tools/install.mts node
- *     .claude/hooks/fleet/setup-security-tools/install.mts --rotate Flags: --rotate
- *     Re-prompt for SOCKET_API_KEY and overwrite the keychain entry, ignoring
- *     env/.env/keychain lookup. Use to rotate a leaked or expired token without
- *     manually clearing the keychain first. --update-token Alias for --rotate.
- *     Exit codes: 0 — all tools installed + verified. 1 — at least one tool
- *     failed; details on stderr.
+ *     .claude/hooks/fleet/setup-security-tools/install.mts --rotate Flags:
+ *     --rotate Re-prompt for SOCKET_API_KEY and overwrite the keychain entry,
+ *     ignoring env/.env/keychain lookup. Use to rotate a leaked or expired
+ *     token without manually clearing the keychain first. --update-token Alias
+ *     for --rotate. Exit codes: 0 — all tools installed + verified. 1 — at
+ *     least one tool failed; details on stderr.
  */
 
 import { existsSync, promises as fs } from 'node:fs'
@@ -147,6 +148,7 @@ async function main(): Promise<void> {
 
   const installers = (await import('./lib/installers.mts')) as {
     setupAgentShield: () => Promise<boolean>
+    setupSkillSpector: () => Promise<boolean>
     setupZizmor: () => Promise<boolean>
     setupSfw: (apiToken: string | undefined) => Promise<boolean>
     setupTrufflehog: () => Promise<boolean>
@@ -159,6 +161,8 @@ async function main(): Promise<void> {
   }
 
   const agentshieldOk = await installers.setupAgentShield()
+  logger.log('')
+  const skillspectorOk = await installers.setupSkillSpector()
   logger.log('')
   const zizmorOk = await installers.setupZizmor()
   logger.log('')
@@ -174,24 +178,44 @@ async function main(): Promise<void> {
       installers.setupCdxgen(),
       installers.setupSynp(),
     ])
+  // Native messaging host — optional step (only runs when the lib exports it).
+  // Allows the Chrome Trusted Publisher extension to call the OS keychain
+  // without the user having to set SOCKET_API_TOKEN in their browser environment.
+  let nativeHostOk = true
+  try {
+    const { installNativeHost, HOST_NAME } =
+      await import('@socketsecurity/lib-stable/native-messaging/install')
+    const result = installNativeHost({ allowedOrigins: ['*'] })
+    logger.log(`Native host:  installed → ${result.manifestPaths.join(', ')}`)
+    logger.log(`              name: ${HOST_NAME}`)
+  } catch {
+    // Not yet built or not available — skip silently. The extension falls
+    // back to SOCKET_API_TOKEN env var or the review-service token path.
+    logger.log('Native host:  skipped (not available in this build)')
+  }
   logger.log('')
 
   logger.log('=== Summary ===')
-  logger.log(`AgentShield: ${agentshieldOk ? 'ready' : 'NOT AVAILABLE'}`)
-  logger.log(`cdxgen:      ${cdxgenOk ? 'ready' : 'FAILED'}`)
-  logger.log(`janus:       ${janusOk ? 'ready' : 'FAILED'}`)
-  logger.log(`OpenGrep:    ${opengrepOk ? 'ready' : 'FAILED'}`)
-  logger.log(`SFW:         ${sfwOk ? 'ready' : 'FAILED'}`)
-  logger.log(`synp:        ${synpOk ? 'ready' : 'FAILED'}`)
-  logger.log(`Trivy:       ${trivyOk ? 'ready' : 'FAILED'}`)
-  logger.log(`TruffleHog:  ${trufflehogOk ? 'ready' : 'FAILED'}`)
-  logger.log(`uv:          ${uvOk ? 'ready' : 'FAILED'}`)
-  logger.log(`Zizmor:      ${zizmorOk ? 'ready' : 'FAILED'}`)
+  logger.log(`AgentShield:  ${agentshieldOk ? 'ready' : 'NOT AVAILABLE'}`)
+  logger.log(`cdxgen:       ${cdxgenOk ? 'ready' : 'FAILED'}`)
+  logger.log(`janus:        ${janusOk ? 'ready' : 'FAILED'}`)
+  logger.log(`Native host:  ${nativeHostOk ? 'ready' : 'FAILED'}`)
+  logger.log(`OpenGrep:     ${opengrepOk ? 'ready' : 'FAILED'}`)
+  logger.log(`SFW:          ${sfwOk ? 'ready' : 'FAILED'}`)
+  logger.log(
+    `SkillSpector: ${skillspectorOk ? 'ready' : 'OPTIONAL (pipx required)'}`,
+  )
+  logger.log(`synp:         ${synpOk ? 'ready' : 'FAILED'}`)
+  logger.log(`Trivy:        ${trivyOk ? 'ready' : 'FAILED'}`)
+  logger.log(`TruffleHog:   ${trufflehogOk ? 'ready' : 'FAILED'}`)
+  logger.log(`uv:           ${uvOk ? 'ready' : 'FAILED'}`)
+  logger.log(`Zizmor:       ${zizmorOk ? 'ready' : 'FAILED'}`)
 
   const allOk =
     agentshieldOk &&
     cdxgenOk &&
     janusOk &&
+    nativeHostOk &&
     opengrepOk &&
     sfwOk &&
     synpOk &&

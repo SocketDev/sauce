@@ -3,7 +3,7 @@
 //
 // Blocks `git commit` invocations whose message body contains
 // scan-report-internal labels (B1, B2, …, M3, H5, L7). These are
-// the scratch-pad IDs the `/scanning-quality` and `/scanning-security`
+// the scratch-pad IDs the `/fleet:scanning-quality` and `/fleet:scanning-security`
 // skills assign to findings inside a single review session. They have
 // no meaning outside that session — a future reader of `git log` who
 // doesn't have the original report can't decode "fix B5" or
@@ -35,23 +35,17 @@
 //
 // Fails open on malformed payloads (exit 0 + stderr log).
 
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
+import { withBashGuard, type ToolCallPayload } from '../_shared/payload.mts'
 import { commandsFor } from '../_shared/shell-command.mts'
 import { bypassPhrasePresent } from '../_shared/transcript.mts'
 
-interface ToolInput {
-  readonly tool_input?:
-    | {
-        readonly command?: string | undefined
-      }
-    | undefined
-  readonly tool_name?: string | undefined
-  readonly transcript_path?: string | undefined
-  readonly cwd?: string | undefined
-}
+const logger = getDefaultLogger()
 
 interface Hit {
   readonly label: string
@@ -179,31 +173,20 @@ export function extractCommitMessage(
   return undefined
 }
 
-function handlePayload(payloadRaw: string): number {
-  let payload: ToolInput
-  try {
-    payload = JSON.parse(payloadRaw) as ToolInput
-  } catch {
-    return 0
-  }
-  if (payload.tool_name !== 'Bash') {
-    return 0
-  }
-  const command = payload.tool_input?.command ?? ''
-  if (!command) {
-    return 0
-  }
+// The block logic. Exits 2 when a scan label is found without a bypass
+// phrase; returns (→ exit 0) otherwise.
+function checkCommand(command: string, payload: ToolCallPayload): void {
   const cwd = payload.cwd ?? process.cwd()
   const body = extractCommitMessage(command, cwd)
   if (!body) {
-    return 0
+    return
   }
   const hits = findScanLabels(body)
   if (hits.length === 0) {
-    return 0
+    return
   }
   if (bypassPhrasePresent(payload.transcript_path, BYPASS_PHRASE)) {
-    return 0
+    return
   }
   const lines: string[] = []
   lines.push(
@@ -215,8 +198,12 @@ function handlePayload(payloadRaw: string): number {
     lines.push(`  Line ${h.line}: ${h.label} — "${h.snippet}"`)
   }
   lines.push('')
-  lines.push('  Labels like B1 / M9 / H3 / L4 come from /scanning-quality and')
-  lines.push('  /scanning-security reports. They are scratch-pad IDs that mean')
+  lines.push(
+    '  Labels like B1 / M9 / H3 / L4 come from /fleet:scanning-quality',
+  )
+  lines.push(
+    '  and /fleet:scanning-security reports. Scratch-pad IDs that mean',
+  )
   lines.push('  nothing outside the original session — a future reader of')
   lines.push('  `git log` who does not have the report cannot decode them.')
   lines.push('')
@@ -228,30 +215,18 @@ function handlePayload(payloadRaw: string): number {
   lines.push('')
   lines.push('  Bypass (e.g. citing a real advisory ID that happens to match):')
   lines.push(`    Type "${BYPASS_PHRASE}" in your next message.`)
-  process.stderr.write(lines.join('\n') + '\n')
-  return 2
+  logger.error(lines.join('\n') + '\n')
+  process.exitCode = 2
 }
 
-export { handlePayload }
+export { checkCommand }
 
 // CLI entrypoint — only fires when this file is the main module. Tests
 // import `findScanLabels` / `extractCommitMessage` directly without
-// triggering the stdin reader (which would never see an `end` event
-// in test env and hang the process).
+// triggering withBashGuard (which would drain stdin and never see an
+// `end` event in the test env, hanging the process).
 if (process.argv[1] && process.argv[1].endsWith('index.mts')) {
-  let payloadRaw = ''
-  process.stdin.setEncoding('utf8')
-  process.stdin.on('data', chunk => {
-    payloadRaw += chunk
-  })
-  process.stdin.on('end', () => {
-    try {
-      process.exit(handlePayload(payloadRaw))
-    } catch (e) {
-      process.stderr.write(
-        `[scan-label-in-commit-guard] hook error (allowing): ${e}\n`,
-      )
-      process.exit(0)
-    }
-  })
+  // withBashGuard handles the stdin drain, tool_name gate, command
+  // narrow, and fail-open on any throw.
+  await withBashGuard(checkCommand)
 }

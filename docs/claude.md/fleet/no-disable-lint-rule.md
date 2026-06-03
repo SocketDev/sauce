@@ -4,8 +4,8 @@
 
 Lint rules exist to catch real classes of bug or style drift. Adding `"some-rule": "off"` (or `"warn"`) to any of these files weakens the gate **for every file matching that selector**, not just the one violation that triggered the temptation:
 
-- `.config/oxlintrc.json`
-- `.config/oxlintrc.dogfood.json`
+- `.config/fleet/oxlintrc.json`
+- `.config/fleet/oxlintrc.dogfood.json`
 - `template/.config/oxlintrc.json`
 - `template/.config/oxlintrc.dogfood.json`
 - Any `.eslintrc*` or `eslint.config.*`
@@ -26,6 +26,21 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 ```
 
 The reason after `--` is mandatory. `git blame` will surface it to the next reader who wonders why.
+
+### Justify the disable per usage, not per import
+
+A disable on an `import` statement suppresses the rule for **every** binding the import brings in and **every** site that uses them. Before adding one, read every usage of the flagged binding — a multi-binding import flagged once often has one legitimate site and one real violation hiding behind the same suppression.
+
+**Why:** 2026-06-03 (socket-lib), `test/native-messaging/install.test.mts` imported `HOST_NAME` from `src/` and got flagged by `no-src-import-in-test-expect`. A blanket import-line disable was added with the reason "HOST_NAME is the actual, not an expected-value builder." That was only half true:
+
+```ts
+expect(HOST_NAME).toBe('dev.socket.trusted_publisher_host')  // HOST_NAME is the ACTUAL — fine from src/
+expect(manifest['name']).toBe(HOST_NAME)                      // HOST_NAME is the EXPECTED — a real violation
+```
+
+The stated reason was false for the second line, where the disable silently suppressed a genuine "src binding builds the expected value" bug. The fix is a code change, not a disable: assert the second line against the **literal** the constant equals (`'dev.socket.trusted_publisher_host'`), leaving `HOST_NAME` used only as the actual. The rule then passes on its own terms.
+
+The discipline: **prefer a code fix over a disable**, and when a disable is truly needed, verify the reason holds at *every* site the suppression covers. If the binding is sometimes a real violation, narrow the usage (use a literal, split the import) rather than blanket-disable.
 
 ### File-class exemption via override
 
@@ -58,7 +73,7 @@ Wrong:
 }
 ```
 
-This silences the rule for the entire repo. Every future file becomes a potential offender. If the rule doesn't fit your codebase shape, the rule is wrong. Fix the rule (in `.config/oxlint-plugin/rules/`), not the consumer.
+This silences the rule for the entire repo. Every future file becomes a potential offender. If the rule doesn't fit your codebase shape, the rule is wrong. Fix the rule (in `.config/fleet/oxlint-plugin/rules/`), not the consumer.
 
 ## Bypass
 

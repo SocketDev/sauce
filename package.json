@@ -2,27 +2,23 @@
   "name": "socket-skills",
   "version": "1.0.0",
   "private": true,
-  "packageManager": "pnpm@11.4.0",
-  "engines": {
-    "node": ">=20.18.0"
-  },
   "scripts": {
     "build": "node scripts/publish.mts",
     "check": "node scripts/check.mts",
-    "check:paths": "node scripts/check-paths.mts",
+    "check:paths": "node scripts/fleet/check-paths.mts",
     "clean": "node scripts/clean.mts",
-    "cover": "vitest run --config tests/vitest.config.mts --coverage",
-    "fix": "node scripts/fix.mts",
-    "format": "oxfmt -c .config/oxfmtrc.json --write .",
-    "format:check": "oxfmt -c .config/oxfmtrc.json --check .",
+    "cover": "node scripts/fleet/cover.mts",
+    "fix": "node scripts/fleet/fix.mts",
+    "format": "oxfmt -c .config/fleet/oxfmtrc.json --write .",
+    "format:check": "oxfmt -c .config/fleet/oxfmtrc.json --check .",
     "generate": "node scripts/publish.mts",
     "generate:check": "node scripts/publish.mts --check",
     "lint": "node scripts/lint.mts",
     "lint:fix": "node scripts/lint.mts --fix",
-    "lockstep": "node scripts/lockstep.mts",
-    "lockstep:emit-schema": "node scripts/lockstep-emit-schema.mts",
-    "prepare": "node scripts/install-git-hooks.mts",
-    "security": "node scripts/security.mts",
+    "lockstep": "node scripts/fleet/lockstep.mts",
+    "lockstep:emit-schema": "node scripts/fleet/lockstep-emit-schema.mts",
+    "prepare": "node scripts/fleet/install-git-hooks.mts && node scripts/install-git-hooks.mts",
+    "security": "node scripts/fleet/security.mts",
     "test": "node scripts/test.mts",
     "test:api": "SOCKET_API_TOKEN=${SOCKET_API_TOKEN} vitest run --config tests/vitest.config.mts tier2-api/",
     "test:e2e": "RUN_E2E=1 vitest run --config tests/vitest.config.mts tier3-e2e/",
@@ -31,10 +27,12 @@
     "test:integration:codex": "TEST_AGENT=codex pnpm run test:integration",
     "test:integration:gemini": "TEST_AGENT=gemini pnpm run test:integration",
     "test:structural": "vitest run --config tests/vitest.config.mts tier1-structural/",
-    "update": "node scripts/update.mts",
-    "setup-security-tools": "node .claude/hooks/setup-security-tools/install.mts"
+    "update": "node scripts/fleet/update.mts",
+    "setup-security-tools": "node .claude/hooks/fleet/setup-security-tools/install.mts",
+    "ci:local": "agent-ci run --all"
   },
   "devDependencies": {
+    "@redwoodjs/agent-ci": "catalog:",
     "@sinclair/typebox": "catalog:",
     "@socketsecurity/lib": "catalog:",
     "@socketsecurity/lib-stable": "catalog:",
@@ -47,7 +45,14 @@
     "typescript": "5.9.2",
     "vitest": "4.0.3"
   },
+  "engines": {
+    "node": ">=20.18.0"
+  },
+  "packageManager": "pnpm@11.5.1",
   "allowScripts": {
-    "esbuild": true
+    "cpu-features": false,
+    "esbuild": true,
+    "protobufjs": false,
+    "ssh2": false
   }
 }
