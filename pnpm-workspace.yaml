@@ -56,8 +56,6 @@ minimumReleaseAgeExclude:
   - '@socketregistry/*'
   - '@socketsecurity/*'
   # Network-mocking lib used in fleet test suites. v15 betas pre-date
-  # npm's `time` field for the major; allow pinned beta until v15 GA.
-  - 'nock@15.0.0-beta.11'
   - 'npm-run-all2@9.0.0'
   - '@socketdev/*'
   - 'ecc-agentshield'
