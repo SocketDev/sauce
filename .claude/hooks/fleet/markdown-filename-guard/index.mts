@@ -92,6 +92,17 @@ export function classifyMarkdownPath(absPath: string): Verdict {
     }
   }
 
+  // A `.md` under `.github/workflows/` is a GitHub Agentic Workflows (gh-aw)
+  // source, not a doc — `gh aw compile` turns it into a sibling `.lock.yml`.
+  // It owns its own naming (lowercase-hyphenated, matching the workflow), so
+  // the human-docs filename convention doesn't apply.
+  if (absPath.includes('.github')) {
+    const normalized = normalizePath(absPath)
+    if (normalized.includes('/.github/workflows/')) {
+      return { ok: true }
+    }
+  }
+
   const relPath = normalizePath(toRepoRelative(absPath))
   // For docs that describe a specific code file (e.g. `smol-ffi.js.md`),
   // strip the source-file hint before validating the stem.
@@ -202,7 +213,19 @@ export function isAtAllowedRegularLocation(relPath: string): boolean {
 
 export function isAtAllowedScreamingLocation(relPath: string): boolean {
   const dir = path.posix.dirname(relPath)
-  return dir === '.' || dir === '.claude' || dir === 'docs'
+  // Repo-root-equivalent locations for SCREAMING_CASE allowlist files.
+  // `template/` is the wheelhouse's scaffolding seed: its CLAUDE.md /
+  // README.md / docs/ / .claude/ are the canonical sources each fleet repo's
+  // OWN root copies derive from, so they get the same allowance as the
+  // repo-root forms (template/CLAUDE.md → <repo>/CLAUDE.md after cascade).
+  return (
+    dir === '.' ||
+    dir === '.claude' ||
+    dir === 'docs' ||
+    dir === 'template' ||
+    dir === 'template/.claude' ||
+    dir === 'template/docs'
+  )
 }
 
 export function isLowercaseHyphenated(nameWithoutExt: string): boolean {

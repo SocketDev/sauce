@@ -20,13 +20,13 @@
 // carry a specificity token are flagged — a bare date in a SHA-pin comment,
 // soak annotation, .gitmodules stamp, or CHANGELOG entry is left alone.
 //
-// Scope: the fleet-facing rule-prose surfaces — CLAUDE.md, docs/claude.md/fleet,
+// Scope: the fleet-facing rule-prose surfaces — CLAUDE.md, docs/agents.md/fleet,
 // .claude/skills/**/SKILL.md, .claude/hooks/fleet/**/README.md. Reporting-only;
 // never auto-fixed (rewriting to the generic form needs judgment).
 //
 // Usage: node scripts/fleet/check/rule-citations-are-generic.mts [--quiet]
 
-import { readFileSync, readdirSync, statSync } from 'node:fs'
+import { readdirSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
@@ -62,7 +62,7 @@ const SKIP_DIRS = new Set([
 // in their own prose; exempt them so the gate doesn't fire on itself.
 const SELF_EXEMPT_FRAGMENTS = [
   '_shared/dated-citation',
-  'dated-citation-reminder/',
+  'dated-citation-guard/',
   'check/rule-citations-are-generic',
 ]
 

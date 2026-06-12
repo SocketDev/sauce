@@ -4,7 +4,7 @@
 // Nudges (never blocks) when an Edit/Write to a non-code file introduces a
 // block of sibling items that looks unsorted. oxlint only sees JS/TS, so the
 // `socket/sort-*` lint rules can't reach JSON / YAML / markdown / bash — this
-// hook covers those surfaces per `docs/claude.md/fleet/sorting.md`:
+// hook covers those surfaces per `docs/agents.md/fleet/sorting.md`:
 //
 //   - JSON / JSONC: runs of `"key":` lines at one indent, natural order.
 //   - YAML: runs of `key:` mapping lines at one indent (env:/with:/matrix).
@@ -209,7 +209,7 @@ function emit(filePath: string, findings: readonly SortFinding[]): void {
   }
   lines.push(
     '  Sort sibling items alphanumerically (natural order) unless order is load-bearing.',
-    '  Fully re-sort the block when you touch it. See docs/claude.md/fleet/sorting.md.',
+    '  Fully re-sort the block when you touch it. See docs/agents.md/fleet/sorting.md.',
   )
   process.stderr.write(lines.join('\n') + '\n')
 }
@@ -244,7 +244,12 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch(e => {
-  // Fail open — a reminder hook must never break a tool call.
-  process.stderr.write(`[alpha-sort-reminder] skipped: ${String(e)}\n`)
-})
+// Entrypoint-guarded: run main() only when invoked directly, NOT when the test
+// imports this module for its pure helpers (else main() blocks on stdin at
+// import and the test file never terminates).
+if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
+  main().catch(e => {
+    // Fail open — a reminder hook must never break a tool call.
+    process.stderr.write(`[alpha-sort-reminder] skipped: ${String(e)}\n`)
+  })
+}

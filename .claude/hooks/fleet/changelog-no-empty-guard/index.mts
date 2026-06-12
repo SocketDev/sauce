@@ -142,7 +142,7 @@ export function emitBlock(
     lines.push(`  Line ${line}: \`### ${name}\` has no bullets.`)
   }
   lines.push('')
-  lines.push('  Per docs/claude.md/fleet/version-bumps.md §2, the CHANGELOG')
+  lines.push('  Per docs/agents.md/fleet/version-bumps.md §2, the CHANGELOG')
   lines.push('  is public/customer-facing only. When the filter leaves a')
   lines.push('  Keep-a-Changelog section empty, delete the heading too — a')
   lines.push('  reader scanning the release should not have to disambiguate')
@@ -223,8 +223,13 @@ async function main(): Promise<void> {
   process.exit(2)
 }
 
-main().catch(e => {
-  process.stderr.write(
-    `[changelog-no-empty-guard] hook error (continuing): ${(e as Error).message}\n`,
-  )
-})
+// Entrypoint-guarded: run main() only when invoked directly, NOT when the test
+// imports this module for its pure helpers (else main() blocks on stdin at
+// import and the test file never terminates).
+if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
+  main().catch(e => {
+    process.stderr.write(
+      `[changelog-no-empty-guard] hook error (continuing): ${(e as Error).message}\n`,
+    )
+  })
+}

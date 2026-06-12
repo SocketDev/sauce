@@ -29,7 +29,7 @@
     "test:structural": "vitest run --config tests/vitest.config.mts tier1-structural/",
     "update": "node scripts/fleet/update.mts",
     "setup-security-tools": "node .claude/hooks/fleet/setup-security-tools/install.mts",
-    "ci:local": "agent-ci run --all --quiet --pause-on-failure --github-token"
+    "ci:local": "node scripts/fleet/agent-ci-skip-locks.mts run --all --quiet --pause-on-failure --github-token"
   },
   "devDependencies": {
     "@redwoodjs/agent-ci": "catalog:",

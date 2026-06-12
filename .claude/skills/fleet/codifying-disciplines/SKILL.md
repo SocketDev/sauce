@@ -2,7 +2,7 @@
 name: codifying-disciplines
 description: Scans a repo for disciplines that exist only in prose, convention, or agent memory but are NOT enforced by executable code, then codifies each into the right surface — a script, a hook, a lint rule, or a CLAUDE.md rule. Runs a Workflow that fans out scanner agents (CLAUDE.md rules with no enforcer, repeated review/PR feedback, build/release steps relying on humans remembering, conventions stated in docs but unchecked), dedups, ranks by blast radius, and for each gap proposes the lowest-friction codification with a concrete diff. "Code is law" — agent memory and prose don't enforce; scripts/hooks/rules do. Use after a session surfaces a recurring discipline, when onboarding a repo, or whenever "we keep having to remember X" comes up.
 user-invocable: true
-allowed-tools: Workflow, Task, Read, Grep, Glob, Write, AskUserQuestion, Bash(git status:*), Bash(git log:*), Bash(git diff:*), Bash(rg:*), Bash(grep:*), Bash(find:*), Bash(ls:*), Bash(cat:*), Bash(wc:*), Bash(head:*), Bash(tail:*)
+allowed-tools: Workflow, Task, Read, Grep, Glob, Write, AskUserQuestion, Bash(git status:*), Bash(git log:*), Bash(git diff:*), Bash(rg:*), Bash(grep:*), Bash(find:*), Bash(ls:*), Bash(cat:*), Bash(wc:*), Bash(head:*), Bash(tail:*), Bash(node scripts/fleet/ai-codify/cli.mts:*), Bash(node scripts/fleet/codify-rule.mts:*), Bash(node scripts/fleet/codify-scan/inventory.mts:*), Bash(node scripts/repo/run-hook-tests.mts:*), Bash(node scripts/fleet/check/:*), Bash(node scripts/repo/sync-scaffolding/cli.mts:*)
 model: claude-opus-4-8
 context: fork
 ---
@@ -12,6 +12,10 @@ context: fork
 Find the disciplines a repo *relies on but doesn't enforce*, and turn each into executable law. The premise: **agent memory is per-session and unreliable, and prose is read-when-convenient — neither enforces anything.** A rule only holds if a script, hook, or lint rule makes the wrong move fail (or at least nag) at the moment it happens. This skill scans for the gaps and codifies them.
 
 Especially load-bearing for **builds and release steps**: "remember to rebuild the bundle before committing," "cascade the template after editing it," "run the floor sync after a version bump" — anything a human or agent has to remember is a latent failure. Code is law.
+
+## When to run
+
+Run after a session surfaces a recurring discipline, when onboarding a repo, or whenever "we keep having to remember X" comes up. The **`uncodified-lesson-reminder`** Stop hook is the automatic trigger: when a `feedback`/`project` memory lands with an enforceable shape and no enforcer citation, it nudges you here — that nudge is the cue to run this skill on that memory (pass it as the `--memory` source in Phase 5). Codifying is the second half of _Compound lessons_: the memory captures the *why*; this skill makes the *what* fail in code.
 
 ## Modes
 
@@ -33,7 +37,7 @@ A behavior the repo depends on that has NO executable enforcer firing at the mom
 
 The hard part isn't finding gaps — it's picking the RIGHT surface so the rule fires where the violation happens, with the least friction. Decide per gap by asking, in order:
 
-1. **Is the violation visible in source text / AST, and is the right form deterministic?** → **Lint rule** (`.config/fleet/oxlint-plugin/rules/<name>.mts`). Catches it for every file on every lint, in the editor + CI. Default `"error"` (never `"warn"`); ship an autofix (`fixable: 'code'`) when the rewrite is deterministic. Best for code-shape rules (naming, imports, API choice).
+1. **Is the violation visible in source text / AST, and is the right form deterministic?** → **Lint rule** (`.config/oxlint-plugin/fleet/<name>/index.mts` — each rule is its own dir, mirroring `.claude/hooks/`). Catches it for every file on every lint, in the editor + CI. Default `"error"` (never `"warn"`); ship an autofix (`fixable: 'code'`) when the rewrite is deterministic. Best for code-shape rules (naming, imports, API choice).
 2. **Is the violation a TOOL ACTION (a Bash command, an Edit/Write) or an end-of-turn state?** → **Hook** (`.claude/hooks/fleet/<name>/`):
    - **`-guard` (PreToolUse, exit 2 = BLOCK)** when the action is dangerous/irreversible and should be STOPPED before it happens (a destructive git command, writing a secret, a forbidden edit). Pair with a bypass phrase for the rare legit case.
    - **`-reminder` (Stop or PreToolUse, exit 0 = NUDGE)** when you can't hard-block (state already exists at turn-end) or a block would be too blunt (a soft "you probably want to cascade now"). Fires, never refuses.
@@ -41,9 +45,11 @@ The hard part isn't finding gaps — it's picking the RIGHT surface so the rule 
 3. **Is it a repo-wide structural / state invariant best caught at commit/CI?** (drift, parity, file layout, a cross-file consistency rule) → **Check script** (`scripts/fleet/check/<name>.mts`, wired into `check --all`). Fails the gate; not per-file.
 4. **Is the discipline "remember to run X"?** → **Build-step automation** (`scripts/…`): make the flow run X itself or gate on its output, so it can't be forgotten. Strictly better than a reminder when X can be invoked programmatically.
 5. **Is it a multi-step PROCEDURE a human/agent runs (not a violation to catch)?** → **Skill** (`.claude/skills/fleet/<gerund>/SKILL.md`) + a **command** (`.claude/commands/fleet/<name>.md`) to invoke it. Use when the discipline is "here's how to do the multi-step thing right," not "here's a wrong move to block."
-6. **CLAUDE.md rule** — the human-readable statement. NECESSARY (a reader/agent needs the prose) but NOT sufficient alone: a CLAUDE.md rule with no enforcer from 1–5 is exactly the gap this skill flags. Always pair it with one of the above + its `(`.claude/hooks/…`)` or `socket/<rule>` citation.
+6. **CLAUDE.md rule + `agents.md` doc** — the human-readable statement. NECESSARY (a reader/agent needs the prose) but NOT sufficient alone: a CLAUDE.md rule with no enforcer from 1–5 is exactly the gap this skill flags. Always pair it with one of the above + its `(`.claude/hooks/…`)` or `socket/<rule>` citation. The CLAUDE.md entry is a TERSE one-line bullet under the 40KB whole-file + ≤8-line-per-section caps; all prose goes in a detail doc. Choose the doc scope by the discipline's reach: a **fleet-wide invariant** (applies to every socket-\* repo) → `template/docs/agents.md/fleet/<topic>.md` (cascades out); a **repo-specific** rule → `docs/agents.md/repo/<topic>.md` (this repo only). The `agents-doc` apply surface (Phase 5) routes both through `codify-rule.mts`, which keeps the bullet under the caps; never hand-edit CLAUDE.md for a rule line.
 
 **Combinations are common and encouraged** (defense in depth): a code-shape rule often wants BOTH a lint rule (CI/editor) AND a CLAUDE.md line (the why) AND, for AI-generated code, an edit-time hook — having one doesn't excuse the others. A build step wants automation + a backstop reminder. Pick the combination that makes the wrong move fail at every point it could happen.
+
+**Every codification you land is a future DRY-sweep input.** Before authoring a new hook, check whether its decision logic already lives in a `_shared/` helper (`payload.mts`, `transcript.mts`, `shell-command.mts`, …) — absorb the helper instead of copy-pasting. The `updating-hooks-dry` skill periodically sweeps the hook tree for copy-paste clusters + dead `_shared/` exports; the less it finds, the better you codified. Prefer the shared helper over a fresh copy at authoring time.
 
 ## Tests are mandatory — a codification without a test is not done
 
@@ -57,7 +63,7 @@ Every codification this skill produces ships with **thorough tests** (plural —
 
 Per surface:
 
-- **Lint rule** → `RuleTester` test at `.config/fleet/oxlint-plugin/test/<name>.test.mts` with a full `valid[]` + `invalid[]` matrix (every shape + every exemption), and an `output` assertion on each autofix case (assert the FIXED TEXT, not just `messageId` — the fleet has been bitten by autofix-corruption bugs that passed because tests only checked `messageId`). Confirm the plugin still loads (`oxlint-plugin-loads.mts`); a broken rule import silently disables ALL `socket/` rules.
+- **Lint rule** → `RuleTester` test at `.config/oxlint-plugin/fleet/<name>/test/<name>.test.mts` with a full `valid[]` + `invalid[]` matrix (every shape + every exemption), and an `output` assertion on each autofix case (assert the FIXED TEXT, not just `messageId` — the fleet has been bitten by autofix-corruption bugs that passed because tests only checked `messageId`). Confirm the plugin still loads (`oxlint-plugin-loads.mts`); a broken rule import silently disables ALL `socket/` rules.
 - **Hook** → `test/index.test.mts` that spawns the hook as a subprocess across the full case set above: each blocked shape, each passing shape, the bypass phrase, a pass-through tool, and a malformed-payload fail-open. Assert exit code + message per case.
 - **Check script** → drifted fixture → non-zero exit; clean fixture → zero; plus a fixture per distinct drift kind it detects.
 - **Skill / command** → structural checks (`model:` tier on a mutating skill, citation resolves) + a dry-run of the happy path AND a degraded path (missing input, non-interactive).
@@ -77,12 +83,14 @@ Read-only scan; warn about a dirty tree but continue.
 
 ### Phase 2: Inventory the enforcement surfaces
 
-Build the ground-truth set the scanners compare against:
+Build the ground-truth set the scanners compare against in one deterministic pass:
 
-- Hooks: `ls .claude/hooks/fleet .claude/hooks/repo`
-- Lint rules: `ls .config/fleet/oxlint-plugin/rules`
-- Check scripts: `ls scripts/fleet/check`
-- CLAUDE.md rules + their citations (parse `(`.claude/hooks/…`)` and `socket/<rule>` refs)
+```bash
+node scripts/fleet/codify-scan/inventory.mts
+```
+
+It emits `{ hooks: { guards, reminders, installers }, lintRules: { socket, typescript }, checks, scripts, fleetDocs }` — the authoritative enforcement surface (it wraps `lib/enforcer-inventory.mts`, the same owner the code-is-law gate reads, so the directory conventions live in one place). Pass this JSON as the Workflow `args` so every scanner agent compares proposals against the same set rather than re-running `ls`/`grep` by hand.
+
 - **Auto-memory dir (read-only, best-effort)**: resolve the Claude project memory dir for source #6 — machine-local, OUTSIDE the repo. Find it via `CLAUDE_PROJECT_DIR`'s sibling memory path, or `find "$HOME/.claude/projects" -type d -name memory 2>/dev/null` matching this repo's slug. Read `memory/*.md` + `MEMORY.md` as discovery input only — never edit or delete them. If none is found (CI, fresh checkout, headless with no memory), skip source #6 silently; the repo-source scans always run.
 
 ### Phase 3: Determine scan scope
@@ -104,8 +112,12 @@ Return `{ report, gapCount, byBlastRadius, proposals }`.
 
 ### Phase 5: Apply or report
 
-- **Interactive**: `AskUserQuestion` — which proposals to apply now. For each applied: create the enforcer AND its test together per the relevant fleet rules (new hook needs a CLAUDE.md/registry citation first; new lint rule defaults to `error` + autofix + a `RuleTester` test with `output` assertions; a hook + a CLAUDE.md edit both trigger the **same-turn dogfood cascade** in the wheelhouse). RUN the test before committing — a codification whose test doesn't pass isn't done. Commit each codification (enforcer + test together) separately. Memory is read-only input — never delete or edit it; it can keep describing the *why* alongside the now-enforcing code.
-- **Non-interactive**: save the report to `reports/codifying-disciplines-YYYY-MM-DD.md` (each proposal includes its `testDiff`); apply nothing.
+- **Interactive**: `AskUserQuestion` — which proposals to apply now. Route each applied proposal through the **`ai-codify` orchestrator** rather than hand-authoring — it pins model + effort to the surface (token-spend rule) and enforces the four-flag programmatic-Claude lockdown:
+  - **Enforcer surfaces** (`hook-guard` / `hook-reminder` / `lint-rule` / `check`): `node scripts/fleet/ai-codify/cli.mts --surface <surface> --discipline "<rule>" --incident "<generic case>" [--memory <path>] [--name <kebab>] --apply`. It authors the surface + its mandatory test on the tier-matched model (hook/lint → opus/high, check → sonnet/medium) and runs the surface's own verifier before returning.
+  - **Documentation surface** (`agents-doc` — the terse CLAUDE.md bullet + `docs/agents.md/{fleet,repo}/<topic>.md` detail doc): pass `--surface agents-doc --memory <path>`; ai-codify shells out to `scripts/fleet/codify-rule.mts`, which owns the 40KB CLAUDE.md budget + defer-to-docs split (never hand-edit CLAUDE.md for a rule bullet).
+  - For a **combination** (defense-in-depth), run ai-codify once per surface.
+  After ai-codify returns: RUN the test before committing — a codification whose test doesn't pass isn't done. A hook + a CLAUDE.md edit both trigger the **same-turn dogfood cascade** in the wheelhouse. Commit each codification (enforcer + test together) separately. Memory is read-only input — never delete or edit it; it can keep describing the *why* alongside the now-enforcing code.
+- **Non-interactive**: save the report to `.claude/reports/codifying-disciplines-YYYY-MM-DD.md` (the untracked report location per the _Plan & report storage_ rule — never a committable `reports/` path) (each proposal includes its `testDiff` + the exact `ai-codify` invocation that would apply it); apply nothing.
 
 ### Phase 6: Summary
 
@@ -116,4 +128,4 @@ Report gaps found, by blast radius; proposals applied vs. deferred; and any gap 
 - Codify the highest-blast-radius gaps (build/release/security) first.
 - Each codification is its own commit (`feat(hooks): …`, `fix(lint): …`, `feat(scripts): …`), and the enforcer + its test land in that SAME commit — never an enforcer without its test. Never bundle several unrelated enforcers in one commit.
 - A new hook follows the full ceremony: CLAUDE.md (or hook-registry) citation BEFORE the index, a test, settings.json registration, and the dogfood cascade.
-- The report itself: `docs(reports): codifying-disciplines YYYY-MM-DD`, committed before applying so the gap inventory is referenceable.
+- The report at `.claude/reports/` is never committed (the report location is untracked by the fleet `.gitignore`); it's a local reference for which gaps to codify, not an artifact.

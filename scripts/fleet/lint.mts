@@ -19,7 +19,8 @@
 // flow is sync (sequential gates, exit-code aggregation).
 import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 import type { SpawnSyncOptions } from 'node:child_process'
-import { existsSync } from 'node:fs'
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
@@ -59,6 +60,46 @@ function pickConfig(basename: string): string {
   return path.join('.config', 'fleet', basename)
 }
 
+// Resolve the oxfmt `--ignore-path`. The fleet canonical
+// `.config/fleet/.prettierignore` excludes `.claude/`, `**/fleet/**`, and the
+// vendored acorn blob — the patterns every repo shares. A repo with its OWN
+// verbatim trees (e.g. socket-btm's `additions/source-patched/` synced into the
+// Node build, or `test/fixtures/` corpora) declares them in a repo overlay at
+// `.config/repo/.prettierignore`. oxfmt takes a single `--ignore-path` and does
+// NOT honor the flag twice, so when an overlay exists we concatenate fleet +
+// repo into one temp file and pass that. The fleet file alone is returned when
+// there is no overlay (the common case). Cached so both oxfmt call sites
+// (runAll + the changed-files path) share one temp file per invocation.
+const FLEET_IGNORE_PATH = path.join('.config', 'fleet', '.prettierignore')
+let cachedIgnorePath: string | undefined
+function pickIgnorePath(): string {
+  if (cachedIgnorePath !== undefined) {
+    return cachedIgnorePath
+  }
+  const repoOverlay = path.join('.config', 'repo', '.prettierignore')
+  if (!existsSync(repoOverlay)) {
+    cachedIgnorePath = FLEET_IGNORE_PATH
+    return cachedIgnorePath
+  }
+  let fleetBody = ''
+  let repoBody = ''
+  try {
+    fleetBody = readFileSync(FLEET_IGNORE_PATH, 'utf8')
+  } catch {}
+  try {
+    repoBody = readFileSync(repoOverlay, 'utf8')
+  } catch {}
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'fleet-prettierignore-'))
+  const combined = path.join(dir, '.prettierignore')
+  writeFileSync(
+    combined,
+    `${fleetBody}\n# --- .config/repo/.prettierignore (repo-specific verbatim trees) ---\n${repoBody}\n`,
+    'utf8',
+  )
+  cachedIgnorePath = combined
+  return cachedIgnorePath
+}
+
 // oxlint config picker. Prefers the composable `oxlint.config.mts` factory
 // (a repo's `.config/repo/oxlint.config.mts` imports the fleet factory and
 // augments it in JS — see `.config/fleet/oxlint.config.mts`). oxlint's own
@@ -96,6 +137,29 @@ function log(msg: string): void {
   if (!quiet) {
     logger.log(msg)
   }
+}
+
+// Assert the socket/ oxlint plugin actually loaded. A dead plugin (a rule with
+// a missing dep / bad import) makes oxlint silently disable EVERY socket/ rule
+// and still exit 0 — so a green oxlint run is meaningless until the plugin is
+// confirmed loaded. Runs the existing oxlint-plugin-loads check as a sync
+// subprocess (keeps this sync flow sync; reuses the one assertion). No-op +
+// pass when the repo has no plugin. Returns 0 on ok / no-plugin, 1 on a dead
+// or mis-wired plugin. This is what closes the silent-disable window: the
+// pre-push runs lint.mts, not check --all, so without this a dead plugin sails
+// through commit + lint + pre-push.
+function assertPluginLoaded(): number {
+  const checkPath = path.join(
+    'scripts',
+    'fleet',
+    'check',
+    'oxlint-plugin-loads.mts',
+  )
+  if (!existsSync(checkPath)) {
+    return 0
+  }
+  const res = spawnSync(process.execPath, [checkPath, '--quiet'], { stdio })
+  return res.status === 0 ? 0 : 1
 }
 
 function gitFiles(args: string[]): string[] {
@@ -147,7 +211,7 @@ function filterLintable(files: string[]): string[] {
 //
 // `template/**` ships byte-identical to every fleet repo via the
 // sync-scaffolding cascade — including `template/.claude/hooks/`
-// (the actual fleet hook code) and `template/.config/fleet/oxlint-plugin/`
+// (the actual fleet hook code) and `template/.config/oxlint-plugin/`
 // (the canonical rule definitions). The wheelhouse must lint these
 // here, before they propagate, because downstream repos can't
 // independently fix drift in fleet-canonical files.
@@ -157,7 +221,7 @@ function filterLintable(files: string[]): string[] {
 // fleet-canonical. It's a copy of `template/.claude/` plus per-machine
 // overrides; linting it would double-flag every issue once in
 // `template/` and once in `.claude/`.
-const DOGFOOD_LINT_PATHS = ['.config/fleet/oxlint-plugin', 'template']
+const DOGFOOD_LINT_PATHS = ['.config/oxlint-plugin', 'template']
 
 // Markdown lint pass — gated behind LINT_MARKDOWN=1 so existing fleet
 // repos with pre-existing markdown hygiene findings aren't blocked
@@ -209,7 +273,7 @@ function runAll(): number {
     '-c',
     pickConfig('oxfmtrc.json'),
     '--ignore-path',
-    '.config/fleet/.prettierignore',
+    pickIgnorePath(),
     fix ? '--write' : '--check',
     '.',
   ]
@@ -226,7 +290,13 @@ function runAll(): number {
   if (lintRes.status !== 0) {
     return 1
   }
-  // Wheelhouse-self dogfood: lint the .config/fleet/oxlint-plugin/ + template/
+  // A green oxlint run is vacuous if the socket/ plugin failed to load (every
+  // socket/ rule silently disabled). Fail-closed here so lint.mts — the gate
+  // the pre-push runs — never passes on a dead plugin.
+  if (assertPluginLoaded() !== 0) {
+    return 1
+  }
+  // Wheelhouse-self dogfood: lint the .config/oxlint-plugin/ + template/
   // trees too. The canonical .config/fleet/oxlintrc.json ignores those paths so
   // downstream fleet repos don't waste cycles linting opaque tooling, but
   // the wheelhouse is the author — every change here lands in every
@@ -288,7 +358,7 @@ function runFiles(files: string[]): number {
     '-c',
     pickConfig('oxfmtrc.json'),
     '--ignore-path',
-    '.config/fleet/.prettierignore',
+    pickIgnorePath(),
     fix ? '--write' : '--check',
     '--no-error-on-unmatched-pattern',
     ...files,
@@ -316,6 +386,11 @@ function runFiles(files: string[]): number {
   oxlintArgs.push(...files)
   const lintRes = spawnSync('pnpm', oxlintArgs, { shell: useShell, stdio })
   if (lintRes.status !== 0) {
+    return 1
+  }
+  // A green oxlint run is vacuous if the socket/ plugin failed to load — see
+  // runAll(). Fail-closed on a dead plugin in the scoped path too.
+  if (assertPluginLoaded() !== 0) {
     return 1
   }
   // Markdown lint when any of the changed files is .md / .mdx. The
