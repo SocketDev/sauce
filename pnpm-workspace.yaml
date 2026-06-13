@@ -46,7 +46,7 @@ catalog:
   'regjsparser': 0.13.1
   'shell-quote': 1.8.4
   'taze': 19.14.1
-  'vitest': 4.1.8
+  'vitest': 4.1.0
 
 # Wait 7 days (10080 minutes) before installing newly published
 # packages. Reduces blast radius from hijacked-but-not-yet-detected
