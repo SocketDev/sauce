@@ -1,5 +1,8 @@
 # Socket Security Skills
 
+[![Follow @SocketSecurity](https://img.shields.io/twitter/follow/SocketSecurity?style=social)](https://twitter.com/SocketSecurity)
+[![Follow @socket.dev on Bluesky](https://img.shields.io/badge/Follow-@socket.dev-1DA1F2?style=social&logo=bluesky)](https://bsky.app/profile/socket.dev)
+
 Socket Security Skills are definitions for dependency security tasks like vulnerability scanning, package review, patching, firewall configuration, and secure dependency updates. They follow the standardized [Agent Skill](https://agentskills.io/home) format and are compatible with **40+ coding agent tools** including:
 
 - **Claude Code** (Anthropic) — native skill/plugin support
