@@ -142,6 +142,8 @@ jobs:
             NOTES+=$'\n\n---\n\nInstall via Claude Code: `/plugin marketplace ${{ github.repository }}@'${TAG}'`'
           fi
           gh release create "${TAG}" \
+            --draft \
             --title "${TAG}" \
             --notes "${NOTES}" \
             --target "${{ github.sha }}"
+          gh release edit "${TAG}" --draft=false
