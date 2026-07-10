@@ -52,7 +52,7 @@ The fleet hooks each cite their own trigger + bypass surface in their `README.md
 - `primary-checkout-branch-guard` — blocks `git checkout/switch <branch>` / `-b` / `-c` in the primary checkout (branch work goes in a worktree); bypass `Allow primary-branch bypass`
 - `private-name-guard` — blocks private repo / company names in public surface
 - `claude-lockdown-guard` — headless `claude`/`codex exec` must set the lockdown flags
-- `prose-antipattern-guard` — PreToolUse block on AI prose tells (em-dash chains, throat-clearing, "not X it's Y", hedging adverbs) in CHANGELOG.md / docs/**/*.md / README.md; bypass `Allow prose-antipattern bypass`
+- `prose-antipattern-guard` — PreToolUse block on AI prose tells (em-dash chains, throat-clearing, "not X it's Y", hedging adverbs) in CHANGELOG.md / docs/\*_/_.md / README.md; bypass `Allow prose-antipattern bypass`
 - `yakback-reminder` — merged Stop scan: teacher-tone comments + "the user" naming + speed-vs-depth choice menus + self-narration (status-recap padding, "now let me" openers, hedges, apology-padding); per-group disable env vars preserved
 - `provenance-publish-reminder` — `--staged` provenance lifecycle reminder
 - `public-surface-reminder` — Linear refs / private names / external issue refs

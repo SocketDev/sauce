@@ -70,7 +70,7 @@ Stash, add-all, checkout-branch, reset-hard, and revert-other-session's-file are
 
 ## Pre-commit index races — retry, don't `--no-verify`
 
-When two sessions share one `.git/`, a `git commit` can fail in pre-commit because the *other* session's git op holds the index lock or left a half-written object. The signatures:
+When two sessions share one `.git/`, a `git commit` can fail in pre-commit because the _other_ session's git op holds the index lock or left a half-written object. The signatures:
 
 - `Unable to create '.git/index.lock': File exists` / `another git process seems to be running`
 - `error: bad object` / `fatal: unable to read tree`

@@ -71,6 +71,20 @@ defaults write dev.kdrag0n.MacVirt SUEnableAutomaticChecks -bool false
 
 `SUEnableAutomaticChecks=false` stops the background update check; `SUAutomaticallyUpdate=false` stops silent install of a found update. Add a new Sparkle app by appending to `SPARKLE_APPS` in `_shared/sparkle-auto-update.mts` (id, name, bundle-id domain); the persist and audit pick it up automatically.
 
+## Lint/fix scope: modified by default, `--all` for waves
+
+`pnpm run lint` and `pnpm run fix` default to **modified scope** — only files
+git sees as changed (plus `--staged` in pre-commit). A repo-wide autofix
+campaign run that way is a **silent no-op on the whole backlog**: the run exits
+green having fixed nothing outside your edits (two delegated wave runs reported
+success while fixing zero backlog files, 2026-07-07). For a wave, pass `--all`:
+`pnpm run lint --fix --all` (`pnpm run fix --all` forwards it and adds the
+doctor). The `template/` tree is OFF the default lint surface everywhere —
+in the wheelhouse it only lints under `LINT_DOGFOOD=1`, so a wave that must
+reach canonical sources is `LINT_DOGFOOD=1 pnpm run lint --fix --all`. Every
+scoped `--fix` run now ends with a loud reminder naming the wave form
+(`fixScopeReminder` in `scripts/fleet/lint.mts`).
+
 ## Docs lead with pnpm
 
 User-facing install commands in fenced code blocks must show the pnpm form first (`pnpm install <pkg>`, `pnpm add <pkg>`). npm / yarn fallbacks are fine but come after, or in a separate block introduced as a fallback. The pre-commit `scanDocsPnpmFirst` scanner emits a warning (not a hard fail) for `.md` / `.mdx` blocks that lead with npm or yarn without a pnpm leader. Suppress per-block with `socket-lint: allow pnpm-first` (HTML comment above the fence or any line inside it).
@@ -103,14 +117,16 @@ FORBIDDEN to maintain. Remove when encountered.
 
 ## `packageManager` field
 
-Bare `pnpm@<version>` is correct for pnpm 11+. pnpm 11 stores the integrity hash in `pnpm-lock.yaml` (separate YAML document) instead of inlining it in `packageManager`. On install pnpm rewrites the field to its bare form and migrates legacy inline hashes automatically. Don't fight the strip. Older repos may still ship `pnpm@<version>+sha512.<hex>`. Leave it; pnpm migrates on first install. The lockfile is the integrity source of truth.
+The fleet pins `packageManager` to a **forgiving floor**, `pnpm@>=<floor>` (currently `pnpm@>=11.0.5`), matching the `engines.pnpm` floor. `pnpm-workspace.yaml` sets `managePackageManagerVersions: false` plus `pmOnFail: warn`, so pnpm treats the field as a minimum hint rather than a version lock: it never switches pnpm versions and only warns on a mismatch. The exact pnpm for CI comes from the setup action (`external-tools.json`), not this field. `derivePins` (`sync-package-manager-pins.mts`) emits the floor from root `engines.pnpm`, and the cascade propagates both pins via `sync.mts package-manager --fleet`. A `packageManager` drift is always benign (`isBehindSource`) because the field is only a hint; the enforced gate is `engines.pnpm`.
+
+pnpm 11 stores the integrity hash in `pnpm-lock.yaml` (a separate YAML document) rather than inline. The lockfile is the integrity source of truth, and a legacy `pnpm@<version>+sha512.<hex>` migrates on first install.
 
 ## Bumping a versioned tool fleet-wide (pnpm, zizmor, sfw)
 
-🚨 **Single entry point: `socket-wheelhouse/scripts/fleet/cascade-fleet.mts`.** Run from the wheelhouse repo:
+🚨 **Single entry point: `socket-wheelhouse/scripts/repo/cascade-fleet.mts`.** Run from the wheelhouse repo:
 
 ```bash
-node socket-wheelhouse/scripts/fleet/cascade-fleet.mts \
+node socket-wheelhouse/scripts/repo/cascade-fleet.mts \
   --pnpm 11.3.0 \
   [--skip-ci-wait] \
   [--dry-run]
@@ -155,6 +171,38 @@ Every executable script (skill runner, hook handler, fleet automation) is TypeSc
 ## Soak time
 
 (pnpm-workspace.yaml `minimumReleaseAge`, default 7 days). Never add packages to `minimumReleaseAgeExclude` in CI. Locally, ASK before adding (security control).
+
+## External repo clones
+
+When reviewing or referencing an external GitHub repo (not a fleet member), clone it locally so an agent can read, search, and index it — rather than fetching through the GitHub web API.
+
+### What
+
+Clone to `~/.socket/_wheelhouse/repo-clones/<org>-<repo>/`, where `<org>-<repo>` is lowercase + dash-cased (e.g. `justrach-codedb`). Resolve the directory via `getSocketRepoClonesDir()` from `@socketsecurity/lib/paths/socket`. Never clone into `~/projects/` — that path is for fleet-member checkouts, and the fleet's sibling-walk tooling (cascade `--all`, fleet-roster discovery) would mistake a reference clone for a member repo.
+
+### Why
+
+Agents need a local tree to run `grep`/`read`/index operations efficiently. A standardized path keeps reference clones discoverable across sessions and safely isolated from the fleet-member space.
+
+### How to apply
+
+Clone the smallest practical way — blobless + shallow:
+
+```bash
+git clone --depth=1 --single-branch --filter=blob:none <url> <dest>
+```
+
+- `--depth=1` — no history.
+- `--single-branch` — skip other refs.
+- `--filter=blob:none` — blobless partial clone; file blobs fetched lazily on first access, so the initial download is tree-metadata only.
+
+Treeless (`--filter=tree:0`) is smaller but refetches trees on every walk (slow, breaks offline) — blobless is the smallest-practical balance.
+
+This is distinct from a submodule (nested, pinned-in-parent) and a worktree (second working dir of an existing local repo). A reference clone is a standalone checkout.
+
+### Enforcement
+
+`.claude/hooks/fleet/clone-reviewed-repo-nudge/` — nudges when reviewing an external repo with no local clone, and when a `git clone` of an external repo omits the smallest-practical flags.
 
 ## Upstream submodules: always shallow
 
@@ -225,4 +273,4 @@ it on an **interactive TTY**. The `!` / headless channel has no TTY, so the
 prompt is swallowed and the command dies with `EOTP`. Tell the user to run
 the op in a **real terminal** where the prompt can appear; fall back to
 `--otp=<code>` only when no TTY is available and the user supplies a fresh
-code. Reminder hook: `.claude/hooks/fleet/npm-otp-flow-reminder/`.
+code. Reminder hook: `.claude/hooks/fleet/npm-otp-flow-nudge/`.

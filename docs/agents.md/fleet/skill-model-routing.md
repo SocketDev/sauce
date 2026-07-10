@@ -53,7 +53,7 @@ Fable is the most capable widely-released model and the most expensive on the bo
 
 No skill, workflow, agent, or programmatic `claude` call declares Fable as its default tier. It is selected manually, for the hardest cases only, and you should prefer to ask before spending it:
 
-- A stuck compiler or native problem (socket-btm, C++ build failures, the ultrathink/acorn parser work), *after* cheaper tiers have failed, never the first reach.
+- A stuck compiler or native problem (socket-btm, C++ build failures, the ultrathink/acorn parser work), _after_ cheaper tiers have failed, never the first reach.
 - Planning and decomposition of a large, ambiguous task whose execution chunks then run on cheaper tiers (see below).
 
 Two operational notes for Fable-targeted prompts, from Anthropic's Fable prompting guide (https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5). Never instruct it to echo or reproduce its reasoning as response text, because that trips the `reasoning_extraction` refusal and silently falls back to Opus. Expect longer turns, so structure long runs to check asynchronously rather than block. Fable's safety classifiers (offensive-cyber plus bio) can return `stop_reason: "refusal"` on benign security work, so configure fallback to Opus 4.8.
@@ -88,8 +88,7 @@ Fable never writes the code, Codex never decides the design. A note on the Fable
 
 > **Pricing/leverage data below is a snapshot as of 2026-06-11.** Model prices and plan limits move often; re-verify against vendor docs (and re-run `researching-recency`) before relying on the exact numbers. Treat the ratios as directional, not current.
 
-<!-- MODEL-PRICING-SNAPSHOT: 2026-06-11 -- machine-readable anchor for scripts/fleet/check/pricing-data-is-current.mts. When this date is >35 days old the check reminds you to re-run `/researching-recency` and refresh the figures above + the cost-ladder report, then bump this date. Code is law: the staleness is enforced, not left to memory. -->
-
+<!-- MODEL-PRICING-SNAPSHOT: 2026-07-05 -- machine-readable anchor for scripts/fleet/check/pricing-data-is-current.mts. When this date is >35 days old the check reminds you to re-run `/researching-recency` and refresh the figures above + the cost-ladder report, then bump this date. Code is law: the staleness is enforced, not left to memory. -->
 
 The per-token math above is the metered-API view. Most fleet work runs under a flat-rate subscription, and subscriptions are far more generous than $200 of API tokens. A Claude Max 20× plan ($200/mo) bills against roughly $8,000/mo of API-equivalent spend before the weekly cap; a ChatGPT Pro 20× plan reaches roughly $14,000/mo. Under a subscription the marginal dollar cost of a token up to the weekly cap is effectively zero.
 

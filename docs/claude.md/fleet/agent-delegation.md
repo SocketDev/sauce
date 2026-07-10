@@ -65,18 +65,19 @@ pointer to check, not evidence.
 - **2026-06-03, DRY/KISS audit:** an agent reported "52 `-guard` hooks only advise (exit 0),
   not block". Spot-checking six named guards: every one exits 2 (blocks). A complete
   inversion of the convention, stated confidently with a 50-file list. One `grep -c
-  'exit(2)'` killed it.
+'exit(2)'` killed it.
 - **2026-06-03, wheelhouse-segment audit:** an agent flagged 5 hooks/skills as wheelhouse-only
   and movable to `repo/`. Hand-verification (does the dependency exist downstream?) cut it to
   2 — and those 2 turned out to stay too (data-sharing / dispatch-reach). Net real moves: 0.
 - Same session, an agent listed "~17 hooks declare their own `ToolInput` type"; the three
   sampled declared none.
 
-**The discriminator** — what makes a claim worth the verification round-trip: it's *cheap to
-verify* (one grep/read) and *expensive to fabricate correctly* (the agent had to actually
+**The discriminator** — what makes a claim worth the verification round-trip: it's _cheap to
+verify_ (one grep/read) and _expensive to fabricate correctly_ (the agent had to actually
 read each file to get the count right, and often didn't). High-confidence + high-specificity
-+ cheap-to-check = verify it. Vague impressions ("the code seems complex") aren't worth a
-round-trip; precise falsifiable claims are.
+
+- cheap-to-check = verify it. Vague impressions ("the code seems complex") aren't worth a
+  round-trip; precise falsifiable claims are.
 
 **Budget for it.** When you fan out N audit agents, budget the verification pass as part of
 the work — it's not optional polish. The synthesized report you hand the user should contain

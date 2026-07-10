@@ -9,7 +9,29 @@ Fleet lint rules are guardrails for AI-generated code. Make them strict:
 - **Errors, not warnings.** A warning is silently ignored; an error blocks the commit. Severity `"warn"` belongs to user-facing tools (browser dev consoles, ad-hoc scripts), not the fleet's CI gate. Default to `"error"` for new rules; bump existing `"warn"` entries to `"error"` when you touch them.
 - **Fixable when possible.** Every new rule that _can_ express a deterministic rewrite _should_ ship an autofix. The `fixable: 'code'` meta flag plus a `fix(fixer) => ...` in `context.report` lets `pnpm exec oxlint --fix` clean up the violation. Reporting-only rules are fine when the fix requires human judgment (e.g., picking between `httpJson` vs `httpText` to replace `fetch()`); say so explicitly in the rule docstring.
 - **Skill or hook ≠ no rule.** If a behavior already lives as a skill (the canonical write-up) or a hook (PreToolUse blocking), still encode the lint rule on top. Defense in depth. The skill is documentation, the hook is edit-time enforcement, the lint rule is commit-time enforcement.
-- **Tooling: oxlint + oxfmt only.** No ESLint, no Prettier. The fleet socket-\* oxlint plugin lives in `template/.config/oxlint-plugin/`; new fleet rules land there. Wire via `.oxlintrc.json` `jsPlugins` and the `socket/` namespace.
+- **Tooling: oxlint + oxfmt only.** No ESLint, no Prettier. The fleet socket-\* oxlint plugin lives in `template/.config/fleet/oxlint-plugin/`; new fleet rules land there. Wire via `.oxlintrc.json` `jsPlugins` and the `socket/` namespace.
+
+## Host-test deps: the `fleet.hostTestDeps` exemption
+
+The "no foreign linter/formatter packages" rule has one carve-out. A package whose code ADAPTS TO a foreign tool (converting plugins into ESLint rules, say, or emitting Prettier-compatible output) needs that tool installed to integration-test against. The package declares the exemption explicitly:
+
+```json
+{
+  "fleet": { "hostTestDeps": ["eslint"] }
+}
+```
+
+The allowance holds only while ALL of:
+
+1. the dep name is listed in `fleet.hostTestDeps` (exact match);
+2. the dep lives only in `devDependencies` / `peerDependencies`. A runtime `dependencies` / `optionalDependencies` entry ships the tool to consumers and stays blocked;
+3. no package script invokes the tool's binary (including via `npx` / `pnpm exec` indirection). Running it makes it a lint/format gate, which is exactly what the rule forbids. Script ARGUMENTS that merely mention the tool (`vitest run to-eslint.test.ts`) don't void the allowance.
+
+Foreign **config files stay blocked unconditionally**: host APIs used in tests (ESLint `RuleTester` / `Linter`, Babel programmatic transforms) need no config file.
+
+The contract + audit logic live in ONE place, `.claude/hooks/fleet/_shared/foreign-linters.mts`, consumed by both the edit-time hook (`no-other-linters-guard`) and the committed-state gate (`scripts/fleet/check/linters-are-oxlint-oxfmt-only.mts`).
+
+**Why:** adapter packages (author a plugin once, ship it to many hosts) were forced to choose between mock-only integration coverage and a blanket guard bypass; an explicit, audited manifest field keeps the gate strict while making the legitimate case first-class.
 
 ## Cascade
 
