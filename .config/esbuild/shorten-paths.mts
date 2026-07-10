@@ -1,5 +1,6 @@
+/* eslint-disable no-shadow -- nested cached-length for-loops intentionally reuse `i`/`length` names for the fleet-wide cached-loop idiom; renaming would diverge from the codebase pattern. */
 /**
- * @fileoverview esbuild plugin: shorten pnpm `node_modules/.pnpm/...`
+ * @file esbuild plugin: shorten pnpm `node_modules/.pnpm/...`
  * paths in bundled output (comments + string literals) to plain
  * `package/subpath` form. Detects collisions and falls back to the
  * original path when two long paths would collapse to the same short
@@ -21,8 +22,9 @@ import MagicString from 'magic-string'
 
 import type { BuildResult, PluginBuild } from 'esbuild'
 
-import { NODE_MODULES } from '@socketsecurity/lib/paths/dirnames'
+import { errorMessage } from '@socketsecurity/lib/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { NODE_MODULES } from '@socketsecurity/lib/paths/dirnames'
 
 const logger = getDefaultLogger()
 
@@ -77,9 +79,11 @@ export function createPathShorteningPlugin() {
               if (conflictDetector.has(shortPath)) {
                 const existingPath = conflictDetector.get(shortPath)
                 if (existingPath !== longPath) {
-                  logger.warn(
-                    `Path conflict detected:\n  "${shortPath}"\n  Maps to: "${existingPath}"\n  Also from: "${longPath}"\n  Keeping original paths to avoid conflict.`,
-                  )
+                  logger.warn(`Path conflict detected:`)
+                  logger.warn(`  "${shortPath}"`)
+                  logger.warn(`  Maps to: "${existingPath}"`)
+                  logger.warn(`  Also from: "${longPath}"`)
+                  logger.warn(`  Keeping original paths to avoid conflict.`)
                   shortPath = longPath
                 }
               } else {
@@ -168,7 +172,7 @@ export function createPathShorteningPlugin() {
               await fs.writeFile(outputPath, magicString.toString(), 'utf8')
             } catch (e) {
               logger.error(
-                `Failed to shorten paths in ${outputPath}: ${e instanceof Error ? e.message : String(e)}`,
+                `Failed to shorten paths in ${outputPath}: ${errorMessage(e)}`,
               )
             }
           }

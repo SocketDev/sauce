@@ -1,7 +1,6 @@
 /**
- * @fileoverview Vitest configuration.
+ * @file Vitest configuration.
  */
-// oxlint-disable socket/no-default-export -- Vitest requires a default export from config files.
 import process from 'node:process'
 
 import { defineConfig } from 'vitest/config'
@@ -18,6 +17,10 @@ const config = defineConfig({
     globals: false,
     environment: 'node',
     include: ['test/**/*.test.{js,ts,mjs,mts,cjs}'],
+    // No test/ tree exists at the root — real suites live in tests/tier*
+    // (own vitest config) and scripts/test/ (node --test). A config-change
+    // escalation to this root config must pass on zero matches.
+    passWithNoTests: true,
     reporters: ['default'],
     pool: 'threads',
     poolOptions: {
@@ -53,4 +56,5 @@ const config = defineConfig({
   },
 })
 
+// oxlint-disable-next-line socket/no-default-export -- Vitest requires a default export from config files.
 export default config
