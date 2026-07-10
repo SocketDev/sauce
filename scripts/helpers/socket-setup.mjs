@@ -13,9 +13,11 @@
  * All output is JSON to stdout, errors to stderr.
  */
 
-import { readFileSync, readdirSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import * as path from 'node:path'
-import { execSync } from 'node:child_process'
+
+import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
+import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 
 const INSTALL_PATTERNS = [
   { re: /\bnpm\s+(ci|install)\b/, ecosystem: 'npm' },
@@ -26,6 +28,7 @@ const INSTALL_PATTERNS = [
   { re: /\bpip3\s+install\b/, ecosystem: 'pip' },
   { re: /\bbundle\s+install\b/, ecosystem: 'bundler' },
   { re: /\bcargo\s+(build|install)\b/, ecosystem: 'cargo' },
+  // Matches `go install` or `go mod download`.
   { re: /\bgo\s+(install|mod\s+download)\b/, ecosystem: 'go' },
 ]
 
@@ -58,19 +61,21 @@ export function checkPrereqs(dir) {
   const sfwInfo = { installed: !!sfwRaw }
   if (sfwRaw) {
     const sfwVersion = parseVersion(sfwRaw)
-    if (sfwVersion)
+    if (sfwVersion) {
       sfwInfo.version = `${sfwVersion.major}.${sfwVersion.minor}.${sfwVersion.patch}`
+    }
   }
 
   // socket-patch
   const patchRaw =
-    runCmd('pnpm exec @socketsecurity/socket-patch --version 2>/dev/null') ||
+    runCmd('pnpm exec @socketsecurity/socket-patch --version') ||
     runCmd('socket-patch --version')
   const patchInfo = { installed: !!patchRaw }
   if (patchRaw) {
     const patchVersion = parseVersion(patchRaw)
-    if (patchVersion)
+    if (patchVersion) {
       patchInfo.version = `${patchVersion.major}.${patchVersion.minor}.${patchVersion.patch}`
+    }
   }
 
   // Package manager detection
@@ -119,16 +124,22 @@ export function detectDockerfiles(dir) {
     const hasSfw = /\bsfw\b/.test(content)
     const hasPatch = /\bsocket-patch\b/.test(content)
 
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i]
-      if (!/^\s*RUN\s/i.test(line)) continue
+    for (let li = 0, { length: lineCount } = lines; li < lineCount; li += 1) {
+      const line = lines[li]
+      if (!/^\s*RUN\s/i.test(line)) {
+        continue
+      }
       const cmd = line.replace(/^\s*RUN\s+/i, '').trim()
 
-      for (let j = 0, { length } = INSTALL_PATTERNS; j < length; j += 1) {
+      for (
+        let j = 0, { length: patternCount } = INSTALL_PATTERNS;
+        j < patternCount;
+        j += 1
+      ) {
         const pat = INSTALL_PATTERNS[j]
         if (pat.re.test(cmd)) {
           installLines.push({
-            line: i + 1,
+            line: li + 1,
             command: line.trim(),
             ecosystem: pat.ecosystem,
           })
@@ -151,19 +162,28 @@ export function detectDockerfiles(dir) {
 export function detectPackageManager(dir) {
   try {
     const entries = readdirSync(dir)
-    if (entries.includes('pnpm-lock.yaml')) return 'pnpm'
-    if (entries.includes('yarn.lock')) return 'yarn'
-    if (entries.includes('bun.lockb') || entries.includes('bun.lock'))
+    if (entries.includes('pnpm-lock.yaml')) {
+      return 'pnpm'
+    }
+    if (entries.includes('yarn.lock')) {
+      return 'yarn'
+    }
+    if (entries.includes('bun.lockb') || entries.includes('bun.lock')) {
       return 'bun'
-    if (entries.includes('package-lock.json')) return 'npm'
-    if (entries.includes('package.json')) return 'npm'
+    }
+    if (entries.includes('package-lock.json')) {
+      return 'npm'
+    }
+    if (entries.includes('package.json')) {
+      return 'npm'
+    }
   } catch {
     // ignore
   }
   return undefined
 }
 
-export function generateConfig(tier) {
+export function generateConfig(_tier) {
   const lines = [
     'version: 2',
     'issueRules:',
@@ -237,26 +257,37 @@ export function parseArgs() {
 }
 
 export function parseVersion(raw) {
+  // Matches an X.Y.Z version number — groups 1-3 are the major, minor, and
+  // patch numbers.
   const m = raw.match(/(\d+)\.(\d+)\.(\d+)/)
-  if (!m) return undefined
+  if (!m) {
+    return undefined
+  }
   return { major: Number(m[1]), minor: Number(m[2]), patch: Number(m[3]) }
 }
 
 export function runCmd(cmd) {
-  try {
-    return execSync(cmd, {
-      stdio: ['pipe', 'pipe', 'pipe'],
-      encoding: 'utf-8',
-      timeout: 10000,
-    }).trim()
-  } catch {
+  // Callers pass a simple space-separated command (no quoting) — split into
+  // argv so this runs array-arg (no shell) rather than through a shell string.
+  const [bin, ...args] = cmd.split(' ')
+  const result = spawnSync(bin, args, {
+    shell: WIN32,
+    stdio: ['pipe', 'pipe', 'pipe'],
+    timeout: 10_000,
+  })
+  if (result.status !== 0 || result.error) {
     return undefined
   }
+  return String(result.stdout).trim()
 }
 
 export function versionGte(v, major, minor = 0, patch = 0) {
-  if (v.major !== major) return v.major > major
-  if (v.minor !== minor) return v.minor > minor
+  if (v.major !== major) {
+    return v.major > major
+  }
+  if (v.minor !== minor) {
+    return v.minor > minor
+  }
   return v.patch >= patch
 }
 

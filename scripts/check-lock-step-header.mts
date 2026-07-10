@@ -33,7 +33,7 @@
  *     quadruplet has a header diff 2 — gate itself crashed
  */
 
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { parseArgs } from 'node:util'
@@ -154,6 +154,8 @@ function extractHeader(file: string): HeaderBlock | undefined {
     const stripped = stripCommentPrefix(raw)
     bodyLines.push(stripped)
   }
+  // Matches a `Lock-step with <Lang>: <path>` reference in a header body
+  // line — group 1 is the language token, group 2 is the referenced path.
   const withRe =
     /Lock-step with ([A-Za-z][A-Za-z0-9+#-]*): ([^\s:,]*[./][^\s:,]*)/g
   const withRefs: Array<{ lang: string; refPath: string }> = []
@@ -256,6 +258,10 @@ function main(): void {
     },
     allowPositionals: false,
   })
+  // Intentional process.cwd() — the gate's contract IS "check the repo
+  // you invoke it from" (scripts/test/check-lock-step-header.test.mts
+  // spawns it against tmpdir fixtures via `cwd`, not the real repo root).
+  // oxlint-disable-next-line socket/no-process-cwd-in-scripts-hooks -- cwd is the intended target repo, not an anchor for this script's own location.
   const repoRoot = process.cwd()
   let config: Config | undefined
   try {

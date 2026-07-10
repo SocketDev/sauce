@@ -38,15 +38,16 @@ import process from 'node:process'
 import { discoverAiAgents } from '@socketsecurity/lib-stable/ai/discover'
 import { AI_PROFILE } from '@socketsecurity/lib-stable/ai/profiles'
 import { spawnAiAgent } from '@socketsecurity/lib-stable/ai/spawn'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { isSpawnError } from '@socketsecurity/lib-stable/process/spawn/errors'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
 import {
   AI_HANDLED_RULES,
+  escalateTier,
   RULE_GUIDANCE,
   TIER_MODEL,
-  escalateTier,
 } from './rule-guidance.mts'
 
 const logger = getDefaultLogger()
@@ -404,11 +405,14 @@ async function main(): Promise<void> {
       .filter((r): r is string => typeof r === 'string')
     const tier = escalateTier(ruleIds)
     const model = TIER_MODEL[tier]
-    logger.log(
-      `AI-fix ${rel} (${findings.length} findings, ${tier})…`,
-    )
+    logger.log(`AI-fix ${rel} (${findings.length} findings, ${tier})…`)
     const prompt = buildPrompt(filePath, findings)
-    const { exitCode, stderr } = await runClaudeFix(filePath, prompt, cwd, model)
+    const { exitCode, stderr } = await runClaudeFix(
+      filePath,
+      prompt,
+      cwd,
+      model,
+    )
     if (exitCode === 0) {
       totalEdits += findings.length
       continue
@@ -446,7 +450,7 @@ async function main(): Promise<void> {
 }
 
 main().catch((e: unknown) => {
-  const msg = e instanceof Error ? e.message : String(e)
+  const msg = errorMessage(e)
   logger.error(`ai-lint-fix: ${msg}`)
   process.exitCode = 1
 })

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * @fileoverview Validates that commits don't contain too many files.
+ * @file Validates that commits don't contain too many files.
  *
  * Rules:
  * - No single commit should contain 50+ files
@@ -14,7 +14,8 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { errorMessage } from '@socketsecurity/lib/errors/message'
+import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 
 const logger = getDefaultLogger()
 const execAsync = promisify(exec)
@@ -113,14 +114,12 @@ async function main(): Promise<void> {
 
     process.exitCode = 1
   } catch (e) {
-    logger.fail(
-      `Validation failed: ${e instanceof Error ? e.message : String(e)}`,
-    )
+    logger.fail(`Validation failed: ${errorMessage(e)}`)
     process.exitCode = 1
   }
 }
 
 main().catch((e: unknown) => {
-  logger.fail(`Validation failed: ${e}`)
+  logger.fail(`Validation failed: ${errorMessage(e)}`)
   process.exitCode = 1
 })

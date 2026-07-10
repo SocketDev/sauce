@@ -5,7 +5,7 @@
  * marketplace.json stays in sync with discovered skills.
  */
 
-import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import * as path from 'node:path'
 import { parseFrontmatter } from './frontmatter.mts'
 
@@ -39,20 +39,28 @@ interface Marketplace {
  * inside a parent skill directory.
  */
 export function collectSkills(skillsDir: string, basePath = 'skills'): Skill[] {
-  if (!existsSync(skillsDir)) return []
+  if (!existsSync(skillsDir)) {
+    return []
+  }
 
   const skills: Skill[] = []
   const entries = readdirSync(skillsDir, { withFileTypes: true })
   for (let i = 0, { length } = entries; i < length; i += 1) {
     const entry = entries[i]!
-    if (!entry.isDirectory() || entry.name.startsWith('_')) continue
+    if (!entry.isDirectory() || entry.name.startsWith('_')) {
+      continue
+    }
     const skillMd = path.join(skillsDir, entry.name, 'SKILL.md')
-    if (!existsSync(skillMd)) continue
+    if (!existsSync(skillMd)) {
+      continue
+    }
 
     const meta = parseFrontmatter(readFileSync(skillMd, 'utf-8'))
     const metaName = meta['name']
     const metaDescription = meta['description']
-    if (!metaName || !metaDescription) continue
+    if (!metaName || !metaDescription) {
+      continue
+    }
 
     const skillPath = `${basePath}/${entry.name}`
     skills.push({
@@ -66,7 +74,7 @@ export function collectSkills(skillsDir: string, basePath = 'skills'): Skill[] {
     skills.push(...subSkills)
   }
 
-  return skills.sort((a, b) =>
+  return skills.toSorted((a, b) =>
     a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
   )
 }

@@ -23,10 +23,16 @@ import { fileURLToPath } from 'node:url'
 
 const SECTION_HEADER = /^minimumReleaseAgeExclude:\s*$/
 const ANY_TOP_LEVEL_KEY = /^[A-Za-z_][\w-]*:\s*(\S.*)?$/
+// Matches a minimumReleaseAgeExclude YAML list entry pinning an exact
+// version, e.g. `- "foo@1.2.3"` or `- "@scope/foo@1.2.3"` — group 1 is the
+// (optionally scoped) package name, group 2 is the pinned version.
 const ENTRY_RE =
   /^\s*-\s*['"]?((?:@[^@/'"\s]+\/)?[^@'"\s]+)@([^'"\s]+)['"]?\s*$/
 const GLOB_ENTRY_RE = /^\s*-\s*['"]?[^'"\s]*\*[^'"\s]*['"]?\s*$/
 const BARE_NAME_ENTRY_RE = /^\s*-\s*['"]?[^@'"\s]+['"]?\s*$/
+// Matches the required `# published: YYYY-MM-DD | removable: YYYY-MM-DD`
+// annotation comment — group 1 is the published date, group 2 is the
+// removable date.
 const ANNOTATION_RE =
   /^\s*#\s+published:\s+(\d{4}-\d{2}-\d{2})\s+\|\s+removable:\s+(\d{4}-\d{2}-\d{2})\s*$/
 const ALLOW_MARKER = '# socket-hook: allow soak-exclude-no-date-annotation'

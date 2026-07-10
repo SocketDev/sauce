@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow -- nested cached-length for-loops intentionally reuse `i`/`length` names for the fleet-wide cached-loop idiom; renaming would diverge from the codebase pattern. */
 /**
  * @file File-tree walker + regex matcher for the feature-parity scorer.
  *   `walkDirFiles` is a depth-first walker that ignores the usual noise
@@ -7,7 +8,7 @@
  *   so one bad pattern doesn't sink an otherwise-clean lockstep run.
  */
 
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
 
 import { errorMessage } from '@socketsecurity/lib-stable/errors'

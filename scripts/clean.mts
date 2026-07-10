@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * @fileoverview Clean runner with flag-based configuration.
+ * @file Clean runner with flag-based configuration.
  *
  * Mirrors the canonical fleet `clean.mts` flag surface (used by
  * socket-packageurl-js, socket-sdk-js, etc.) but stays dep-free:
@@ -78,8 +78,9 @@ export function printHelp(): void {
 
 export async function removeIfExists(
   rel: string,
-  quiet: boolean,
+  options: { quiet: boolean },
 ): Promise<void> {
+  const { quiet } = { __proto__: null, ...options } as typeof options
   const full = path.join(rootPath, rel)
   if (!existsSync(full)) {
     if (!quiet) {
@@ -126,19 +127,19 @@ async function main(): Promise<void> {
   const tasks: Array<() => Promise<void>> = []
 
   if (cleanAll || flags.dist) {
-    tasks.push(() => removeIfExists('dist', flags.quiet))
+    tasks.push(() => removeIfExists('dist', { quiet: flags.quiet }))
     tasks.push(() => removeTsBuildInfo(flags.quiet))
   } else if (flags.types) {
-    tasks.push(() => removeIfExists('dist/types', flags.quiet))
+    tasks.push(() => removeIfExists('dist/types', { quiet: flags.quiet }))
   }
   if (cleanAll || flags.coverage) {
-    tasks.push(() => removeIfExists('coverage', flags.quiet))
+    tasks.push(() => removeIfExists('coverage', { quiet: flags.quiet }))
   }
   if (cleanAll || flags.cache) {
-    tasks.push(() => removeIfExists('.cache', flags.quiet))
+    tasks.push(() => removeIfExists('.cache', { quiet: flags.quiet }))
   }
   if (flags.modules) {
-    tasks.push(() => removeIfExists('node_modules', flags.quiet))
+    tasks.push(() => removeIfExists('node_modules', { quiet: flags.quiet }))
   }
 
   if (tasks.length === 0) {

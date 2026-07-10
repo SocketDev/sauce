@@ -238,7 +238,11 @@ export function checkFeatureParity(
 
   const codePatterns = row.code_patterns ?? []
   const testPatterns = row.test_patterns ?? []
-  const codeFiles = walkDirFiles(localAreaPath, /\.(?:m?[jt]sx?|json)$/).filter(
+  // Matches a JS/TS source or JSON file extension (.js, .mjs, .jsx, .ts,
+  // .mts, .tsx, .json).
+  const codeFiles = walkDirFiles(localAreaPath, /\.(?:json|m?[jt]sx?)$/).filter(
+    // Matches a path with a __tests__/test/tests directory segment, or a
+    // `.test.`/`.spec.` filename infix — i.e. flags it as a test file.
     f => !/[/\\](?:__tests__|test|tests)[/\\]|\.test\.|\.spec\./.test(f),
   )
 
@@ -251,10 +255,14 @@ export function checkFeatureParity(
   // that directory instead (sdxgen-style where tests live outside the
   // parser directory).
   const testAreaPath = path.join(rootDir, row.test_area ?? row.local_area)
-  const testAreaFiles = walkDirFiles(testAreaPath, /\.(?:m?[jt]sx?|json)$/)
+  // Matches a JS/TS source or JSON file extension (.js, .mjs, .jsx, .ts,
+  // .mts, .tsx, .json).
+  const testAreaFiles = walkDirFiles(testAreaPath, /\.(?:json|m?[jt]sx?)$/)
   const testFiles = row.test_area
     ? testAreaFiles
     : testAreaFiles.filter(f =>
+        // Matches a path with a __tests__/test/tests directory segment, or
+        // a `.test.`/`.spec.` filename infix — i.e. it IS a test file.
         /[/\\](?:__tests__|test|tests)[/\\]|\.test\.|\.spec\./.test(f),
       )
   const testScore =
@@ -367,7 +375,9 @@ export function checkLangParity(
       messages.push(`port '${site}' missing (declared in sites)`)
     }
   }
-  for (const port of Object.keys(row.ports)) {
+  const ports = Object.keys(row.ports)
+  for (let i = 0, { length } = ports; i < length; i += 1) {
+    const port = ports[i]!
     if (!declaredSites.includes(port)) {
       base.severity = 'error'
       messages.push(`port '${port}' not in sites map`)
@@ -380,7 +390,8 @@ export function checkLangParity(
   }
 
   if (row.category === 'rejected') {
-    for (const port of Object.keys(row.ports)) {
+    for (let i = 0, { length } = ports; i < length; i += 1) {
+      const port = ports[i]!
       const state = row.ports[port]!
       if (state.status !== 'opt-out') {
         base.severity = 'drift'
@@ -444,7 +455,9 @@ export function checkCrossRowConsistency(
     }
 
     if (row.kind === 'lang-parity') {
-      for (const port of Object.keys(row.ports)) {
+      const ports = Object.keys(row.ports)
+      for (let i = 0, { length } = ports; i < length; i += 1) {
+        const port = ports[i]!
         if (!siteKeys.has(port)) {
           errors.push(
             `${loc} port '${port}' not in sites map (known: ${[...siteKeys].join(', ') || '(none)'})`,

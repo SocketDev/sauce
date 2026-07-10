@@ -324,9 +324,7 @@ async function main(): Promise<void> {
   }
 }
 
-try {
-  await main()
-} catch (e) {
+main().catch((e: unknown) => {
   logger.fail(errorMessage(e))
   process.exit(1)
-}
+})

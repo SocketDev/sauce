@@ -14,6 +14,9 @@ import path from 'node:path'
 
 import { pushFinding } from './state.mts'
 
+// Matches a hand-built build-output path in a script, with or without a
+// $MODE / ${BUILD_MODE} placeholder for the mode segment, ending in a known
+// output-dir name — the same shape Rule A/B flag in TS source.
 export const SCRIPT_HAND_BUILT_RE =
   /build\/\$?\{?(?:BUILD_MODE|MODE|dev|prod)\}?\/[\w${}.-]*\/out\/(?:Compressed|Final|Optimized|Release|Stripped|Synced)/g
 

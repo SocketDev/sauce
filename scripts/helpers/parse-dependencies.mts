@@ -7,8 +7,10 @@
  * Outputs JSON: { dependencies: [{ name, version, type, ecosystem }] }
  */
 
-import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import * as path from 'node:path'
+
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 
 interface Dependency {
   name: string
@@ -17,7 +19,7 @@ interface Dependency {
   ecosystem: string
 }
 
-export function parseArgs(): { ecosystem?: string; dir: string } {
+export function parseArgs(): { ecosystem?: string | undefined; dir: string } {
   const args = process.argv.slice(2)
   let ecosystem: string | undefined
   let dir = '.'
@@ -36,7 +38,9 @@ export function parseArgs(): { ecosystem?: string; dir: string } {
 
 export function parseBundler(dir: string): Dependency[] {
   const gemfilePath = path.join(dir, 'Gemfile')
-  if (!existsSync(gemfilePath)) return []
+  if (!existsSync(gemfilePath)) {
+    return []
+  }
 
   const content = readFileSync(gemfilePath, 'utf-8')
   const deps: Dependency[] = []
@@ -55,6 +59,8 @@ export function parseBundler(dir: string): Dependency[] {
       continue
     }
 
+    // Matches a Gemfile `gem` line, e.g. `gem "rails", "7.0.0"` — group 1 is
+    // the gem name, group 2 (optional) is the version constraint.
     const gemMatch = line.match(
       /gem\s+['"]([^'"]+)['"](?:\s*,\s*['"]([^'"]+)['"])?/,
     )
@@ -75,7 +81,9 @@ export function parseBundler(dir: string): Dependency[] {
 
 export function parseCargo(dir: string): Dependency[] {
   const tomlPath = path.join(dir, 'Cargo.toml')
-  if (!existsSync(tomlPath)) return []
+  if (!existsSync(tomlPath)) {
+    return []
+  }
 
   const content = readFileSync(tomlPath, 'utf-8')
   const deps: Dependency[] = []
@@ -91,6 +99,8 @@ export function parseCargo(dir: string): Dependency[] {
     }
 
     if (section === 'dependencies' || section === 'dev-dependencies') {
+      // Matches a Cargo.toml dependency line, e.g. `serde = "1.0"` — group 1
+      // is the crate name, group 2 is the version string.
       const depMatch = line.match(/^(\S+)\s*=\s*"([^"]+)"/)
       if (depMatch) {
         deps.push({
@@ -108,7 +118,9 @@ export function parseCargo(dir: string): Dependency[] {
 
 export function parseGo(dir: string): Dependency[] {
   const modPath = path.join(dir, 'go.mod')
-  if (!existsSync(modPath)) return []
+  if (!existsSync(modPath)) {
+    return []
+  }
 
   const content = readFileSync(modPath, 'utf-8')
   const deps: Dependency[] = []
@@ -127,6 +139,9 @@ export function parseGo(dir: string): Dependency[] {
     }
 
     if (inRequire) {
+      // Matches a line inside a go.mod `require (...)` block, e.g.
+      // `github.com/foo/bar v1.2.3` — group 1 is the module path, group 2
+      // is the version.
       const match = line.trim().match(/^(\S+)\s+(\S+)/)
       if (match) {
         deps.push({
@@ -138,6 +153,9 @@ export function parseGo(dir: string): Dependency[] {
       }
     }
 
+    // Matches a single-line go.mod statement, e.g.
+    // `require github.com/foo/bar v1.2.3` — group 1 is the module path,
+    // group 2 is the version.
     const singleMatch = line.match(/^require\s+(\S+)\s+(\S+)/)
     if (singleMatch) {
       deps.push({
@@ -154,11 +172,15 @@ export function parseGo(dir: string): Dependency[] {
 
 export function parseMaven(dir: string): Dependency[] {
   const pomPath = path.join(dir, 'pom.xml')
-  if (!existsSync(pomPath)) return []
+  if (!existsSync(pomPath)) {
+    return []
+  }
 
   const content = readFileSync(pomPath, 'utf-8')
   const deps: Dependency[] = []
 
+  // Matches a Maven pom.xml <dependency> block — group 1 is groupId, group 2
+  // is artifactId, group 3 (optional) is version, group 4 (optional) is scope.
   const depRegex =
     /<dependency>\s*<groupId>([^<]+)<\/groupId>\s*<artifactId>([^<]+)<\/artifactId>\s*(?:<version>([^<]+)<\/version>)?\s*(?:<scope>([^<]+)<\/scope>)?/g
   let match
@@ -177,7 +199,9 @@ export function parseMaven(dir: string): Dependency[] {
 
 export function parseNpm(dir: string): Dependency[] {
   const pkgPath = path.join(dir, 'package.json')
-  if (!existsSync(pkgPath)) return []
+  if (!existsSync(pkgPath)) {
+    return []
+  }
 
   const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'))
   const deps: Dependency[] = []
@@ -229,6 +253,8 @@ export function parseNuget(dir: string): Dependency[] {
     const entry = entries[i]!
     if (entry.endsWith('.csproj')) {
       const content = readFileSync(path.join(dir, entry), 'utf-8')
+      // Matches a .csproj <PackageReference Include="Name" Version="1.0" />
+      // tag — group 1 is the package name, group 2 is the version.
       const pkgRegex =
         /<PackageReference\s+Include="([^"]+)"\s+Version="([^"]+)"/g
       let match
@@ -254,8 +280,12 @@ export function parsePypi(dir: string): Dependency[] {
     for (let i = 0, { length } = lines; i < length; i += 1) {
       const line = lines[i]!
       const trimmed = line.trim()
-      if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('-'))
+      if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('-')) {
         continue
+      }
+      // Matches a requirements.txt line, e.g. `requests>=2.0` — group 1 is
+      // the package name, group 2 (optional) is the version constraint
+      // (comparison operator(s) followed by a version number).
       const match = trimmed.match(/^([a-zA-Z0-9._-]+)\s*([><=!~]+\s*[\d.]+)?/)
       if (match) {
         deps.push({
@@ -274,8 +304,12 @@ export function parsePypi(dir: string): Dependency[] {
     for (let i = 0, { length } = lines; i < length; i += 1) {
       const line = lines[i]!
       const trimmed = line.trim()
-      if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('-'))
+      if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('-')) {
         continue
+      }
+      // Matches a requirements-dev.txt line, e.g. `pytest>=7.0` — group 1 is
+      // the package name, group 2 (optional) is the version constraint
+      // (comparison operator(s) followed by a version number).
       const match = trimmed.match(/^([a-zA-Z0-9._-]+)\s*([><=!~]+\s*[\d.]+)?/)
       if (match) {
         deps.push({
@@ -292,15 +326,15 @@ export function parsePypi(dir: string): Dependency[] {
 }
 
 const PARSERS: Record<string, (dir: string) => Dependency[]> = {
-  npm: parseNpm,
-  pnpm: parseNpm,
-  yarn: parseNpm,
-  pypi: parsePypi,
+  bundler: parseBundler,
   cargo: parseCargo,
   go: parseGo,
   maven: parseMaven,
-  bundler: parseBundler,
+  npm: parseNpm,
   nuget: parseNuget,
+  pnpm: parseNpm,
+  pypi: parsePypi,
+  yarn: parseNpm,
 }
 
 function main(): void {
@@ -327,7 +361,9 @@ function main(): void {
     const seen = new Set<string>()
     const unique = allDeps.filter(d => {
       const key = `${d.ecosystem}:${d.name}:${d.version}:${d.type}`
-      if (seen.has(key)) return false
+      if (seen.has(key)) {
+        return false
+      }
       seen.add(key)
       return true
     })
@@ -336,8 +372,7 @@ function main(): void {
       JSON.stringify({ dependencies: unique }, null, 2) + '\n',
     )
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err)
-    process.stderr.write(JSON.stringify({ error: message }) + '\n')
+    process.stderr.write(JSON.stringify({ error: errorMessage(err) }) + '\n')
     process.exit(1)
   }
 }

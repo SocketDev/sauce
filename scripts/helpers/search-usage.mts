@@ -7,9 +7,11 @@
  * Outputs JSON: { package, found: boolean, files: [{ path, line, match }] }
  */
 
-import { readFileSync, readdirSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import type { Dirent } from 'node:fs'
 import * as path from 'node:path'
+
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 
 interface UsageMatch {
   path: string
@@ -18,10 +20,10 @@ interface UsageMatch {
 }
 
 const SKIP_DIRS = new Set([
+  '__pycache__',
   '.git',
   '.next',
   '.venv',
-  '__pycache__',
   'bin',
   'build',
   'coverage',
@@ -98,7 +100,11 @@ export function getPatterns(pkg: string, ecosystem?: string): RegExp[] {
   return patterns
 }
 
-export function parseArgs(): { pkg: string; ecosystem?: string; dir: string } {
+export function parseArgs(): {
+  pkg: string
+  ecosystem?: string | undefined
+  dir: string
+} {
   const args = process.argv.slice(2)
   let pkg = ''
   let ecosystem: string | undefined
@@ -135,7 +141,9 @@ export function walkDir(
 
   for (let i = 0, { length } = entries; i < length; i += 1) {
     const entry = entries[i]!
-    if (SKIP_DIRS.has(entry.name)) continue
+    if (SKIP_DIRS.has(entry.name)) {
+      continue
+    }
     const fullPath = path.join(dir, entry.name)
     if (entry.isDirectory()) {
       walkDir(fullPath, callback)
@@ -188,8 +196,7 @@ function main(): void {
       ) + '\n',
     )
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err)
-    process.stderr.write(JSON.stringify({ error: message }) + '\n')
+    process.stderr.write(JSON.stringify({ error: errorMessage(err) }) + '\n')
     process.exit(1)
   }
 }

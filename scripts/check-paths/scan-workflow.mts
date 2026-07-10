@@ -95,8 +95,8 @@ export const scanWorkflowFile = (repoRoot: string, relPath: string): void => {
     while ((m = WORKFLOW_GH_EXPR_PATH_RE.exec(line)) !== null) {
       matches.push(m[0])
     }
-    for (let i = 0, { length } = matches; i < length; i += 1) {
-      const pathStr = matches[i]!
+    for (let mi = 0, { length } = matches; mi < length; mi += 1) {
+      const pathStr = matches[mi]!
       const list = occurrences.get(pathStr) ?? []
       list.push({ line: i + 1, snippet: line.trim(), pathStr })
       occurrences.set(pathStr, list)
@@ -128,6 +128,9 @@ export const scanWorkflowFile = (repoRoot: string, relPath: string): void => {
     if (!/^\s*#/.test(line)) {
       continue
     }
+    // Matches a fully-qualified build-output path, e.g.
+    // `build/dev/mypkg/wasm/out/Final` — the stage/mode/pkg/output-dir shape
+    // paths.mts owns; a comment spelling it out in full is the drift risk.
     const literalShape =
       /build\/(?:dev|prod|shared)\/[a-z0-9-]+\/(?:wasm\/)?out\/(?:Compressed|Final|Optimized|Release|Stripped|Synced)/i
     if (literalShape.test(line)) {

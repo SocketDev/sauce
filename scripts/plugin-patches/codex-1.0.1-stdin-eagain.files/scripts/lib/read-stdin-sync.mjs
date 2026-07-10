@@ -11,15 +11,15 @@
 // in install-claude-plugins.mts copies this file into the cache before applying
 // the diff. Provenance + lifecycle: docs/claude.md/fleet/plugin-cache-patches.md.
 
-import fs from "node:fs";
+import { readSync } from "node:fs";
 
 export function readStdinSync() {
   const chunks = [];
-  const buf = Buffer.alloc(65536);
+  const buf = Buffer.alloc(65_536);
   for (;;) {
     let bytesRead;
     try {
-      bytesRead = fs.readSync(0, buf, 0, buf.length, null);
+      bytesRead = readSync(0, buf, 0, buf.length);
     } catch (e) {
       if (e && (e.code === "EAGAIN" || e.code === "EWOULDBLOCK")) {
         Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 2);

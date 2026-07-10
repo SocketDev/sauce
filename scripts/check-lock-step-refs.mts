@@ -33,7 +33,7 @@
  *   walker failure)
  */
 
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { parseArgs } from 'node:util'
@@ -66,14 +66,14 @@ type Finding = {
   readonly reason: 'unknown-lang' | 'path-not-found'
 }
 
-// Capture-group layout:
-//   1: form keyword — "with" or "from"
-//   2: lang token (letters, digits, +, #, hyphen — covers Rust/Go/C++/TS/Py/Zig)
-//   3: path (no whitespace, no colon; must contain `.` or `/` to avoid
-//      matching prose like "Lock-step with Go: JSON parser")
-//   4: optional `:start[-end]` line range (discarded for path resolution)
+// Named captures: `form` — "with" or "from" (unused, matched for shape only);
+// `lang` — language token (letters, digits, +, #, hyphen — covers
+// Rust/Go/C++/TS/Py/Zig); `refPath` — path (no whitespace, no colon; must
+// contain `.` or `/` to avoid matching prose like "Lock-step with Go: JSON
+// parser"); `range` — optional `:start[-end]` line range (discarded for path
+// resolution).
 const LOCK_STEP_RE =
-  /Lock-step (?:from|with) (?:[A-Za-z][A-Za-z0-9+#-]*): (?:[^\s:,]*[./][^\s:,]*)(?::(?:\d+(?:-\d+)?))?/g
+  /Lock-step (?<form>from|with) (?<lang>[A-Za-z][A-Za-z0-9+#-]*): (?<refPath>[^\s:,]*[./][^\s:,]*)(?::(?<range>\d+(?:-\d+)?))?/g
 
 function loadConfig(repoRoot: string): Config | undefined {
   const configFile = path.join(repoRoot, CONFIG_PATH)
@@ -184,7 +184,7 @@ function scanFile(
     LOCK_STEP_RE.lastIndex = 0
     let match: RegExpExecArray | null
     while ((match = LOCK_STEP_RE.exec(line)) !== null) {
-      const [, , lang, refPath] = match
+      const { lang, refPath } = match.groups!
       const { found, knownLang } = resolveRef(config, repoRoot, lang!, refPath!)
       if (!knownLang) {
         findings.push({
@@ -248,6 +248,10 @@ function main(): void {
     },
     allowPositionals: false,
   })
+  // Intentional process.cwd() — the gate's contract IS "check the repo
+  // you invoke it from" (scripts/test/check-lock-step-refs.test.mts
+  // spawns it against tmpdir fixtures via `cwd`, not the real repo root).
+  // oxlint-disable-next-line socket/no-process-cwd-in-scripts-hooks -- cwd is the intended target repo, not an anchor for this script's own location.
   const repoRoot = process.cwd()
   let config: Config | undefined
   try {

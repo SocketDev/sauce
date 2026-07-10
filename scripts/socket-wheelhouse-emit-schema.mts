@@ -6,10 +6,12 @@
 
 import { writeFileSync } from 'node:fs'
 import path from 'node:path'
+import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
-import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
 import { SocketWheelhouseConfigSchema } from './socket-wheelhouse-schema.mts'
 
@@ -22,23 +24,34 @@ const rootDir = path.resolve(__dirname, '..')
 // `$schema` ref is `./socket-wheelhouse-schema.json`.
 const outPath = path.join(rootDir, '.config', 'socket-wheelhouse-schema.json')
 
-const enriched = {
-  $schema: 'https://json-schema.org/draft/2020-12/schema',
-  $id: 'https://github.com/SocketDev/socket-wheelhouse-schema.json',
-  title: 'socket-wheelhouse per-repo config',
-  ...SocketWheelhouseConfigSchema,
+async function main(): Promise<void> {
+  const enriched = {
+    $schema: 'https://json-schema.org/draft/2020-12/schema',
+    $id: 'https://github.com/SocketDev/socket-wheelhouse-schema.json',
+    title: 'socket-wheelhouse per-repo config',
+    ...SocketWheelhouseConfigSchema,
+  }
+
+  writeFileSync(outPath, JSON.stringify(enriched, null, 2) + '\n', 'utf8')
+
+  // Run oxfmt on the output so the file matches what oxfmt would
+  // produce. Without this, `pnpm run check --all` (which runs oxfmt
+  // over the tree) would flag the emitted schema as drifted on every
+  // repo that re-emits it. The schema is in IDENTICAL_FILES, so the
+  // formatted form is the byte-canonical form fleet-wide.
+  await spawn(
+    'pnpm',
+    ['exec', 'oxfmt', '-c', '.config/oxfmtrc.json', outPath],
+    {
+      cwd: rootDir,
+      stdio: 'inherit',
+    },
+  )
+
+  logger.success(`wrote ${path.relative(rootDir, outPath)}`)
 }
 
-writeFileSync(outPath, JSON.stringify(enriched, null, 2) + '\n', 'utf8')
-
-// Run oxfmt on the output so the file matches what oxfmt would
-// produce. Without this, `pnpm run check --all` (which runs oxfmt
-// over the tree) would flag the emitted schema as drifted on every
-// repo that re-emits it. The schema is in IDENTICAL_FILES, so the
-// formatted form is the byte-canonical form fleet-wide.
-await spawn('pnpm', ['exec', 'oxfmt', '-c', '.config/oxfmtrc.json', outPath], {
-  cwd: rootDir,
-  stdio: 'inherit',
+main().catch((e: unknown) => {
+  logger.error(errorMessage(e))
+  process.exitCode = 1
 })
-
-logger.success(`wrote ${path.relative(rootDir, outPath)}`)

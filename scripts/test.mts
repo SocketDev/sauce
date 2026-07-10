@@ -57,7 +57,7 @@ const ESCALATION_PATTERNS = [
   /^tsconfig.*\.json$/,
   /^\.oxlintrc\.json$/,
   /^\.oxfmtrc\.json$/,
-  /^vitest\.config\.(js|mjs|mts|ts)$/,
+  /^vitest\.config\.(?:js|mjs|mts|ts)$/,
   /^package\.json$/,
   /^lockstep\.schema\.json$/,
 ]

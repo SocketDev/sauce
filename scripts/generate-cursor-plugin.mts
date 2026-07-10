@@ -7,12 +7,12 @@
 import {
   existsSync,
   mkdirSync,
-  readFileSync,
   readdirSync,
+  readFileSync,
   writeFileSync,
 } from 'node:fs'
 import * as path from 'node:path'
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 import { parseFrontmatter } from './lib/frontmatter.mts'
 
 const logger = getDefaultLogger()
@@ -73,21 +73,29 @@ export function buildMcpConfig(): Record<string, unknown> {
 
 export function collectSkillNames(dir?: string): string[] {
   const skillsDir = dir ?? path.join(ROOT, 'skills')
-  if (!existsSync(skillsDir)) return []
+  if (!existsSync(skillsDir)) {
+    return []
+  }
 
   const names: string[] = []
-  const entries = readdirSync(skillsDir, { withFileTypes: true }).sort((a, b) =>
-    a.name.localeCompare(b.name),
+  const entries = readdirSync(skillsDir, { withFileTypes: true }).toSorted(
+    (a, b) => a.name.localeCompare(b.name),
   )
   for (let i = 0, { length } = entries; i < length; i += 1) {
     const entry = entries[i]!
-    if (!entry.isDirectory() || entry.name.startsWith('_')) continue
+    if (!entry.isDirectory() || entry.name.startsWith('_')) {
+      continue
+    }
     const skillMd = path.join(skillsDir, entry.name, 'SKILL.md')
-    if (!existsSync(skillMd)) continue
+    if (!existsSync(skillMd)) {
+      continue
+    }
 
     const meta = parseFrontmatter(readFileSync(skillMd, 'utf-8'))
     const name = meta['name']?.trim()
-    if (name) names.push(name)
+    if (name) {
+      names.push(name)
+    }
 
     // Recurse into subdirectories to discover subskills
     names.push(...collectSkillNames(path.join(skillsDir, entry.name)))
@@ -119,16 +127,21 @@ export function validatePluginName(name: string): void {
 export function writeOrCheck(
   filePath: string,
   content: string,
-  check: boolean,
+  options: { check: boolean },
 ): boolean {
+  const { check } = { __proto__: null, ...options } as typeof options
   let current: string | undefined
   if (existsSync(filePath)) {
     current = readFileSync(filePath, 'utf-8')
   }
 
-  if (current === content) return true
+  if (current === content) {
+    return true
+  }
 
-  if (check) return false
+  if (check) {
+    return false
+  }
 
   const dir = path.dirname(filePath)
   if (!existsSync(dir)) {
@@ -144,17 +157,21 @@ function main(): void {
   const pluginManifest = renderJson(buildCursorPluginManifest())
   const mcpConfig = renderJson(buildMcpConfig())
 
-  const okPlugin = writeOrCheck(
-    CURSOR_PLUGIN_MANIFEST,
-    pluginManifest,
-    checkMode,
-  )
-  const okMcp = writeOrCheck(CURSOR_MCP_CONFIG, mcpConfig, checkMode)
+  const okPlugin = writeOrCheck(CURSOR_PLUGIN_MANIFEST, pluginManifest, {
+    check: checkMode,
+  })
+  const okMcp = writeOrCheck(CURSOR_MCP_CONFIG, mcpConfig, {
+    check: checkMode,
+  })
 
   if (checkMode) {
     const outdated: string[] = []
-    if (!okPlugin) outdated.push(path.relative(ROOT, CURSOR_PLUGIN_MANIFEST))
-    if (!okMcp) outdated.push(path.relative(ROOT, CURSOR_MCP_CONFIG))
+    if (!okPlugin) {
+      outdated.push(path.relative(ROOT, CURSOR_PLUGIN_MANIFEST))
+    }
+    if (!okMcp) {
+      outdated.push(path.relative(ROOT, CURSOR_MCP_CONFIG))
+    }
 
     if (outdated.length > 0) {
       logger.fail('Generated Cursor artifacts are out of date:')

@@ -41,7 +41,7 @@ interface CheckResult {
   readonly fix?: string | undefined
 }
 
-const CACHE_TTL_THRESHOLD_SECONDS = 28800
+const CACHE_TTL_THRESHOLD_SECONDS = 28_800
 
 function isMac(): boolean {
   return os.platform() === 'darwin'
@@ -72,7 +72,7 @@ function parseTtl(content: string, directive: string): number | undefined {
     }
     const re = new RegExp(`^${directive}\\s+(\\d+)\\s*(?:#.*)?$`)
     const m = re.exec(ln)
-    if (m && m[1]) {
+    if (m?.[1]) {
       match = Number(m[1])
     }
   }

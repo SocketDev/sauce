@@ -15,7 +15,7 @@
  *   script is invoked from.
  */
 
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
@@ -148,10 +148,7 @@ function findInvocations(
  * `cmdLine`? Equivalent to `findInvocations(command, cmdLine).length >
  * 0`. The most common audit-pattern shape.
  */
-function commandInvokes(
-  command: string,
-  cmdLine: readonly string[],
-): boolean {
+function commandInvokes(command: string, cmdLine: readonly string[]): boolean {
   return findInvocations(command, cmdLine).length > 0
 }
 
@@ -184,7 +181,7 @@ const PATTERNS: ReadonlyArray<{
         const args = invocations[i]!
         for (let j = 0, { length: al } = args; j < al; j += 1) {
           const a = args[j]
-          if (a !== '-s' && a !== '--scopes') {
+          if (a !== '--scopes' && a !== '-s') {
             continue
           }
           const value = args[j + 1] ?? ''
@@ -240,6 +237,8 @@ const PATTERNS: ReadonlyArray<{
     category: 'security add-/delete-generic-password (keychain write)',
     tool: 'Bash',
     matches: c =>
+      // Matches a macOS `security add-generic-password` / `delete-generic-password`
+      // (or -internet-password) keychain write/delete invocation.
       /\bsecurity\s+(?:add|delete)-(?:generic|internet)-password\b/.test(c) ||
       /\bsecret-tool\s+(?:clear|store)\b/.test(c),
   },
@@ -428,9 +427,12 @@ async function main(): Promise<void> {
       continue
     }
     logger.log(`── ${severity.toUpperCase()} ──`)
-    for (const [category, fs] of entries) {
+    for (let i = 0, { length } = entries; i < length; i += 1) {
+      const [category, fs] = entries[i]!
       logger.log(`  ${category} (${fs.length})`)
-      for (const f of fs.slice(0, 5)) {
+      const top = fs.slice(0, 5)
+      for (let j = 0, { length: topLength } = top; j < topLength; j += 1) {
+        const f = top[j]!
         logger.log(`    line ${f.line}: ${f.evidence}`)
       }
       if (fs.length > 5) {

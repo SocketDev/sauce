@@ -42,7 +42,7 @@ import {
   isAlreadyPublished,
   runCapture,
   runInherit,
-} from './publish-shared.mts'
+} from './fleet/publish-shared.mts'
 
 const logger = getDefaultLogger()
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -93,9 +93,9 @@ async function main(): Promise<void> {
   const otpFromFlag =
     typeof values['otp'] === 'string' ? values['otp'] : undefined
   if (values['staged']) {
-    await runStaged(String(values['tag']), dryRun)
+    await runStaged(String(values['tag']), { dryRun })
   } else {
-    await runApprove(dryRun, otpFromFlag)
+    await runApprove({ dryRun, otpFromFlag })
   }
 }
 
@@ -108,7 +108,11 @@ async function main(): Promise<void> {
  * when GITHUB_ACTIONS is set so the OIDC token gets embedded into the
  * provenance attestation.
  */
-async function runStaged(tag: string, dryRun: boolean): Promise<void> {
+async function runStaged(
+  tag: string,
+  options: { dryRun: boolean },
+): Promise<void> {
+  const { dryRun } = { __proto__: null, ...options } as typeof options
   const pkg = readPackageJson()
   logger.log(
     `Staging ${pkg.name}@${pkg.version} (tag=${tag})${dryRun ? ' [dry-run]' : ''}`,
@@ -168,10 +172,14 @@ async function runStaged(tag: string, dryRun: boolean): Promise<void> {
  * approve calls in the same batch — npm accepts the same TOTP within its ~30s
  * validity window.
  */
-async function runApprove(
-  dryRun: boolean,
-  otpFromFlag: string | undefined,
-): Promise<void> {
+async function runApprove(options: {
+  dryRun: boolean
+  otpFromFlag: string | undefined
+}): Promise<void> {
+  const { dryRun, otpFromFlag } = {
+    __proto__: null,
+    ...options,
+  } as typeof options
   const staged = await listStagedPackages()
   if (staged.length === 0) {
     logger.log('No packages currently staged.')
@@ -301,7 +309,9 @@ async function listStagedPackages(): Promise<StageListEntry[]> {
       StageListEntry | undefined
     >
     const result: StageListEntry[] = []
-    for (const entry of Object.values(parsed)) {
+    const entries = Object.values(parsed)
+    for (let i = 0, { length } = entries; i < length; i += 1) {
+      const entry = entries[i]!
       if (entry?.stageId) {
         result.push(entry)
       }

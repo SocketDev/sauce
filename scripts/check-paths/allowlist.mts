@@ -156,7 +156,7 @@ export const loadAllowlist = (repoRoot: string): AllowlistEntry[] => {
         blockKind === '>'
           ? blockLines.join(' ').replace(/\s+/g, ' ').trim()
           : blockLines.join('\n').replace(/\n+$/, '')
-      ;(current as any)[blockKey] = value
+      ;(current as Record<string, unknown>)[blockKey] = value
     }
     blockKey = undefined
     blockKind = undefined
@@ -204,22 +204,26 @@ export const loadAllowlist = (repoRoot: string): AllowlistEntry[] => {
         blockLines = []
         return
       }
-      ;(current as any)[key] =
+      ;(current as Record<string, unknown>)[key] =
         key === 'line' ? Number(unquote(trimmed)) : unquote(trimmed)
     }
     if (line.startsWith('- ')) {
-      if (current && current.reason) {
+      if (current?.reason) {
         entries.push(current as AllowlistEntry)
       }
       current = {}
       const rest = line.slice(2).trim()
       if (rest) {
+        // Matches a `key: value` pair on a YAML list-entry line, e.g.
+        // `- pattern: foo/**` — group 1 is the key, group 2 is the value.
         const m = rest.match(/^([\w-]+):\s*(.*)$/)
         if (m) {
           tryAssign(m[1]!, m[2]!)
         }
       }
     } else if (current) {
+      // Matches an indented `key: value` line (a field nested under a list
+      // entry) — group 1 is the key, group 2 is the value.
       const m = line.match(/^\s+([\w-]+):\s*(.*)$/)
       if (m) {
         tryAssign(m[1]!, m[2]!)
@@ -229,7 +233,7 @@ export const loadAllowlist = (repoRoot: string): AllowlistEntry[] => {
   if (blockKey !== null) {
     flushBlock()
   }
-  if (current && current.reason) {
+  if (current?.reason) {
     entries.push(current as AllowlistEntry)
   }
   return entries

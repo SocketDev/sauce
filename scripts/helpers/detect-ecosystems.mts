@@ -10,15 +10,21 @@
 import { existsSync, readdirSync } from 'node:fs'
 import * as path from 'node:path'
 
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+
 interface EcosystemMatch {
   name: string
   manifests: string[]
 }
 
 const ECOSYSTEM_PATTERNS: Record<string, string[]> = {
+  bundler: ['Gemfile', 'Gemfile.lock'],
+  cargo: ['Cargo.toml', 'Cargo.lock'],
+  go: ['go.mod', 'go.sum'],
+  maven: ['pom.xml'],
   npm: ['package.json', 'package-lock.json'],
+  nuget: ['*.csproj', 'packages.config'],
   pnpm: ['package.json', 'pnpm-lock.yaml'],
-  yarn: ['package.json', 'yarn.lock'],
   pypi: [
     'requirements.txt',
     'requirements-dev.txt',
@@ -27,11 +33,7 @@ const ECOSYSTEM_PATTERNS: Record<string, string[]> = {
     'setup.cfg',
     'Pipfile',
   ],
-  cargo: ['Cargo.toml', 'Cargo.lock'],
-  bundler: ['Gemfile', 'Gemfile.lock'],
-  maven: ['pom.xml'],
-  nuget: ['*.csproj', 'packages.config'],
-  go: ['go.mod', 'go.sum'],
+  yarn: ['package.json', 'yarn.lock'],
 }
 
 export function detectEcosystems(dir: string): EcosystemMatch[] {
@@ -57,10 +59,15 @@ export function detectEcosystems(dir: string): EcosystemMatch[] {
 
     if (found.length > 0) {
       // Differentiate npm/pnpm/yarn by lock file
-      if (ecosystem === 'npm' && !entries.includes('package-lock.json'))
+      if (ecosystem === 'npm' && !entries.includes('package-lock.json')) {
         continue
-      if (ecosystem === 'pnpm' && !entries.includes('pnpm-lock.yaml')) continue
-      if (ecosystem === 'yarn' && !entries.includes('yarn.lock')) continue
+      }
+      if (ecosystem === 'pnpm' && !entries.includes('pnpm-lock.yaml')) {
+        continue
+      }
+      if (ecosystem === 'yarn' && !entries.includes('yarn.lock')) {
+        continue
+      }
 
       results.push({
         name: ecosystem,
@@ -80,7 +87,7 @@ export function detectEcosystems(dir: string): EcosystemMatch[] {
     })
   }
 
-  return results.sort((a, b) => a.name.localeCompare(b.name))
+  return results.toSorted((a, b) => a.name.localeCompare(b.name))
 }
 
 export function matchesPattern(filename: string, pattern: string): boolean {
@@ -107,8 +114,7 @@ function main(): void {
     const ecosystems = detectEcosystems(dir)
     process.stdout.write(JSON.stringify({ ecosystems }, null, 2) + '\n')
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err)
-    process.stderr.write(JSON.stringify({ error: message }) + '\n')
+    process.stderr.write(JSON.stringify({ error: errorMessage(err) }) + '\n')
     process.exit(1)
   }
 }

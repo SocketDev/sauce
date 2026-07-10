@@ -1,4 +1,5 @@
 #!/usr/bin/env pnpm dlx tsx
+/* eslint-disable no-shadow -- nested cached-length for-loops intentionally reuse `i`/`length` names for the fleet-wide cached-loop idiom; renaming would diverge from the codebase pattern. */
 /**
  * Detect CI/CD system from project config files.
  *
@@ -9,7 +10,9 @@
 
 import { existsSync, readdirSync } from 'node:fs'
 import * as path from 'node:path'
-import { execSync } from 'node:child_process'
+
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 
 interface CISystem {
   system: string
@@ -18,7 +21,7 @@ interface CISystem {
 
 interface SCMInfo {
   provider: string
-  remote?: string
+  remote?: string | undefined
 }
 
 const CI_PATTERNS: Array<{ system: string; path: string }> = [
@@ -68,24 +71,10 @@ export function detectCI(dir: string): CISystem[] {
 }
 
 export function detectSCM(dir: string): SCMInfo {
-  try {
-    const remote = execSync('git remote get-url origin', {
-      cwd: dir,
-      stdio: ['pipe', 'pipe', 'pipe'],
-      encoding: 'utf-8',
-    }).trim()
-
-    if (remote.includes('github.com')) {
-      return { provider: 'github', remote }
-    }
-    if (remote.includes('gitlab.com') || remote.includes('gitlab')) {
-      return { provider: 'gitlab', remote }
-    }
-    if (remote.includes('bitbucket.org')) {
-      return { provider: 'bitbucket', remote }
-    }
-    return { provider: 'other', remote }
-  } catch {
+  const result = spawnSync('git', ['remote', 'get-url', 'origin'], {
+    cwd: dir,
+  })
+  if (result.status !== 0) {
     // Not a git repo or no remote
     const isGit = existsSync(path.join(dir, '.git'))
     if (isGit) {
@@ -93,6 +82,18 @@ export function detectSCM(dir: string): SCMInfo {
     }
     return { provider: 'none' }
   }
+
+  const remote = String(result.stdout).trim()
+  if (remote.includes('github.com')) {
+    return { provider: 'github', remote }
+  }
+  if (remote.includes('gitlab.com') || remote.includes('gitlab')) {
+    return { provider: 'gitlab', remote }
+  }
+  if (remote.includes('bitbucket.org')) {
+    return { provider: 'bitbucket', remote }
+  }
+  return { provider: 'other', remote }
 }
 
 export function parseArgs(): { dir: string } {
@@ -113,8 +114,7 @@ function main(): void {
     const scm = detectSCM(dir)
     process.stdout.write(JSON.stringify({ ci, scm }, null, 2) + '\n')
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err)
-    process.stderr.write(JSON.stringify({ error: message }) + '\n')
+    process.stderr.write(JSON.stringify({ error: errorMessage(err) }) + '\n')
     process.exit(1)
   }
 }

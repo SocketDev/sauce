@@ -33,9 +33,9 @@
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
-import { fileURLToPath } from 'node:url'
 import { parseArgs } from 'node:util'
 
+import { REPO_ROOT } from '../fleet/paths.mts'
 import { isAllowlisted, loadAllowlist, snippetHash } from './allowlist.mts'
 import { isExempt } from './exempt.mts'
 import { checkRuleF } from './rules.mts'
@@ -49,19 +49,13 @@ import { walk } from './walk.mts'
 // the gate is self-contained and works in socket-lib itself (which
 // would otherwise import itself).
 const logger = {
-  log: (msg: string) => process.stdout.write(msg + '\n'),
   error: (msg: string) => process.stderr.write(msg + '\n'),
+  log: (msg: string) => process.stdout.write(msg + '\n'),
   step: (msg: string) => process.stdout.write(`→ ${msg}\n`),
+  substep: (msg: string) => process.stdout.write(`  ${msg}\n`),
   // oxlint-disable-next-line socket/no-status-emoji -- local logger replica; can't import lib's logger because this gate runs in socket-lib itself.
   success: (msg: string) => process.stdout.write(`✔ ${msg}\n`),
-  substep: (msg: string) => process.stdout.write(`  ${msg}\n`),
 }
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-// `cli.mts` lives one level deeper than the original `check-paths.mts`,
-// so REPO_ROOT walks up two parents instead of one.
-const REPO_ROOT = path.resolve(__dirname, '..', '..')
 
 const args = parseArgs({
   options: {

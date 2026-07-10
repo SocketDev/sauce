@@ -1,4 +1,5 @@
 #!/usr/bin/env pnpm dlx tsx
+/* eslint-disable no-shadow -- nested cached-length for-loops intentionally reuse `i`/`length` names for the fleet-wide cached-loop idiom; renaming would diverge from the codebase pattern. */
 /**
  * Inline shared content into SKILL.md files.
  *
@@ -14,9 +15,9 @@
  * Run as part of the publish pipeline to keep shared sections in sync.
  */
 
-import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import * as path from 'node:path'
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 
 const logger = getDefaultLogger()
 
@@ -37,7 +38,9 @@ export function findSkillFiles(dir: string): string[] {
   const entries = readdirSync(dir, { withFileTypes: true })
   for (let i = 0, { length } = entries; i < length; i += 1) {
     const entry = entries[i]!
-    if (entry.name.startsWith('_')) continue
+    if (entry.name.startsWith('_')) {
+      continue
+    }
     const full = path.join(dir, entry.name)
     if (entry.isDirectory()) {
       const skillMd = path.join(full, 'SKILL.md')

@@ -1,4 +1,5 @@
 #!/usr/bin/env pnpm dlx tsx
+/* eslint-disable no-shadow -- nested cached-length for-loops intentionally reuse `i`/`length` names for the fleet-wide cached-loop idiom; renaming would diverge from the codebase pattern. */
 /**
  * Generate AGENTS.md from AGENTS_TEMPLATE.md and SKILL.md frontmatter.
  *
@@ -8,7 +9,7 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import * as path from 'node:path'
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 import {
   collectSkills,
   validateMarketplace,
@@ -98,7 +99,9 @@ export function generateReadmeTable(skills: Skill[]): string {
   for (let i = 0, { length } = CATEGORIES; i < length; i += 1) {
     const [key, def] = CATEGORIES[i]!
     const catSkills = grouped.get(key)
-    if (!catSkills || catSkills.length === 0) continue
+    if (!catSkills || catSkills.length === 0) {
+      continue
+    }
 
     lines.push(`#### ${def.label}`)
     lines.push('')
@@ -129,11 +132,15 @@ export function generateReadmeTable(skills: Skill[]): string {
 }
 
 export function getCategory(skillName: string): string {
-  if (skillName === 'socket-setup') return 'setup'
-  if (skillName === 'socket-inspect' || skillName === 'socket-scan')
+  if (skillName === 'socket-setup') {
+    return 'setup'
+  }
+  if (skillName === 'socket-inspect' || skillName === 'socket-scan') {
     return 'analysis'
-  if (skillName.startsWith('socket-dep-') || skillName === 'socket-fix')
+  }
+  if (skillName.startsWith('socket-dep-') || skillName === 'socket-fix') {
     return 'fix'
+  }
   return 'setup'
 }
 
@@ -217,7 +224,8 @@ function main(): void {
 
   const errors = validateMarketplace(SKILLS_DIR, MARKETPLACE_PATH)
   if (errors.length > 0) {
-    logger.fail('\nMarketplace.json validation errors:')
+    logger.error('')
+    logger.fail('Marketplace.json validation errors:')
     for (let i = 0, { length } = errors; i < length; i += 1) {
       const error = errors[i]!
       logger.fail(`  - ${error.message}`)

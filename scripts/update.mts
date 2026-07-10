@@ -68,8 +68,14 @@ const steps: Array<[string, string[]]> = [
   ['pnpm', ['install']],
 ]
 
-for (const [cmd, args] of steps) {
-  if (!(await run(cmd, args))) {
-    break
+async function main(): Promise<void> {
+  for (const [cmd, args] of steps) {
+    if (!(await run(cmd, args))) {
+      break
+    }
   }
 }
+
+main().catch((e: unknown) => {
+  process.exitCode = (e as { code?: number | undefined }).code ?? 1
+})

@@ -19,6 +19,7 @@
 import { existsSync } from 'node:fs'
 import process from 'node:process'
 
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
@@ -48,7 +49,7 @@ async function run(
     }
     return 0
   } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e)
+    const msg = errorMessage(e)
     if (!required) {
       logger.warn(`${label || cmd}: ${msg} (non-blocking)`)
       return 0
@@ -106,7 +107,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((e: unknown) => {
-  const msg = e instanceof Error ? e.message : String(e)
-  logger.error(msg)
+  logger.error(errorMessage(e))
   process.exitCode = 1
 })

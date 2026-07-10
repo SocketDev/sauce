@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * @fileoverview Validates that no package.json files contain link: dependencies.
+ * @file Validates that no package.json files contain link: dependencies.
  * Link dependencies are prohibited - use workspace: or catalog: instead.
  */
 
@@ -9,7 +9,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
-import { getDefaultLogger } from '@socketsecurity/lib/logger'
+import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 
 const logger = getDefaultLogger()
 
