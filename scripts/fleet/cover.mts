@@ -13,18 +13,25 @@
  *   --summary hide the detailed v8 table, show only the summary.
  */
 
-import path from 'node:path'
 import process from 'node:process'
 
 import { stripAnsi } from '@socketsecurity/lib-stable/ansi/strip'
 import { parseArgs } from '@socketsecurity/lib-stable/argv/parse'
-import { errorMessage } from '@socketsecurity/lib-stable/errors'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
+
+import {
+  registerActiveRun,
+  unregisterActiveRun,
+} from './_shared/active-run-marker.mts'
 import { printHeader } from '@socketsecurity/lib-stable/stdio/header'
 
 import type { AggregateCoverage } from './util/coverage-merge.mts'
-import { mergeCoverageFinal } from './util/coverage-merge.mts'
+import {
+  MissingTierCoverageError,
+  mergeCoverageFinal,
+} from './util/coverage-merge.mts'
 import type { CoverThresholds, ResolvedSuite } from './cover/discovery.mts'
 import {
   readCoverConfig,
@@ -55,8 +62,17 @@ export function checkThresholds(
   aggregate: AggregateCoverage | undefined,
   thresholds: CoverThresholds | undefined,
 ): string[] {
-  if (!thresholds || !aggregate) {
+  if (!thresholds) {
     return []
+  }
+  // Fail CLOSED: thresholds are configured, so a missing aggregate (e.g. a
+  // tier clobbered coverage/coverage-final.json before the merge read it)
+  // must fail the gate — returning "no failures" here shipped a false-green
+  // run that reported success below its configured minimums.
+  if (!aggregate) {
+    return [
+      'aggregate coverage unavailable (coverage-final.json missing or empty) — cannot verify thresholds',
+    ]
   }
   const failures: string[] = []
   const metrics: ReadonlyArray<keyof CoverThresholds> = [
@@ -97,7 +113,7 @@ export async function runQuiet(
   args: string[],
   options: { cwd: string; env?: NodeJS.ProcessEnv | undefined },
 ): Promise<SuiteResult> {
-  options = { __proto__: null, ...options }
+  options = { __proto__: null, ...options } as typeof options
   try {
     const result = await spawn('pnpm', args, {
       cwd: options.cwd,
@@ -126,6 +142,39 @@ export function parseTypeCoveragePercent(output: string): number | undefined {
   // ([\d.]+)%  — capture group 1: the percentage digits before the "%" sign
   const match = output.match(/\([\d\s/]+\)\s+([\d.]+)%/)
   return match?.[1] ? Number.parseFloat(match[1]) : undefined
+}
+
+// Explain a failing suite: vitest prints its per-config coverage-threshold
+// misses (e.g. "ERROR: Coverage for branches (46.92%) does not meet global
+// threshold (49%)") to the suite's own output, which the summary display
+// filters out — a bare "Coverage failed" strands the operator without the
+// failing metric. Returns the error-ish lines from the suite output (deduped,
+// capped), falling back to the output tail; empty for a passing suite.
+export function extractSuiteFailureLines(
+  name: string,
+  result: SuiteResult,
+): string[] {
+  if (result.exitCode === 0) {
+    return []
+  }
+  const maxLines = 12
+  const lines = cleanOutput(result.stdout + result.stderr)
+    .split('\n')
+    .map(line => line.trim())
+    .filter(Boolean)
+  const errorLines = [
+    ...new Set(
+      lines.filter(line =>
+        // `ERROR` keyword; vitest coverage threshold message ("does not meet"
+        // / "threshold"); vitest final summary line ("Tests N failed").
+        /\bERROR\b|does not meet|threshold|Tests\s+\d+\s+failed/i.test(line),
+      ),
+    ),
+  ]
+  const detail = (errorLines.length > 0 ? errorLines : lines.slice(-maxLines))
+    .slice(0, maxLines)
+    .map(line => `  ${line}`)
+  return [`${name} suite failed (exit ${result.exitCode}):`, ...detail]
 }
 
 // Run the main suite and, when isolatedArgs is provided, the isolated suite.
@@ -329,7 +378,7 @@ export async function main(): Promise<void> {
         logger.log('')
       }
     } else {
-      const { combined, mainResult } = await runTestSuites(
+      const { combined, isolatedResult, mainResult } = await runTestSuites(
         mainVitestArgs,
         isolatedVitestArgs,
       )
@@ -349,13 +398,33 @@ export async function main(): Promise<void> {
         typeCoveragePercent = parseTypeCoveragePercent(typeCoverageOutput)
       }
 
+      // Disabled seam (#213 step 1): strict-tier enforcement. A suite that ran
+      // must have produced its tier's coverage-final.json; a dropped tier
+      // silently narrows the merge and over-reports (a false-green). Gated OFF
+      // by default — the 'shared' tier always runs, 'isolated' only when its
+      // suite is resolved. Flip on with FLEET_COVER_STRICT_TIERS=1 once a
+      // supervised `cover` run confirms the wheelhouse emits every resolved
+      // tier; step 2 promotes this gate into `.config/repo/cover.json`.
+      const expectedTiers =
+        process.env['FLEET_COVER_STRICT_TIERS'] === '1'
+          ? ['shared', ...(isolatedSuite ? ['isolated'] : [])]
+          : undefined
       let aggregateCoverage: AggregateCoverage | undefined
       try {
-        aggregateCoverage = await mergeCoverageFinal({ rootPath, logger })
+        aggregateCoverage = await mergeCoverageFinal({
+          expectedTiers,
+          logger,
+          rootPath,
+        })
       } catch (e) {
-        logger.warn(
-          `Could not compute aggregate coverage: ${e instanceof Error ? e.message : 'Unknown error'}`,
-        )
+        if (e instanceof MissingTierCoverageError) {
+          logger.error(`Coverage tier dropped: ${errorMessage(e)}`)
+          exitCode = exitCode === 0 ? 1 : exitCode
+        } else {
+          logger.warn(
+            `Could not compute aggregate coverage: ${errorMessage(e)}`,
+          )
+        }
       }
 
       displayCodeCoverage(mainOutput, combinedOutput, aggregateCoverage, {
@@ -374,6 +443,22 @@ export async function main(): Promise<void> {
           `Coverage below threshold: ${thresholdFailures.join(', ')}`,
         )
         exitCode = exitCode === 0 ? 1 : exitCode
+      }
+
+      // A failing suite must say WHY before the terminal "Coverage failed":
+      // per-suite vitest errors (config-level threshold misses, test
+      // failures) live only in the captured suite output.
+      if (combined.exitCode !== 0) {
+        const failureLines = [
+          ...extractSuiteFailureLines('main', mainResult),
+          ...(isolatedResult
+            ? extractSuiteFailureLines('isolated', isolatedResult)
+            : []),
+        ]
+        for (let i = 0, { length } = failureLines; i < length; i += 1) {
+          const line = failureLines[i]!
+          logger.error(line)
+        }
       }
     }
 
@@ -394,7 +479,16 @@ export async function main(): Promise<void> {
   }
 }
 
-main().catch((e: unknown) => {
-  logger.error(`Coverage script failed: ${errorMessage(e)}`)
-  process.exitCode = 1
-})
+// Coverage legitimately runs vitest workers hot for many minutes; the
+// active-run marker tells the stale-process-sweeper's stuck heuristic this
+// worker tree is healthy on-purpose work, not a wedge (see
+// scripts/fleet/_shared/active-run-marker.mts for the contract).
+registerActiveRun()
+main()
+  .catch((e: unknown) => {
+    logger.error(`Coverage script failed: ${errorMessage(e)}`)
+    process.exitCode = 1
+  })
+  .finally(() => {
+    unregisterActiveRun()
+  })

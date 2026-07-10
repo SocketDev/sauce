@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/**
+/*
  * @file Resolve a recorded MEMORY lesson into its two canonical code surfaces
  *   via the socket-lib AI helper — so nobody hand-juggles the 40KB CLAUDE.md
  *   byte budget or the defer-to-docs split again. The flow is: (1) record the
@@ -30,7 +30,7 @@ import process from 'node:process'
 import { AI_PROFILE } from '@socketsecurity/lib-stable/ai/profiles'
 import { spawnAiAgent } from '@socketsecurity/lib-stable/ai/spawn'
 import { discoverAiAgents } from '@socketsecurity/lib-stable/ai/discover'
-import { errorMessage } from '@socketsecurity/lib-stable/errors'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import { REPO_ROOT } from './paths.mts'
@@ -128,18 +128,18 @@ export function parseArgs(argv: readonly string[]): CodifyArgs {
 // The CLAUDE.md section to append the bullet under, by scope.
 function sectionAnchor(section: 'fleet' | 'repo'): string {
   return section === 'fleet'
-    ? 'the `## 📚 Wheelhouse Standards` fleet-canonical block (between the BEGIN/END FLEET-CANONICAL markers)'
-    : 'the `## 🏗️ …-Specific` project section (the repo-owned postamble, OUTSIDE the FLEET-CANONICAL markers)'
+    ? 'the `## 📚 Wheelhouse Standards` fleet-canonical block (between the `<fleet-canonical>` markers)'
+    : 'the `## 🏗️ …-Specific` project section (the repo-owned postamble, OUTSIDE the `<fleet-canonical>` markers)'
 }
 
 export function buildPrompt(args: CodifyArgs): string {
   const docRel = `docs/agents.md/${args.section}/${args.topic}.md`
   const claudeRel =
-    args.section === 'fleet' ? 'template/CLAUDE.md' : 'CLAUDE.md'
+    args.section === 'fleet' ? 'template/base/CLAUDE.md' : 'CLAUDE.md'
   return [
     'You are codifying ONE recorded lesson into its two canonical code surfaces. The MEMORY below is your source of truth — it captures the rule AND the *why*. Make exactly two edits and nothing else.',
     '',
-    `1. In ${claudeRel}, inside ${sectionAnchor(args.section)}, add a single terse \`-\` bullet (or fold into the nearest related bullet) that states the rule in ONE line and links to the detail doc \`${docRel}\`. HARD CONSTRAINT: the whole file must stay UNDER 40960 bytes and every \`###\` section body must stay ≤8 lines — so the bullet is a pointer + one-line "why", never the full prose. If the section is near the cap, tighten neighboring wording to make room; do not exceed the cap. Use the fleet voice (imperative, terse, 🚨 only for hard rules). Drop the memory's frontmatter, dates/SHAs/percentages, and any machine-local paths from what you write (generic, timeless phrasing).`,
+    `1. In ${claudeRel}, inside ${sectionAnchor(args.section)}, add a single terse \`-\` bullet (or fold into the nearest related bullet) that states the rule in ONE line and links to the detail doc \`${docRel}\`. HARD CONSTRAINT: the whole file must stay UNDER 40960 bytes and every \`###\` section body must stay ≤8 lines — so the bullet is a pointer + one-line "why", never the full prose. BIAS HARD TOWARD THE DOC: CLAUDE.md is an INDEX, not a manual — push every word of detail into \`docs/agents.md/{fleet,repo}/*\` and leave only the one-line rule + doc link behind. When a \`###\` section is already dense, prefer COLLAPSING its prose bullets into a compact reference list of \`[topic](docs/agents.md/${args.section}/<topic>.md)\` links (the detail already lives in those docs) rather than carrying the prose inline; if the section is near the cap, tighten or relocate neighboring wording into its doc to make room — never exceed the cap. Use the fleet voice (imperative, terse, 🚨 only for hard rules). Drop the memory's frontmatter, dates/SHAs/percentages, and any machine-local paths from what you write (generic, timeless phrasing).`,
     `2. Create or extend ${docRel} with the lesson as well-structured markdown (lowercase-kebab filename; level-1 title; sections for What / Why / How to apply / Enforcement). This doc is where all the prose lives — expand the memory's "why" + "how to apply" into full guidance. Keep it generic (no dates/SHAs/personal paths).`,
     '',
     '--- MEMORY (source of truth; do NOT copy verbatim — resolve it into the two surfaces) ---',
@@ -155,7 +155,7 @@ export async function main(): Promise<void> {
   const prompt = buildPrompt(args)
   const docRel = `docs/agents.md/${args.section}/${args.topic}.md`
   const claudeRel =
-    args.section === 'fleet' ? 'template/CLAUDE.md' : 'CLAUDE.md'
+    args.section === 'fleet' ? 'template/base/CLAUDE.md' : 'CLAUDE.md'
 
   logger.log(`codify-rule: section=${args.section} topic=${args.topic}`)
   logger.log(`  CLAUDE.md:  ${claudeRel} (add/fold a terse bullet)`)

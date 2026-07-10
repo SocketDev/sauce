@@ -34,6 +34,22 @@ export interface CoverageMergeLogger {
   warn: (message: string) => void
 }
 
+// Thrown when an EXPECTED coverage tier produced no coverage-final.json — a
+// suite that ran but dropped its report. Silently skipping it computes the
+// aggregate over FEWER tiers and over-reports (a coverage false-green). Callers
+// opt into this hard failure by passing `expectedTiers`; cover.mts treats it as
+// a non-zero exit, distinct from the general merge warning.
+export class MissingTierCoverageError extends Error {
+  readonly missingTiers: readonly string[]
+  constructor(missingTiers: readonly string[]) {
+    super(
+      `missing coverage for expected tier(s): ${missingTiers.join(', ')} — each ran but produced no coverage-final.json (a dropped tier over-reports the aggregate)`,
+    )
+    this.name = 'MissingTierCoverageError'
+    this.missingTiers = missingTiers
+  }
+}
+
 function pct(covered: number, total: number): string {
   return total > 0 ? ((covered / total) * 100).toFixed(2) : '0.00'
 }
@@ -44,8 +60,12 @@ function pct(covered: number, total: number): string {
 export async function mergeCoverageFinal(options: {
   rootPath: string
   logger: CoverageMergeLogger
+  expectedTiers?: readonly string[] | undefined
 }): Promise<AggregateCoverage | undefined> {
-  const { logger, rootPath } = { __proto__: null, ...options }
+  const { expectedTiers, logger, rootPath } = {
+    __proto__: null,
+    ...options,
+  } as typeof options
   const mainFinalPath = path.join(rootPath, 'coverage/coverage-final.json')
   const isolatedFinalPath = path.join(
     rootPath,
@@ -54,11 +74,16 @@ export async function mergeCoverageFinal(options: {
 
   let mainFinal: Record<string, CoverageFileFinal> = {}
   let isolatedFinal: Record<string, CoverageFileFinal> = {}
+  // Track whether each tier's report was readable — a dropped (missing) tier is
+  // the coverage false-green the strict-tier gate below catches.
+  let isolatedTierPresent = false
+  let sharedTierPresent = false
   try {
     mainFinal = JSON.parse(await fs.readFile(mainFinalPath, 'utf8')) as Record<
       string,
       CoverageFileFinal
     >
+    sharedTierPresent = true
   } catch (e) {
     const err = e as NodeJS.ErrnoException | null
     if (err?.code !== 'ENOENT') {
@@ -69,10 +94,26 @@ export async function mergeCoverageFinal(options: {
     isolatedFinal = JSON.parse(
       await fs.readFile(isolatedFinalPath, 'utf8'),
     ) as Record<string, CoverageFileFinal>
+    isolatedTierPresent = true
   } catch (e) {
     const err = e as NodeJS.ErrnoException | null
     if (err?.code !== 'ENOENT') {
       logger.warn(`Failed to read ${isolatedFinalPath}: ${err?.message}`)
+    }
+  }
+
+  // Strict-tier gate (#213): every tier a caller says SHOULD have run must have
+  // produced its coverage-final.json. A missing expected tier throws rather
+  // than silently narrowing the aggregate. Opt-in — an empty `expectedTiers`
+  // (or omitting it) preserves the prior report-only behavior.
+  if (expectedTiers?.length) {
+    const present: Record<string, boolean> = {
+      isolated: isolatedTierPresent,
+      shared: sharedTierPresent,
+    }
+    const missing = expectedTiers.filter(tier => !present[tier])
+    if (missing.length) {
+      throw new MissingTierCoverageError(missing)
     }
   }
 
@@ -117,10 +158,14 @@ export async function mergeCoverageFinal(options: {
       const id = allBranchKeys[i]!
       const mainArr = main?.b?.[id] ?? []
       const isoArr = iso?.b?.[id] ?? []
-      const len = Math.max(mainArr.length, isoArr.length)
-      mergedB[id] = Array.from({ length: len }, (value, j) =>
-        Math.max(mainArr[j] ?? 0, isoArr[j] ?? 0),
-      )
+      // Merge element-wise up to the longer array; iterate over it so the
+      // cached-length `{ length }` form applies (the bound is its length).
+      const longer = mainArr.length >= isoArr.length ? mainArr : isoArr
+      const branchCounts: number[] = []
+      for (let j = 0, { length } = longer; j < length; j += 1) {
+        branchCounts[j] = Math.max(mainArr[j] ?? 0, isoArr[j] ?? 0)
+      }
+      mergedB[id] = branchCounts
     }
     for (let i = 0, { length } = allBranchKeys; i < length; i += 1) {
       const id = allBranchKeys[i]!
