@@ -1,4 +1,4 @@
-import { spawn } from '@socketsecurity/lib/spawn'
+import { spawn } from '@socketsecurity/lib/process/spawn/child'
 import type { AgentAdapter, RunPromptOptions } from './types.mts'
 import type { AgentResponse } from '../assertions.mts'
 
@@ -27,12 +27,13 @@ export class ClaudeCodeAdapter implements AgentAdapter {
         stdio: ['ignore', 'pipe', 'pipe'],
         env: cleanEnv(),
       })
-      proc.process.on('close', code => resolve(code === 0))
+      proc.process.on('close', (code: number | null) => resolve(code === 0))
       proc.process.on('error', () => resolve(false))
     })
   }
 
-  async runPrompt(opts: RunPromptOptions): Promise<AgentResponse> {
+  async runPrompt(options: RunPromptOptions): Promise<AgentResponse> {
+    const opts = { __proto__: null, ...options } as typeof options
     const timeout = opts.timeoutMs ?? 120_000
 
     return new Promise((resolve, reject) => {
@@ -71,7 +72,7 @@ export class ClaudeCodeAdapter implements AgentAdapter {
         )
       }, timeout)
 
-      proc.process.on('close', code => {
+      proc.process.on('close', (code: number | null) => {
         clearTimeout(timer)
 
         if (code !== 0 && !stdout) {
@@ -85,12 +86,14 @@ export class ClaudeCodeAdapter implements AgentAdapter {
 
         try {
           const parsed = JSON.parse(stdout) as {
-            result?: string
-            subtype?: string
-            tool_calls?: Array<{
-              name: string
-              args?: Record<string, unknown>
-            }>
+            result?: string | undefined
+            subtype?: string | undefined
+            tool_calls?:
+              | Array<{
+                  name: string
+                  args?: Record<string, unknown> | undefined
+                }>
+              | undefined
           }
 
           // When result is present, use it. When the agent hit max turns

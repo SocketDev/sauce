@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import * as path from 'node:path'
 import { validateMarketplace } from '../../scripts/lib/validate-marketplace.mts'
 
@@ -25,7 +25,7 @@ export function getSkillDirs(): string[] {
   return readdirSync(SKILLS_DIR, { withFileTypes: true })
     .filter(e => e.isDirectory() && !e.name.startsWith('_'))
     .map(e => e.name)
-    .sort()
+    .toSorted()
 }
 
 export function loadJSON(relPath: string): unknown {

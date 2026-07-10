@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import * as path from 'node:path'
 import { parseFrontmatter } from '../../scripts/lib/frontmatter.mts'
 
@@ -37,23 +37,25 @@ function getAllSkillPaths(): string[] {
       paths.push(`${dir}/${subs[j]!}`)
     }
   }
-  return paths.sort()
+  return paths.toSorted()
 }
 
 export function getSkillDirs(): string[] {
   return readdirSync(SKILLS_DIR, { withFileTypes: true })
     .filter(e => e.isDirectory() && !e.name.startsWith('_'))
     .map(e => e.name)
-    .sort()
+    .toSorted()
 }
 
 export function getSubSkillDirs(parent: string): string[] {
   const parentDir = path.join(SKILLS_DIR, parent)
-  if (!existsSync(parentDir)) return []
+  if (!existsSync(parentDir)) {
+    return []
+  }
   return readdirSync(parentDir, { withFileTypes: true })
     .filter(e => e.isDirectory() && !e.name.startsWith('_'))
     .map(e => e.name)
-    .sort()
+    .toSorted()
 }
 
 describe('Skill Discovery', () => {

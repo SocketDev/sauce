@@ -3,7 +3,7 @@ import type { AgentResponse } from '../assertions.mts'
 export interface RunPromptOptions {
   prompt: string
   workingDir: string
-  timeoutMs?: number
+  timeoutMs?: number | undefined
 }
 
 export interface AgentAdapter {

@@ -1,4 +1,4 @@
-const { describe, it, expect } = require('vitest')
+import { describe, expect, it } from 'vitest'
 const app = require('../src/index.js')
 
 describe('app', () => {

@@ -30,7 +30,9 @@ describe('Scan E2E', () => {
   })
 
   afterAll(() => {
-    if (testDir) cleanupTestRepo(testDir)
+    if (testDir) {
+      cleanupTestRepo(testDir)
+    }
   })
 
   it('scans project and reports findings', { timeout: 300_000 }, async () => {

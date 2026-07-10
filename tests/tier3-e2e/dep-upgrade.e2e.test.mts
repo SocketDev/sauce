@@ -30,7 +30,9 @@ describe('Dep Upgrade E2E', () => {
   })
 
   afterAll(() => {
-    if (testDir) cleanupTestRepo(testDir)
+    if (testDir) {
+      cleanupTestRepo(testDir)
+    }
   })
 
   it('discovers vulns and suggests updates', { timeout: 300_000 }, async () => {

@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { httpRequest } from '@socketsecurity/lib/http-request'
+import { readSocketApiTokenSync } from '@socketsecurity/lib/secrets/socket-api-token'
 
-const API_KEY = process.env['SOCKET_API_TOKEN']
+const API_KEY = readSocketApiTokenSync()
 const ORG = process.env['SOCKET_ORG'] || 'SocketDemo'
 const BATCH_PURL_URL = `https://api.socket.dev/v0/orgs/${ORG}/purl`
 

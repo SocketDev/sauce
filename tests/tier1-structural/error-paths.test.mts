@@ -7,7 +7,7 @@ import {
   collectSkills,
   validateMarketplace,
 } from '../../scripts/lib/validate-marketplace.mts'
-import { safeDeleteSync } from '@socketsecurity/lib/fs'
+import { safeDeleteSync } from '@socketsecurity/lib/fs/safe'
 
 const ROOT = path.resolve(__dirname, '../..')
 const SKILLS_DIR = path.join(ROOT, 'skills')

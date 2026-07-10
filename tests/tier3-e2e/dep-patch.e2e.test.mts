@@ -27,7 +27,9 @@ describe('Dep Patch E2E', () => {
   })
 
   afterAll(() => {
-    if (testDir) cleanupTestRepo(testDir)
+    if (testDir) {
+      cleanupTestRepo(testDir)
+    }
   })
 
   it('suggests patching for lodash', { timeout: 300_000 }, async () => {

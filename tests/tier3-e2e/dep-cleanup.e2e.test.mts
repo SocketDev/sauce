@@ -27,7 +27,9 @@ describe('Dep Cleanup E2E', () => {
   })
 
   afterAll(() => {
-    if (testDir) cleanupTestRepo(testDir)
+    if (testDir) {
+      cleanupTestRepo(testDir)
+    }
   })
 
   it('evaluates a single unused dep', { timeout: 300_000 }, async () => {

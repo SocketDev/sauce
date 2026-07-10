@@ -9,12 +9,12 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
-  readFileSync,
   readdirSync,
+  readFileSync,
 } from 'node:fs'
 import * as path from 'node:path'
 import * as os from 'node:os'
-import { safeDeleteSync } from '@socketsecurity/lib/fs'
+import { safeDeleteSync } from '@socketsecurity/lib/fs/safe'
 
 const ROOT = path.resolve(__dirname, '../..')
 const FIXTURES_DIR = path.resolve(__dirname, '..', 'fixtures')

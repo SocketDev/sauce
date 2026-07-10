@@ -9,8 +9,10 @@ import { expect } from 'vitest'
 
 export interface AgentResponse {
   output: string
-  toolCalls?: Array<{ name: string; args?: Record<string, unknown> }>
-  exitCode?: number
+  toolCalls?:
+    | Array<{ name: string; args?: Record<string, unknown> | undefined }>
+    | undefined
+  exitCode?: number | undefined
 }
 
 /**
@@ -23,7 +25,9 @@ export function expectNoHallucinatedTools(
   response: AgentResponse,
   validToolNames: string[],
 ): void {
-  if (!response.toolCalls) return
+  if (!response.toolCalls) {
+    return
+  }
 
   const validSet = new Set(validToolNames.map(t => t.toLowerCase()))
   const hallucinated = response.toolCalls.filter(

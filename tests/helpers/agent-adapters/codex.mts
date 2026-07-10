@@ -13,7 +13,8 @@ export class CodexAdapter implements AgentAdapter {
     })
   }
 
-  async runPrompt(opts: RunPromptOptions): Promise<AgentResponse> {
+  async runPrompt(options: RunPromptOptions): Promise<AgentResponse> {
+    const opts = { __proto__: null, ...options } as typeof options
     const timeout = opts.timeoutMs ?? 120_000
 
     return new Promise((resolve, reject) => {

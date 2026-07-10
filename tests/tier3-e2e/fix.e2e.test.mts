@@ -27,7 +27,9 @@ describe('Fix E2E', () => {
   })
 
   afterAll(() => {
-    if (testDir) cleanupTestRepo(testDir)
+    if (testDir) {
+      cleanupTestRepo(testDir)
+    }
   })
 
   it(

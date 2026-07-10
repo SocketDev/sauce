@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { readFileSync, readdirSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import * as path from 'node:path'
 
 const ROOT = path.resolve(__dirname, '../..')
@@ -13,7 +13,7 @@ export function getSkillDirs(): string[] {
   return readdirSync(SKILLS_DIR, { withFileTypes: true })
     .filter(e => e.isDirectory() && !e.name.startsWith('_'))
     .map(e => e.name)
-    .sort()
+    .toSorted()
 }
 
 /** Strip YAML frontmatter and return only the body content. */
@@ -39,15 +39,15 @@ describe('Skill Content Quality', () => {
 
       it('"When to Use" section has bullet points', () => {
         const match = body.match(
-          /## When to Use\s*\n([\s\S]*?)(?=\n## |\n---|\s*$)/,
+          /## When to Use\s*\n(?<body>[\s\S]*?)(?=\n## |\n---|\s*$)/,
         )
         expect(
           match,
           `${skill}/SKILL.md: could not find content after '## When to Use'`,
         ).toBeTruthy()
 
-        const bullets = match![1]!
-          .split('\n')
+        const bullets = match!
+          .groups!['body']!.split('\n')
           .filter(line => /^\s*- /.test(line))
         expect(
           bullets.length,
