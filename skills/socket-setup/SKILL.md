@@ -51,7 +51,7 @@ Handle results:
 - If `node.installed` is false: prompt the user to install Node.js. Suggest:
   - **nvm** (recommended): `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash` then `nvm install 20`
   - **Homebrew** (macOS): `brew install node`
-  - **Official installer**: https://nodejs.org/
+  - **Official installer**: <https://nodejs.org/>
 - If `node.ok` is false: warn that Node.js 18+ is required and suggest upgrading
 - If `socketCli.needsUpdate` is true: warn that the Socket CLI is below 1.x and prompt to update with `npm install -g socket@latest`
 - If `socketCli.installed` is false: proceed to Step 3 (Install the CLI)
@@ -61,9 +61,9 @@ Handle results:
 Ask the user whether they have or want to create a Socket account. There are three tiers:
 
 - **No account (public token)**: No sign-up required. The Socket CLI supports a built-in public token that provides limited access to CLI features including `socket fix`, `socket scan`, `sfw`, and `socket-patch apply`. Rate limits and feature restrictions apply compared to a full account, but basic vulnerability scanning and fixing work out of the box. **Dashboard access, organization management, and policy configuration are NOT available without an account.**
-- **Free account**: Create one at https://socket.dev. Removes public-token rate limits, enables full dashboard access and organization features. All CLI features are available.
-  - Sign up / sign in: https://socket.dev/auth/login
-  - Token page: https://socket.dev/dashboard/org/{ORG}/settings/integrations/api-tokens
+- **Free account**: Create one at <https://socket.dev>. Removes public-token rate limits, enables full dashboard access and organization features. All CLI features are available.
+  - Sign up / sign in: <https://socket.dev/auth/login>
+  - Token page: <https://socket.dev/dashboard/org/{ORG}/settings/integrations/api-tokens>
 - **Enterprise account**: All free account features plus reachability analysis (`socket scan reach`), policy configuration (`socket.yml`), and organization-level management.
 
 Store the tier choice for subsequent steps.
@@ -74,9 +74,11 @@ Store the tier choice for subsequent steps.
 - `npm install -g socket`
 - Verify: `socket --version`
 - After install, re-run the helper to confirm the version is >= 1.x:
+
   ```
   node scripts/helpers/socket-setup.mjs check-prereqs --dir .
   ```
+
 - If `socketCli.ok` is false after install, error and suggest `npm install -g socket@latest`
 - PATH troubleshooting: if `socket` is not found, check that the npm global bin directory is in `PATH` (run `npm bin -g` to find it)
 
@@ -99,7 +101,7 @@ Verify it worked:
 socket --version
 ```
 
-The CLI is now functional. Skip `socket organization list` (no org exists for public-token users). Inform the user that they can create a free account at https://socket.dev later to remove rate limits, enable scanning, and access the dashboard.
+The CLI is now functional. Skip `socket organization list` (no org exists for public-token users). Inform the user that they can create a free account at <https://socket.dev> later to remove rate limits, enable scanning, and access the dashboard.
 
 ### Free or Enterprise account
 
@@ -120,7 +122,7 @@ Ask the user which features to set up. Annotate each with its tier requirement:
 - **Dockerfile Integration** — works with public token
 - **Policies** (`socket.yml`) — enterprise only
 
-All core CLI features work with the public token set up in Step 4. If the user hits rate limits or needs dashboard access, suggest creating a free account at https://socket.dev.
+All core CLI features work with the public token set up in Step 4. If the user hits rate limits or needs dashboard access, suggest creating a free account at <https://socket.dev>.
 
 Route to the appropriate section(s) below.
 
@@ -202,30 +204,36 @@ All Socket tools (sfw, socket-patch, socket CLI) are npm packages. The standalon
 - Add a `before_script` or dedicated stage to install `sfw`
 - Install via npm: `npm install -g sfw`
 - Or install standalone binary:
+
   ```bash
   curl -fsSL https://socket.dev/download/sfw/latest/linux-x64 -o /usr/local/bin/sfw && chmod +x /usr/local/bin/sfw
   ```
+
 - Prefix install commands with sfw (`sfw npm install`, `sfw pip install`, etc.)
 - Enterprise: set `SOCKET_CLI_API_TOKEN` as CI/CD variable in GitLab settings
 
 ### Bitbucket Pipelines
 
 - Add pipe step to install `sfw` binary:
+
   ```bash
   curl -fsSL https://socket.dev/download/sfw/latest/linux-x64 -o /usr/local/bin/sfw && chmod +x /usr/local/bin/sfw
   ```
+
 - Prefix install commands with sfw
 - Enterprise: set `SOCKET_CLI_API_TOKEN` as repository variable
 
 ### Generic CI/CD
 
 - Download `sfw` binary:
+
   ```bash
   # Linux x64
   curl -fsSL https://socket.dev/download/sfw/latest/linux-x64 -o /usr/local/bin/sfw && chmod +x /usr/local/bin/sfw
   # macOS arm64
   curl -fsSL https://socket.dev/download/sfw/latest/darwin-arm64 -o /usr/local/bin/sfw && chmod +x /usr/local/bin/sfw
   ```
+
 - Or install via npm: `npm install -g sfw`
 - Prefix install commands with sfw
 - Set `SOCKET_CLI_API_TOKEN` as env var for enterprise
@@ -358,12 +366,12 @@ Add a patch target that runs after install. Adapt commands to match the project'
 
 ```makefile
 install:
-	npm ci
-	socket-patch scan
-	socket-patch apply
+ npm ci
+ socket-patch scan
+ socket-patch apply
 
 build: install
-	npm run build
+ npm run build
 ```
 
 ### Generic Fallback
@@ -544,7 +552,7 @@ Different Socket features use different tokens. Set up the appropriate tokens fo
 
 ### Creating Tokens
 
-1. Sign in to the Socket dashboard: https://socket.dev/auth/login
+1. Sign in to the Socket dashboard: <https://socket.dev/auth/login>
 2. Navigate to your organization's API tokens page: `https://socket.dev/dashboard/org/{ORG}/settings/integrations/api-tokens`
 3. Create a new token with the appropriate scope
 4. Copy the token value — it is only shown once
@@ -574,7 +582,7 @@ For local development, authenticate using one of:
 
 - **`socket: command not found`**: Ensure Node.js 18+ is installed, then run `npm install -g socket`. Check that the npm global bin directory is in `PATH` (run `npm bin -g` to find it).
 - **`socket login` fails**: Check network connectivity. If behind a proxy, ensure `HTTPS_PROXY` is set. Try setting `SOCKET_CLI_API_TOKEN` directly as an environment variable instead.
-- **`socket organization list` returns empty**: The API token may lack organization access. Verify the token at https://socket.dev/dashboard and ensure it has the correct scopes.
+- **`socket organization list` returns empty**: The API token may lack organization access. Verify the token at <https://socket.dev/dashboard> and ensure it has the correct scopes.
 - **`sfw` not intercepting installs**: Ensure `sfw` is in `PATH` before the package manager. In CI, verify the install step runs before any dependency install commands.
 - **GitHub Action fails with permission errors**: Ensure the `socket-token` secret is set correctly in the repository settings and the workflow has `contents: read` permission.
 - **Socket CLI version < 1.x**: Run `npm install -g socket@latest` to update. Verify with `node scripts/helpers/socket-setup.mjs check-prereqs`.
@@ -583,8 +591,8 @@ For local development, authenticate using one of:
 ## Tips
 
 - Never commit API tokens. Use `socket login` locally, env vars in CI.
-- For users without an account, configure the public demo token with `pnpm dlx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api` and `pnpm dlx socket config set defaultOrg SocketDemo`. This gives limited access to CLI features like `socket fix`, `socket package score`, `sfw`, and `socket-patch` with rate limits. The demo token cannot create scans — `socket scan create` requires a free account at https://socket.dev. Always configure the demo token for no-account users during setup so the CLI is functional immediately.
-- For full-rate access, dashboard, and organization features, users need a free or enterprise account at https://socket.dev.
+- For users without an account, configure the public demo token with `pnpm dlx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api` and `pnpm dlx socket config set defaultOrg SocketDemo`. This gives limited access to CLI features like `socket fix`, `socket package score`, `sfw`, and `socket-patch` with rate limits. The demo token cannot create scans — `socket scan create` requires a free account at <https://socket.dev>. Always configure the demo token for no-account users during setup so the CLI is functional immediately.
+- For full-rate access, dashboard, and organization features, users need a free or enterprise account at <https://socket.dev>.
 - Use `SocketDev/action@v1` (correct casing) in GitHub workflow files.
 - For monorepos, use `patch-cwd` to target specific directories.
 - After setup, use the `/socket-scan` skill for a first audit and the `/socket-inspect` skill for package inspection.

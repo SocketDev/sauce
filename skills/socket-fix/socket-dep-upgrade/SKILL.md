@@ -40,7 +40,7 @@ pnpm dlx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JB
 pnpm dlx socket config set defaultOrg SocketDemo --no-banner --no-spinner
 ```
 
-This provides limited access to CLI features like `pnpm dlx socket fix`, `pnpm dlx socket package score`, `sfw`, and `socket-patch` with rate limits. No account creation is needed for basic usage. **Note:** The public demo token cannot create scans (`pnpm dlx socket scan create` requires the `full-scans:create` permission). For scanning and full-rate access, create a free account at https://socket.dev.
+This provides limited access to CLI features like `pnpm dlx socket fix`, `pnpm dlx socket package score`, `sfw`, and `socket-patch` with rate limits. No account creation is needed for basic usage. **Note:** The public demo token cannot create scans (`pnpm dlx socket scan create` requires the `full-scans:create` permission). For scanning and full-rate access, create a free account at <https://socket.dev>.
 
 **For users with an account:** Authenticate with one of:
 
@@ -101,9 +101,11 @@ Once you understand what will change from the dry run, apply upgrades **one vuln
 **For each vulnerability from the dry-run output, the main agent spawns a subagent that:**
 
 1. Applies the single targeted fix:
+
    ```
    socket fix --id GHSA-xxxx-xxxx-xxxx --no-major-updates
    ```
+
 2. Builds the project and runs the full test suite
 3. If tests pass, commits the change and reports success back to the main agent
 4. If tests fail:

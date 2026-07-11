@@ -178,7 +178,7 @@ API Compatibility:
 Coverage: dayjs 5/5, date-fns 5/5, luxon 5/5
 ```
 
-4. Present the comparison and let the user pick a replacement
+1. Present the comparison and let the user pick a replacement
 
 ### Strategy C: Inline Elimination
 

@@ -253,12 +253,12 @@ Add a patch target that runs after install. Adapt commands to match the project'
 
 ```makefile
 install:
-	npm ci
-	socket-patch scan
-	socket-patch apply
+ npm ci
+ socket-patch scan
+ socket-patch apply
 
 build: install
-	npm run build
+ npm run build
 ```
 
 ### Generic Fallback

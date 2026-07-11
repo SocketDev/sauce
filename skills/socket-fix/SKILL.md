@@ -67,7 +67,7 @@ pnpm dlx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JB
 pnpm dlx socket config set defaultOrg SocketDemo --no-banner --no-spinner
 ```
 
-This provides limited access to CLI features like `pnpm dlx socket fix`, `pnpm dlx socket package score`, `sfw`, and `socket-patch` with rate limits. No account creation is needed for basic usage. **Note:** The public demo token cannot create scans (`pnpm dlx socket scan create` requires the `full-scans:create` permission). For scanning and full-rate access, create a free account at https://socket.dev.
+This provides limited access to CLI features like `pnpm dlx socket fix`, `pnpm dlx socket package score`, `sfw`, and `socket-patch` with rate limits. No account creation is needed for basic usage. **Note:** The public demo token cannot create scans (`pnpm dlx socket scan create` requires the `full-scans:create` permission). For scanning and full-rate access, create a free account at <https://socket.dev>.
 
 **For users with an account:** Authenticate with one of:
 
@@ -367,7 +367,7 @@ After the subskill completes:
 
 - **`/socket-scan` not working (Fix All mode)**: Do not proceed with Fix All. Offer to run `/socket-setup` first, or suggest Fix Package mode as an alternative.
 - **Socket CLI not installed**: Run `/socket-setup` to install and authenticate. For users without an account, `/socket-setup` will configure the public demo token, which provides limited access to CLI features like `socket fix` and `socket package score` (but not `socket scan create`).
-- **Rate limits hit**: The public token has rate limits. If the user hits them, suggest creating a free account at https://socket.dev to remove limits.
+- **Rate limits hit**: The public token has rate limits. If the user hits them, suggest creating a free account at <https://socket.dev> to remove limits.
 - **No dependencies found**: The project may not have manifest files in the expected locations. Check for monorepo structures or non-standard layouts.
 - **Build/test command unknown**: Ask the user for the correct build and test commands before starting repair.
 - **All upgrades fail in Level 3**: If every upgrade attempt fails, report what was tried and suggest the user investigate manually. The cleanup and patch phases may still have succeeded.

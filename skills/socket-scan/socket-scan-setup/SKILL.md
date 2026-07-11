@@ -54,7 +54,7 @@ This sets:
 - API token: the Socket public demo token (rate-limited, read-only)
 - Default org: `SocketDemo`
 
-No account creation is needed. For full-rate access and dashboard features, users can create a free account at https://socket.dev.
+No account creation is needed. For full-rate access and dashboard features, users can create a free account at <https://socket.dev>.
 
 **For users with an existing account:** Set the `SOCKET_CLI_API_TOKEN` environment variable or run `pnpm dlx socket login` instead. The setup helper will detect existing tokens and skip auto-configuration.
 
@@ -82,7 +82,7 @@ If it outputs JSON scan results, setup is complete.
 
 **If the user only has the demo token**, prompt them to log in or create an account:
 
-> To scan your project, **log in with `pnpm dlx socket login`** or **create a free account at https://socket.dev**. Would you like to log in now?
+> To scan your project, **log in with `pnpm dlx socket login`** or **create a free account at <https://socket.dev>**. Would you like to log in now?
 
 If the user logs in, re-run the test scan above. If the user skips login, fall back to cdxgen with a warning:
 
@@ -97,8 +97,8 @@ See the `/socket-scan` skill's Step 2b for details on interpreting cdxgen output
 ## Important Notes
 
 - **Do NOT use `pnpm dlx socket login --public`** — this flag does not exist in the current Socket CLI (v1.1.66+). Use `pnpm dlx socket config set apiToken <token>` to configure tokens directly.
-- **The public demo token cannot create scans** — it lacks the `full-scans:create` permission. Prompt the user to log in or create a free account at https://socket.dev. If they skip, fall back to cdxgen (`pnpm dlx @cyclonedx/cdxgen -o bom.json -p`) — but warn that alert accuracy will be greatly reduced and SBOM accuracy will be poor. The demo token still enables `pnpm dlx socket fix`, `pnpm dlx socket package score`, and other CLI features.
-- For persistent dashboard scans, the user needs a full account (free or paid) at https://socket.dev.
+- **The public demo token cannot create scans** — it lacks the `full-scans:create` permission. Prompt the user to log in or create a free account at <https://socket.dev>. If they skip, fall back to cdxgen (`pnpm dlx @cyclonedx/cdxgen -o bom.json -p`) — but warn that alert accuracy will be greatly reduced and SBOM accuracy will be poor. The demo token still enables `pnpm dlx socket fix`, `pnpm dlx socket package score`, and other CLI features.
+- For persistent dashboard scans, the user needs a full account (free or paid) at <https://socket.dev>.
 - If the `SOCKET_CLI_API_TOKEN` environment variable is set, it takes precedence over any config-file token.
 
 ## Error Reference
@@ -108,5 +108,5 @@ See the `/socket-scan` skill's Step 2b for details on interpreting cdxgen output
 | `socket: command not found` | CLI not installed                | Use `pnpm dlx socket` (recommended) or `npm install -g socket@latest`        |
 | 403 / unauthorized          | No token or expired token        | Run `pnpm dlx socket config set apiToken <token>` or `pnpm dlx socket login` |
 | "org not found"             | Token doesn't have org access    | Use `--tmp` flag or configure a valid org                                    |
-| Rate limit exceeded         | Public token throttled           | Create a free account at https://socket.dev                                  |
+| Rate limit exceeded         | Public token throttled           | Create a free account at <https://socket.dev>                                  |
 | Outdated CLI (< 1.0.0)      | Global `socket` is v0.x (legacy) | Use `pnpm dlx socket` (always latest) or `npm install -g socket@latest`      |

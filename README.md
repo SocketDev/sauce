@@ -53,7 +53,7 @@ pnpm dlx skills add SocketDev/skills --list
 /plugin marketplace add SocketDev/skills
 ```
 
-2. To install a skill, run:
+1. To install a skill, run:
 
 ```
 /plugin install <skill-name>@SocketDev/skills
@@ -89,7 +89,7 @@ or use the GitHub URL:
 gemini extensions install https://github.com/SocketDev/skills.git --consent
 ```
 
-3. See [Gemini CLI extensions docs](https://geminicli.com/docs/extensions/#installing-an-extension) for more help.
+1. See [Gemini CLI extensions docs](https://geminicli.com/docs/extensions/#installing-an-extension) for more help.
 
 ### Cursor
 
@@ -124,9 +124,9 @@ For any agent that supports the Agent Skills standard or custom instructions:
 pnpm dlx skills add SocketDev/skills
 ```
 
-2. Or manually copy the [`agents/AGENTS.md`](agents/AGENTS.md) file into your agent's instructions/context directory. This file contains a summary of all available skills and their locations.
+1. Or manually copy the [`agents/AGENTS.md`](agents/AGENTS.md) file into your agent's instructions/context directory. This file contains a summary of all available skills and their locations.
 
-3. Skills use the Socket CLI and Batch PURL API directly — no MCP server required.
+2. Skills use the Socket CLI and Batch PURL API directly — no MCP server required.
 
 ## Skills
 
