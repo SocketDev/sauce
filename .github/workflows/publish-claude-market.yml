@@ -61,7 +61,11 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@f09a1cd39868ae45d304cfcead2d4f19a5325d8a # main
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2 (2026-05-15)
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: ./.github/actions/fleet/setup-and-install
 
       - name: Regenerate artifacts
         run: pnpm run generate

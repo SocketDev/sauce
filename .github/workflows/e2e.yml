@@ -57,7 +57,11 @@ jobs:
             || '["claude-code"]'
           ) }}
     steps:
-      - uses: SocketDev/socket-registry/.github/actions/setup-and-install@f09a1cd39868ae45d304cfcead2d4f19a5325d8a # main (2026-06-01)
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2 (2026-05-15)
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: ./.github/actions/fleet/setup-and-install
 
       # zizmor: ignore[secrets-outside-env]
       - name: Run E2E tests (Tier 3)
