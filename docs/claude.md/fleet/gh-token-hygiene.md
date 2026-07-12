@@ -107,7 +107,7 @@ After this, sudo is back to its default (password only). The hook's auth flow wi
 
 `auth-rotation-reminder` Stop-hook tracks the gh token's issued-at timestamp (stored at `~/.claude/gh-token-issued-at`). When the token is >8 hours old, the next Stop event exits non-zero with instructions:
 
-```
+```text
 gh auth refresh -h github.com
 ```
 

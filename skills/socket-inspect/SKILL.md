@@ -25,7 +25,7 @@ Research a package before you depend on it. This skill pulls every available sig
 
 Use `pnpm dlx socket` to run the Socket CLI — this always fetches the latest version and requires no global install. Verify it works:
 
-```
+```shell
 pnpm dlx socket --version
 ```
 
@@ -37,7 +37,7 @@ All commands in this skill use the `pnpm dlx socket` prefix (e.g., `pnpm dlx soc
 
 **For users without a Socket account:** Configure the public demo token directly:
 
-```
+```shell
 pnpm dlx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api --no-banner --no-spinner
 pnpm dlx socket config set defaultOrg SocketDemo --no-banner --no-spinner
 ```
@@ -51,7 +51,7 @@ This provides limited access to CLI features like `pnpm dlx socket fix`, `pnpm d
 
 Verify account authentication:
 
-```
+```shell
 pnpm dlx socket organization list
 ```
 
@@ -69,7 +69,7 @@ Query the Socket Batch PURL REST API with the package's PURL (Package URL) to re
 
 **API call:**
 
-```
+```shell
 curl -X POST https://api.socket.dev/v0/orgs/{org_slug}/purl \
   -H "Authorization: Bearer $SOCKET_SECURITY_API_KEY" \
   -H "Content-Type: application/json" \
@@ -82,7 +82,7 @@ curl -X POST https://api.socket.dev/v0/orgs/{org_slug}/purl \
 
 For example, to inspect `lodash@4.17.21` on npm:
 
-```
+```shell
 curl -X POST https://api.socket.dev/v0/orgs/{org_slug}/purl \
   -H "Authorization: Bearer $SOCKET_SECURITY_API_KEY" \
   -H "Content-Type: application/json" \
@@ -104,7 +104,7 @@ Extract **all** returned data:
 
 If the Batch PURL API is unavailable or returns an error, fall back to the CLI:
 
-```
+```shell
 pnpm dlx socket package score <ecosystem> <name> <version>
 ```
 
@@ -114,13 +114,13 @@ This returns score data without requiring `SOCKET_SECURITY_API_KEY`.
 
 Construct the package URL:
 
-```
+```text
 https://socket.dev/{ecosystem}/package/{name}/overview
 ```
 
 For scoped npm packages (e.g. `@scope/name`), encode the scope:
 
-```
+```text
 https://socket.dev/npm/package/@scope/name/overview
 ```
 
@@ -250,7 +250,7 @@ Structure the report as follows:
 **Alerts**
 List all Socket alerts grouped by category (security, quality, maintenance, license, miscellaneous).
 
-**Vulnerabilities**
+### Vulnerabilities
 
 | CVE | Severity | Affected Versions | Fixed In |
 | --- | -------- | ----------------- | -------- |

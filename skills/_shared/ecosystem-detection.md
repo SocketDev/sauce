@@ -6,7 +6,7 @@ How to detect which package ecosystems are present in a project.
 
 Run the ecosystem detection helper:
 
-```
+```shell
 pnpm dlx tsx scripts/helpers/detect-ecosystems.ts [--dir <path>]
 ```
 

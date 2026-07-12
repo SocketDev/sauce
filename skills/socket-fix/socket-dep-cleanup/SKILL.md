@@ -99,7 +99,7 @@ Present ALL findings to the user with file paths and line numbers.
 
 Report that the package appears to be unused:
 
-```
+```text
 **{package-name}** — no usages found
 
 Searched {N} files across the codebase. No direct imports, indirect references,
@@ -114,7 +114,7 @@ Then proceed to Step 5 (removal).
 
 Show every usage location:
 
-```
+```text
 **{package-name}** — found {N} usages
 
 Direct imports:

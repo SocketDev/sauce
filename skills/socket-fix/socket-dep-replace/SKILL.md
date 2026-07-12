@@ -105,7 +105,7 @@ Search beyond just source code:
 
 This usage map drives the migration — it tells you exactly what API surface needs to be replaced.
 
-```
+```text
 Usage map for 'lodash':
 
   src/utils/helper.ts:14 — import { merge, cloneDeep } from 'lodash'
@@ -127,7 +127,7 @@ Unique APIs used: merge, cloneDeep, get, set, sortBy, groupBy (6 total)
 
 Present ALL findings to the user with the full usage map:
 
-```
+```text
 **{package-name}** — found {N} usages across {M} files
 
 Usage map:
@@ -164,7 +164,7 @@ If the Socket CLI is not installed, mention that `socket-optimize` is available 
    - Maintenance status (last publish date, open issues)
 3. Build an **API compatibility table** showing which APIs from the usage map each candidate supports:
 
-```
+```text
 API Compatibility:
 
 | API Used        | dayjs         | date-fns      | luxon         |

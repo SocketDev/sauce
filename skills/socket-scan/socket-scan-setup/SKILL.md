@@ -23,7 +23,7 @@ Set up the Socket CLI and authentication so that `/socket-scan` works on the fir
 
 Check what is already configured by querying the CLI directly:
 
-```
+```shell
 pnpm dlx socket config get apiToken --no-banner --no-spinner
 pnpm dlx socket organization list --json --no-banner --no-spinner
 ```
@@ -34,7 +34,7 @@ If `config get apiToken` returns a token value, authentication is already config
 
 Use `pnpm dlx socket` to run the CLI — this always fetches the latest version with no global install needed:
 
-```
+```shell
 pnpm dlx socket --version
 ```
 
@@ -44,7 +44,7 @@ pnpm dlx socket --version
 
 If no token is configured, set up the public demo token directly:
 
-```
+```shell
 pnpm dlx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api --no-banner --no-spinner
 pnpm dlx socket config set defaultOrg SocketDemo --no-banner --no-spinner
 ```
@@ -62,7 +62,7 @@ No account creation is needed. For full-rate access and dashboard features, user
 
 Verify the token is configured:
 
-```
+```shell
 pnpm dlx socket config get apiToken --no-banner --no-spinner
 ```
 
@@ -74,7 +74,7 @@ This should return the demo token value. The CLI is now configured for basic fea
 
 **If the user has a real account**, run a test scan:
 
-```
+```shell
 pnpm dlx socket scan create . --tmp --json --no-banner --no-spinner
 ```
 
@@ -88,7 +88,7 @@ If the user logs in, re-run the test scan above. If the user skips login, fall b
 
 > **Warning:** Without a Socket account, alert accuracy will be greatly reduced and SBOM accuracy will be poor. You will not get malware detection, supply-chain risk analysis, or Socket scores.
 
-```
+```shell
 pnpm dlx @cyclonedx/cdxgen -o bom.json -p
 ```
 

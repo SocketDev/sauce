@@ -23,7 +23,7 @@ Use the `socket fix` command to discover vulnerable dependencies, compute safe u
 
 Use `pnpm dlx socket` to run the Socket CLI — this always fetches the latest version and requires no global install. Verify it works:
 
-```
+```shell
 pnpm dlx socket --version
 ```
 
@@ -35,7 +35,7 @@ All commands in this skill use the `pnpm dlx socket` prefix (e.g., `pnpm dlx soc
 
 **For users without a Socket account:** Configure the public demo token directly:
 
-```
+```shell
 pnpm dlx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api --no-banner --no-spinner
 pnpm dlx socket config set defaultOrg SocketDemo --no-banner --no-spinner
 ```
@@ -49,7 +49,7 @@ This provides limited access to CLI features like `pnpm dlx socket fix`, `pnpm d
 
 Verify account authentication:
 
-```
+```shell
 pnpm dlx socket organization list
 ```
 
@@ -76,7 +76,7 @@ Use `socket fix` to identify dependencies with known vulnerabilities and compute
 
 **Fix all discoverable vulnerabilities (recommended starting point):**
 
-```
+```shell
 socket fix --all --no-apply-fixes --json
 ```
 
@@ -84,7 +84,7 @@ This performs a dry run: it uploads project manifests to the Socket API, discove
 
 **Target specific vulnerabilities by ID:**
 
-```
+```shell
 socket fix --id GHSA-xxxx-xxxx-xxxx --no-apply-fixes --json
 socket fix --id CVE-2024-12345 --no-apply-fixes --json
 socket fix --id pkg:npm/lodash@4.17.20 --no-apply-fixes --json
@@ -102,7 +102,7 @@ Once you understand what will change from the dry run, apply upgrades **one vuln
 
 1. Applies the single targeted fix:
 
-   ```
+   ```shell
    socket fix --id GHSA-xxxx-xxxx-xxxx --no-major-updates
    ```
 

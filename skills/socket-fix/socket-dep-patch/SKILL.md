@@ -51,7 +51,7 @@ Choose the installation method for your ecosystem:
 
 Verify installation:
 
-```
+```shell
 socket-patch --version
 ```
 
@@ -59,7 +59,7 @@ socket-patch --version
 
 Run `socket-patch scan` to discover which installed packages have Socket patches available. This downloads patch metadata to the `.socket/` folder without modifying any packages.
 
-```
+```shell
 socket-patch scan
 ```
 
@@ -69,7 +69,7 @@ Review the output to see which packages have patches available and what vulnerab
 
 Apply all patches discovered by `socket-patch scan`:
 
-```
+```shell
 socket-patch apply
 ```
 
@@ -109,7 +109,7 @@ Scan the project for evidence of automated patching in any of these locations:
 
 If automated patching **is** configured, report where:
 
-```
+```text
 Patch setup check: OK
 
   Automated patching found in:
@@ -121,7 +121,7 @@ Patch setup check: OK
 
 If automated patching is **not** configured, warn the user and offer to set it up:
 
-```
+```text
 Patch setup check: NOT CONFIGURED
 
   No automated patching found in CI, postinstall hooks, or Dockerfiles.
@@ -226,7 +226,7 @@ Generic pattern for any CI system:
 
 Run `socket-patch setup` to add a postinstall hook to `package.json`:
 
-```
+```shell
 socket-patch setup
 ```
 
@@ -236,7 +236,7 @@ This auto-adds a postinstall hook to your `package.json` scripts that runs `sock
 
 Add a `RUN socket-patch apply` layer after the install layer. Use the appropriate runner for the project's package manager (e.g., `pnpx` for pnpm, `bunx` for bun):
 
-```dockerfile
+```text
 FROM node:20-alpine
 WORKDIR /app
 COPY package*.json ./

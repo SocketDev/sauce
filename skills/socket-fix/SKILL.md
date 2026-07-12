@@ -50,7 +50,7 @@ Scan the project with `/socket-scan`, then systematically resolve findings using
 
 Use `pnpm dlx socket` to run the Socket CLI — this always fetches the latest version and requires no global install. Verify it works:
 
-```
+```shell
 pnpm dlx socket --version
 ```
 
@@ -62,7 +62,7 @@ All commands in this skill use the `pnpm dlx socket` prefix (e.g., `pnpm dlx soc
 
 **For users without a Socket account:** Configure the public demo token directly:
 
-```
+```shell
 pnpm dlx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api --no-banner --no-spinner
 pnpm dlx socket config set defaultOrg SocketDemo --no-banner --no-spinner
 ```
@@ -76,7 +76,7 @@ This provides limited access to CLI features like `pnpm dlx socket fix`, `pnpm d
 
 Verify account authentication:
 
-```
+```shell
 pnpm dlx socket organization list
 ```
 
@@ -90,7 +90,7 @@ If authentication fails or the CLI is not installed, use the `/socket-setup` ski
 
 Run `/socket-scan` to get a full picture of the project's dependency health. Use `--tmp` for a temporary read-only scan (the default — does not persist to the dashboard):
 
-```
+```shell
 socket scan create . --tmp --json
 ```
 
@@ -104,7 +104,7 @@ Parse the scan results to build a prioritized list of issues:
 
 Report the scan summary to the user:
 
-```
+```text
 Scan Results:
   Total packages: 150
   Critical: 2, High: 5, Medium: 12, Low: 25
@@ -123,7 +123,7 @@ Before any repair work, identify the project's ecosystem and dependency landscap
 
 Report a brief summary:
 
-```
+```text
 Environment detected:
   Ecosystem: npm (package-lock.json)
   Dependencies: 42 production, 18 dev
@@ -200,7 +200,7 @@ After Level 1 completes, use the scan results from Step 1 to identify the single
 
 Present the proposed change to the user with full context:
 
-```
+```text
 Proposed risky change (Level 2):
 
   Package: lodash (4.17.20 → 4.17.21)
@@ -271,7 +271,7 @@ After all phases complete (regardless of level):
 2. Compare findings against the initial scan from Step 1
 3. Report a summary:
 
-```
+```text
 Repair Complete (Level 2 — Cautious)
 
   Removed: 3 unused dependencies (is-odd, left-pad, unused-util)
@@ -315,7 +315,7 @@ Investigate what's wrong with the target package:
 
 Report findings:
 
-```
+```text
 Package: lodash@4.17.20
 
   Vulnerabilities:

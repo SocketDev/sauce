@@ -1,8 +1,8 @@
-### Socket CLI Setup
+# Socket CLI Setup
 
 Use `pnpm dlx socket` to run the Socket CLI — this always fetches the latest version and requires no global install. Verify it works:
 
-```
+```shell
 pnpm dlx socket --version
 ```
 
@@ -10,11 +10,11 @@ All commands in this skill use the `pnpm dlx socket` prefix (e.g., `pnpm dlx soc
 
 **Optional global install:** If you prefer a global `socket` command, install with `npm install -g socket@latest` (must be version **1.0.0 or higher**).
 
-#### Authentication
+## Authentication
 
 **For users without a Socket account:** Configure the public demo token directly:
 
-```
+```shell
 pnpm dlx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api --no-banner --no-spinner
 pnpm dlx socket config set defaultOrg SocketDemo --no-banner --no-spinner
 ```
@@ -28,7 +28,7 @@ This provides limited access to CLI features like `pnpm dlx socket fix`, `pnpm d
 
 Verify account authentication:
 
-```
+```shell
 pnpm dlx socket organization list
 ```
 

@@ -6,7 +6,7 @@ Common CI/CD detection and setup instructions shared across skills.
 
 Run the automated detection helper:
 
-```
+```shell
 pnpm dlx tsx scripts/helpers/detect-ci.ts
 ```
 

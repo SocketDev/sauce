@@ -25,7 +25,7 @@ description: Set up Socket — prompt for API key, install the CLI, authenticate
 
 Run the helper to detect installed tools and their versions:
 
-```
+```shell
 node scripts/helpers/socket-setup.mjs check-prereqs --dir .
 ```
 
@@ -75,7 +75,7 @@ Store the tier choice for subsequent steps.
 - Verify: `socket --version`
 - After install, re-run the helper to confirm the version is >= 1.x:
 
-  ```
+  ```shell
   node scripts/helpers/socket-setup.mjs check-prereqs --dir .
   ```
 
@@ -88,7 +88,7 @@ Store the tier choice for subsequent steps.
 
 If the user chose no-account in Step 2, configure the public demo token directly:
 
-```
+```shell
 pnpm dlx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api --no-banner --no-spinner
 pnpm dlx socket config set defaultOrg SocketDemo --no-banner --no-spinner
 ```
@@ -97,7 +97,7 @@ This configures the CLI with a limited public token that provides access to feat
 
 Verify it worked:
 
-```
+```shell
 socket --version
 ```
 
@@ -132,7 +132,7 @@ Ask the user if they want to install Socket tools globally (for local developmen
 
 If global, install all tools via npm:
 
-```
+```shell
 npm install -g socket
 npm install -g sfw
 npm install -g @socketsecurity/socket-patch
@@ -140,7 +140,7 @@ npm install -g @socketsecurity/socket-patch
 
 After installing, re-run the helper to verify each tool is available:
 
-```
+```shell
 node scripts/helpers/socket-setup.mjs check-prereqs --dir .
 ```
 
@@ -152,7 +152,7 @@ If any tool fails to install, check PATH and retry. The npm global bin directory
 
 Run the CI detection helper for automated detection:
 
-```
+```shell
 pnpm dlx tsx scripts/helpers/detect-ci.ts
 ```
 
@@ -251,7 +251,7 @@ Set up automated patching so `socket-patch apply` runs after every dependency in
 
 Run the CI detection helper to identify the project's CI/CD system:
 
-```
+```shell
 pnpm dlx tsx scripts/helpers/detect-ci.ts
 ```
 
@@ -292,7 +292,7 @@ Use the appropriate runner (`npx`, `pnpx`, `bunx`, etc.) based on the detected p
 
 Use `SocketDev/action@v1` with `mode: patch`:
 
-```yaml
+```text
 - uses: SocketDev/action@v1
   with:
     mode: patch
@@ -339,7 +339,7 @@ Generic pattern for any CI system:
 
 Run `socket-patch setup` to add a postinstall hook to `package.json`:
 
-```
+```shell
 socket-patch setup
 ```
 
@@ -390,7 +390,7 @@ Detect Dockerfiles and edit them directly to integrate Socket's firewall and/or 
 
 Run the helper to find all Dockerfiles in the project:
 
-```
+```shell
 node scripts/helpers/socket-setup.mjs detect-dockerfiles --dir .
 ```
 
@@ -477,13 +477,13 @@ Configure Socket policies to control which issues are flagged during scans and C
 
 Generate a `socket.yml` template using the helper:
 
-```
+```shell
 node scripts/helpers/socket-setup.mjs generate-config --tier enterprise > socket.yml
 ```
 
 This creates a `socket.yml` with `version: 2` and default issue rules:
 
-```yaml
+```text
 version: 2
 issueRules:
   # CVE severity thresholds

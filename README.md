@@ -23,7 +23,7 @@ In practice, skills are self-contained folders that package instructions, script
 
 > [!NOTE]
 > 'Skills' is actually an Anthropic term used within Claude AI and Claude Code and not adopted by other agent tools, but we love it! OpenAI Codex uses the open [Agent Skills](https://agentskills.io/specification) format, where each skill is a directory with a `SKILL.md` file that Codex discovers from standard `.agents/skills` locations documented in the [Codex Skills guide](https://developers.openai.com/codex/skills/). Codex can also work with an `AGENTS.md` file. Google Gemini uses 'extensions' to define the instructions for your coding agent in a `gemini-extension.json` file. **This repo is compatible with all of them, and more!**
-
+>
 > [!TIP]
 > If your agent doesn't support skills, you can use [`agents/AGENTS.md`](agents/AGENTS.md) directly as a fallback.
 
@@ -35,13 +35,13 @@ Socket Security Skills are compatible with Claude Code, Codex, Gemini CLI, Curso
 
 Install skills using the [Skills CLI](https://skills.sh/) (works with Claude Code, Codex, Gemini CLI, Cursor, and 40+ agents):
 
-```
+```shell
 pnpm dlx skills add SocketDev/skills
 ```
 
 To list available skills before installing:
 
-```
+```shell
 pnpm dlx skills add SocketDev/skills --list
 ```
 
@@ -49,19 +49,19 @@ pnpm dlx skills add SocketDev/skills --list
 
 1. Register the repository as a plugin marketplace:
 
-```
+```text
 /plugin marketplace add SocketDev/skills
 ```
 
 1. To install a skill, run:
 
-```
+```text
 /plugin install <skill-name>@SocketDev/skills
 ```
 
 For example:
 
-```
+```text
 /plugin install scan@SocketDev/skills
 ```
 
@@ -79,13 +79,13 @@ For example:
 
 2. Install locally:
 
-```
+```text
 gemini extensions install . --consent
 ```
 
 or use the GitHub URL:
 
-```
+```text
 gemini extensions install https://github.com/SocketDev/skills.git --consent
 ```
 
@@ -120,7 +120,7 @@ For any agent that supports the Agent Skills standard or custom instructions:
 
 1. Use the Skills CLI (recommended):
 
-```
+```shell
 pnpm dlx skills add SocketDev/skills
 ```
 

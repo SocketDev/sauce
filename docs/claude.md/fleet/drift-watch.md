@@ -39,10 +39,10 @@ The recovery model is symmetric. If a cascade over-applies or applies a stale va
    is newer, plan a sync to B/C/D.
 2. **`socket-registry`'s `setup-and-install` action** is the
    canonical source for tool SHAs. Diverging from it is drift.
-3. **`socket-wheelhouse`'s `template/` tree** is the canonical
+3. **`the-fleet-repo/template/` tree** is the canonical
    source for `.claude/`, CLAUDE.md fleet block, and hook code.
    Diverging is drift.
-4. **`node scripts/sync-scaffolding/cli.mts --all`** (in socket-wheelhouse)
+4. **`node scripts/sync-scaffolding/cli.mts --all`** (in the fleet scaffolding repo)
    surfaces drift programmatically.
 
 ## Never silently let drift sit
@@ -58,9 +58,9 @@ surfaces.
 
 Examples:
 
-- `chore(wheelhouse): cascade Node 26.1.0 from socket-wheelhouse@87eb704`
+- `chore(wheelhouse): cascade Node 26.1.0 from the fleet scaffolding repo@87eb704`
 - `chore(wheelhouse): cascade plan-location-guard from
-socket-wheelhouse@d846d1c`
+the fleet scaffolding repo@d846d1c`
 - `chore(wheelhouse): cascade pnpm 11.0.8 + Node 26.1.0 from
 socket-registry@abc1234`
 
@@ -72,4 +72,4 @@ sync-scaffolding tool produces this body automatically when run with
 
 - `.claude/hooks/fleet/drift-check-reminder/`
 - `.claude/hooks/fleet/gitmodules-comment-guard/`
-- `scripts/sync-scaffolding/`: drift detection + auto-fix tooling (canonical in socket-wheelhouse).
+- `scripts/sync-scaffolding/`: drift detection + auto-fix tooling (canonical in the fleet scaffolding repo).

@@ -39,7 +39,7 @@ When the user is authenticated with a full account (free or enterprise) and expl
 
 Use `pnpm dlx socket` to run the Socket CLI — this always fetches the latest version and requires no global install. Verify it works:
 
-```
+```shell
 pnpm dlx socket --version
 ```
 
@@ -51,7 +51,7 @@ All commands in this skill use the `pnpm dlx socket` prefix (e.g., `pnpm dlx soc
 
 **For users without a Socket account:** Configure the public demo token directly:
 
-```
+```shell
 pnpm dlx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api --no-banner --no-spinner
 pnpm dlx socket config set defaultOrg SocketDemo --no-banner --no-spinner
 ```
@@ -65,7 +65,7 @@ This provides limited access to CLI features like `pnpm dlx socket fix`, `pnpm d
 
 Verify account authentication:
 
-```
+```shell
 pnpm dlx socket organization list
 ```
 
@@ -81,13 +81,13 @@ If setup fails or this is a first-time scan, use the `/socket-scan-setup` subski
 
 First, check whether the user has a Socket account:
 
-```
+```shell
 pnpm dlx socket organization list --json --no-banner --no-spinner
 ```
 
 **If the user has a real organization** (not `SocketDemo` or empty):
 
-```
+```shell
 pnpm dlx socket scan create . --tmp --json --no-banner --no-spinner
 ```
 
@@ -103,7 +103,7 @@ pnpm dlx socket scan create . --tmp --json --no-banner --no-spinner
 
 > I'll run a scan using cdxgen as a fallback. **Please note:** without a Socket account, alert accuracy will be greatly reduced and SBOM accuracy will be poor. You will not get malware detection, supply-chain risk analysis, or Socket scores.
 
-```
+```shell
 pnpm dlx @cyclonedx/cdxgen -o bom.json -p
 ```
 
@@ -113,7 +113,7 @@ pnpm dlx @cyclonedx/cdxgen -o bom.json -p
 
 Before scanning, check the auth state to determine the user's tier:
 
-```
+```shell
 pnpm dlx socket organization list --json --no-banner --no-spinner
 ```
 
@@ -144,7 +144,7 @@ Use the result to decide the scan approach:
 
 Run a read-only scan that returns results locally without persisting to the Socket dashboard:
 
-```
+```shell
 pnpm dlx socket scan create . --tmp --json --no-banner --no-spinner
 ```
 
@@ -154,7 +154,7 @@ This is the default for authenticated users. It does not create a dashboard entr
 
 Run a full scan that creates a persistent entry in the Socket dashboard:
 
-```
+```shell
 pnpm dlx socket scan create . --json --no-banner --no-spinner
 ```
 
@@ -162,7 +162,7 @@ The scan is uploaded to the Socket dashboard where results can be viewed, shared
 
 **For enterprise customers**, specify the organization to associate the scan:
 
-```
+```shell
 pnpm dlx socket scan create . --org <org-slug> --json --no-banner --no-spinner
 ```
 
@@ -189,7 +189,7 @@ pnpm dlx socket scan create . --org <org-slug> --json --no-banner --no-spinner
 
 Generate an SBOM with cdxgen:
 
-```
+```shell
 pnpm dlx @cyclonedx/cdxgen -o bom.json -p
 ```
 
@@ -288,7 +288,7 @@ These are narrower than cdxgen (single ecosystem, no SBOM) but can catch advisor
 
 For enterprise customers, run Tier 1 reachability analysis to determine whether vulnerabilities are actually reachable in the project's code:
 
-```
+```shell
 pnpm dlx socket scan reach --org <org-slug> .
 ```
 
@@ -344,7 +344,7 @@ The Socket CLI does not natively generate SBOMs. To produce one, use scan result
 
 Produce a human-readable compliance summary:
 
-**License Summary**
+### License Summary
 
 | License    | Count | Risk |
 | ---------- | ----- | ---- |
@@ -354,15 +354,15 @@ Produce a human-readable compliance summary:
 | GPL-3.0    | 2     | High |
 | Unknown    | 1     | High |
 
-**Issues Found**
+### Issues Found
 
 - List each flagged issue from Step 5 with the package name, version, and recommended action
 
-**SBOM (if generated)**
+### SBOM (if generated)
 
 - Note the filename and format of the generated SBOM
 
-**Recommendation**
+### Recommendation
 
 - Overall compliance status: Clean / Issues Found / Action Required
 - Specific actions for each flagged issue
