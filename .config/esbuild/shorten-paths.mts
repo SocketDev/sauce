@@ -1,16 +1,14 @@
 /* eslint-disable no-shadow -- nested cached-length for-loops intentionally reuse `i`/`length` names for the fleet-wide cached-loop idiom; renaming would diverge from the codebase pattern. */
 /**
- * @file esbuild plugin: shorten pnpm `node_modules/.pnpm/...`
- * paths in bundled output (comments + string literals) to plain
- * `package/subpath` form. Detects collisions and falls back to the
- * original path when two long paths would collapse to the same short
- * form.
- *
- * Uses @babel/parser + magic-string for AST-precise rewrites — string
- * replacement would corrupt JS in edge cases (paths inside template
- * literals, JSDoc, etc.).
- *
- * Source: lifted from socket-sdk-js. Fleet-canonical via socket-wheelhouse.
+ * @file Esbuild plugin: shorten pnpm `node_modules/.pnpm/...`
+ *   paths in bundled output (comments + string literals) to plain
+ *   `package/subpath` form. Detects collisions and falls back to the
+ *   original path when two long paths would collapse to the same short
+ *   form.
+ *   Uses @babel/parser + magic-string for AST-precise rewrites — string
+ *   replacement would corrupt JS in edge cases (paths inside template
+ *   literals, JSDoc, etc.).
+ *   Source: lifted from socket-sdk-js. Fleet-canonical via socket-wheelhouse.
  */
 
 import { promises as fs } from 'node:fs'

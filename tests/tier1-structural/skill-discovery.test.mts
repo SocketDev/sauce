@@ -6,7 +6,9 @@ import { parseFrontmatter } from '../../scripts/lib/frontmatter.mts'
 const ROOT = path.resolve(__dirname, '../..')
 const SKILLS_DIR = path.join(ROOT, 'skills')
 
-/** Top-level skill directories expected under skills/ */
+/**
+ * Top-level skill directories expected under skills/
+ */
 const EXPECTED_TOP_LEVEL = [
   'socket-fix',
   'socket-inspect',
@@ -14,7 +16,9 @@ const EXPECTED_TOP_LEVEL = [
   'socket-setup',
 ]
 
-/** Subskills expected under skills/socket-fix/ */
+/**
+ * Subskills expected under skills/socket-fix/
+ */
 const EXPECTED_SUBSKILLS: Record<string, string[]> = {
   'socket-fix': [
     'socket-dep-cleanup',

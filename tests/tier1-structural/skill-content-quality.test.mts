@@ -16,7 +16,9 @@ export function getSkillDirs(): string[] {
     .toSorted()
 }
 
-/** Strip YAML frontmatter and return only the body content. */
+/**
+ * Strip YAML frontmatter and return only the body content.
+ */
 export function stripFrontmatter(text: string): string {
   return text.replace(/^---\s*\n[\s\S]*?\n---\s*\n?/, '')
 }

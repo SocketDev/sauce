@@ -1,17 +1,14 @@
 #!/usr/bin/env node
 /**
  * @file Clean runner with flag-based configuration.
- *
- * Mirrors the canonical fleet `clean.mts` flag surface (used by
- * socket-packageurl-js, socket-sdk-js, etc.) but stays dep-free:
- * single-package skill marketplaces don't need `del` / `fast-glob`
- * for the small target set here. If this repo grows a real build
- * graph, replace the body with the canonical lib-backed version.
- *
- * Removes build artifacts, coverage, and TypeScript incremental cache.
- *
- * Cross-platform: uses `node:fs`'s recursive `rm` instead of shelling
- * out to `rm -rf`, so it works the same on macOS / Linux / Windows.
+ *   Mirrors the canonical fleet `clean.mts` flag surface (used by
+ *   socket-packageurl-js, socket-sdk-js, etc.) but stays dep-free:
+ *   single-package skill marketplaces don't need `del` / `fast-glob`
+ *   for the small target set here. If this repo grows a real build
+ *   graph, replace the body with the canonical lib-backed version.
+ *   Removes build artifacts, coverage, and TypeScript incremental cache.
+ *   Cross-platform: uses `node:fs`'s recursive `rm` instead of shelling
+ *   out to `rm -rf`, so it works the same on macOS / Linux / Windows.
  */
 import { existsSync } from 'node:fs'
 import { readdir, rm } from 'node:fs/promises'

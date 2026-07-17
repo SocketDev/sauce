@@ -1,18 +1,11 @@
 #!/usr/bin/env pnpm dlx tsx
 /* eslint-disable no-shadow -- nested cached-length for-loops intentionally reuse `i`/`length` names for the fleet-wide cached-loop idiom; renaming would diverge from the codebase pattern. */
 /**
- * Inline shared content into SKILL.md files.
- *
- * Finds markers of the form:
- *
- *   <!-- BEGIN_SECTION:filename.md -->
- *   ... (auto-generated content) ...
- *   <!-- END_SECTION:filename.md -->
- *
- * and replaces the content between them with the contents of
- * skills/_shared/filename.md.
- *
- * Run as part of the publish pipeline to keep shared sections in sync.
+ * Inline shared content into SKILL.md files. Finds markers of the form: <!--
+ * BEGIN_SECTION:filename.md --> ... (auto-generated content) ... <!--
+ * END_SECTION:filename.md --> and replaces the content between them with the
+ * contents of skills/_shared/filename.md. Run as part of the publish pipeline
+ * to keep shared sections in sync.
  */
 
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'

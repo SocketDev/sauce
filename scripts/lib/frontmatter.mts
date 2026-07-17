@@ -2,12 +2,12 @@
  * Parse YAML frontmatter from a Markdown file.
  *
  * Handles multi-line values:
- *   - `key: value` — set immediately.
- *   - `key:` followed by indented continuation lines — the continuation
- *     fills in the value (joined with single spaces). YAML
- *     block-scalar / folded-style shape used in many SKILL.md files.
- *   - `key:` with NO continuation — the key is dropped (treated as
- *     unset, not the empty string).
+ * - `key: value` — set immediately.
+ * - `key:` followed by indented continuation lines — the continuation
+ * fills in the value (joined with single spaces). YAML
+ * block-scalar / folded-style shape used in many SKILL.md files.
+ * - `key:` with NO continuation — the key is dropped (treated as
+ * unset, not the empty string).
  */
 export function parseFrontmatter(
   text: string,

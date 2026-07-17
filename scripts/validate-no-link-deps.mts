@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * @file Validates that no package.json files contain link: dependencies.
- * Link dependencies are prohibited - use workspace: or catalog: instead.
+ *   Link dependencies are prohibited - use workspace: or catalog: instead.
  */
 
 import { promises as fs } from 'node:fs'

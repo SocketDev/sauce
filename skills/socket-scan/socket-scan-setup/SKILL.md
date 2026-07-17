@@ -108,5 +108,5 @@ See the `/socket-scan` skill's Step 2b for details on interpreting cdxgen output
 | `socket: command not found` | CLI not installed                | Use `pnpm dlx socket` (recommended) or `npm install -g socket@latest`        |
 | 403 / unauthorized          | No token or expired token        | Run `pnpm dlx socket config set apiToken <token>` or `pnpm dlx socket login` |
 | "org not found"             | Token doesn't have org access    | Use `--tmp` flag or configure a valid org                                    |
-| Rate limit exceeded         | Public token throttled           | Create a free account at <https://socket.dev>                                  |
+| Rate limit exceeded         | Public token throttled           | Create a free account at <https://socket.dev>                                |
 | Outdated CLI (< 1.0.0)      | Global `socket` is v0.x (legacy) | Use `pnpm dlx socket` (always latest) or `npm install -g socket@latest`      |

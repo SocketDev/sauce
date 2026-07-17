@@ -275,16 +275,16 @@ Present findings to the user before making changes.
 
 Use the appropriate command to run `socket-patch` based on the project's package manager:
 
-| Package Manager | Run socket-patch                                                                                                                                            |
+| Package Manager | Run socket-patch |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
-| npm             | `pnpm dlx @socketsecurity/socket-patch scan` then `pnpm dlx @socketsecurity/socket-patch apply`                                                             |
-| pnpm            | `pnpx @socketsecurity/socket-patch scan` then `pnpx @socketsecurity/socket-patch apply`                                                                     |
-| yarn            | `pnpm dlx @socketsecurity/socket-patch scan` then `pnpm dlx @socketsecurity/socket-patch apply`                                                             |
-| bun             | `bunx @socketsecurity/socket-patch scan` then `bunx @socketsecurity/socket-patch apply`                                                                     |
-| deno            | `deno run npm:@socketsecurity/socket-patch scan` then `deno run npm:@socketsecurity/socket-patch apply`                                                     |
-| Python          | `pipx run socket-patch scan && pipx run socket-patch apply` (if pipx available), else `pip install socket-patch && socket-patch scan && socket-patch apply` |
-| Standalone      | `curl -fsSL https://raw.githubusercontent.com/SocketDev/socket-patch/main/install.sh                                                                        | sh`then`socket-patch scan && socket-patch apply` |
-| GitHub Actions  | `SocketDev/action@v1` with `mode: patch` (preferred — handles scan+apply automatically)                                                                     |
+| npm | `pnpm dlx @socketsecurity/socket-patch scan` then `pnpm dlx @socketsecurity/socket-patch apply` |
+| pnpm | `pnpx @socketsecurity/socket-patch scan` then `pnpx @socketsecurity/socket-patch apply` |
+| yarn | `pnpm dlx @socketsecurity/socket-patch scan` then `pnpm dlx @socketsecurity/socket-patch apply` |
+| bun | `bunx @socketsecurity/socket-patch scan` then `bunx @socketsecurity/socket-patch apply` |
+| deno | `deno run npm:@socketsecurity/socket-patch scan` then `deno run npm:@socketsecurity/socket-patch apply` |
+| Python | `pipx run socket-patch scan && pipx run socket-patch apply` (if pipx available), else `pip install socket-patch && socket-patch scan && socket-patch apply` |
+| Standalone | `curl -fsSL https://raw.githubusercontent.com/SocketDev/socket-patch/main/install.sh                                                                        | sh`then`socket-patch scan && socket-patch apply` |
+| GitHub Actions | `SocketDev/action@v1` with `mode: patch` (preferred — handles scan+apply automatically) |
 
 Use the appropriate runner (`npx`, `pnpx`, `bunx`, etc.) based on the detected package manager in the sections below.
 

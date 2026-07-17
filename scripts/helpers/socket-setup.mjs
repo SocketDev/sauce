@@ -3,12 +3,12 @@
  * Socket setup helper — portable Node.js script (ESM, no tsx needed).
  *
  * Usage:
- *   node scripts/helpers/socket-setup.mjs <subcommand> [options]
+ * node scripts/helpers/socket-setup.mjs <subcommand> [options]
  *
- * Subcommands:
- *   check-prereqs      [--dir <path>]                          Check Node, socket CLI, sfw, socket-patch
- *   generate-config    [--dir <path>] [--tier free|enterprise] Emit a socket.yml template (version: 2)
- *   detect-dockerfiles [--dir <path>]                          Find Dockerfiles and analyze install steps
+ * Subcommands: check-prereqs [--dir <path>] Check Node, socket CLI, sfw,
+ * socket-patch generate-config [--dir <path>] [--tier free|enterprise] Emit a
+ * socket.yml template (version: 2) detect-dockerfiles [--dir <path>] Find
+ * Dockerfiles and analyze install steps.
  *
  * All output is JSON to stdout, errors to stderr.
  */

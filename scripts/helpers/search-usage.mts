@@ -2,7 +2,8 @@
 /**
  * Search the codebase for import/require patterns of a specific package.
  *
- * Usage: pnpm dlx tsx scripts/helpers/search-usage.ts --package <name> [--ecosystem <eco>] [--dir <path>]
+ * Usage: pnpm dlx tsx scripts/helpers/search-usage.ts --package <name>
+ * [--ecosystem <eco>] [--dir <path>]
  *
  * Outputs JSON: { package, found: boolean, files: [{ path, line, match }] }
  */

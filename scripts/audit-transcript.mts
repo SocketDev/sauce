@@ -314,7 +314,7 @@ function findRecentTranscript(): string | undefined {
   if (!existsSync(dir)) {
     return undefined
   }
-  // TOCTOU: another Claude session may rotate/delete a .jsonl between
+  // TOCTOU: another Claude Code session may rotate/delete a .jsonl between
   // readdir and stat. Tolerate missing entries instead of crashing.
   const entries = readdirSync(dir)
     .filter(f => f.endsWith('.jsonl'))

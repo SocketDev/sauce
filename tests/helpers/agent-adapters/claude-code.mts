@@ -2,7 +2,9 @@ import { spawn } from '@socketsecurity/lib/process/spawn/child'
 import type { AgentAdapter, RunPromptOptions } from './types.mts'
 import type { AgentResponse } from '../assertions.mts'
 
-/** Environment variables that must be removed to avoid nested-session detection. */
+/**
+ * Environment variables that must be removed to avoid nested-session detection.
+ */
 const CLAUDE_ENV_VARS = ['CLAUDECODE', 'CLAUDE_CODE_ENTRYPOINT', 'NODE_PATH']
 
 export function cleanEnv(): NodeJS.ProcessEnv {

@@ -40,6 +40,7 @@ export const AI_HANDLED_RULES: ReadonlySet<string> = new Set([
  * (module splits are real refactoring).
  *
  * Why per-rule rather than per-file or per-finding:
+ *
  * - Per-finding would spawn N AI calls per file. Wasteful.
  * - Per-file flat would route everything to Sonnet defensively. Wasteful too.
  * - Per-rule + escalation matches the actual cost surface: simple regex-shaped
@@ -125,7 +126,8 @@ export function escalateTier(
  * XML structure, examples per rule.
  *
  * Each entry is rendered into the prompt as `<rule id="...">…</rule>` inside a
- * `<rules>` block. Claude sees only the rules that fired in the current file,
+ * `<rules>` block. Claude Code sees only the rules that fired in the current
+ * file,
  * so noise stays low.
  */
 export const RULE_GUIDANCE: Readonly<Record<string, string>> = {

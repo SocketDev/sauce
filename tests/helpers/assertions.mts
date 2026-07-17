@@ -58,8 +58,9 @@ export function expectOutputContains(
 /**
  * Scoring-based assertion: a weighted percentage of criteria must match.
  *
- * Each criterion is a keyword or phrase checked case-insensitively against the output.
- * The assertion passes if the match ratio meets or exceeds the threshold.
+ * Each criterion is a keyword or phrase checked case-insensitively against the
+ * output. The assertion passes if the match ratio meets or exceeds the
+ * threshold.
  */
 export function expectScoreAboveThreshold(
   response: AgentResponse,
@@ -80,7 +81,8 @@ export function expectScoreAboveThreshold(
 }
 
 /**
- * Assert that a specific tool was called (checks structured tool calls or raw output).
+ * Assert that a specific tool was called (checks structured tool calls or raw
+ * output).
  */
 export function expectToolCalled(
   response: AgentResponse,

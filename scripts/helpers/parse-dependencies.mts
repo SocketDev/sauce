@@ -2,7 +2,8 @@
 /**
  * Extract dependencies from manifest files by ecosystem.
  *
- * Usage: pnpm dlx tsx scripts/helpers/parse-dependencies.ts [--ecosystem <name>] [--dir <path>]
+ * Usage: pnpm dlx tsx scripts/helpers/parse-dependencies.ts [--ecosystem
+ * <name>] [--dir <path>]
  *
  * Outputs JSON: { dependencies: [{ name, version, type, ecosystem }] }
  */

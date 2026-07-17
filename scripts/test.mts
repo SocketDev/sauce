@@ -3,28 +3,24 @@
  * @file Canonical minimal test runner for socket-* repos. Delegates the
  *   scope-to-tests mapping to vitest itself rather than rolling a basename-
  *   based mapper that would inevitably drift from the actual module graph.
- *
  *   Scope modes:
  *
  *   - `(default)` — local-dev scope. Runs `vitest --changed`, vitest's
- *     compare-vs-HEAD-with-uncommitted mode. Walks the actual import graph
- *     so a change to a util shared by many tests runs every affected test
- *     file, not the union of two guesses.
- *   - `--staged` — pre-commit hook scope. Hands `git diff --cached` filenames
- *     to `vitest related <files…> --run`. Same module-graph walk, but rooted
- *     at the staged delta. The `--run` flag is mandatory: `vitest related`
+ *     compare-vs-HEAD-with-uncommitted mode. Walks the actual import graph so a
+ *     change to a util shared by many tests runs every affected test file, not
+ *     the union of two guesses.
+ *   - `--staged` — pre-commit hook scope. Hands `git diff --cached` filenames to
+ *     `vitest related <files…> --run`. Same module-graph walk, but rooted at
+ *     the staged delta. The `--run` flag is mandatory: `vitest related`
  *     defaults to watch mode just like the bare `vitest` invocation, which
  *     would hang the pre-commit hook.
  *   - `--all` — run the full suite (`vitest run`). Used in CI and on explicit
- *     opt-in.
- *
- *   Flags: `--quiet` / `--silent` suppress progress output.
- *
- *   Config / infrastructure changes (`vitest.config*`, `tsconfig*`,
- *   `.oxlintrc.json`, `.oxfmtrc.json`, `pnpm-lock.yaml`, `package.json`,
- *   anything under `.config/` or `scripts/`) still escalate to `all` —
- *   module-graph traversal doesn't capture config-derived discovery + alias
- *   changes. See https://vitest.dev/guide/cli.html#vitest-related.
+ *     opt-in. Flags: `--quiet` / `--silent` suppress progress output. Config /
+ *     infrastructure changes (`vitest.config*`, `tsconfig*`, `.oxlintrc.json`,
+ *     `.oxfmtrc.json`, `pnpm-lock.yaml`, `package.json`, anything under
+ *     `.config/` or `scripts/`) still escalate to `all` — module-graph
+ *     traversal doesn't capture config-derived discovery + alias changes. See
+ *     https://vitest.dev/guide/cli.html#vitest-related.
  */
 
 // prefer-async-spawn: sync-required — top-level CLI runner; entire

@@ -51,10 +51,10 @@ jobs:
         # full matrix is a deliberate dispatch-only escape hatch.
         agent: ${{ fromJson(
           github.event_name == 'workflow_dispatch'
-            && (github.event.inputs.test_agent == 'all'
-                  && '["claude-code","codex","gemini"]'
-                  || format('["{0}"]', github.event.inputs.test_agent))
-            || '["claude-code"]'
+          && (github.event.inputs.test_agent == 'all'
+          && '["claude-code","codex","gemini"]'
+          || format('["{0}"]', github.event.inputs.test_agent))
+          || '["claude-code"]'
           ) }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2 (2026-05-15)
