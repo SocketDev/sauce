@@ -10,9 +10,9 @@
 # hook declare workspace-aware deps via `catalog:` instead of brittle
 # literal pins that drift from the parent.
 packages:
-  - .claude/hooks/*
   - '.config/fleet/oxlint-plugin'
   - '.config/fleet/oxlint-plugin/fleet/*'
+  - '.claude/hooks/fleet/*'
 
 # Catalog entries shared across hook workspaces. Each hook depends on
 # the same Socket fleet packages the parent ships; pinning them here
