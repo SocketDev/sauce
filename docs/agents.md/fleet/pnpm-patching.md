@@ -2,18 +2,18 @@
 
 Forcing a duplicated package to its newest (ESM) major maximizes dedup and bundle quality: one copy, tree-shakeable. But a **non-format API break** across the collapse range blocks the force. A bundler resolves CJS↔ESM module format; it never repairs an API contract (a removed method, a changed signature, callback→promise). When that is the only thing between you and a single forced version, a **pnpm patch** restores the old surface onto the new version so the force is safe. Patch-for-compat turns a `do-not-collapse` or `scoped` verdict into a clean unscoped collapse.
 
-Keep the two concerns separate. The **override** (or the update) handles the dependency _requirement_ — it collapses the tree to one version. The **patch** handles the _API contract_ that the major change broke. The patch is not about the version; it is about the contract. A contract patch is equally valid whether the version arrived via an override-force, a security bump, or natural resolution.
+Keep the two concerns separate. The **override** (or the update) handles the dependency *requirement* — it collapses the tree to one version. The **patch** handles the *API contract* that the major change broke. The patch is not about the version; it is about the contract. A contract patch is equally valid whether the version arrived via an override-force, a security bump, or natural resolution.
 
 This is the third dedup lever (after `@socketregistry` redirects and plain version overrides) in the [`deduping-dependencies`](../../../.claude/skills/fleet/deduping-dependencies/SKILL.md) skill.
 
 ## When to patch vs. scope
 
-| situation                                                           | move                                                                 |
-| ------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| break is CJS↔ESM module format only, output is bundled              | force the ESM major (no patch; the bundler handles interop)          |
-| API break, a small compat shim restores the old surface             | patch, then force unscoped (max dedup)                               |
+| situation | move |
+| --- | --- |
+| break is CJS↔ESM module format only, output is bundled | force the ESM major (no patch; the bundler handles interop) |
+| API break, a small compat shim restores the old surface | patch, then force unscoped (max dedup) |
 | API break, shim would be large or fragile, or the old major is rare | scope the override (`'name@>=N': 'X'`), leave the incompatible major |
-| API break, but no live consumer uses the broken surface             | force (no patch; verified by consumer-grep)                          |
+| API break, but no live consumer uses the broken surface | force (no patch; verified by consumer-grep) |
 
 A shim is feasible when the old surface maps onto the new one in a few lines: re-export a moved symbol, alias a renamed constructor, wrap a promise as a callback. It is not feasible when the semantics genuinely changed (different return shapes, removed behavior). Scope in that case.
 
@@ -40,7 +40,7 @@ A pnpm patch is opaque (a diff against minified vendor code) and high-trust (it 
 
 1. **Rationale annotation**: a `# dedup: <why>` comment on or above the entry, naming the API break it shims and the consumer that needs it (generic, no dated log per the dated-citation rule). An undocumented patch reads as a backdoor.
 2. **Patch file exists** at the referenced path.
-3. **Applicable**: the patched `<pkg>@<ver>` is actually resolved in `pnpm-lock.yaml`. A patch targets a contract on a _real_ version; a patch for a version nothing resolves to is dead weight. This is deliberately **not** "has a corresponding force" — the patch fixes the contract, the version requirement is the override's job. They are orthogonal.
+3. **Applicable**: the patched `<pkg>@<ver>` is actually resolved in `pnpm-lock.yaml`. A patch targets a contract on a *real* version; a patch for a version nothing resolves to is dead weight. This is deliberately **not** "has a corresponding force" — the patch fixes the contract, the version requirement is the override's job. They are orthogonal.
 
 The check fails the build on any unannotated, dangling, or inapplicable patch. It reads `pnpm-workspace.yaml` + `pnpm-lock.yaml` (both per-repo), so it cascades and runs identically in every fleet repo.
 
@@ -50,31 +50,7 @@ The check fails the build on any unannotated, dangling, or inapplicable patch. I
 
 ```js
 // compat: callable export + (path, options, callback), promise form preserved
-;(function () {
-  var e = module.exports,
-    i = e.isexe
-  function isexe(p, o, c) {
-    if (typeof o === 'function') {
-      c = o
-      o = void 0
-    }
-    if (typeof c === 'function') {
-      Promise.resolve(i(p, o || {})).then(
-        function (r) {
-          c(null, r)
-        },
-        function (x) {
-          c(x)
-        },
-      )
-      return
-    }
-    return i(p, o)
-  }
-  Object.assign(isexe, e)
-  isexe.default = isexe
-  module.exports = isexe
-})()
+;(function(){var e=module.exports,i=e.isexe;function isexe(p,o,c){if(typeof o==="function"){c=o;o=void 0}if(typeof c==="function"){Promise.resolve(i(p,o||{})).then(function(r){c(null,r)},function(x){c(x)});return}return i(p,o)}Object.assign(isexe,e);isexe.default=isexe;module.exports=isexe})();
 ```
 
 Verified: `isexe(node, {}, cb)` calls `cb(null, true)`; `isexe(missing, {}, cb)` calls `cb(ENOENT)`; `isexe.sync(node)` returns `true`; `isexe(node).then(...)` resolves `true`. With the patch, `which@2` survives a force to isexe@4, collapsing isexe 2/3/4 to one copy.

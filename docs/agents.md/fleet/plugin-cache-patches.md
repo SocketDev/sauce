@@ -13,13 +13,13 @@ the freshly-installed cache as a post-reconcile pass (`reapplyPluginPatches()`).
 
 ## Smallest patch footprint (prefer a sidecar over inlining)
 
+<!-- enforcement: human-review — "smallest patch footprint" is a judgment heuristic about patch design, not a mechanically detectable violation; the sidecar-vs-inline call is made in review of the patch file -->
 🚨 Keep the diff itself as small as possible. When a fix needs more than a few
 lines of new logic, **move that logic into a standalone file** and let the diff
 `import` it + swap the call sites, rather than inlining a 30-line function
 body as `+` lines. A thin diff (an import + a call-site swap) re-anchors cleanly
 across upstream version bumps; a fat inlined diff breaks on the first nearby
 edit and is painful to review.
-<!-- enforcement: human-review — "smallest patch footprint" is a judgment heuristic about patch design, not a mechanically detectable violation; the sidecar-vs-inline call is made in review of the patch file -->
 
 Mechanism: a patch named `<x>.patch` may ship a companion **`<x>.files/`**
 directory whose tree mirrors the plugin cache root. `reapplyPluginPatches()`
@@ -43,7 +43,7 @@ A `# @key: value` provenance header above a **plain `diff -u` body** — never a
 smallest-footprint mechanism above) live in the companion `<x>.files/` dir, not
 in the diff.
 
-```text
+```diff
 # @plugin: codex
 # @plugin-version: 1.0.1
 # @sha: 9cb4fe4099195b2587c402117a3efce6ab5aac78

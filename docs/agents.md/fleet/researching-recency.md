@@ -4,7 +4,7 @@ A programming-tailored "what is the community actually saying in the last 30 day
 
 ## Why it exists
 
-A README reflects the maintainer's intent; a training cutoff reflects last year. Neither tells you what users hit _this month_: the regression everyone's filing, the migration that broke, the tool the community quietly moved to. This skill pulls that recent signal from where developers actually talk (GitHub issues, Hacker News, programming subreddits, Lobsters, dev.to) and ranks it by real engagement (stars, points, upvotes, reactions) instead of SEO.
+A README reflects the maintainer's intent; a training cutoff reflects last year. Neither tells you what users hit *this month*: the regression everyone's filing, the migration that broke, the tool the community quietly moved to. This skill pulls that recent signal from where developers actually talk (GitHub issues, Hacker News, programming subreddits, Lobsters, dev.to) and ranks it by real engagement (stars, points, upvotes, reactions) instead of SEO.
 
 ## Architecture
 
@@ -26,16 +26,16 @@ Two halves, by design (the Anthropic Agent-Skills best-practices split):
 
 ## Sources
 
-| Source      | Auth                                                   | Notes                                                                                                          |
-| ----------- | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
-| GitHub      | `gh auth token` / `GITHUB_TOKEN`, else unauthenticated | issues + PRs, sorted by reactions                                                                              |
-| Hacker News | none                                                   | Algolia full-text, points floor                                                                                |
-| Reddit      | none                                                   | Atom RSS search (the `.json` path 403s); no engagement counts                                                  |
-| Lobsters    | none                                                   | per-tag feed (no full-text search)                                                                             |
-| dev.to      | none                                                   | per-tag feed (Forem API)                                                                                       |
-| X / Twitter | `XAI_API_KEY`                                          | opt-in; xAI Responses API with the `x_search` tool (Grok), not cookie scraping; skipped with a note when unset |
-| Bluesky     | `BSKY_HANDLE` + `BSKY_APP_PASSWORD`                    | opt-in; skipped with a note when unset                                                                         |
-| web         | model-fed via `--web-file`                             | the model runs WebSearch and passes the hits                                                                   |
+| Source | Auth | Notes |
+| -------- | ------ | ------- |
+| GitHub | `gh auth token` / `GITHUB_TOKEN`, else unauthenticated | issues + PRs, sorted by reactions |
+| Hacker News | none | Algolia full-text, points floor |
+| Reddit | none | Atom RSS search (the `.json` path 403s); no engagement counts |
+| Lobsters | none | per-tag feed (no full-text search) |
+| dev.to | none | per-tag feed (Forem API) |
+| X / Twitter | `XAI_API_KEY` | opt-in; xAI Responses API with the `x_search` tool (Grok), not cookie scraping; skipped with a note when unset |
+| Bluesky | `BSKY_HANDLE` + `BSKY_APP_PASSWORD` | opt-in; skipped with a note when unset |
+| web | model-fed via `--web-file` | the model runs WebSearch and passes the hits |
 
 The opt-in sources (X, Bluesky) read their credential from a process env var loaded from the OS keychain at session start; the engine never reads the keychain on the hot path. X uses the xAI Grok `x_search` path rather than the upstream's fragile cookie-driven GraphQL scraper, so it's a single bearer token with no scraping fragility. Keychain setup is documented in the skill's reference.md.
 
@@ -45,4 +45,4 @@ The SKILL.md prose and the engine output share literal marker strings (the badge
 
 ## Tests
 
-`test/unit/fleet/researching-recency-*.test.mts` cover every pure module (relevance, signals, dedupe, rank, plan, render) directly, and every source adapter against `nock`-mocked fixtures that mirror the real API shapes, under `disableNetConnect()`.
+`test/repo/unit/researching-recency-*.test.mts` cover every pure module (relevance, signals, dedupe, rank, plan, render) directly, and every source adapter against `nock`-mocked fixtures that mirror the real API shapes, under `disableNetConnect()`.

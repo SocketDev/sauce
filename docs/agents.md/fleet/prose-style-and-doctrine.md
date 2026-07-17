@@ -7,11 +7,11 @@ adds brevity and directness on top.
 
 ## Surface routing
 
-| Surface                                                              | Mode           |
-| -------------------------------------------------------------------- | -------------- |
-| PR description/comment, issue body/comment, Linear, commit body      | Conversational |
-| `docs/**`, `README.md`, `CHANGELOG.md`, release notes, API reference | Documentation  |
-| Cascade commits, bot output                                          | Exempt         |
+| Surface | Mode |
+| --- | --- |
+| PR description/comment, issue body/comment, Linear, commit body | Conversational |
+| `docs/**`, `README.md`, `CHANGELOG.md`, release notes, API reference | Documentation |
+| Cascade commits, bot output | Exempt |
 
 ## Conversational mode rules
 
@@ -68,12 +68,12 @@ Blocked by `anti-prose-guard` on doc writes; flagged by
 
 ## Enforcement
 
-| Layer                                             | What                                                           |
-| ------------------------------------------------- | -------------------------------------------------------------- |
-| `anti-prose-guard`                                | Blocks doc/CHANGELOG/README writes with AI tells               |
-| `convo-prose-nudge`                               | Nudges `gh pr/issue` body commands with AI scaffolding         |
-| `prose` skill                                     | Applies both modes when drafting/editing any human-facing text |
-| `.claude/rules/fleet/prose-style-and-doctrine.md` | Compact reference for the skill + rule docs                    |
+| Layer | What |
+| --- | --- |
+| `anti-prose-guard` | Blocks doc/CHANGELOG/README writes with AI tells |
+| `convo-prose-nudge` | Nudges `gh pr/issue` body commands with AI scaffolding |
+| `prose` skill | Applies both modes when drafting/editing any human-facing text |
+| `.claude/rules/fleet/prose-style-and-doctrine.md` | Compact reference for the skill + rule docs |
 
 See also: `.claude/skills/fleet/prose/SKILL.md`,
 `references/conversational.md`.

@@ -23,7 +23,7 @@ the author.
   become a trailing 🟢 section, not intro prose.
 - **Numeric references carry their title.** "item 1" / "finding 3" is always
   followed by the item's short title in italics: `item 1 _(list-route
-threshold)_`. Never make the reader scroll to decode a number.
+  threshold)_`. Never make the reader scroll to decode a number.
 - **No intra-comment links or anchors.** GitHub cannot open (or scroll to) a
   fragment inside a collapsed `<details>`, so fold-out links are dead on
   arrival. Findings live in their `<details>` blocks; there is no intro
@@ -93,7 +93,6 @@ One-line intro: what was traced and the shape of the result.
 
 <details>
 <summary><abbr title="Critical: fix before merge/run">🔴</abbr> <b>1. Title a junior dev understands</b></summary>
-
 <blockquote>
 
 Mechanism first, then the step-by-step failure scenario, then
@@ -104,7 +103,6 @@ Fix idea 💡: the concrete remediation.
 
 <details>
 <summary><abbr title="Moderate/minor: worth addressing">🟡</abbr> <b>Smaller items</b></summary>
-
 <blockquote>
 
 - Bullet per nit, complete sentences.

@@ -84,7 +84,8 @@ rolldown bundle's input closure), mirroring the maker
 
 - the `_dispatch/` and `_shared/` dispatch graph (always bundled), and
 - each **bundle-safe** hook `index.mts` — one carrying the maker's two markers:
-  the entrypoint guard `import.meta.url === \`file://${process.argv[1]}\``**and**`export function run(`.
+  the entrypoint guard `import.meta.url === \`file://${process.argv[1]}\`` **and**
+  `export function run(`.
 
 A hook that runs via top-level `await runHook(...)` lacks the `export run`
 marker, so the maker never bundles it — it is **not** snapshot-eligible, and its

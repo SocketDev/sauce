@@ -6,6 +6,7 @@ import {
   mkdtempSync,
   readFileSync,
   readdirSync,
+  realpathSync,
   rmSync,
   writeFileSync,
 } from 'node:fs'
@@ -18,6 +19,27 @@ import crypto from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 
 //#region template/base/bootstrap/src/helpers.mts
+/**
+ * Normalize bundle-manifest paths to their portable `/` wire format.
+ */
+function normalizeBundlePath(filePath) {
+  return filePath.replaceAll('\\', '/')
+}
+function tarExecutable(platform, systemRoot) {
+  return platform === 'win32'
+    ? path.join(systemRoot ?? 'C:\\Windows', 'System32', 'tar.exe')
+    : 'tar'
+}
+/**
+ * Build extraction arguments for the platform-selected tar executable.
+ */
+function tarExtractArgs(options) {
+  const opts = {
+    __proto__: null,
+    ...options,
+  }
+  return ['-xzf', opts.archive, '-C', opts.destination]
+}
 function errorMessage(e) {
   if (e instanceof Error) return e.message
   return String(e)
@@ -172,6 +194,9 @@ function mergeWorkspaceYaml(options) {
 function run(cmd, args) {
   execFileSync(cmd, args, { stdio: 'inherit' })
 }
+function segmentFileName(relativePath) {
+  return `${relativePath.replace(/^\./, 'dot-')}.fleetblock`
+}
 function readManifest(manifestPath) {
   return JSON.parse(readFileSync(manifestPath, 'utf8'))
 }
@@ -204,16 +229,15 @@ function verifyBundleFiles(filesDir, manifest) {
   return problems
 }
 /**
- * Verify every segment in `manifest.segments` against its expected SHA-256. A
- * segment mismatch is just as fatal as a file mismatch — the splice result
- * would silently differ from the producer's intent.
+ * Verify every generic block segment and the specialized Claude settings
+ * segment against its expected SHA-256. A mismatch is just as fatal as a file
+ * mismatch — the merge result would silently differ from producer intent.
  */
 function verifySegments(segmentsDir, manifest) {
   const segments = manifest.segments
-  if (!segments || segments.length === 0) return []
   const problems = []
-  for (const entry of segments) {
-    const destName = `${entry.path.replace(/^\./, 'dot-')}.fleetblock`
+  for (const entry of segments ?? []) {
+    const destName = segmentFileName(entry.path)
     const abs = path.join(segmentsDir, destName)
     if (!existsSync(abs)) {
       problems.push(`missing segment: ${entry.path}`)
@@ -225,7 +249,215 @@ function verifySegments(segmentsDir, manifest) {
         `sha256 mismatch for segment ${entry.path} (got ${actual}, want ${entry.sha256})`,
       )
   }
+  const settingsSegment = manifest.settingsSegment
+  if (settingsSegment !== void 0) {
+    const abs = path.join(segmentsDir, segmentFileName(settingsSegment.path))
+    if (!existsSync(abs))
+      problems.push(`missing settings segment: ${settingsSegment.path}`)
+    else {
+      const actual = computeSha256(readFileSync(abs))
+      if (actual !== settingsSegment.sha256)
+        problems.push(
+          `sha256 mismatch for settings segment ${settingsSegment.path} (got ${actual}, want ${settingsSegment.sha256})`,
+        )
+    }
+  }
   return problems
+}
+
+//#endregion
+//#region template/base/bootstrap/src/dispatch-wiring.mts
+const DISPATCH_EVENTS = ['PreToolUse', 'PostToolUse', 'SessionStart', 'Stop']
+const INDEX_REL = '.claude/hooks/fleet/_dispatch/index.cjs'
+const LAUNCHER_REL = '.claude/hooks/fleet/_dispatch/dispatch-launcher'
+/**
+ * The compile-cache baseline command for an event (the cascaded canonical).
+ */
+function baselineCommand(event) {
+  return `node "$CLAUDE_PROJECT_DIR"/${INDEX_REL} ${event}`
+}
+/**
+ * The launcher fast-path command for an event (POSIX execv, host-built).
+ */
+function launcherCommand(event) {
+  return `"$CLAUDE_PROJECT_DIR"/${LAUNCHER_REL} ${event}`
+}
+/**
+ * A dispatch command for `event` in either form (baseline or launcher). Used to
+ * recognize an existing dispatch entry regardless of which path it's wired to,
+ * so a rewrite is idempotent and replaces (never duplicates) the entry.
+ */
+function isDispatchCommand(command, event) {
+  return (
+    command === baselineCommand(event) ||
+    command === launcherCommand(event) ||
+    command ===
+      `node "$CLAUDE_PROJECT_DIR"/.claude/hooks/fleet/_shared/dispatch.mts ${event}`
+  )
+}
+/**
+ * Is `command` the launcher (fast-path) form for `event`? The signal a host has
+ * opted this dispatch slot into the per-machine snapshot launcher.
+ */
+function isLauncherCommand(command, event) {
+  return command === launcherCommand(event)
+}
+/**
+ * Rewrite every recognized dispatch command in `settings` to the form
+ * `make(event)` produces. Returns the number of commands changed. Mutates in
+ * place; the caller decides whether to persist. Passing `baselineCommand` as
+ * `make` CANONICALIZES (both forms collapse to the baseline) — the shape the
+ * fleet-drift comparison needs so a launcher-wired host doesn't read as drift.
+ */
+function rewriteDispatchCommands(settings, make) {
+  let changed = 0
+  const hooks = settings.hooks ?? {}
+  for (let i = 0, { length } = DISPATCH_EVENTS; i < length; i += 1) {
+    const event = DISPATCH_EVENTS[i]
+    const matchers = hooks[event] ?? []
+    for (let m = 0, ml = matchers.length; m < ml; m += 1) {
+      const entries = matchers[m].hooks ?? []
+      for (let j = 0, hl = entries.length; j < hl; j += 1) {
+        const entry = entries[j]
+        if (
+          entry.type === 'command' &&
+          entry.command &&
+          isDispatchCommand(entry.command, event)
+        ) {
+          const next = make(event)
+          if (entry.command !== next) {
+            entry.command = next
+            changed += 1
+          }
+        }
+      }
+    }
+  }
+  return changed
+}
+/**
+ * The set of dispatch events `settings` has wired to the LAUNCHER (fast-path)
+ * form. Used to carry a host's launcher choice across a cascade merge that
+ * would otherwise reset the fleet section to the baseline.
+ */
+function launcherWiredEvents(settings) {
+  const wired = /* @__PURE__ */ new Set()
+  const hooks = settings.hooks ?? {}
+  for (let i = 0, { length } = DISPATCH_EVENTS; i < length; i += 1) {
+    const event = DISPATCH_EVENTS[i]
+    const matchers = hooks[event] ?? []
+    for (let m = 0, ml = matchers.length; m < ml; m += 1) {
+      const entries = matchers[m].hooks ?? []
+      for (let j = 0, hl = entries.length; j < hl; j += 1) {
+        const entry = entries[j]
+        if (entry.command && isLauncherCommand(entry.command, event))
+          wired.add(event)
+      }
+    }
+  }
+  return wired
+}
+
+//#endregion
+//#region template/base/bootstrap/src/settings.mts
+const FLEET_SETTINGS_BEGIN = '// <fleet-canonical>'
+const FLEET_SETTINGS_END = '// </fleet-canonical>'
+function cloneJson(value) {
+  return JSON.parse(JSON.stringify(value))
+}
+function fleetSettingsKeys(settings) {
+  const keys = Object.keys(settings)
+  const start = keys.indexOf(FLEET_SETTINGS_BEGIN)
+  const end = keys.indexOf(FLEET_SETTINGS_END)
+  if (start === -1 || end === -1 || end <= start)
+    throw new Error(
+      'Invalid Claude settings fleet section: settings.json has missing or misordered <fleet-canonical> markers; expected one opening marker before one closing marker; fix the marker keys in the canonical template.',
+    )
+  return keys.slice(start, end + 1)
+}
+function isLegacyFleetCommentEnv(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false
+  const entries = Object.entries(value)
+  if (entries.length !== 1 || entries[0]?.[0] !== '//') return false
+  const comments = entries[0][1]
+  return (
+    Array.isArray(comments) &&
+    comments.some(
+      comment =>
+        typeof comment === 'string' &&
+        comment.includes('CLAUDE_CODE_NO_FLICKER'),
+    )
+  )
+}
+function isRepoHookCommand(command) {
+  return typeof command === 'string' && command.includes('/.claude/hooks/repo/')
+}
+function mergeClaudeSettings(options) {
+  const { fleetSettings, repoSettings } = {
+    __proto__: null,
+    ...options,
+  }
+  const fleetKeys = fleetSettingsKeys(fleetSettings)
+  const fleetKeySet = new Set(fleetKeys)
+  const merged = {}
+  for (const key of fleetKeys) merged[key] = cloneJson(fleetSettings[key])
+  if (repoSettings !== void 0) {
+    spliceRepoHookEntries(merged, repoSettings)
+    const hostLauncherEvents = launcherWiredEvents(repoSettings)
+    if (hostLauncherEvents.size > 0)
+      rewriteDispatchCommands(merged, event =>
+        hostLauncherEvents.has(event)
+          ? launcherCommand(event)
+          : baselineCommand(event),
+      )
+    for (const [key, value] of Object.entries(repoSettings)) {
+      if (
+        fleetKeySet.has(key) ||
+        key === '// <fleet-canonical>' ||
+        key === '// </fleet-canonical>' ||
+        (key === 'env' && isLegacyFleetCommentEnv(value))
+      )
+        continue
+      merged[key] = cloneJson(value)
+    }
+  }
+  return merged
+}
+function spliceRepoHookEntries(destination, source) {
+  const sourceHooks = source.hooks
+  if (sourceHooks === void 0) return
+  for (const [event, matcherEntries] of Object.entries(sourceHooks)) {
+    if (!Array.isArray(matcherEntries)) continue
+    for (const matcherEntry of matcherEntries) {
+      if (!Array.isArray(matcherEntry.hooks)) continue
+      for (const hook of matcherEntry.hooks)
+        if (isRepoHookCommand(hook.command))
+          spliceRepoHookEntry(destination, event, matcherEntry.matcher, hook)
+    }
+  }
+}
+function spliceRepoHookEntry(settings, event, matcher, hook) {
+  if (!settings.hooks || typeof settings.hooks !== 'object') settings.hooks = {}
+  const eventEntries = settings.hooks[event] ?? []
+  const matcherValue = matcher ?? ''
+  let destination = eventEntries.find(
+    entry => (entry.matcher ?? '') === matcherValue,
+  )
+  if (destination === void 0) {
+    destination = matcherValue
+      ? {
+          hooks: [],
+          matcher: matcherValue,
+        }
+      : { hooks: [] }
+    eventEntries.push(destination)
+    settings.hooks[event] = eventEntries
+  }
+  if (!Array.isArray(destination.hooks)) destination.hooks = []
+  const serialized = JSON.stringify(hook)
+  if (destination.hooks.some(entry => JSON.stringify(entry) === serialized))
+    return
+  destination.hooks.push(cloneJson(hook))
 }
 
 //#endregion
@@ -251,7 +483,7 @@ function installSegments(segmentsDir, dest, manifest) {
   const segments = manifest.segments
   if (!segments || segments.length === 0) return
   for (const entry of segments) {
-    const destName = `${entry.path.replace(/^\./, 'dot-')}.fleetblock`
+    const destName = segmentFileName(entry.path)
     const fleetBlock = readFileSync(path.join(segmentsDir, destName), 'utf8')
     const targetPath = path.join(dest, entry.path)
     const existing = existsSync(targetPath)
@@ -264,6 +496,39 @@ function installSegments(segmentsDir, dest, manifest) {
     })
     mkdirSync(path.dirname(targetPath), { recursive: true })
     writeFileSync(targetPath, updated)
+  }
+}
+/**
+ * Merge the release's canonical Claude settings section into the consumer's
+ * hybrid file. Fleet keys are replaced; repo-owned top-level settings and
+ * `.claude/hooks/repo/` registrations survive. Malformed JSON fails closed.
+ */
+function installSettingsSegment(segmentsDir, dest, manifest) {
+  const segment = manifest.settingsSegment
+  if (segment === void 0) return 0
+  const sourcePath = path.join(segmentsDir, segmentFileName(segment.path))
+  if (!existsSync(sourcePath)) {
+    logger$3.log(
+      `install-fleet: Claude settings segment missing at ${sourcePath} — refusing to merge.`,
+    )
+    return 1
+  }
+  const targetPath = path.join(dest, segment.path)
+  try {
+    const merged = mergeClaudeSettings({
+      fleetSettings: JSON.parse(readFileSync(sourcePath, 'utf8')),
+      repoSettings: existsSync(targetPath)
+        ? JSON.parse(readFileSync(targetPath, 'utf8'))
+        : void 0,
+    })
+    mkdirSync(path.dirname(targetPath), { recursive: true })
+    writeFileSync(targetPath, `${JSON.stringify(merged, void 0, 2)}\n`)
+    return 0
+  } catch (e) {
+    logger$3.log(
+      `install-fleet: Claude settings merge failed for ${targetPath}: ${errorMessage(e)}. Nothing written.`,
+    )
+    return 1
   }
 }
 /**
@@ -345,36 +610,62 @@ function wirePackageJson(dest) {
   pkg['scripts'] = scripts
   writeFileSync(pkgPath, `${JSON.stringify(pkg, void 0, 2)}\n`)
 }
+function normalizeManifestEntryPath(entry) {
+  return normalizeBundlePath(entry.path)
+}
 /**
  * Compute the gitignore entries for thin mode — the wholly-fleet files that the
  * download/fetch action supplies, so they need not be git-tracked. Hybrid paths
  * (manifest.segments — CLAUDE.md, pnpm-workspace.yaml, …) are merged per repo
- * and stay tracked, so they're excluded. Each remaining non-hybrid path is
- * collapsed to an entry that can NEVER catch a repo-owned sibling:
+ * and stay tracked, so they're excluded.
  *
- * - A path under a `fleet/` tier (`.claude/hooks/fleet/…`, `.config/fleet/…`,
- *   `docs/agents.md/fleet/…`, `scripts/fleet/…`) collapses to that tier root.
- *   The `fleet/` convention guarantees the dir holds only fleet files; the
- *   member's own live beside it under `repo/`.
- * - EVERY other path — a root file (`.npmrc`), or a wholly-fleet file inside a
- *   MIXED dir (`.github/workflows/publish-npm.yml`, where the member's OWN
- *   ci.yml also lives) — is listed EXACTLY.
- *
- * A blind 2-segment collapse would gitignore `.github/workflows/` (member CI),
- * `.claude/hooks/repo/`, `.config/repo/` — repo-owned. This never does that.
+ * EVERY entry is EXPLICIT — one line per bundle file, never a blanket
+ * `…/fleet/` dir entry. A dir blanket also swallows any future non-bundle
+ * file that lands beside the payload, hiding it from git entirely; the
+ * explicit list ignores exactly what the bundle supplies and nothing else.
+ * The dir-level collapse still exists for the sync-prune walk — see
+ * fleetDirRoots().
  */
 function thinIgnoreEntries(manifest) {
-  const hybridPaths = new Set((manifest.segments ?? []).map(s => s.path))
+  const hybridPaths = new Set(
+    (manifest.segments ?? []).map(normalizeManifestEntryPath),
+  )
+  if (manifest.settingsSegment !== void 0)
+    hybridPaths.add(normalizeBundlePath(manifest.settingsSegment.path))
   const entries = /* @__PURE__ */ new Set()
-  for (const p of Object.keys(manifest.files)) {
+  const files = Object.keys(manifest.files)
+  for (let i = 0, { length } = files; i < length; i += 1) {
+    const p = normalizeBundlePath(files[i])
+    if (hybridPaths.has(p)) continue
+    entries.add(p)
+  }
+  return [...entries].toSorted()
+}
+/**
+ * The wholly-fleet DIRECTORY roots — each `fleet/` tier a bundle file sits
+ * under (`.claude/hooks/fleet/`, `.config/fleet/`, `scripts/fleet/`, …). The
+ * sync-prune walks these so an on-disk file the current bundle dropped is
+ * deleted. The `fleet/` convention guarantees each root holds only fleet
+ * files (the member's own live beside it under `repo/`), so the walk can
+ * never touch repo-owned content. The .gitignore block deliberately does NOT
+ * use these — its entries are explicit per-file (thinIgnoreEntries).
+ */
+function fleetDirRoots(manifest) {
+  const hybridPaths = new Set(
+    (manifest.segments ?? []).map(normalizeManifestEntryPath),
+  )
+  if (manifest.settingsSegment !== void 0)
+    hybridPaths.add(normalizeBundlePath(manifest.settingsSegment.path))
+  const roots = /* @__PURE__ */ new Set()
+  const files = Object.keys(manifest.files)
+  for (let i = 0, { length } = files; i < length; i += 1) {
+    const p = normalizeBundlePath(files[i])
     if (hybridPaths.has(p)) continue
     const parts = p.split('/')
     const fleetIdx = parts.indexOf('fleet')
-    entries.add(
-      fleetIdx >= 0 ? `${parts.slice(0, fleetIdx + 1).join('/')}/` : p,
-    )
+    if (fleetIdx >= 0) roots.add(`${parts.slice(0, fleetIdx + 1).join('/')}/`)
   }
-  return [...entries].toSorted()
+  return [...roots].toSorted()
 }
 /**
  * Apply thin mode: write a fleet-managed `.gitignore` block listing the
@@ -437,16 +728,20 @@ const PRUNE_SKIP_NAMES = /* @__PURE__ */ new Set([
  * (PRUNE_SKIP_NAMES) are left alone — they are local, not bundle payload.
  */
 function pruneStaleFleetFiles(dest, manifest) {
-  const kept = new Set(Object.keys(manifest.files))
-  for (const segment of manifest.segments ?? []) kept.add(segment.path)
+  const kept = new Set(Object.keys(manifest.files).map(normalizeBundlePath))
+  for (const segment of manifest.segments ?? [])
+    kept.add(normalizeBundlePath(segment.path))
+  if (manifest.settingsSegment !== void 0)
+    kept.add(normalizeBundlePath(manifest.settingsSegment.path))
   let pruned = 0
-  for (const root of thinIgnoreEntries(manifest)) {
-    if (!/[/\\]$/.test(root)) continue
+  const roots = fleetDirRoots(manifest)
+  for (let r = 0, { length: rootCount } = roots; r < rootCount; r += 1) {
+    const root = roots[r]
     const dirAbs = path.join(dest, root)
     if (!existsSync(dirAbs)) continue
     for (const rel of walkFiles(dirAbs, dest)) {
       if (PRUNE_SKIP_NAMES.has(path.basename(rel))) continue
-      const key = rel.split(path.sep).join('/')
+      const key = normalizeBundlePath(rel)
       if (!kept.has(key)) {
         rmSync(path.join(dest, rel), { force: true })
         pruned += 1
@@ -1110,7 +1405,14 @@ async function installFleet(options) {
     const sourceRef = ref || `local-${manifest.version}`
     const extractDir = path.join(tmp, 'extracted')
     mkdirSync(extractDir, { recursive: true })
-    run('tar', ['-xzf', sourceTarball, '-C', extractDir])
+    run(
+      tarExecutable(process.platform, process.env['SystemRoot']),
+      tarExtractArgs({
+        archive: sourceTarball,
+        destination: extractDir,
+        platform: process.platform,
+      }),
+    )
     const filesDir = path.join(extractDir, 'files')
     const segmentsDir = path.join(extractDir, 'segments')
     if (!existsSync(filesDir)) {
@@ -1145,7 +1447,9 @@ async function installFleet(options) {
       }
     }
     const fileCount = Object.keys(manifest.files).length
-    const segmentCount = manifest.segments?.length ?? 0
+    const segmentCount =
+      (manifest.segments?.length ?? 0) +
+      (manifest.settingsSegment === void 0 ? 0 : 1)
     if (opts.dryRun) {
       logger.log(
         `install-fleet: [dry-run] ${fileCount} file(s) + ${segmentCount} segment(s) verified for ${sourceRef} (template ${manifest.templateSha}). Would write into ${dest}.`,
@@ -1155,6 +1459,8 @@ async function installFleet(options) {
     installFiles(filesDir, dest, manifest)
     const prunedCount = pruneStaleFleetFiles(dest, manifest)
     installSegments(segmentsDir, dest, manifest)
+    const settingsResult = installSettingsSegment(segmentsDir, dest, manifest)
+    if (settingsResult !== 0) return settingsResult
     const wsResult = installWorkspaceSegment(segmentsDir, dest, manifest)
     if (wsResult !== 0) return wsResult
     if (opts.wire) wirePackageJson(dest)
@@ -1176,7 +1482,16 @@ async function installFleet(options) {
     })
   }
 }
-if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
+function isMainModule() {
+  const entry = process.argv[1]
+  if (!entry) return false
+  try {
+    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(entry)
+  } catch {
+    return false
+  }
+}
+if (isMainModule()) {
   const parsed = parseArgs(process.argv.slice(2))
   process.exitCode = parsed.status
     ? runStatus(parsed)
@@ -1196,17 +1511,22 @@ export {
   computeSha256,
   endMarker,
   errorMessage,
+  fleetDirRoots,
   formatLockStepError,
   formatUpdateNotice,
   installFiles,
   installFleet,
   installSegments,
+  installSettingsSegment,
   installWorkspaceSegment,
+  isMainModule,
   legacyBeginMarker,
   legacyEndMarker,
   lockStepExitCode,
   maybeShowUpdateNotice,
   mergeWorkspaceYaml,
+  normalizeBundlePath,
+  normalizeManifestEntryPath,
   parseArgs,
   parseYamlKeyBlocks,
   printStatusReport,
@@ -1221,9 +1541,12 @@ export {
   resolveReleaseTemplateSha,
   run,
   runStatus,
+  segmentFileName,
   shouldShowNotice,
   spliceFleetBlock,
   statusJson,
+  tarExecutable,
+  tarExtractArgs,
   thinIgnoreEntries,
   validateBundleBlock,
   validateCascadeSha,

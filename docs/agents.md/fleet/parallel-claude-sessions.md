@@ -46,6 +46,16 @@ Both halves matter: surgical `git add` keeps your index clean, surgical `git com
 
 The wheelhouse cascade is the documented exception: it commits the whole index in a fresh worktree off `origin/main`, opted in via the `FLEET_SYNC=1` sentinel.
 
+## Squash-history repos coordinate on paths, not commits
+
+A repo opted into `squash-history` discards intermediate commit boundaries at
+the final collapse. Never wait for another session to commit when its dirty
+paths are disjoint from yours. Continue immediately, edit only your paths, and
+commit them with an explicit pathspec. Pause only when the same path changes
+between your reads or when starting the final repo-wide squash/push. The
+`parallel-agent-on-stop-nudge` reads the fleet roster and reinforces this rule
+in squash-opted repos.
+
 ## Whose work is this? Own-work-first check
 
 `git status` or `git log` shows unfamiliar changes? Before treating them as another session's, run the own-work check:
@@ -60,7 +70,7 @@ It lists local-ahead commits (unpushed work toward local main) and classifies th
 2. A hook side-effect (formatter, linter, sync-scaffolding).
 3. An auto-lander grouping the dirty tree into logical commits (see [Auto-landed commits are expected](#auto-landed-commits-are-expected)).
 4. An upstream pull that is still settling.
-5. A genuine concurrent session. This one holds only when a file mutates between two of your own reads _this turn_.
+5. A genuine concurrent session. This one holds only when a file mutates between two of your own reads *this turn*.
 
 Whatever the source, `git checkout -- <file>` / `git reset --hard` against work you did not author destroys it. Leave it, or land it.
 
@@ -104,7 +114,7 @@ Stash, add-all, checkout-branch, reset-hard, and revert-other-session's-file are
 
 ## Pre-commit index races — retry, don't `--no-verify`
 
-When two sessions share one `.git/`, a `git commit` can fail in pre-commit because the _other_ session's git op holds the index lock or left a half-written object. The signatures:
+When two sessions share one `.git/`, a `git commit` can fail in pre-commit because the *other* session's git op holds the index lock or left a half-written object. The signatures:
 
 - `Unable to create '.git/index.lock': File exists` / `another git process seems to be running`
 - `error: bad object` / `fatal: unable to read tree`
@@ -182,3 +192,21 @@ primary-checkout reset for exactly this reason.
 Enforced by `no-revert-guard` (blocks the rewind), `no-force-push-guard` (gates
 the forward reconcile), and `whose-work` (classifies author). A dedicated
 origin-ahead Stop nudge is tracked to surface this proactively.
+
+## Codex companions are quick checks, not long sessions
+
+A Codex companion session (identified by a FOREIGN
+`CODEX_COMPANION_SESSION_ID` — one that does not appear in the session's own
+transcript path; the codex plugin exports every session's OWN id, which marks
+nothing) exists for a quick second opinion — a diagnosis pass, a small
+verification. It is NOT a peer long-running session: a runaway multi-hour
+companion once looped `land-work.mts`/`cover.mts` for 8+ hours, monopolizing the
+shared checkout's test gate and index while mis-attributing its dirty files to
+the primary session.
+
+`codex-session-budget-guard` (PreToolUse) enforces this: the companion's first
+tool call stamps a start marker under
+`node_modules/.cache/socket-codex-session/`, and once the 1-minute wall-clock
+budget is spent every further tool call blocks with a hand-off message. Sustained
+work belongs in a full Claude session. The user lifts it for one session by
+typing `Allow codex-long-session bypass`.

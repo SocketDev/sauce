@@ -57,12 +57,12 @@ reads the `catalogOptional:` block as its version source of truth.
 
 ## Run modes
 
-| Command                                         | Effect                                                                     |
-| ----------------------------------------------- | -------------------------------------------------------------------------- |
-| `node scripts/fleet/doctor.mts`                 | Diagnose only. No FS writes, no network. Exit 1 if any finding.            |
-| `node scripts/fleet/doctor.mts --fix`           | Auto-fix Gap 1 (catalog entries). Run probe install if fixes were applied. |
-| `node scripts/fleet/doctor.mts --probe-install` | Run probe install unconditionally.                                         |
-| `pnpm run fix --all`                            | Runs `doctor --fix` automatically after deterministic fixers, before AI.   |
+| Command | Effect |
+| --- | --- |
+| `node scripts/fleet/doctor.mts` | Diagnose only. No FS writes, no network. Exit 1 if any finding. |
+| `node scripts/fleet/doctor.mts --fix` | Auto-fix Gap 1 (catalog entries). Run probe install if fixes were applied. |
+| `node scripts/fleet/doctor.mts --probe-install` | Run probe install unconditionally. |
+| `pnpm run fix --all` | Runs `doctor --fix` automatically after deterministic fixers, before AI. |
 
 ## Exit contract
 

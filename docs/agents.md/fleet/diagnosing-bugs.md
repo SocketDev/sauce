@@ -10,7 +10,7 @@ Adapted from `mattpocock/skills/diagnosing-bugs`.
 
 ## The loop is the skill
 
-If you have a **tight** pass/fail signal that goes **red** on _this_ bug,
+If you have a **tight** pass/fail signal that goes **red** on *this* bug,
 bisection, hypothesis-testing, and instrumentation all just consume it. Without
 one, no amount of staring at code will save you. Spend disproportionate effort
 on the loop; the rest is mechanical.
@@ -26,7 +26,7 @@ you delete after:
   between two known states.
 
 **Tight** = fast (seconds), deterministic (pin time, seed RNG, freeze network with
-`nock`), and sharp (asserts the user's _exact_ symptom, not "didn't crash"). For a
+`nock`), and sharp (asserts the user's *exact* symptom, not "didn't crash"). For a
 non-deterministic bug the goal is a higher reproduction rate, not a clean repro —
 loop the trigger until it's debuggable.
 
@@ -34,16 +34,16 @@ loop the trigger until it's debuggable.
 
 1. **Loop** — build the tight red-capable command and run it at least once. No
    red-capable command, no Phase 3. This is the completion gate the skill enforces.
-2. **Reproduce + minimise** — watch it go red on the _user's_ symptom (not a nearby
+2. **Reproduce + minimise** — watch it go red on the *user's* symptom (not a nearby
    one); shrink to the smallest scenario where every remaining element is
    load-bearing.
-3. **Hypothesise** — generate 3–5 ranked _falsifiable_ hypotheses before testing
+3. **Hypothesise** — generate 3–5 ranked *falsifiable* hypotheses before testing
    any ("if X is the cause, changing Y makes it disappear"). A hypothesis with no
    prediction is a vibe — sharpen or discard.
 4. **Instrument** — one variable per probe; prefer a debugger/REPL over logs; tag
    every debug log `[DEBUG-<hex>]` so cleanup is one grep. Perf bugs: measure a
    baseline first, then bisect — logs are usually the wrong tool.
-5. **Fix + regression test** — write the test _before_ the fix, but only at a
+5. **Fix + regression test** — write the test *before* the fix, but only at a
    **correct seam** (one that exercises the real bug pattern at the call site).
    Fleet seam doctrine: test through the public interface at the highest available
    seam, vitest in `test/` (members co-locate; wheelhouse hook/lint-rule tests live
@@ -51,8 +51,8 @@ loop the trigger until it's debuggable.
    seam exists, that itself is the finding — flag it, don't fake confidence.
 6. **Cleanup + post-mortem** — `grep` out the `[DEBUG-` tags, run `pnpm run check`
    - `pnpm test`, and **name the root cause in the commit message** (`fix(<scope>):
-<root cause>`, per fleet commit doctrine). A second occurrence of the same shape
-     → search the repo for siblings (variant analysis) before closing.
+   <root cause>`, per fleet commit doctrine). A second occurrence of the same shape
+   → search the repo for siblings (variant analysis) before closing.
 
 ## Code-first, then AI
 

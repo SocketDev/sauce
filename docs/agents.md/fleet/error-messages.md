@@ -105,10 +105,7 @@ Use `joinOr` whenever the error is "must be one of X", `joinAnd` whenever it's "
 
 ```ts
 import { errorMessage } from '@socketsecurity/lib/errors/message'
-import {
-  isError,
-  isErrnoException,
-} from '@socketsecurity/lib/errors/predicates'
+import { isError, isErrnoException } from '@socketsecurity/lib/errors/predicates'
 import { errorStack } from '@socketsecurity/lib/errors/stack'
 ```
 

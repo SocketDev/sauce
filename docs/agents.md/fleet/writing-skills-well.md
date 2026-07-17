@@ -1,7 +1,7 @@
 # Writing skills well
 
 How to author a fleet skill that's **predictable** — the agent taking the same
-_process_ every run, not producing the same output. Predictability is the root
+*process* every run, not producing the same output. Predictability is the root
 virtue; every lever here serves it. Read this before adding a skill under
 `.claude/skills/fleet/`; pair it with [`agents-and-skills.md`](agents-and-skills.md)
 (taxonomy, naming, scope) and [`code-is-law`](code-is-law.md).
@@ -64,15 +64,15 @@ the agent thinks with while running the skill (`tight`, `red`, `residue`, `trace
 bullet`). It anchors a region of behaviour in the fewest tokens by recruiting
 priors the model holds. Fleet leading words worth reaching for:
 
-- `tight` — a fast, deterministic, low-overhead loop (a _tight_ feedback loop).
-- `red` — a loop that goes _red_ on this bug; converts a fuzzy gate to a binary
+- `tight` — a fast, deterministic, low-overhead loop (a *tight* feedback loop).
+- `red` — a loop that goes *red* on this bug; converts a fuzzy gate to a binary
   observable.
 - `residue` — the part a script can't do; what AI owns after the deterministic
   pass.
 - `cascade` / `dogfood` — fleet propagation verbs with fixed meaning.
 
 Hunt for restatements a leading word retires: "fast, deterministic, low-overhead"
-→ _tight_. You win twice — fewer tokens and a sharper hook.
+→ *tight*. You win twice — fewer tokens and a sharper hook.
 
 ## Pruning
 
@@ -96,7 +96,7 @@ spends tokens without changing behaviour.
 ## Failure modes
 
 - **Premature completion** — ending a step before it's done. Sharpen the
-  completion criterion first (cheap); only if it's irreducibly fuzzy _and_ you see
+  completion criterion first (cheap); only if it's irreducibly fuzzy *and* you see
   the rush, split the sequence to hide post-completion steps.
 - **Duplication** — the same meaning in more than one place; costs maintenance,
   tokens, and inflates a meaning's rank.

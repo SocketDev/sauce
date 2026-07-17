@@ -20,15 +20,15 @@ Flow, mirroring the gh-aw `.md`:
 
 ### Flags (mirror the gh-aw inputs)
 
-| Flag                        | Default                                 | Effect                                                        |
-| --------------------------- | --------------------------------------- | ------------------------------------------------------------- |
-| `--test-setup-script <cmd>` | `pnpm run build`                        | pre-test command                                              |
-| `--test-script <cmd>`       | `pnpm test`                             | test command                                                  |
-| `--update-model <model>`    | `haiku`                                 | model for the agentic step                                    |
-| `--pr-base <branch>`        | repo default                            | PR base branch                                                |
-| `--pr-title-prefix <text>`  | `chore(deps): weekly dependency update` | PR title prefix (date appended)                               |
-| `--no-agent`                | (agent on)                              | force deterministic-only (offline path)                       |
-| `--pr` / `--no-pr`          | `--no-pr`                               | open a PR (CI passes `--pr`); local default leaves the branch |
+| Flag | Default | Effect |
+| ------ | --------- | -------- |
+| `--test-setup-script <cmd>` | `pnpm run build` | pre-test command |
+| `--test-script <cmd>` | `pnpm test` | test command |
+| `--update-model <model>` | `haiku` | model for the agentic step |
+| `--pr-base <branch>` | repo default | PR base branch |
+| `--pr-title-prefix <text>` | `chore(deps): weekly dependency update` | PR title prefix (date appended) |
+| `--no-agent` | (agent on) | force deterministic-only (offline path) |
+| `--pr` / `--no-pr` | `--no-pr` | open a PR (CI passes `--pr`); local default leaves the branch |
 
 ### When to reach for the fallback
 
@@ -44,12 +44,12 @@ The two paths share the same update logic; the difference is the wrapper (budget
 
 To use it, toggle it with `scripts/fleet/weekly-update-workflow.mts`:
 
-| Command                                                | Effect                                                                |
-| ------------------------------------------------------ | --------------------------------------------------------------------- |
-| `node scripts/fleet/weekly-update-workflow.mts status` | report shipped / enabled state                                        |
-| `… enable`                                             | copy `…non-gh-aw.yml.disabled` → `…non-gh-aw.yml` (now live + listed) |
-| `… disable`                                            | remove the live copy (back to dormant)                                |
-| `… run` (= `pnpm run weekly-update:ci`)                | enable → run it via Agent CI → re-disable, even on failure            |
+| Command | Effect |
+| --------- | -------- |
+| `node scripts/fleet/weekly-update-workflow.mts status` | report shipped / enabled state |
+| `… enable` | copy `…non-gh-aw.yml.disabled` → `…non-gh-aw.yml` (now live + listed) |
+| `… disable` | remove the live copy (back to dormant) |
+| `… run` (= `pnpm run weekly-update:ci`) | enable → run it via Agent CI → re-disable, even on failure |
 
 The enabled `…non-gh-aw.yml` copy is gitignored, so it is transient and never committed (the `.disabled` file stays canonical). When live, the workflow is `workflow_dispatch`-only (it must not compete with the gh-aw schedule): it checks out, sets up via the fleet `setup-and-install` action, and runs `pnpm run weekly-update` with the dispatch inputs. The agentic step runs only if `ANTHROPIC_API_KEY` is set; without it the job does the deterministic update and (if `open-pr`) still opens the PR.
 

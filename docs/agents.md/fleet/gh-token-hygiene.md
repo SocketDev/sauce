@@ -107,7 +107,7 @@ After this, sudo is back to its default (password only). The hook's auth flow wi
 
 `auth-rotation-nudge` Stop-hook tracks the gh token's issued-at timestamp (stored at `~/.claude/gh-token-issued-at`). When the token is >8 hours old, the next Stop event exits non-zero with instructions:
 
-```text
+```bash
 gh auth refresh -h github.com
 ```
 
@@ -163,7 +163,7 @@ A recurring gh loop — PR scanning on a cron tick, CI watching — can outlive 
 the rotation then strands the loop mid-cycle. Active use is proof of liveness,
 so every loop tick re-stamps the heartbeat FIRST:
 
-```shell
+```bash
 node scripts/fleet/gh-heartbeat.mts --quiet
 ```
 

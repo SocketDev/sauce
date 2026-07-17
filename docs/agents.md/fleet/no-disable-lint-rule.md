@@ -34,13 +34,13 @@ A disable on an `import` statement suppresses the rule for **every** binding the
 **Why:** a test imports a constant like `HOST_NAME` from `src/` and gets flagged by `no-src-import-in-test-expect`. A blanket import-line disable goes on with the reason "HOST_NAME is the actual, not an expected-value builder." That reason is only half true:
 
 ```ts
-expect(HOST_NAME).toBe('dev.socket.trusted_publisher_host') // HOST_NAME is the ACTUAL — fine from src/
-expect(manifest['name']).toBe(HOST_NAME) // HOST_NAME is the EXPECTED — a real violation
+expect(HOST_NAME).toBe('dev.socket.trusted_publisher_host')  // HOST_NAME is the ACTUAL — fine from src/
+expect(manifest['name']).toBe(HOST_NAME)                      // HOST_NAME is the EXPECTED — a real violation
 ```
 
 The stated reason was false for the second line, where the disable silently suppressed a genuine "src binding builds the expected value" bug. The fix is a code change, not a disable: assert the second line against the **literal** the constant equals (`'dev.socket.trusted_publisher_host'`), leaving `HOST_NAME` used only as the actual. The rule then passes on its own terms.
 
-The discipline: **prefer a code fix over a disable**, and when a disable is truly needed, verify the reason holds at _every_ site the suppression covers. If the binding is sometimes a real violation, narrow the usage (use a literal, split the import) rather than blanket-disable.
+The discipline: **prefer a code fix over a disable**, and when a disable is truly needed, verify the reason holds at *every* site the suppression covers. If the binding is sometimes a real violation, narrow the usage (use a literal, split the import) rather than blanket-disable.
 
 ### File-class exemption via override
 

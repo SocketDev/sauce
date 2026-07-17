@@ -20,11 +20,11 @@ normalizePath(raw)` (or `toUnixPath`) in the 20-line window before the usage.
 
 ## Enforcement surfaces
 
-| Surface                  | File                                                        | What it catches                                              |
-| ------------------------ | ----------------------------------------------------------- | ------------------------------------------------------------ |
-| Lint rule (write-time)   | `socket/normalize-path-before-match`                        | Un-normalized path ops in any edited `.ts`/`.mts` source     |
-| Belt check (commit-time) | `scripts/fleet/check/paths-are-normalized-before-match.mts` | Backlog scan of all committed source files                   |
-| Stop hook (save-time)    | `.claude/hooks/fleet/path-regex-normalize-nudge/`           | Dual-separator regex writes (overlapping surface; keep both) |
+| Surface | File | What it catches |
+| --------- | ------ | ----------------- |
+| Lint rule (write-time) | `socket/normalize-path-before-match` | Un-normalized path ops in any edited `.ts`/`.mts` source |
+| Belt check (commit-time) | `scripts/fleet/check/paths-are-normalized-before-match.mts` | Backlog scan of all committed source files |
+| Stop hook (save-time) | `.claude/hooks/fleet/path-regex-normalize-nudge/` | Dual-separator regex writes (overlapping surface; keep both) |
 
 The lint rule auto-fixes by wrapping the path argument in `normalizePath(…)`.
 The check script is text-based (no full AST); a small false-positive rate is

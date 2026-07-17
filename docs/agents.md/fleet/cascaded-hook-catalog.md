@@ -28,7 +28,7 @@ or changing a cascaded hook/rule.
     structure-sensitive Bash guards. Replaces regex command detection so
     `$var`/eval/`$(…)` indirection is seen, not evaded. shell-quote is a
     fleet-wide catalog devDep (resolves from root node_modules, the ancestor
-    every hook + \_shared walks up to).
+    every hook +_shared walks up to).
   - `transcript.mts` — centralizes `readStdin()` + the JSONL user-turn parser (3
     shape variants) used by every hook that needs the `Allow <X> bypass` phrase
     scan. Before extraction the parser was copy-pasted across no-revert-guard /
@@ -48,7 +48,7 @@ or changing a cascaded hook/rule.
     scan for the same vendor / generic shapes. Categorized by vendor (Socket, LLM
     providers, GitHub, Linear, Notion, AWS, Stripe, etc.) so consumers can opt
     out per category; `ALL_TOKEN_KEY_PATTERNS` is the default union.
-  - `wheelhouse-root.mts` — walks up from cwd to find the the fleet scaffolding repo
+  - `wheelhouse-root.mts` — walks up from cwd to find the fleet source
     checkout. Used by the user-global wheelhouse-dispatch hook so wheelhouse-only
     hooks (new-hook-claude-md-guard, drift-check-nudge) can fire from any
     fleet-repo session. Must cascade since the dispatcher imports it via the
@@ -129,7 +129,7 @@ phrase (where one exists):
   (`process.std{err,out}.write`, `console.*`) in source; suggests `getDefaultLogger()`.
 - **no-revert-guard** — PreToolUse(Bash) refusing destructive git
   (checkout/restore/reset/stash/clean) + hook bypasses (--no-verify,
-  DISABLE*PRECOMMIT*\*, --no-gpg-sign) unless the canonical
+  DISABLE_PRECOMMIT_*, --no-gpg-sign) unless the canonical
   `Allow <X> bypass` phrase is in a recent user turn.
 - **no-force-push-guard** — PreToolUse(Bash) refusing a `git push` carrying
   any force flag (--force, -f, --force-with-lease, --force-if-includes)
