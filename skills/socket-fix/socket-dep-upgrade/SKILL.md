@@ -54,7 +54,6 @@ pnpm dlx socket organization list
 ```
 
 If authentication fails or the CLI is not installed, use the `/socket-setup` skill for detailed guidance including Node.js installation, PATH troubleshooting, and CI/CD token configuration.
-
 <!-- END_SECTION:cli-setup.md -->
 
 ## Update Strategy

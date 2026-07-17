@@ -1,7 +1,7 @@
 #!/usr/bin/env pnpm dlx tsx
 /**
- * Generate Cursor plugin artifacts (.cursor-plugin/plugin.json, .mcp.json)
- * from .claude-plugin/plugin.json.
+ * Generate Cursor plugin artifacts (.cursor-plugin/plugin.json, .mcp.json) from
+ * .claude-plugin/plugin.json.
  */
 
 import {
@@ -12,12 +12,13 @@ import {
   writeFileSync,
 } from 'node:fs'
 import * as path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 import { parseFrontmatter } from './lib/frontmatter.mts'
 
 const logger = getDefaultLogger()
 
-const ROOT = path.resolve(__dirname, '..')
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const CLAUDE_PLUGIN_MANIFEST = path.join(ROOT, '.claude-plugin', 'plugin.json')
 const CURSOR_PLUGIN_DIR = path.join(ROOT, '.cursor-plugin')
 const CURSOR_PLUGIN_MANIFEST = path.join(CURSOR_PLUGIN_DIR, 'plugin.json')

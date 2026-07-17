@@ -4,12 +4,11 @@ You have additional SKILLs documented in directories containing a "SKILL.md" fil
 
 ## Available Skills
 
-| Skill | Description |
-| ----- | ----------- |
-
-{{#skills}}
-| {{name}} | {{description}} |
-{{/skills}}
+| Skill       | Description     |
+| ----------- | --------------- |
+| {{#skills}} |
+| {{name}}    | {{description}} |
+| {{/skills}} |
 
 ## Usage
 

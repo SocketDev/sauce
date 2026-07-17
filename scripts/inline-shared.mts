@@ -10,11 +10,12 @@
 
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import * as path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 
 const logger = getDefaultLogger()
 
-const ROOT = path.resolve(__dirname, '..')
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SKILLS_DIR = path.join(ROOT, 'skills')
 const SHARED_DIR = path.join(SKILLS_DIR, '_shared')
 
@@ -86,8 +87,8 @@ export function inlineShared(filePath: string): Replacement[] {
     }
 
     // Insert shared content
-    const shared = loadShared(sectionName)
-    output.push(shared)
+    const shared = embedBelowCurrentHeading(loadShared(sectionName), output)
+    output.push('', shared)
     output.push(lines[i]!) // keep the END marker
     replacements.push({
       file: path.relative(ROOT, filePath),
@@ -110,6 +111,41 @@ export function loadShared(name: string): string {
     throw new Error(`Shared file not found: ${filePath}`)
   }
   return readFileSync(filePath, 'utf-8').trimEnd()
+}
+
+function embedBelowCurrentHeading(shared: string, output: string[]): string {
+  let parentDepth = 0
+  for (let i = output.length - 1; i >= 0; i -= 1) {
+    const heading = output[i]!.match(/^(#{1,6})\s/u)
+    if (heading) {
+      parentDepth = heading[1]!.length
+      break
+    }
+  }
+  if (parentDepth === 0) {
+    return shared
+  }
+
+  let inFence = false
+  return shared
+    .split('\n')
+    .map(line => {
+      if (/^(?:```|~~~)/u.test(line)) {
+        inFence = !inFence
+        return line
+      }
+      if (inFence) {
+        return line
+      }
+      // Capture the Markdown heading markers, then their required separating
+      // whitespace; the replacement only increases the marker depth.
+      return line.replace(
+        /^(#{1,6})(\s)/u,
+        (_match, hashes, space) =>
+          `${'#'.repeat(Math.min(6, parentDepth + hashes.length))}${space}`,
+      )
+    })
+    .join('\n')
 }
 
 function main(): void {

@@ -57,6 +57,13 @@ describe('Error Paths', () => {
       expect(result['name']).toBeUndefined()
       expect(result['description']).toBe('valid')
     })
+
+    it('folds indented continuation lines after an inline value', () => {
+      const result = parseFrontmatter(
+        '---\ndescription: first words,\n  followed by more words.\n---',
+      )
+      expect(result['description']).toBe('first words, followed by more words.')
+    })
   })
 
   describe('collectSkills()', () => {

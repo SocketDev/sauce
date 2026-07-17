@@ -3,12 +3,13 @@
 /**
  * Generate AGENTS.md from AGENTS_TEMPLATE.md and SKILL.md frontmatter.
  *
- * Also validates that marketplace.json is in sync with discovered skills,
- * and updates the skills table in README.md.
+ * Also validates that marketplace.json is in sync with discovered skills, and
+ * updates the skills table in README.md.
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import * as path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 import {
   collectSkills,
@@ -18,7 +19,7 @@ import type { Skill } from './lib/validate-marketplace.mts'
 
 const logger = getDefaultLogger()
 
-const ROOT = path.resolve(__dirname, '..')
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const TEMPLATE_PATH = path.join(ROOT, 'scripts', 'AGENTS_TEMPLATE.md')
 const OUTPUT_PATH = path.join(ROOT, 'agents', 'AGENTS.md')
 const SKILLS_DIR = path.join(ROOT, 'skills')

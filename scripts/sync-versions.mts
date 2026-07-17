@@ -5,11 +5,12 @@
 
 import { readFileSync, writeFileSync } from 'node:fs'
 import * as path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 
 const logger = getDefaultLogger()
 
-const ROOT = path.resolve(__dirname, '..')
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
 interface VersionedJson {
   version?: string | undefined

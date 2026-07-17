@@ -19,7 +19,7 @@
     "lockstep:emit-schema": "node scripts/fleet/lockstep-emit-schema.mts",
     "prepare": "node scripts/fleet/install-git-hooks.mts",
     "security": "node scripts/fleet/security.mts",
-    "test": "node scripts/test.mts",
+    "test": "node scripts/fleet/test.mts",
     "test:api": "SOCKET_API_TOKEN=${SOCKET_API_TOKEN} vitest run --config tests/vitest.config.mts tier2-api/",
     "test:e2e": "RUN_E2E=1 vitest run --config tests/vitest.config.mts tier3-e2e/",
     "test:integration": "RUN_E2E=1 vitest run --config tests/vitest.config.mts tier3-e2e/",

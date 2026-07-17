@@ -49,9 +49,11 @@ export function parseFrontmatter(
       continue
     }
     if (value) {
-      // Single-line `key: value`.
+      // YAML permits an unquoted scalar to continue on indented lines. Keep
+      // this key pending so `description: first words,` followed by indented
+      // prose is folded into one value instead of being silently truncated.
       data[key] = value
-      pendingKey = undefined
+      pendingKey = key
     } else {
       // `key:` — wait to see if continuation lines fill it.
       data[key] = ''
