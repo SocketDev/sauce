@@ -89,6 +89,22 @@ export const TIER_MODEL: Readonly<Record<'haiku' | 'sonnet' | 'opus', string>> =
   } as Readonly<Record<'haiku' | 'sonnet' | 'opus', string>>
 
 /**
+ * Reasoning effort per tier, paired with `TIER_MODEL` so every spawn pins BOTH
+ * model AND effort (the CLAUDE.md token-spend rule). The values ride the
+ * canonical AI_TIER ladder rows the fleet check enforces — (haiku, low),
+ * (sonnet, medium), (opus, high) — so a cheap mechanical rewrite never burns
+ * high reasoning and a real module split never underthinks on low.
+ */
+export const TIER_EFFORT: Readonly<
+  Record<'haiku' | 'sonnet' | 'opus', 'low' | 'medium' | 'high'>
+> = {
+  __proto__: null,
+  haiku: 'low',
+  sonnet: 'medium',
+  opus: 'high',
+} as Readonly<Record<'haiku' | 'sonnet' | 'opus', 'low' | 'medium' | 'high'>>
+
+/**
  * Pick the highest tier present in a per-file batch's rule set. Returns a
  * tier label; the caller resolves it to a model via `TIER_MODEL`. Default
  * (no recognized rules in batch) is `sonnet` — the historical baseline.

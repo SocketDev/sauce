@@ -1,8 +1,9 @@
 ---
 name: updating-xport
-description: Acts on `xport.json` drift for repos that carry the xport lock-step manifest. Reads `pnpm run lockstep --json`, then for each row acts per-kind — auto-bump `version-pin` rows (low-risk mechanical updates), advisory-only for `file-fork` / `feature-parity` / `spec-conformance` / `lang-parity` (upstream semantics need human judgment). Invoked by the `updating` umbrella skill; can also be invoked standalone.
+description: Act on `xport.json` lock-step drift: auto-bump `version-pin` rows; the other row kinds (file-fork, feature-parity, spec-conformance, lang-parity) are advisory only.
 user-invocable: true
-allowed-tools: Bash(pnpm:*), Bash(npm:*), Bash(git:*), Bash(node:*), Bash(rg:*), Bash(grep:*), Bash(find:*), Bash(ls:*), Bash(cat:*), Bash(head:*), Bash(tail:*), Bash(wc:*), Bash(diff:*), Read, Edit, Grep, Glob---
+allowed-tools: Bash(pnpm:*), Bash(npm:*), Bash(git:*), Bash(node:*), Bash(rg:*), Bash(grep:*), Bash(find:*), Bash(ls:*), Bash(cat:*), Bash(head:*), Bash(tail:*), Bash(wc:*), Bash(diff:*), Read, Edit, Grep, Glob
+---
 
 # updating-xport
 

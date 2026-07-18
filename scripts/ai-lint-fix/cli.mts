@@ -47,6 +47,7 @@ import {
   AI_HANDLED_RULES,
   escalateTier,
   RULE_GUIDANCE,
+  TIER_EFFORT,
   TIER_MODEL,
 } from './rule-guidance.mts'
 
@@ -336,18 +337,21 @@ async function runClaudeFix(
   prompt: string,
   cwd: string,
   model: string,
+  effort: 'low' | 'medium' | 'high',
 ): Promise<{ exitCode: number; stdout: string; stderr: string }> {
   // AI_PROFILE.edit = in-place edits only (Edit on existing files, no
   // Write/MultiEdit) — exactly the lint-fix contract: the prompt forbids
   // creating files. spawnAiAgent owns the --no-session-persistence /
   // --add-dir / 529-retry the hand-rolled version used to duplicate.
-  // The model is picked per-file by the caller via escalateTier() — see
-  // RULE_MODEL_TIER in rule-guidance.mts. Simple regex-shaped rewrites
-  // run on Haiku; control-flow + caller-chain rewrites run on Sonnet;
-  // module-split refactors (`socket/max-file-lines`) run on Opus.
+  // Model AND effort are picked per-file by the caller via escalateTier() —
+  // see RULE_MODEL_TIER + TIER_EFFORT in rule-guidance.mts. Simple
+  // regex-shaped rewrites run Haiku/low; control-flow + caller-chain rewrites
+  // run Sonnet/medium; module-split refactors (`socket/max-file-lines`) run
+  // Opus/high — each pair rides its canonical AI_TIER ladder row.
   const { exitCode, stderr, stdout } = await spawnAiAgent({
     ...AI_PROFILE.edit,
     cwd,
+    effort,
     model,
     prompt,
     timeoutMs: 5 * 60 * 1000,
@@ -405,6 +409,7 @@ async function main(): Promise<void> {
       .filter((r): r is string => typeof r === 'string')
     const tier = escalateTier(ruleIds)
     const model = TIER_MODEL[tier]
+    const effort = TIER_EFFORT[tier]
     logger.log(`AI-fix ${rel} (${findings.length} findings, ${tier})…`)
     const prompt = buildPrompt(filePath, findings)
     const { exitCode, stderr } = await runClaudeFix(
@@ -412,6 +417,7 @@ async function main(): Promise<void> {
       prompt,
       cwd,
       model,
+      effort,
     )
     if (exitCode === 0) {
       totalEdits += findings.length

@@ -128,9 +128,9 @@ export const scanWorkflowFile = (repoRoot: string, relPath: string): void => {
     if (!/^\s*#/.test(line)) {
       continue
     }
-    // Matches a fully-qualified build-output path, e.g.
-    // `build/dev/mypkg/wasm/out/Final` — the stage/mode/pkg/output-dir shape
-    // paths.mts owns; a comment spelling it out in full is the drift risk.
+    // Matches a fully-qualified build-output path — the mode, package, and
+    // output-tier shape that paths.mts owns; a comment spelling one out in
+    // full (with a real stage name) is the drift risk this rule guards.
     const literalShape =
       /build\/(?:dev|prod|shared)\/[a-z0-9-]+\/(?:wasm\/)?out\/(?:Compressed|Final|Optimized|Release|Stripped|Synced)/i
     if (literalShape.test(line)) {
