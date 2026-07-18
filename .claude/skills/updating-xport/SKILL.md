@@ -1,6 +1,6 @@
 ---
 name: updating-xport
-description: Acts on `xport.json` drift for repos that carry the xport lock-step manifest. Reads `pnpm run xport --json`, then for each row acts per-kind — auto-bump `version-pin` rows (low-risk mechanical updates), advisory-only for `file-fork` / `feature-parity` / `spec-conformance` / `lang-parity` (upstream semantics need human judgment). Invoked by the `updating` umbrella skill; can also be invoked standalone.
+description: Acts on `xport.json` drift for repos that carry the xport lock-step manifest. Reads `pnpm run lockstep --json`, then for each row acts per-kind — auto-bump `version-pin` rows (low-risk mechanical updates), advisory-only for `file-fork` / `feature-parity` / `spec-conformance` / `lang-parity` (upstream semantics need human judgment). Invoked by the `updating` umbrella skill; can also be invoked standalone.
 user-invocable: true
 allowed-tools: Bash(pnpm:*), Bash(npm:*), Bash(git:*), Bash(node:*), Bash(rg:*), Bash(grep:*), Bash(find:*), Bash(ls:*), Bash(cat:*), Bash(head:*), Bash(tail:*), Bash(wc:*), Bash(diff:*), Read, Edit, Grep, Glob---
 
@@ -65,7 +65,7 @@ git status --porcelain | grep -v '^??' && { echo "dirty tree; aborting"; exit 1;
 ## Phase 2 — Collect drift
 
 ```bash
-pnpm run xport --json > /tmp/xport-report.json
+pnpm run lockstep --json > /tmp/xport-report.json
 ```
 
 Parse `reports[]` from the JSON. Split into:
@@ -126,7 +126,7 @@ Update `.gitmodules` version comment via Edit tool (NOT sed per CLAUDE.md) — r
 
 ```bash
 # Confirm xport harness accepts the new state
-pnpm run xport --json > /tmp/xport-post.json
+pnpm run lockstep --json > /tmp/xport-post.json
 jq --arg id "$ROW_ID" '.reports[] | select(.id == $id) | .severity' /tmp/xport-post.json
 # expect "ok"
 
@@ -196,12 +196,12 @@ Summary: {one-line description}
 - All actionable `version-pin` rows bumped atomically (one commit per row)
 - Advisory rows collected for PR body / workflow output
 - No edits to non-version-pin row state
-- `pnpm run xport` exits 0 or 2 at end (never 1 — no schema errors introduced)
+- `pnpm run lockstep` exits 0 or 2 at end (never 1 — no schema errors introduced)
 - `.gitmodules` version comments synchronized with `pinned_tag`
 
 ## Commands
 
-- `pnpm run xport --json` — drift report (consumed by this skill)
+- `pnpm run lockstep --json` — drift report (consumed by this skill)
 - `jq` — parse + edit `xport.json` (structured JSON edits)
 - `git submodule status` — verify submodule state after bumps
 
