@@ -53,10 +53,11 @@ catalog:
   'oxfmt': 0.58.0
   'oxlint': 1.73.0
   'playwright-core': 1.61.1
+  'portless': 0.15.4
   'regjsparser': 0.13.2
   'rolldown': 1.1.4
   'semver': 7.8.5
-  'shell-quote': 1.9.0
+  'shell-quote': 1.10.0
   'svgo': 4.0.1
   'taze': 19.14.1
   'typescript': 7.0.2
@@ -91,6 +92,8 @@ minimumReleaseAgeExclude:
   - 'dtu-github-actions@0.17.1'
   # published: 2026-07-16 | removable: 2026-07-23
   - 'magic-string@1.0.0'
+  # published: 2026-07-16 | removable: 2026-07-23
+  - 'portless@0.15.4'
 
 # Refuse "exotic" subdeps (git URLs, tarballs, file: links) anywhere
 # in the dep graph. Forces every dep to come from a public registry
@@ -172,4 +175,5 @@ allowBuilds:
   cpu-features: false
   esbuild: true
   protobufjs: false
+  puppeteer: false
   ssh2: false
