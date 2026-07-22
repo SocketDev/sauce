@@ -1,9 +1,14 @@
 {
-  "$schema": "../socket-wheelhouse-schema.json",
+  "$schema": "./socket-wheelhouse-schema.json",
   "schemaVersion": 1,
   "repoName": "skills",
-  "repo": { "type": "solo" },
-  "build": { "from": "npm-registry", "type": "js" },
+  "repo": {
+    "type": "solo"
+  },
+  "build": {
+    "from": "npm-registry",
+    "type": "js"
+  },
   "hooks": {
     "enablePrePush": true,
     "enableCommitMsg": true,
@@ -39,7 +44,10 @@
   "workspace": {
     "blockExoticSubdeps": true,
     "minimumReleaseAge": 10080,
-    "minimumReleaseAgeExclude": ["@socketregistry/*", "@socketsecurity/*"],
+    "minimumReleaseAgeExclude": [
+      "@socketregistry/*",
+      "@socketsecurity/*"
+    ],
     "resolutionMode": "highest",
     "trustPolicy": "no-downgrade"
   }
