@@ -1,5 +1,5 @@
 {
-  "$schema": "./lockstep.schema.json",
+  "$schema": "../fleet/lockstep.schema.json",
   "area": "socket-skills",
   "description": "Lock-step manifest. socket-skills is a Claude Code skill marketplace with no submodule upstreams or sibling language ports — empty rows is the expected state.",
   "upstreams": {},
