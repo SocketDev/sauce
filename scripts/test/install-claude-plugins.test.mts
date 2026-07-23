@@ -76,7 +76,7 @@ test('extractInstalledSha rejects shapes that almost-match but are not 12 + 8+',
   )
 })
 
-const fakePlugin = (id: string, installPath?: string): PluginListEntry => ({
+const fakePlugin = (id: string, installPath?: string | undefined): PluginListEntry => ({
   id,
   scope: 'user',
   enabled: true,

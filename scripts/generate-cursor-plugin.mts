@@ -72,7 +72,7 @@ export function buildMcpConfig(): Record<string, unknown> {
   }
 }
 
-export function collectSkillNames(dir?: string): string[] {
+export function collectSkillNames(dir?: string | undefined): string[] {
   const skillsDir = dir ?? path.join(ROOT, 'skills')
   if (!existsSync(skillsDir)) {
     return []

@@ -11,10 +11,11 @@
  *   out to `rm -rf`, so it works the same on macOS / Linux / Windows.
  */
 import { existsSync } from 'node:fs'
-import { readdir, rm } from 'node:fs/promises'
+import { readdir } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
+import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
 
 const rootPath = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -85,7 +86,7 @@ export async function removeIfExists(
     }
     return
   }
-  await rm(full, { force: true, recursive: true })
+  await safeDelete(full)
   if (!quiet) {
     process.stdout.write(`  removed ${rel}/\n`)
   }
@@ -97,7 +98,7 @@ export async function removeTsBuildInfo(quiet: boolean): Promise<void> {
     const entry = entries[i]!
     if (entry.isFile() && entry.name.endsWith('.tsbuildinfo')) {
       const target = path.join(rootPath, entry.name)
-      await rm(target, { force: true })
+      await safeDelete(target)
       if (!quiet) {
         process.stdout.write(`  removed ${entry.name}\n`)
       }

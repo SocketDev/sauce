@@ -13,7 +13,7 @@ const adapters: Record<string, () => AgentAdapter> = {
  * Get an agent adapter by name.
  * Defaults to the TEST_AGENT environment variable, or "claude-code".
  */
-export function getAdapter(name?: string): AgentAdapter {
+export function getAdapter(name?: string | undefined): AgentAdapter {
   const agentName = name ?? process.env['TEST_AGENT'] ?? 'claude-code'
   const factory = adapters[agentName]
   if (!factory) {

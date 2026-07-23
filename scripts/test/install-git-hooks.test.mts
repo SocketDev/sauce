@@ -23,7 +23,6 @@ import {
   copyFileSync,
   mkdirSync,
   mkdtempSync,
-  rmSync,
   writeFileSync,
 } from 'node:fs'
 import path from 'node:path'
@@ -31,6 +30,7 @@ import os from 'node:os'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { fileURLToPath } from 'node:url'
+import { safeDeleteSync } from '@socketsecurity/lib-stable/fs/safe'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const SOURCE_SCRIPT = path.join(here, '..', 'install-git-hooks.mts')
@@ -67,7 +67,7 @@ function makeTmpRepo(): TmpRepo {
     installerPath,
     hooksDir,
     cleanup: () => {
-      rmSync(dir, { force: true, recursive: true })
+      safeDeleteSync(dir)
     },
   }
 }

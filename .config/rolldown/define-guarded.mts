@@ -162,7 +162,7 @@ export function defineGuardedPlugin(define: Record<string, string>): Plugin {
   const entries = toEntries(define)
   // Top-level segment set lets us cheaply skip files that can't contain any
   // key before doing the full parse + walk.
-  const firstSegments = new Set(entries.map(e => e.segments[0]!))
+  const firstSegments = new Set(entries.map(e => e.segments[0]))
 
   return {
     name: 'define-guarded',
@@ -254,7 +254,7 @@ export function defineGuardedPlugin(define: Record<string, string>): Plugin {
         }
         const keys = Object.keys(n)
         for (let i = 0, { length } = keys; i < length; i += 1) {
-          const k = keys[i]!
+          const k = keys[i]
           if (k === 'end' || k === 'start') {
             continue
           }
