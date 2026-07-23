@@ -5,6 +5,7 @@
  *   500-line soft cap.
  */
 
+import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
 import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
@@ -61,10 +62,10 @@ function loadSocketWheelhouseConfig(
   } catch {
     return undefined
   }
-  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+  if (!isObject(parsed) || Array.isArray(parsed)) {
     return undefined
   }
-  return { value: parsed as Record<string, unknown> }
+  return { value: parsed }
 }
 
 /**
@@ -133,6 +134,9 @@ export function ghApi<T>(
     return undefined
   }
   try {
+    // T is the caller-declared expectation of what `gh api` returns; every
+    // caller guards the fields it reads.
+    // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
     return JSON.parse(r.stdout) as T
   } catch {
     return undefined
@@ -186,10 +190,10 @@ export function readDeclaredApps(): Set<string> {
     return declared
   }
   const github = loaded.value['github']
-  if (typeof github !== 'object' || github === null) {
+  if (!isObject(github)) {
     return declared
   }
-  const apps = (github as Record<string, unknown>)['apps']
+  const apps = github['apps']
   if (Array.isArray(apps)) {
     for (let i = 0, { length } = apps; i < length; i += 1) {
       const a = apps[i]!
@@ -262,11 +266,7 @@ export function detectLocalShadows(
     if (basename.startsWith('_local-not-for-reuse-')) {
       continue
     }
-    if (
-      !SHARED_WORKFLOW_BASENAMES.includes(
-        basename as (typeof SHARED_WORKFLOW_BASENAMES)[number],
-      )
-    ) {
+    if (!(SHARED_WORKFLOW_BASENAMES as readonly string[]).includes(basename)) {
       continue
     }
     const r = spawnSync('gh', ['api', `repos/${repo}/contents/${w.path}`], {
@@ -277,14 +277,16 @@ export function detectLocalShadows(
     }
     let bodyRaw: string
     try {
-      const obj = JSON.parse(r.stdout) as {
-        content?: string | undefined
-        encoding?: string | undefined
-      }
-      if (obj.encoding !== 'base64' || !obj.content) {
+      const obj: unknown = JSON.parse(r.stdout)
+      if (
+        !isObject(obj) ||
+        obj['encoding'] !== 'base64' ||
+        typeof obj['content'] !== 'string' ||
+        !obj['content']
+      ) {
         continue
       }
-      bodyRaw = Buffer.from(obj.content, 'base64').toString('utf8')
+      bodyRaw = Buffer.from(obj['content'], 'base64').toString('utf8')
     } catch {
       continue
     }

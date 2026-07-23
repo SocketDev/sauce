@@ -80,12 +80,15 @@ export function loadManifestTree(rootManifestPath: string): {
   // manifest keys. Double-cast through `unknown` so the
   // `exactOptionalPropertyTypes + noUncheckedIndexedAccess` strict
   // tsconfig in some repos accepts the `__proto__` sigil.
+  /* eslint-disable typescript/no-unsafe-type-assertion -- `__proto__: null`
+     sigil needs the double cast under strict tsconfig; see file header. */
   const mergedUpstreams: Record<string, Upstream> = {
     __proto__: null,
   } as unknown as Record<string, Upstream>
   const mergedSites: Record<string, Site> = {
     __proto__: null,
   } as unknown as Record<string, Site>
+  /* eslint-enable typescript/no-unsafe-type-assertion */
 
   const mergedRows: Row[] = []
   // Include order, root last so it wins on duplicate keys.

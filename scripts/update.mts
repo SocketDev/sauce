@@ -19,6 +19,7 @@
  * scripts/ dir and wire it in via a `"update": "node scripts/update.mts"`
  * package.json entry.
  */
+import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
 async function run(cmd: string, args: string[]): Promise<boolean> {
@@ -26,7 +27,8 @@ async function run(cmd: string, args: string[]): Promise<boolean> {
     await spawn(cmd, args, { stdio: 'inherit' })
     return true
   } catch (e) {
-    process.exitCode = (e as { code?: number | undefined }).code ?? 1
+    process.exitCode =
+      isObject(e) && typeof e['code'] === 'number' ? e['code'] : 1
     return false
   }
 }
@@ -77,5 +79,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((e: unknown) => {
-  process.exitCode = (e as { code?: number | undefined }).code ?? 1
+  process.exitCode =
+    isObject(e) && typeof e['code'] === 'number' ? e['code'] : 1
 })

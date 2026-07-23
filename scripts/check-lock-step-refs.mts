@@ -38,6 +38,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { parseArgs } from 'node:util'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
 
 const CONFIG_PATH = '.config/lock-step-refs.json'
 const SKIP_DIRS = new Set([
@@ -93,20 +94,22 @@ function loadConfig(repoRoot: string): Config | undefined {
   } catch (e) {
     throw new Error(`${CONFIG_PATH} is not valid JSON: ${errorMessage(e)}`)
   }
-  if (!parsed || typeof parsed !== 'object') {
+  if (!isObject(parsed)) {
     throw new Error(`${CONFIG_PATH} must be a JSON object`)
   }
-  const obj = parsed as Record<string, unknown>
-  if (!obj['roots'] || typeof obj['roots'] !== 'object') {
+  if (!isObject(parsed['roots'])) {
     throw new Error(`${CONFIG_PATH} missing required "roots" object`)
   }
-  if (!Array.isArray(obj['scan'])) {
+  if (!Array.isArray(parsed['scan'])) {
     throw new Error(`${CONFIG_PATH} missing required "scan" array`)
   }
-  if (!Array.isArray(obj['extensions'])) {
+  if (!Array.isArray(parsed['extensions'])) {
     throw new Error(`${CONFIG_PATH} missing required "extensions" array`)
   }
-  return obj as unknown as Config
+  // Shape validated field-by-field above; element types inside the arrays
+  // are trusted for this repo-local config.
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
+  return parsed as unknown as Config
 }
 
 function walk(dir: string, exts: readonly string[]): string[] {

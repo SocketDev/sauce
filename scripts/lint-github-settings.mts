@@ -100,6 +100,9 @@ function readCache(repo: string): CacheEntry | undefined {
   }
   let entry: CacheEntry
   try {
+    // Cache file is written by this script's own writeCache; the repo field
+    // is re-checked immediately below.
+    // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
     entry = JSON.parse(raw) as CacheEntry
   } catch {
     return undefined

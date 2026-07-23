@@ -145,6 +145,9 @@ async function main(): Promise<void> {
     process.exit(1)
     return
   }
+  // external-tools.json is schema-checked in CI (external-tools-schema.json);
+  // the sfw entry is validated right below.
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
   const tools = JSON.parse(
     readFileSync(EXTERNAL_TOOLS_PATH, 'utf8'),
   ) as ExternalToolsFile

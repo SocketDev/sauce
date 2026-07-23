@@ -120,7 +120,7 @@ export function readNeededCatalogEntries(): CatalogYamlMap {
       // instead of trying to balance them in the regex.
       const m = /^\s+'?(@socketsecurity\/[^':]+)'?:\s*(.+?)\s*$/.exec(line)
       if (m) {
-        let value = m[2] as string
+        let value = m[2]!
         // Strip wrapping single or double quotes.
         if (
           (value.startsWith("'") && value.endsWith("'")) ||
@@ -128,7 +128,7 @@ export function readNeededCatalogEntries(): CatalogYamlMap {
         ) {
           value = value.slice(1, -1)
         }
-        out[m[1] as string] = value
+        out[m[1]!] = value
       }
     }
   }

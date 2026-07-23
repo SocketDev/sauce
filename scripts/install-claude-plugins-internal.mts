@@ -6,6 +6,7 @@
  */
 
 import { existsSync } from 'node:fs'
+import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
 import path from 'node:path'
 import process from 'node:process'
 
@@ -124,24 +125,22 @@ export function lookupInstalledSha(
   installedPluginsJson: unknown,
   installId: string,
 ): string | undefined {
-  if (!installedPluginsJson || typeof installedPluginsJson !== 'object') {
+  const plugins = isObject(installedPluginsJson)
+    ? installedPluginsJson['plugins']
+    : undefined
+  if (!isObject(plugins)) {
     return undefined
   }
-  const plugins = (installedPluginsJson as { plugins?: unknown | undefined })
-    .plugins
-  if (!plugins || typeof plugins !== 'object') {
-    return undefined
-  }
-  const entries = (plugins as Record<string, unknown>)[installId]
+  const entries = plugins[installId]
   if (!Array.isArray(entries)) {
     return undefined
   }
   for (let i = 0, { length } = entries; i < length; i += 1) {
-    const entry = entries[i]!
-    if (!entry || typeof entry !== 'object') {
+    const entry: unknown = entries[i]
+    if (!isObject(entry)) {
       continue
     }
-    const sha = (entry as { gitCommitSha?: unknown | undefined }).gitCommitSha
+    const sha = entry['gitCommitSha']
     if (typeof sha === 'string' && /^[0-9a-f]{40}$/.test(sha)) {
       return sha
     }

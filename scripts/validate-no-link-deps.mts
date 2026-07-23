@@ -32,6 +32,9 @@ export async function checkPackageJson(
   const content = await fs.readFile(filePath, 'utf8')
   let pkg: Record<string, Record<string, string> | undefined>
   try {
+    // package.json dependency blocks are string->string maps by npm's own
+    // schema; the loop below only reads them.
+    // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
     pkg = JSON.parse(content) as Record<
       string,
       Record<string, string> | undefined

@@ -80,6 +80,9 @@ export class ClaudeCodeAdapter implements AgentAdapter {
         }
 
         try {
+          // Claude CLI owns the --print --output-format json payload shape;
+          // both fields are re-guarded below before use.
+          // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
           const parsed = JSON.parse(stdout) as {
             result?: string | undefined
             subtype?: string | undefined

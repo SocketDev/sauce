@@ -34,6 +34,9 @@ export function loadJSON(relPath: string): unknown {
 }
 
 describe('Manifest Consistency', () => {
+  /* eslint-disable typescript/no-unsafe-type-assertion -- these manifests are
+     the very files under test; the assertions below fail loudly on any
+     missing field, which is exactly this suite's job. */
   const marketplace = loadJSON('.claude-plugin/marketplace.json') as Marketplace
   const packageJson = loadJSON('package.json') as {
     version: string
@@ -41,6 +44,7 @@ describe('Manifest Consistency', () => {
   const geminiJson = loadJSON('gemini-extension.json') as {
     version: string
   }
+  /* eslint-enable typescript/no-unsafe-type-assertion */
   const agentsMd = readFileSync(path.join(ROOT, 'agents', 'AGENTS.md'), 'utf-8')
 
   describe('marketplace.json', () => {
@@ -102,12 +106,15 @@ describe('Manifest Consistency', () => {
     })
 
     it('all manifest versions are in sync', () => {
+      /* eslint-disable typescript/no-unsafe-type-assertion -- same rationale
+         as the suite-level manifests above. */
       const pluginJson = loadJSON('.claude-plugin/plugin.json') as {
         version: string
       }
       const cursorJson = loadJSON('.cursor-plugin/plugin.json') as {
         version: string
       }
+      /* eslint-enable typescript/no-unsafe-type-assertion */
 
       const versions = {
         'package.json': packageJson.version,

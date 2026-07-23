@@ -21,6 +21,7 @@ import MagicString from 'magic-string'
 import type { BuildResult, PluginBuild } from 'esbuild'
 
 import { errorMessage } from '@socketsecurity/lib/errors/message'
+import { isObject } from '@socketsecurity/lib/objects/predicates'
 import { getDefaultLogger } from '@socketsecurity/lib/logger'
 import { NODE_MODULES } from '@socketsecurity/lib/paths/dirnames'
 
@@ -98,6 +99,9 @@ export function createPathShorteningPlugin() {
                 plugins: [],
               })
 
+              // Babel's own parse result; Comment[] is the declared shape of
+              // `ast.comments` modulo the null the `||` already strips.
+              // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
               const comments = (ast.comments || []) as Comment[]
               for (let ci = 0, { length } = comments; ci < length; ci += 1) {
                 const comment = comments[ci]
@@ -123,10 +127,10 @@ export function createPathShorteningPlugin() {
               }
 
               function walk(node: unknown): void {
-                if (!node || typeof node !== 'object') {
+                if (!isObject(node)) {
                   return
                 }
-                const n = node as Record<string, unknown>
+                const n = node
 
                 if (
                   n['type'] === 'StringLiteral' &&

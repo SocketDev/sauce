@@ -51,6 +51,9 @@ export const AI_HANDLED_RULES: ReadonlySet<string> = new Set([
  * Tier order: `claude-haiku-4-5` < `claude-sonnet-4-6` < `claude-opus-4-8`.
  * Add new rules to the right bucket when adding to AI_HANDLED_RULES.
  */
+// The `__proto__: null` sigil needs a double cast under strict tsconfig;
+// the literal below is otherwise fully statically typed.
+/* eslint-disable typescript/no-unsafe-type-assertion -- see above */
 export const RULE_MODEL_TIER: Readonly<
   Record<string, 'haiku' | 'sonnet' | 'opus'>
 > = {
@@ -74,6 +77,7 @@ export const RULE_MODEL_TIER: Readonly<
   // in every consumer. Real refactoring; Opus's depth pays back.
   'socket/max-file-lines': 'opus',
 } as unknown as Readonly<Record<string, 'haiku' | 'sonnet' | 'opus'>>
+/* eslint-enable typescript/no-unsafe-type-assertion */
 
 /**
  * Map a tier label to the canonical Claude Code model ID. Centralized here
@@ -146,6 +150,8 @@ export function escalateTier(
  * file,
  * so noise stays low.
  */
+// Same `__proto__: null` double-cast rationale as RULE_MODEL_TIER above.
+/* eslint-disable typescript/no-unsafe-type-assertion -- see above */
 export const RULE_GUIDANCE: Readonly<Record<string, string>> = {
   // oxlint-disable-next-line socket/prefer-undefined-over-null -- null-prototype object literal.
   __proto__: null,
@@ -205,3 +211,4 @@ export const RULE_GUIDANCE: Readonly<Record<string, string>> = {
   'socket/no-fetch-prefer-http-request':
     'Replace `fetch(url, opts)` with the right helper from `@socketsecurity/lib-stable/http-request`: `httpJson` when the caller calls `.json()` on the response, `httpText` when it calls `.text()`, `httpRequest` for raw access. Add the named import.',
 } as unknown as Readonly<Record<string, string>>
+/* eslint-enable typescript/no-unsafe-type-assertion */

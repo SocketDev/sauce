@@ -13,6 +13,7 @@
 
 import crypto from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
+import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
 import path from 'node:path'
 
 import type { AllowlistEntry, Finding } from './types.mts'
@@ -75,14 +76,14 @@ const loadAllowlistFromJson = (
   }
   const out: AllowlistEntry[] = []
   for (let i = 0; i < arr.length; i += 1) {
-    const e = arr[i]!
-    if (typeof e !== 'object' || e === null) {
+    const e: unknown = arr[i]
+    if (!isObject(e)) {
       process.stderr.write(
         `[check-paths] pathsAllowlist[${i}] in ${configPath} is not an object; skipping.\n`,
       )
       continue
     }
-    const obj = e as Record<string, unknown>
+    const obj = e
     if (typeof obj['reason'] !== 'string' || obj['reason'].length === 0) {
       process.stderr.write(
         `[check-paths] pathsAllowlist[${i}] in ${configPath} missing required \`reason\`; skipping.\n`,
@@ -204,11 +205,16 @@ export const loadAllowlist = (repoRoot: string): AllowlistEntry[] => {
         blockLines = []
         return
       }
+      // Keys come from the YAML parse; unknown keys land as extra properties
+      // and are ignored by every AllowlistEntry consumer.
+      // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
       ;(current as Record<string, unknown>)[key] =
         key === 'line' ? Number(unquote(trimmed)) : unquote(trimmed)
     }
     if (line.startsWith('- ')) {
       if (current?.reason) {
+        // `reason` is the only required field; the guard above proves it.
+        // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
         entries.push(current as AllowlistEntry)
       }
       current = {}
@@ -234,6 +240,8 @@ export const loadAllowlist = (repoRoot: string): AllowlistEntry[] => {
     flushBlock()
   }
   if (current?.reason) {
+    // `reason` is the only required field; the guard above proves it.
+    // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
     entries.push(current as AllowlistEntry)
   }
   return entries

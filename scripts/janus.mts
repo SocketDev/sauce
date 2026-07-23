@@ -51,6 +51,9 @@ function readJanusEntry(): ToolEntry {
     'setup-security-tools',
     'external-tools.json',
   )
+  // external-tools.json is schema-checked in CI (external-tools-schema.json);
+  // the janus entry is validated right below.
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
   const raw = JSON.parse(readFileSync(configPath, 'utf8')) as {
     tools?: Record<string, ToolEntry> | undefined
   }

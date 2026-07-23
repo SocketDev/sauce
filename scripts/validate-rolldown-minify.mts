@@ -30,6 +30,7 @@ import { fileURLToPath } from 'node:url'
 
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
 
 const logger = getDefaultLogger()
 
@@ -53,10 +54,10 @@ export function collectMinifyFlags(
 ): unknown[] {
   const flags: unknown[] = []
   const pushOutputs = (cfg: unknown): void => {
-    const output = (cfg as { output?: unknown | undefined } | undefined)?.output
+    const output = isObject(cfg) ? cfg['output'] : undefined
     const outputs = Array.isArray(output) ? output : [output]
     for (const out of outputs) {
-      flags.push((out as { minify?: unknown | undefined } | undefined)?.minify)
+      flags.push(isObject(out) ? out['minify'] : undefined)
     }
   }
   const pushConfigs = (value: unknown): void => {
@@ -74,9 +75,11 @@ export function collectMinifyFlags(
 
   const factory = imported['getRolldownConfig']
   if (typeof factory === 'function') {
-    pushOutputs(
-      (factory as (a: string, b: string) => unknown)('entry.js', 'out.js'),
-    )
+    // A typeof-function guard cannot recover the arity; the factory's probe
+    // args are placeholders and extra args are harmless in JS.
+    // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
+    const probe = factory as (a: string, b: string) => unknown
+    pushOutputs(probe('entry.js', 'out.js'))
   }
 
   return flags
@@ -122,8 +125,7 @@ export function readConfigManifest(): string[] | undefined {
     process.exitCode = 1
     return undefined
   }
-  const configs = (parsed as { configs?: unknown | undefined } | undefined)
-    ?.configs
+  const configs = isObject(parsed) ? parsed['configs'] : undefined
   if (!Array.isArray(configs) || configs.some(c => typeof c !== 'string')) {
     logger.error(
       '.config/rolldown-validate.json must have a "configs" array of string paths',
@@ -131,6 +133,8 @@ export function readConfigManifest(): string[] | undefined {
     process.exitCode = 1
     return undefined
   }
+  // Every element is typeof-string checked in the guard above.
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
   return configs as string[]
 }
 
@@ -156,7 +160,8 @@ export async function validateRolldownMinify(): Promise<MinifyViolation[]> {
   for (const configPath of configPaths) {
     try {
       // oxlint-disable-next-line socket/no-dynamic-import-outside-bundle -- the config must load AFTER the MINIFY env gate is cleared (see above); a static top-level import would evaluate it too early.
-      const imported = (await import(configPath)) as Record<string, unknown>
+      const importedRaw: unknown = await import(configPath)
+      const imported = isObject(importedRaw) ? importedRaw : {}
       const flags = collectMinifyFlags(imported)
       for (let i = 0, { length } = flags; i < length; i += 1) {
         const value = flags[i]

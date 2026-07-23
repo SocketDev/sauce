@@ -198,6 +198,9 @@ async function runLintJson(
     return []
   }
   try {
+    // Diagnostics-array presence is checked below; oxlint owns the payload
+    // shape and normalizeOxlintJson tolerates missing per-entry fields.
+    // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
     const parsed = JSON.parse(stdout) as OxlintJsonOutput
     if (!parsed || !Array.isArray(parsed.diagnostics)) {
       return []

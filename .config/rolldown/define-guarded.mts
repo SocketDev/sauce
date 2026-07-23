@@ -24,6 +24,8 @@
  */
 
 import MagicString from 'magic-string'
+
+import { isObject } from '@socketsecurity/lib/objects/predicates'
 import { parseAst } from 'rolldown/parseAst'
 
 import type { Plugin } from 'rolldown'
@@ -98,12 +100,13 @@ function isReadPosition(parentType: string, parentKey: string): boolean {
 // Returns undefined for anything else (e.g. `obj[expr]` dynamic access), which
 // can't be a constant define target.
 function memberPropName(node: Record<string, unknown>): string | undefined {
-  const property = node['property'] as Record<string, unknown> | undefined
+  const property = isObject(node['property']) ? node['property'] : undefined
   if (!property) {
     return undefined
   }
   if (property['type'] === 'Identifier') {
-    return property['name'] as string
+    const name = property['name']
+    return typeof name === 'string' ? name : undefined
   }
   // String-literal computed access (`obj['prop']` / `obj["prop"]`). oxc tags
   // the node `Literal` with a string `value`; a dynamic `obj[expr]` has a
@@ -145,7 +148,7 @@ function matchesChain(
     if (memberPropName(current) !== segments[i]) {
       return false
     }
-    current = current['object'] as Record<string, unknown> | undefined
+    current = isObject(current['object']) ? current['object'] : undefined
   }
   return (
     !!current &&
@@ -158,6 +161,8 @@ function matchesChain(
  * Build a guarded-define rolldown plugin. `define` maps a key (bare identifier
  * or dotted property accessor) to already-quoted replacement source text.
  */
+type NativeMeta = { magicString?: MagicString | undefined }
+
 export function defineGuardedPlugin(define: Record<string, string>): Plugin {
   const entries = toEntries(define)
   // Top-level segment set lets us cheaply skip files that can't contain any
@@ -191,9 +196,13 @@ export function defineGuardedPlugin(define: Record<string, string>): Plugin {
         // disable the define for every .ts/.tsx consumer — `parseAst` would
         // throw and we'd fall through to the no-op `catch`. Derive `lang` from
         // the id so .ts/.mts/.cts → 'ts', .tsx → 'tsx', .jsx → 'jsx', else 'js'.
-        program = parseAst(code, {
+        const parsed: unknown = parseAst(code, {
           lang: langForId(id),
-        }) as unknown as Record<string, unknown>
+        })
+        if (!isObject(parsed)) {
+          return undefined
+        }
+        program = parsed
       } catch {
         // Unparseable (e.g. a syntax oxc rejects) — leave the module to the
         // main pipeline, which will surface the real error.
@@ -203,9 +212,11 @@ export function defineGuardedPlugin(define: Record<string, string>): Plugin {
       // Prefer rolldown's native MagicString (experimental.nativeMagicString)
       // when the transform hook hands one over; same .overwrite()/.toString()
       // API as the npm package. Fall back to a JS instance otherwise.
-      const native = (
-        meta as { magicString?: MagicString | undefined } | undefined
-      )?.magicString
+      // `magicString` is rolldown's experimental native MagicString handed
+      // through the untyped hook meta; there is no runtime brand to guard on.
+      // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
+      const metaBag = meta as NativeMeta | undefined
+      const native = metaBag?.magicString
       const ms = native ?? new MagicString(code)
       let rewrote = false
       // Track [start,end] spans already rewritten so a parent member chain
@@ -217,7 +228,7 @@ export function defineGuardedPlugin(define: Record<string, string>): Plugin {
         parent: Record<string, unknown> | undefined,
         key: string | undefined,
       ): void => {
-        if (!node || typeof node !== 'object') {
+        if (!isObject(node)) {
           return
         }
         if (Array.isArray(node)) {
@@ -226,19 +237,28 @@ export function defineGuardedPlugin(define: Record<string, string>): Plugin {
           }
           return
         }
-        const n = node as Record<string, unknown>
+        const n = node
         if (typeof n['type'] === 'string') {
           for (const entry of entries) {
             if (!matchesChain(n, entry.segments)) {
               continue
             }
-            const start = n['start'] as number
-            const end = n['end'] as number
+            const start = n['start']
+            const end = n['end']
+            if (typeof start !== 'number' || typeof end !== 'number') {
+              continue
+            }
             const spanKey = `${start}:${end}`
             if (done.has(spanKey)) {
               continue
             }
-            if (!isReadPosition(parent?.['type'] as string, key ?? '')) {
+            const parentType = parent?.['type']
+            if (
+              !isReadPosition(
+                typeof parentType === 'string' ? parentType : '',
+                key ?? '',
+              )
+            ) {
               // Mark as done so we don't reconsider the same span; a guarded
               // write target stays verbatim.
               done.add(spanKey)
@@ -271,6 +291,9 @@ export function defineGuardedPlugin(define: Record<string, string>): Plugin {
       // it + threads the sourcemap natively, skipping the JS toString/generateMap
       // round-trip. JS-fallback path: serialize + emit a hi-res sourcemap here.
       if (native) {
+        // Rolldown's native path accepts the MagicString instance where the
+        // type asks for string; the double cast is the documented bridge.
+        // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
         return { code: ms as unknown as string }
       }
       return { code: ms.toString(), map: ms.generateMap({ hires: true }) }
