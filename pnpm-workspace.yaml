@@ -70,8 +70,6 @@ catalog:
 # whose releases we trust without the soak window.
 minimumReleaseAge: 10080
 minimumReleaseAgeExclude:
-  - '@socketaddon/*'
-  - '@socketbin/*'
   - '@socketregistry/*'
   - '@socketsecurity/*'
   - 'sfw'
