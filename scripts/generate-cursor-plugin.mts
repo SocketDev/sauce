@@ -128,9 +128,9 @@ export function validatePluginName(name: string): void {
 export function writeOrCheck(
   filePath: string,
   content: string,
-  options: { check: boolean },
+  config: { check: boolean },
 ): boolean {
-  const { check } = { __proto__: null, ...options } as typeof options
+  const { check } = { __proto__: null, ...config } as typeof config
   let current: string | undefined
   if (existsSync(filePath)) {
     current = readFileSync(filePath, 'utf-8')

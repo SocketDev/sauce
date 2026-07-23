@@ -80,7 +80,7 @@ function parseIntegrity(s) {
   console.error(
     `× unrecognized integrity format: ${s}\n  Expected SRI (e.g. sha256-base64=)`,
   )
-  process.exit(1)
+  return process.exit(1)
 }
 
 const { algo, expected } = parseIntegrity(integrityArg)

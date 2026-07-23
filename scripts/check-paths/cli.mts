@@ -34,6 +34,7 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { parseArgs } from 'node:util'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 
 import { REPO_ROOT } from '../fleet/paths.mts'
 import { isAllowlisted, loadAllowlist, snippetHash } from './allowlist.mts'
@@ -169,6 +170,6 @@ const main = (): number => {
 try {
   process.exitCode = main()
 } catch (e) {
-  logger.error(`Path-hygiene gate crashed: ${e}`)
+  logger.error(`Path-hygiene gate crashed: ${errorMessage(e)}`)
   process.exitCode = 2
 }

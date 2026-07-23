@@ -37,6 +37,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { parseArgs } from 'node:util'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 
 const CONFIG_PATH = '.config/lock-step-refs.json'
 const SKIP_DIRS = new Set([
@@ -82,6 +83,9 @@ function loadConfig(repoRoot: string): Config | undefined {
     return undefined
   }
   const raw = readFileSync(configFile, 'utf8')
+  // Repo-local config with a fixed schema; the sibling refs gate re-validates
+  // the same file field-by-field, so a runtime validator here would duplicate.
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
   const parsed = JSON.parse(raw) as Config
   return parsed
 }
@@ -267,7 +271,7 @@ function main(): void {
   try {
     config = loadConfig(repoRoot)
   } catch (e) {
-    process.stderr.write(`check-lock-step-header: ${(e as Error).message}\n`)
+    process.stderr.write(`check-lock-step-header: ${errorMessage(e)}\n`)
     process.exitCode = 2
     return
   }

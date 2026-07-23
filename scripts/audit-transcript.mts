@@ -20,7 +20,9 @@ import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
 import { parseShell } from '@socketsecurity/lib-stable/shell/parse'
 
 const logger = getDefaultLogger()
@@ -58,29 +60,26 @@ function readToolUses(transcriptPath: string): ToolUseEvent[] {
       continue
     }
     // Tool uses appear under message.content[] for assistant turns.
-    const msg = (
-      evt as { message?: { content?: unknown | undefined } | undefined }
-    ).message
-    const content = msg?.content
+    const msg = isObject(evt) ? evt['message'] : undefined
+    const content = isObject(msg) ? msg['content'] : undefined
     if (!Array.isArray(content)) {
       continue
     }
     for (const block of content) {
-      if (!block || typeof block !== 'object') {
+      if (!isObject(block)) {
         continue
       }
-      const b = block as Record<string, unknown>
-      if (b['type'] !== 'tool_use') {
+      if (block['type'] !== 'tool_use') {
         continue
       }
-      const name = typeof b['name'] === 'string' ? b['name'] : undefined
-      const input = b['input']
-      if (!name || !input || typeof input !== 'object') {
+      const name = typeof block['name'] === 'string' ? block['name'] : undefined
+      const input = block['input']
+      if (!name || !isObject(input)) {
         continue
       }
       out.push({
         name,
-        input: input as Record<string, unknown>,
+        input,
         line: i + 1,
       })
     }
@@ -269,15 +268,14 @@ const PATTERNS: ReadonlyArray<{
 function scanToolUse(evt: ToolUseEvent): Finding[] {
   const findings: Finding[] = []
   // Most patterns target Bash commands; some target file paths (Edit/Write).
+  const rawCommand = evt.input['command']
   const command =
-    evt.name === 'Bash'
-      ? String((evt.input as { command?: unknown | undefined }).command ?? '')
-      : ''
+    evt.name === 'Bash' && typeof rawCommand === 'string' ? rawCommand : ''
+  const rawFilePath = evt.input['file_path']
   const filePath =
-    evt.name === 'Edit' || evt.name === 'Write'
-      ? String(
-          (evt.input as { file_path?: unknown | undefined }).file_path ?? '',
-        )
+    (evt.name === 'Edit' || evt.name === 'Write') &&
+    typeof rawFilePath === 'string'
+      ? rawFilePath
       : ''
   const haystack = command || filePath
   if (!haystack) {
@@ -443,7 +441,7 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch(err => {
-  logger.error(String((err as Error)?.message ?? err))
+main().catch((err: unknown) => {
+  logger.error(errorMessage(err))
   process.exit(1)
 })

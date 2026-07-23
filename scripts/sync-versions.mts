@@ -17,11 +17,14 @@ interface VersionedJson {
   metadata?: { version?: string | undefined } | undefined
 }
 
-export function readJSON<T = VersionedJson>(filePath: string): T {
-  return JSON.parse(readFileSync(filePath, 'utf-8')) as T
+export function readJSON(filePath: string): VersionedJson {
+  // Both fields are re-checked with typeof guards at the call sites; a runtime
+  // validator for a two-field internal shape would be duplicate.
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
+  return JSON.parse(readFileSync(filePath, 'utf-8')) as VersionedJson
 }
 
-export function writeJSON<T>(filePath: string, data: T): void {
+export function writeJSON(filePath: string, data: unknown): void {
   writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n', 'utf-8')
 }
 

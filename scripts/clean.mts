@@ -16,6 +16,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 
 const rootPath = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -76,9 +77,9 @@ export function printHelp(): void {
 
 export async function removeIfExists(
   rel: string,
-  options: { quiet: boolean },
+  config: { quiet: boolean },
 ): Promise<void> {
-  const { quiet } = { __proto__: null, ...options } as typeof options
+  const { quiet } = { __proto__: null, ...config } as typeof config
   const full = path.join(rootPath, rel)
   if (!existsSync(full)) {
     if (!quiet) {
@@ -160,6 +161,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((e: unknown) => {
-  process.stderr.write(`clean failed: ${(e as Error).message}\n`)
+  process.stderr.write(`clean failed: ${errorMessage(e)}\n`)
   process.exitCode = 1
 })

@@ -90,7 +90,7 @@ export async function readGitOutput(
     logger.error(`Git command failed: git ${gitArgs.join(' ')}`)
     process.exit(1)
   }
-  return String(result.stdout ?? '')
+  return result.stdout ?? ''
 }
 
 export async function checkGitVersion(
@@ -128,10 +128,10 @@ export async function checkGitVersion(
  * <branch> (optional) sparse-checkout = a b c (our extension; space-separated)
  */
 export async function readGitmodules(
-  options: CommonOpts,
+  config: CommonOpts,
   worktreeRoot: string,
 ): Promise<Gitmodules> {
-  const opts = { __proto__: null, ...options } as CommonOpts
+  const opts = { __proto__: null, ...config } as CommonOpts
   const gitmodulesPath = path.join(worktreeRoot, '.gitmodules')
   if (!existsSync(gitmodulesPath)) {
     logger.error("Couldn't parse .gitmodules!")
@@ -209,11 +209,11 @@ export async function getRoots(): Promise<{
  * split on whitespace (TODO: support quoted paths).
  */
 export async function applySparsePatterns(
-  options: CommonOpts,
+  config: CommonOpts,
   submoduleWorktreeRoot: string,
   patterns: string,
 ): Promise<void> {
-  const opts = { __proto__: null, ...options } as CommonOpts
+  const opts = { __proto__: null, ...config } as CommonOpts
   await runGit(opts, ['-C', submoduleWorktreeRoot, 'sparse-checkout', 'init'])
   await runGit(opts, [
     '-C',

@@ -37,6 +37,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { parseArgs } from 'node:util'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 
 const CONFIG_PATH = '.config/lock-step-refs.json'
 const SKIP_DIRS = new Set([
@@ -84,13 +85,13 @@ function loadConfig(repoRoot: string): Config | undefined {
   try {
     raw = readFileSync(configFile, 'utf8')
   } catch (e) {
-    throw new Error(`failed to read ${CONFIG_PATH}: ${(e as Error).message}`)
+    throw new Error(`failed to read ${CONFIG_PATH}: ${errorMessage(e)}`)
   }
   let parsed: unknown
   try {
     parsed = JSON.parse(raw)
   } catch (e) {
-    throw new Error(`${CONFIG_PATH} is not valid JSON: ${(e as Error).message}`)
+    throw new Error(`${CONFIG_PATH} is not valid JSON: ${errorMessage(e)}`)
   }
   if (!parsed || typeof parsed !== 'object') {
     throw new Error(`${CONFIG_PATH} must be a JSON object`)
@@ -257,7 +258,7 @@ function main(): void {
   try {
     config = loadConfig(repoRoot)
   } catch (e) {
-    process.stderr.write(`check-lock-step-refs: ${(e as Error).message}\n`)
+    process.stderr.write(`check-lock-step-refs: ${errorMessage(e)}\n`)
     process.exitCode = 2
     return
   }

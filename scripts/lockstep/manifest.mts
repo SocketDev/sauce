@@ -28,7 +28,7 @@ const logger = getDefaultLogger()
 export function readManifest(manifestPath: string): Manifest {
   if (!existsSync(manifestPath)) {
     logger.error(`lockstep: manifest not found at ${manifestPath}`)
-    process.exit(1)
+    return process.exit(1)
   }
   let raw: unknown
   try {
@@ -47,7 +47,7 @@ export function readManifest(manifestPath: string): Manifest {
     const loc = issue.path.length ? issue.path.join('.') : '<root>'
     logger.fail(`  ${loc}: ${issue.message}`)
   }
-  process.exit(1)
+  return process.exit(1)
 }
 
 /**

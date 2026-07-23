@@ -83,7 +83,7 @@ export function detectSCM(dir: string): SCMInfo {
     return { provider: 'none' }
   }
 
-  const remote = String(result.stdout).trim()
+  const remote = result.stdout.trim()
   if (remote.includes('github.com')) {
     return { provider: 'github', remote }
   }

@@ -155,9 +155,9 @@ function applyFixes(repo: string, findings: readonly Finding[]): number {
 function printReport(
   findings: readonly Finding[],
   repo: string,
-  options: { json: boolean },
+  config: { json: boolean },
 ): void {
-  const { json } = { __proto__: null, ...options } as typeof options
+  const { json } = { __proto__: null, ...config } as typeof config
   if (json) {
     process.stdout.write(JSON.stringify({ repo, findings }, null, 2) + '\n')
     return

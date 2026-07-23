@@ -184,7 +184,7 @@ async function runLintJson(
       stdio: 'pipe',
       stdioString: true,
     })
-    stdout = String(result.stdout ?? '')
+    stdout = result.stdout ?? ''
   } catch (e) {
     if (isSpawnError(e)) {
       // oxlint exits non-zero when there are violations — that's

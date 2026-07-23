@@ -49,10 +49,14 @@ async function getSmolPower(): Promise<SmolPower | undefined> {
     return undefined
   }
   // Cast through `unknown` because system Node's typings don't
-  // declare the module — only node-smol's lib.d.ts does.
+  // declare the module — only node-smol's lib.d.ts does. Both casts are
+  // load-bearing: `as string` stops tsgo resolving the specifier, and the
+  // `unknown` hop types the module on system Node. Stripping them breaks tsc.
+  /* eslint-disable typescript/no-unnecessary-type-assertion, typescript/no-unsafe-type-assertion -- see above */
   cachedSmolPower = (await import(
     'node:smol-power' as string
   )) as unknown as SmolPower
+  /* eslint-enable typescript/no-unnecessary-type-assertion, typescript/no-unsafe-type-assertion */
   return cachedSmolPower
 }
 

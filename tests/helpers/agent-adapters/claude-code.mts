@@ -34,23 +34,16 @@ export class ClaudeCodeAdapter implements AgentAdapter {
     })
   }
 
-  async runPrompt(options: RunPromptOptions): Promise<AgentResponse> {
-    const opts = { __proto__: null, ...options } as typeof options
-    const timeout = opts.timeoutMs ?? 120_000
+  async runPrompt(config: RunPromptOptions): Promise<AgentResponse> {
+    const cfg = { __proto__: null, ...config } as typeof config
+    const timeout = cfg.timeoutMs ?? 120_000
 
     return new Promise((resolve, reject) => {
       const proc = spawn(
         'claude',
-        [
-          '--print',
-          opts.prompt,
-          '--output-format',
-          'json',
-          '--max-turns',
-          '10',
-        ],
+        ['--print', cfg.prompt, '--output-format', 'json', '--max-turns', '10'],
         {
-          cwd: opts.workingDir,
+          cwd: cfg.workingDir,
           env: cleanEnv(),
           stdio: ['ignore', 'pipe', 'pipe'],
         },

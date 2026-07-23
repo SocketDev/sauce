@@ -53,7 +53,10 @@ const SOURCE_EXTENSIONS = new Set([
   '.tsx',
 ])
 
-export function getPatterns(pkg: string, ecosystem?: string | undefined): RegExp[] {
+export function getPatterns(
+  pkg: string,
+  ecosystem?: string | undefined,
+): RegExp[] {
   const escaped = pkg.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   const patterns: RegExp[] = []
 

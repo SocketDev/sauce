@@ -26,8 +26,8 @@ import {
 
 const logger = getDefaultLogger()
 
-export async function cmdAdd(options: AddOpts): Promise<void> {
-  const opts = { __proto__: null, ...options } as AddOpts
+export async function cmdAdd(config: AddOpts): Promise<void> {
+  const opts = { __proto__: null, ...config } as AddOpts
   const { repoRoot, worktreeRoot } = await getRoots()
   if (opts.verbose) {
     logger.log(`worktree root: ${worktreeRoot}`)
@@ -104,8 +104,8 @@ export async function cmdAdd(options: AddOpts): Promise<void> {
   ])
 }
 
-export async function cmdClone(options: CloneOpts): Promise<void> {
-  const opts = { __proto__: null, ...options } as CloneOpts
+export async function cmdClone(config: CloneOpts): Promise<void> {
+  const opts = { __proto__: null, ...config } as CloneOpts
   const { repoRoot, worktreeRoot } = await getRoots()
   if (opts.verbose) {
     logger.log(`worktree root: ${worktreeRoot}`)
@@ -233,8 +233,8 @@ export async function cmdClone(options: CloneOpts): Promise<void> {
   logger.log(`Cloned ${processed} submodules and skipped ${skipped}.`)
 }
 
-export async function cmdSaveSparse(options: SaveOrRestoreOpts): Promise<void> {
-  const opts = { __proto__: null, ...options } as SaveOrRestoreOpts
+export async function cmdSaveSparse(config: SaveOrRestoreOpts): Promise<void> {
+  const opts = { __proto__: null, ...config } as SaveOrRestoreOpts
   const { worktreeRoot } = await getRoots()
   const gitmodules = await readGitmodules(opts, worktreeRoot)
   const relPaths: string[] = opts.paths.length
@@ -302,9 +302,9 @@ export async function cmdSaveSparse(options: SaveOrRestoreOpts): Promise<void> {
 }
 
 export async function cmdRestoreSparse(
-  options: SaveOrRestoreOpts,
+  config: SaveOrRestoreOpts,
 ): Promise<void> {
-  const opts = { __proto__: null, ...options } as SaveOrRestoreOpts
+  const opts = { __proto__: null, ...config } as SaveOrRestoreOpts
   const { worktreeRoot } = await getRoots()
   const gitmodules = await readGitmodules(opts, worktreeRoot)
   const relPaths: string[] = opts.paths.length

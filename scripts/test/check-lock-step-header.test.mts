@@ -17,6 +17,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { fileURLToPath } from 'node:url'
 import { safeDeleteSync } from '@socketsecurity/lib-stable/fs/safe'
+import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const SCRIPT_PATH = path.join(here, '..', 'check-lock-step-header.mts')
@@ -51,8 +52,8 @@ function runGate(
     cwd,
   })
   return {
-    stdout: String(result.stdout),
-    stderr: String(result.stderr),
+    stdout: result.stdout,
+    stderr: result.stderr,
     exitCode: result.status ?? -1,
   }
 }
@@ -93,7 +94,7 @@ const STD_CONFIG = JSON.stringify({
   extensions: ['.rs', '.go'],
 })
 
-test('exits 0 when config is absent', () => {
+void test('exits 0 when config is absent', () => {
   const repo = makeRepo({ files: {} })
   const { exitCode, stdout } = runGate(repo)
   assert.equal(exitCode, 0)
@@ -101,7 +102,7 @@ test('exits 0 when config is absent', () => {
   safeDeleteSync(repo)
 })
 
-test('exits 0 when no files carry a BEGIN LOCK-STEP HEADER block', () => {
+void test('exits 0 when no files carry a BEGIN LOCK-STEP HEADER block', () => {
   const repo = makeRepo({
     configContent: STD_CONFIG,
     files: {
@@ -115,7 +116,7 @@ test('exits 0 when no files carry a BEGIN LOCK-STEP HEADER block', () => {
   safeDeleteSync(repo)
 })
 
-test('exits 0 when canonical + peer headers are byte-identical', () => {
+void test('exits 0 when canonical + peer headers are byte-identical', () => {
   const repo = makeRepo({
     configContent: STD_CONFIG,
     files: {
@@ -131,7 +132,7 @@ test('exits 0 when canonical + peer headers are byte-identical', () => {
   safeDeleteSync(repo)
 })
 
-test('exits 1 when peer header drifts from canonical', () => {
+void test('exits 1 when peer header drifts from canonical', () => {
   const repo = makeRepo({
     configContent: STD_CONFIG,
     files: {
@@ -146,7 +147,7 @@ test('exits 1 when peer header drifts from canonical', () => {
   safeDeleteSync(repo)
 })
 
-test('exits 1 when peer is missing its LOCK-STEP HEADER block', () => {
+void test('exits 1 when peer is missing its LOCK-STEP HEADER block', () => {
   const repo = makeRepo({
     configContent: STD_CONFIG,
     files: {
@@ -160,7 +161,7 @@ test('exits 1 when peer is missing its LOCK-STEP HEADER block', () => {
   safeDeleteSync(repo)
 })
 
-test('exits 1 when peer file does not exist', () => {
+void test('exits 1 when peer file does not exist', () => {
   const repo = makeRepo({
     configContent: STD_CONFIG,
     files: {
@@ -174,7 +175,7 @@ test('exits 1 when peer file does not exist', () => {
   safeDeleteSync(repo)
 })
 
-test('--json emits machine-readable diffs', () => {
+void test('--json emits machine-readable diffs', () => {
   const repo = makeRepo({
     configContent: STD_CONFIG,
     files: {
@@ -184,14 +185,17 @@ test('--json emits machine-readable diffs', () => {
   })
   const { exitCode, stdout } = runGate(repo, ['--json'])
   assert.equal(exitCode, 1)
-  const parsed = JSON.parse(stdout) as Array<Record<string, unknown>>
+  const parsed: unknown = JSON.parse(stdout)
+  assert.ok(Array.isArray(parsed))
   assert.equal(parsed.length, 1)
-  assert.equal(parsed[0]!['lang'], 'Go')
-  assert.equal(parsed[0]!['reason'], 'body-mismatch')
+  const first: unknown = parsed[0]
+  assert.ok(isObject(first))
+  assert.equal(first['lang'], 'Go')
+  assert.equal(first['reason'], 'body-mismatch')
   safeDeleteSync(repo)
 })
 
-test('--quiet suppresses clean-run stdout', () => {
+void test('--quiet suppresses clean-run stdout', () => {
   const repo = makeRepo({
     configContent: STD_CONFIG,
     files: {
@@ -205,7 +209,7 @@ test('--quiet suppresses clean-run stdout', () => {
   safeDeleteSync(repo)
 })
 
-test('header body comparison ignores leading whitespace after // prefix', () => {
+void test('header body comparison ignores leading whitespace after // prefix', () => {
   // Both files use `// content` — same prefix stripping. The content
   // bytes must match exactly.
   const repo = makeRepo({
@@ -228,7 +232,7 @@ test('header body comparison ignores leading whitespace after // prefix', () => 
   safeDeleteSync(repo)
 })
 
-test('handles multi-peer canonical file', () => {
+void test('handles multi-peer canonical file', () => {
   const multiPeerHeader = [
     '// BEGIN LOCK-STEP HEADER',
     '// Class Parsing',

@@ -13,16 +13,16 @@ export class GeminiAdapter implements AgentAdapter {
     })
   }
 
-  async runPrompt(options: RunPromptOptions): Promise<AgentResponse> {
-    const opts = { __proto__: null, ...options } as typeof options
-    const timeout = opts.timeoutMs ?? 120_000
+  async runPrompt(config: RunPromptOptions): Promise<AgentResponse> {
+    const cfg = { __proto__: null, ...config } as typeof config
+    const timeout = cfg.timeoutMs ?? 120_000
 
     return new Promise((resolve, reject) => {
       execFile(
         'gemini',
-        ['-p', opts.prompt],
+        ['-p', cfg.prompt],
         {
-          cwd: opts.workingDir,
+          cwd: cfg.workingDir,
           timeout,
           maxBuffer: 10 * 1024 * 1024,
         },

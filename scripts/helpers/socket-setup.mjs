@@ -278,7 +278,7 @@ export function runCmd(cmd) {
   if (result.status !== 0 || result.error) {
     return undefined
   }
-  return String(result.stdout).trim()
+  return result.stdout.trim()
 }
 
 export function versionGte(v, major, minor = 0, patch = 0) {

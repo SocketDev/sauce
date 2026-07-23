@@ -82,7 +82,7 @@ export function resolveRepo(): string | undefined {
   if (remote.status !== 0) {
     return undefined
   }
-  const url = String(remote.stdout).trim()
+  const url = remote.stdout.trim()
   // Match `git@github.com:owner/repo[.git]` or
   // `https://github.com/owner/repo[.git]`.
   const m = /github\.com[/:]([^/]+)\/([^/]+?)(?:\.git)?$/.exec(url)
@@ -97,6 +97,9 @@ export function resolveRepo(): string | undefined {
  * undefined on any error. The caller decides whether undefined is an
  * audit-failing condition or a soft skip.
  */
+// T is the caller-declared payload shape; replacing it with `unknown` would
+// push an unsafe cast into every call site.
+// eslint-disable-next-line typescript/no-unnecessary-type-parameters -- see above
 export function ghApi<T>(
   endpoint: string,
   method: 'GET' | 'PATCH' = 'GET',
@@ -126,11 +129,11 @@ export function ghApi<T>(
     }
     return undefined
   }
-  if (!String(r.stdout).trim()) {
+  if (!r.stdout.trim()) {
     return undefined
   }
   try {
-    return JSON.parse(String(r.stdout)) as T
+    return JSON.parse(r.stdout) as T
   } catch {
     return undefined
   }
@@ -274,7 +277,7 @@ export function detectLocalShadows(
     }
     let bodyRaw: string
     try {
-      const obj = JSON.parse(String(r.stdout)) as {
+      const obj = JSON.parse(r.stdout) as {
         content?: string | undefined
         encoding?: string | undefined
       }
