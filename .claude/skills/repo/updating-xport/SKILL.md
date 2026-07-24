@@ -1,8 +1,10 @@
 ---
 name: updating-xport
-description: Act on `xport.json` lock-step drift: auto-bump `version-pin` rows; the other row kinds (file-fork, feature-parity, spec-conformance, lang-parity) are advisory only.
+description: "Act on `xport.json` lock-step drift: auto-bump `version-pin` rows; the other row kinds (file-fork, feature-parity, spec-conformance, lang-parity) are advisory only."
 user-invocable: true
 allowed-tools: Bash(pnpm:*), Bash(npm:*), Bash(git:*), Bash(node:*), Bash(rg:*), Bash(grep:*), Bash(find:*), Bash(ls:*), Bash(cat:*), Bash(head:*), Bash(tail:*), Bash(wc:*), Bash(diff:*), Read, Edit, Grep, Glob
+metadata:
+  internal: true
 ---
 
 # updating-xport
