@@ -28,8 +28,8 @@ catalog:
   '@socketsecurity/lib-stable': npm:@socketsecurity/lib@6.2.2
   '@socketsecurity/registry': 2.0.2
   '@socketsecurity/registry-stable': npm:@socketsecurity/registry@2.0.2
-  '@socketsecurity/sdk': 4.0.1
-  '@socketsecurity/sdk-stable': npm:@socketsecurity/sdk@4.0.1
+  '@socketsecurity/sdk': 4.0.2
+  '@socketsecurity/sdk-stable': npm:@socketsecurity/sdk@4.0.2
   '@types/mdast': 4.0.4
   '@types/node': 26.1.1
   '@types/semver': 7.7.1
@@ -179,6 +179,10 @@ overrides:
 
 allowBuilds:
   # esbuild is a transitive of vite/vitest (test-time only).
+  # The published sdk leaks fleet repo scripts including a preinstall
+  # (bootstrap-zero-dep-packages.mjs) meant for the sdk repo itself, not
+  # consumers. Explicitly deny it.
+  '@socketsecurity/sdk': false
   cpu-features: false
   esbuild: true
   protobufjs: false
