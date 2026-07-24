@@ -1,5 +1,5 @@
 import { execFile } from 'node:child_process'
-import type { AgentAdapter, RunPromptOptions } from './types.mts'
+import type { AgentAdapter, RunPromptConfig } from './types.mts'
 import type { AgentResponse } from '../assertions.mts'
 
 export class GeminiAdapter implements AgentAdapter {
@@ -13,7 +13,7 @@ export class GeminiAdapter implements AgentAdapter {
     })
   }
 
-  async runPrompt(config: RunPromptOptions): Promise<AgentResponse> {
+  async runPrompt(config: RunPromptConfig): Promise<AgentResponse> {
     const cfg = { __proto__: null, ...config } as typeof config
     const timeout = cfg.timeoutMs ?? 120_000
 

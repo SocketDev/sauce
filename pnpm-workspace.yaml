@@ -61,7 +61,7 @@ catalog:
   'semver': 7.8.5
   'shell-quote': 1.10.0
   'svgo': 4.0.1
-  'taze': 19.14.1
+  'taze': 19.16.0
   'typescript': 7.0.2
   'vitest': 4.1.10
 
@@ -101,6 +101,12 @@ minimumReleaseAgeExclude:
   - '@oxlint-tsgolint/win32-arm64@7.0.2001'
   # published: 2026-07-21 | removable: 2026-07-28
   - '@oxlint-tsgolint/win32-x64@7.0.2001'
+  # published: 2026-07-22 | removable: 2026-07-29
+  - 'taze@19.16.0'
+  # obug + verkit — new dev-only transitives of taze 19.16.0 (same owner
+  # directive); exact-pinned so future versions re-soak.
+  # published: 2026-07-19 | removable: 2026-07-26
+  - 'verkit@0.1.2'
 
 # Refuse "exotic" subdeps (git URLs, tarballs, file: links) anywhere
 # in the dep graph. Forces every dep to come from a public registry
@@ -188,3 +194,15 @@ allowBuilds:
   protobufjs: false
   puppeteer: false
   ssh2: false
+
+patchedDependencies:
+  # single-registry (managed by socket-wheelhouse sync; do not edit):
+  # routes taze version resolution through its own bundled direct-registry
+  # client (getVersionsFromRegistry — full packument, .npmrc/auth-aware) for
+  # EVERY registry, instead of the fast-npm-meta hosted endpoint it uses
+  # when the registry is the npm default. That third-party hop leaks
+  # dependency names, violates the fleet single-registry posture, and is
+  # blocked by egress policy — every lookup then hits the request timeout
+  # while taze still exits 0 (false green; update.mts fails loud on it).
+  # On a taze bump, regenerate via `pnpm patch taze` + `pnpm patch-commit`.
+  taze@19.16.0: patches/taze@19.16.0.patch

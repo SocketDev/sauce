@@ -24,4 +24,4 @@ export function getAdapter(name?: string | undefined): AgentAdapter {
   return factory()
 }
 
-export type { AgentAdapter, RunPromptOptions } from './types.mts'
+export type { AgentAdapter, RunPromptConfig } from './types.mts'

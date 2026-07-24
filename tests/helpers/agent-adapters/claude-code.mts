@@ -1,5 +1,5 @@
 import { spawn } from '@socketsecurity/lib/process/spawn/child'
-import type { AgentAdapter, RunPromptOptions } from './types.mts'
+import type { AgentAdapter, RunPromptConfig } from './types.mts'
 import type { AgentResponse } from '../assertions.mts'
 
 /**
@@ -34,7 +34,7 @@ export class ClaudeCodeAdapter implements AgentAdapter {
     })
   }
 
-  async runPrompt(config: RunPromptOptions): Promise<AgentResponse> {
+  async runPrompt(config: RunPromptConfig): Promise<AgentResponse> {
     const cfg = { __proto__: null, ...config } as typeof config
     const timeout = cfg.timeoutMs ?? 120_000
 

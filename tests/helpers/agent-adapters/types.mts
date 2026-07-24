@@ -1,6 +1,6 @@
 import type { AgentResponse } from '../assertions.mts'
 
-export interface RunPromptOptions {
+export interface RunPromptConfig {
   prompt: string
   workingDir: string
   timeoutMs?: number | undefined
@@ -9,5 +9,5 @@ export interface RunPromptOptions {
 export interface AgentAdapter {
   name: string
   isAvailable(): Promise<boolean>
-  runPrompt(opts: RunPromptOptions): Promise<AgentResponse>
+  runPrompt(config: RunPromptConfig): Promise<AgentResponse>
 }
