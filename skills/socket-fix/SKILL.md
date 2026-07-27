@@ -87,7 +87,7 @@ If authentication fails or the CLI is not installed, use the `/socket-setup` ski
 
 ## Step 1: Run Initial Scan
 
-Run `/socket-scan` to get a full picture of the project's dependency health. Use `--tmp` for a temporary read-only scan (the default — does not persist to the dashboard):
+Run `/socket-scan` to get a full picture of the project's dependency health. Use `--tmp` for a temporary read-only scan — the default, which does not persist to the dashboard:
 
 ```shell
 socket scan create . --tmp --json
@@ -228,12 +228,12 @@ Aggressive repair. Apply everything possible, skip and continue on individual fa
 1. Use scan results and `socket fix --all --no-apply-fixes --json` to discover all fixable vulnerabilities
 2. Filter to **minor and patch bumps only** (`--no-major-updates`)
 3. For each vulnerability, dispatch `/socket-dep-upgrade` to apply the fix
-4. **Skip and continue on failure** — if a single upgrade fails after retries, log the failure and move on to the next one (this diverges from `/socket-dep-upgrade`'s default "bail on failure" behavior — intentional for Level 3's aggressive posture)
+4. **Skip and continue on failure** — if a single upgrade fails after retries, log the failure and move on to the next one. This diverges from `/socket-dep-upgrade`'s default "bail on failure" behavior — intentional for Level 3's aggressive posture
 5. Commit after each successful upgrade
 
 ### Phase 3b: Aggressive Cleanup
 
-1. Re-scan all dependencies for usage (the dependency list may have changed after Phase 3a upgrades)
+1. Re-scan all dependencies for usage — the dependency list may have changed after Phase 3a upgrades
 2. Run `/socket-dep-cleanup` for **both** clearly unused AND ambiguous packages
 3. After each removal, build and test
 4. **Revert removals that break the build** — if removing a package causes failures, re-add it and mark it as "still needed"

@@ -35,7 +35,7 @@ The common rule: **version-pin is mechanical** (safe to auto-apply with `track-l
 **Requirements:**
 - Start with clean working directory (check via `git status --porcelain`)
 - Run from repo root
-- Exit 0 cleanly if `xport.json` is absent (the repo doesn't use xport)
+- Exit 0 cleanly if `xport.json` is absent — the repo doesn't use xport
 - Conventional commit format: `chore(deps): bump <upstream> to <tag>`
 - Update `.gitmodules` version comments when submodule tags change (pattern: `# <name>-<version>` on the line above the submodule block)
 - Target stable releases only (filter `-rc`, `-alpha`, `-beta`, `-dev`, `-snapshot`, `-nightly`, `-preview`)
