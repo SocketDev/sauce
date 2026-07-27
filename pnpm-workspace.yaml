@@ -63,6 +63,10 @@ catalog:
   'svgo': 4.0.1
   'taze': 19.16.0
   'typescript': 7.0.2
+  # vite 8 swaps esbuild → rolldown natively, so the override below
+  # removes esbuild from the install tree. Matches the wheelhouse
+  # catalog pin.
+  'vite': 8.1.0
   'vitest': 4.1.10
 
 # Wait 7 days (10080 minutes) before installing newly published
@@ -143,11 +147,6 @@ enablePrePostScripts: true
 # of the fleet's discipline.
 saveExact: true
 
-# Force-raise transitive esbuild to a CVE-patched version. tsx@4.19.0
-# pulls esbuild@0.23.1 which is vulnerable to CVE-2024-?: dev-server
-# permits any origin via Access-Control-Allow-Origin: * (fix >= 0.25.0).
-# Override the whole tree to a well-aged 0.25.x; vite/vitest already
-# pull 0.27.x on the other branch of the graph.
 overrides:
   # Fleet-canonical overrides (managed by socket-wheelhouse sync; do not edit).
   '@socketregistry/packageurl-js': 'catalog:'
@@ -183,17 +182,22 @@ overrides:
   'wrap-ansi@>=8': '9.0.2'
   'yaml@2': '2.9.0'
 
-  # Repo-specific overrides below.
-  'esbuild': '0.25.12'
+  # Repo-specific overrides below. vite/rolldown pin to the catalog so
+  # vitest's transitive vite resolves to the rolldown-native 8.x line.
+  'rolldown': 'catalog:'
+  'vite': 'catalog:'
+
+# vite 8 keeps esbuild only as an unused optional escape hatch; never
+# install it (esbuild is fleet-banned — rolldown is the bundler).
+ignoredOptionalDependencies:
+  - 'esbuild'
 
 allowBuilds:
-  # esbuild is a transitive of vite/vitest (test-time only).
   # The published sdk leaks fleet repo scripts including a preinstall
   # (bootstrap-zero-dep-packages.mjs) meant for the sdk repo itself, not
   # consumers. Explicitly deny it.
   '@socketsecurity/sdk': false
   cpu-features: false
-  esbuild: true
   protobufjs: false
   puppeteer: false
   ssh2: false

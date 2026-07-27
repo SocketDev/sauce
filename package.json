@@ -82,7 +82,6 @@
     "shell-quote": "catalog:",
     "svgo": "catalog:",
     "taze": "catalog:",
-    "tsx": "4.19.0",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
@@ -100,7 +99,6 @@
   },
   "allowScripts": {
     "cpu-features": false,
-    "esbuild": true,
     "protobufjs": false,
     "puppeteer": false,
     "ssh2": false

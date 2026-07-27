@@ -23,7 +23,6 @@ const rootPath = path.resolve(
   '..',
   '..',
 )
-const tsxCliPath = fileURLToPath(import.meta.resolve('tsx/cli'))
 
 const GENERATED_FILES = [
   'agents/AGENTS.md',
@@ -56,14 +55,10 @@ function fileSignature(relativePath: string): string {
 }
 
 async function runScript(scriptPath: string, ...args: string[]): Promise<void> {
-  const result = await spawn(
-    process.execPath,
-    [tsxCliPath, scriptPath, ...args],
-    {
-      cwd: rootPath,
-      stdio: 'inherit',
-    },
-  )
+  const result = await spawn(process.execPath, [scriptPath, ...args], {
+    cwd: rootPath,
+    stdio: 'inherit',
+  })
   if (result.code) {
     throw new Error(`${scriptPath} exited with code ${result.code}`)
   }
