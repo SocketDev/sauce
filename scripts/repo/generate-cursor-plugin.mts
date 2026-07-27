@@ -1,7 +1,13 @@
 #!/usr/bin/env pnpm dlx tsx
 /**
- * Generate Cursor plugin artifacts (.cursor-plugin/plugin.json, .mcp.json) from
- * .claude-plugin/plugin.json.
+ * Generate Cursor plugin artifacts — .cursor-plugin/plugin.json and
+ * .cursor-plugin/mcp.json — from .claude-plugin/plugin.json.
+ *
+ * The plugin's mcp artifact lives under .cursor-plugin/, never at the repo
+ * root: root .mcp.json is the fleet's tracked, hand-populated MCP server
+ * inventory that scripts/fleet/mcp-config.mts projects to every client. An
+ * earlier revision wrote the empty plugin config over it, silently truncating
+ * the inventory. This generator must never write outside .cursor-plugin/.
  */
 
 import {
@@ -14,6 +20,7 @@ import {
 import * as path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
+import { isMainModule } from '../fleet/_shared/is-main-module.mts'
 import { parseFrontmatter } from './lib/frontmatter.mts'
 
 const logger = getDefaultLogger()
@@ -23,15 +30,22 @@ const ROOT = path.resolve(
   '..',
   '..',
 )
-const CLAUDE_PLUGIN_MANIFEST = path.join(ROOT, '.claude-plugin', 'plugin.json')
-const CURSOR_PLUGIN_DIR = path.join(ROOT, '.cursor-plugin')
-const CURSOR_PLUGIN_MANIFEST = path.join(CURSOR_PLUGIN_DIR, 'plugin.json')
-const CURSOR_MCP_CONFIG = path.join(ROOT, '.mcp.json')
+
+// Manifest-relative reference to the plugin's own mcp config artifact.
+const CURSOR_MCP_RELATIVE = '.cursor-plugin/mcp.json'
 
 const PLUGIN_NAME_RE = /^[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$/
 
-export function buildCursorPluginManifest(): Record<string, unknown> {
-  const src = loadJson(CLAUDE_PLUGIN_MANIFEST)
+export interface GenerateResult {
+  manifestPath: string
+  mcpPath: string
+  outdated: string[]
+}
+
+export function buildCursorPluginManifest(
+  root: string = ROOT,
+): Record<string, unknown> {
+  const src = loadJson(path.join(root, '.claude-plugin', 'plugin.json'))
 
   const name = src['name']
   if (typeof name !== 'string' || !name) {
@@ -39,7 +53,7 @@ export function buildCursorPluginManifest(): Record<string, unknown> {
   }
   validatePluginName(name)
 
-  const skills = collectSkillNames()
+  const skills = collectSkillNames(path.join(root, 'skills'))
   if (skills.length === 0) {
     throw new Error('No skills discovered under skills/*/SKILL.md')
   }
@@ -47,7 +61,7 @@ export function buildCursorPluginManifest(): Record<string, unknown> {
   const manifest: Record<string, unknown> = {
     name,
     skills: 'skills',
-    mcpServers: '.mcp.json',
+    mcpServers: CURSOR_MCP_RELATIVE,
   }
 
   const optionalKeys = [
@@ -76,22 +90,21 @@ export function buildMcpConfig(): Record<string, unknown> {
   }
 }
 
-export function collectSkillNames(dir?: string | undefined): string[] {
-  const skillsDir = dir ?? path.join(ROOT, 'skills')
-  if (!existsSync(skillsDir)) {
+export function collectSkillNames(dir: string): string[] {
+  if (!existsSync(dir)) {
     return []
   }
 
   const names: string[] = []
-  const entries = readdirSync(skillsDir, { withFileTypes: true }).toSorted(
-    (a, b) => a.name.localeCompare(b.name),
+  const entries = readdirSync(dir, { withFileTypes: true }).toSorted((a, b) =>
+    a.name.localeCompare(b.name),
   )
   for (let i = 0, { length } = entries; i < length; i += 1) {
     const entry = entries[i]!
     if (!entry.isDirectory() || entry.name.startsWith('_')) {
       continue
     }
-    const skillMd = path.join(skillsDir, entry.name, 'SKILL.md')
+    const skillMd = path.join(dir, entry.name, 'SKILL.md')
     if (!existsSync(skillMd)) {
       continue
     }
@@ -103,10 +116,33 @@ export function collectSkillNames(dir?: string | undefined): string[] {
     }
 
     // Recurse into subdirectories to discover subskills
-    names.push(...collectSkillNames(path.join(skillsDir, entry.name)))
+    names.push(...collectSkillNames(path.join(dir, entry.name)))
   }
 
   return names
+}
+
+export function generateCursorPlugin(
+  root: string,
+  config: { check: boolean },
+): GenerateResult {
+  const { check } = { __proto__: null, ...config } as typeof config
+
+  const manifestPath = path.join(root, '.cursor-plugin', 'plugin.json')
+  const mcpPath = path.join(root, CURSOR_MCP_RELATIVE)
+
+  const pluginManifest = renderJson(buildCursorPluginManifest(root))
+  const mcpConfig = renderJson(buildMcpConfig())
+
+  const outdated: string[] = []
+  if (!writeOrCheck(manifestPath, pluginManifest, { check })) {
+    outdated.push(path.relative(root, manifestPath))
+  }
+  if (!writeOrCheck(mcpPath, mcpConfig, { check })) {
+    outdated.push(path.relative(root, mcpPath))
+  }
+
+  return { manifestPath, mcpPath, outdated }
 }
 
 export function loadJson(filePath: string): Record<string, unknown> {
@@ -159,32 +195,16 @@ export function writeOrCheck(
 function main(): void {
   const checkMode = process.argv.includes('--check')
 
-  const pluginManifest = renderJson(buildCursorPluginManifest())
-  const mcpConfig = renderJson(buildMcpConfig())
-
-  const okPlugin = writeOrCheck(CURSOR_PLUGIN_MANIFEST, pluginManifest, {
-    check: checkMode,
-  })
-  const okMcp = writeOrCheck(CURSOR_MCP_CONFIG, mcpConfig, {
-    check: checkMode,
-  })
+  const result = generateCursorPlugin(ROOT, { check: checkMode })
 
   if (checkMode) {
-    const outdated: string[] = []
-    if (!okPlugin) {
-      outdated.push(path.relative(ROOT, CURSOR_PLUGIN_MANIFEST))
-    }
-    if (!okMcp) {
-      outdated.push(path.relative(ROOT, CURSOR_MCP_CONFIG))
-    }
-
-    if (outdated.length > 0) {
+    if (result.outdated.length > 0) {
       logger.fail('Generated Cursor artifacts are out of date:')
-      for (let i = 0, { length } = outdated; i < length; i += 1) {
-        const item = outdated[i]
+      for (let i = 0, { length } = result.outdated; i < length; i += 1) {
+        const item = result.outdated[i]
         logger.fail(`  - ${item}`)
       }
-      logger.fail('Run: pnpm exec tsx scripts/repo/generate-cursor-plugin.ts')
+      logger.fail('Run: node scripts/repo/generate-cursor-plugin.mts')
       process.exit(1)
     }
 
@@ -192,8 +212,10 @@ function main(): void {
     return
   }
 
-  logger.log(`Wrote ${path.relative(ROOT, CURSOR_PLUGIN_MANIFEST)}`)
-  logger.log(`Wrote ${path.relative(ROOT, CURSOR_MCP_CONFIG)}`)
+  logger.log(`Wrote ${path.relative(ROOT, result.manifestPath)}`)
+  logger.log(`Wrote ${path.relative(ROOT, result.mcpPath)}`)
 }
 
-main()
+if (isMainModule(import.meta.url)) {
+  main()
+}

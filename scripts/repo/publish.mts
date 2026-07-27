@@ -28,7 +28,7 @@ const GENERATED_FILES = [
   'agents/README.md',
   'README.md',
   '.cursor-plugin/plugin.json',
-  '.mcp.json',
+  '.cursor-plugin/mcp.json',
   '.claude-plugin/plugin.json',
   '.claude-plugin/marketplace.json',
   'gemini-extension.json',
