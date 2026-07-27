@@ -48,6 +48,7 @@ function readJanusEntry(): ToolEntry {
     '..',
     '.claude',
     'hooks',
+    'fleet',
     'setup-security-tools',
     'external-tools.json',
   )
