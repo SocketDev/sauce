@@ -20,6 +20,32 @@ const ROOT = path.resolve(__dirname, '../..')
 const FIXTURES_DIR = path.resolve(__dirname, '..', 'fixtures')
 
 /**
+ * Resolve a skill name to its SKILL.md. Top-level skills live at
+ * `skills/<name>/SKILL.md`; sub-skills nest one level under their parent
+ * (e.g. `skills/socket-fix/socket-dep-upgrade/SKILL.md`), so a miss at the
+ * top level falls back to a one-level-deep scan.
+ */
+function resolveSkillPath(skillName: string): string | undefined {
+  const SKILLS_DIR = path.join(ROOT, 'skills')
+  const direct = path.join(SKILLS_DIR, skillName, 'SKILL.md')
+  if (existsSync(direct)) {
+    return direct
+  }
+  const entries = readdirSync(SKILLS_DIR, { withFileTypes: true })
+  for (let i = 0, { length } = entries; i < length; i += 1) {
+    const entry = entries[i]!
+    if (!entry.isDirectory()) {
+      continue
+    }
+    const nested = path.join(SKILLS_DIR, entry.name, skillName, 'SKILL.md')
+    if (existsSync(nested)) {
+      return nested
+    }
+  }
+  return undefined
+}
+
+/**
  * Build a prompt with skill instructions injected.
  *
  * Reads the SKILL.md for the given skill and wraps the user's prompt
@@ -29,9 +55,11 @@ export function buildSkillPrompt(
   skillName: string,
   userPrompt: string,
 ): string {
-  const skillPath = path.join(ROOT, 'skills', skillName, 'SKILL.md')
-  if (!existsSync(skillPath)) {
-    throw new Error(`Skill '${skillName}' not found at ${skillPath}`)
+  const skillPath = resolveSkillPath(skillName)
+  if (!skillPath) {
+    throw new Error(
+      `Skill '${skillName}' not found under ${path.join(ROOT, 'skills')} (looked at skills/${skillName}/SKILL.md and skills/*/${skillName}/SKILL.md)`,
+    )
   }
   const skillContent = readFileSync(skillPath, 'utf-8')
   return (
