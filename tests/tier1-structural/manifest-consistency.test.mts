@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import * as path from 'node:path'
-import { validateMarketplace } from '../../scripts/lib/validate-marketplace.mts'
+import { validateMarketplace } from '../../scripts/repo/lib/validate-marketplace.mts'
 
 const ROOT = path.resolve(__dirname, '../..')
 const SKILLS_DIR = path.join(ROOT, 'skills')

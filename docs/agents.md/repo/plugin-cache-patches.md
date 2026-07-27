@@ -5,10 +5,10 @@ occasionally ship bugs we've fixed but can't land upstream synchronously. The
 plugin install lives in a **cache** at
 `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/` that Claude Code
 **regenerates from the pinned source on every (re)install** — so a hand-edit to
-the cache is lost the next time `node scripts/install-claude-plugins.mts` runs.
+the cache is lost the next time `node scripts/repo/install-claude-plugins.mts` runs.
 
 The durable fix: keep the change as a checked-in patch in
-`scripts/plugin-patches/`, and have `install-claude-plugins.mts` reapply it over
+`scripts/repo/plugin-patches/`, and have `install-claude-plugins.mts` reapply it over
 the freshly-installed cache as a post-reconcile pass (`reapplyPluginPatches()`).
 
 ## Smallest patch footprint (prefer a sidecar over inlining)
@@ -107,5 +107,5 @@ skipped with a warning.
   patches (wired via `pnpm-workspace.yaml` `patchedDependencies`). A
   plugin-cache patch there would imply pnpm owns it.
 
-`scripts/plugin-patches/` is plainly ours, next to its only consumer
+`scripts/repo/plugin-patches/` is plainly ours, next to its only consumer
 (`install-claude-plugins.mts`).

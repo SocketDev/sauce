@@ -7,7 +7,7 @@ Common CI/CD detection and setup instructions shared across skills.
 Run the automated detection helper:
 
 ```shell
-pnpm dlx tsx scripts/helpers/detect-ci.ts
+pnpm dlx tsx scripts/repo/helpers/detect-ci.ts
 ```
 
 Or manually check for config files:

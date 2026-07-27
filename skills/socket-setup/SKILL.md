@@ -26,7 +26,7 @@ description: Set up Socket — prompt for API key, install the CLI, authenticate
 Run the helper to detect installed tools and their versions:
 
 ```shell
-node scripts/helpers/socket-setup.mjs check-prereqs --dir .
+node scripts/repo/helpers/socket-setup.mjs check-prereqs --dir .
 ```
 
 Output example:
@@ -76,7 +76,7 @@ Store the tier choice for subsequent steps.
 - After install, re-run the helper to confirm the version is >= 1.x:
 
   ```shell
-  node scripts/helpers/socket-setup.mjs check-prereqs --dir .
+  node scripts/repo/helpers/socket-setup.mjs check-prereqs --dir .
   ```
 
 - If `socketCli.ok` is false after install, error and suggest `npm install -g socket@latest`
@@ -141,7 +141,7 @@ npm install -g @socketsecurity/socket-patch
 After installing, re-run the helper to verify each tool is available:
 
 ```shell
-node scripts/helpers/socket-setup.mjs check-prereqs --dir .
+node scripts/repo/helpers/socket-setup.mjs check-prereqs --dir .
 ```
 
 Confirm that `socketCli.installed`, `sfw.installed`, and `socketPatch.installed` are all true.
@@ -153,7 +153,7 @@ If any tool fails to install, check PATH and retry. The npm global bin directory
 Run the CI detection helper for automated detection:
 
 ```shell
-pnpm dlx tsx scripts/helpers/detect-ci.ts
+pnpm dlx tsx scripts/repo/helpers/detect-ci.ts
 ```
 
 Or manually detect:
@@ -252,7 +252,7 @@ Set up automated patching so `socket-patch apply` runs after every dependency in
 Run the CI detection helper to identify the project's CI/CD system:
 
 ```shell
-pnpm dlx tsx scripts/helpers/detect-ci.ts
+pnpm dlx tsx scripts/repo/helpers/detect-ci.ts
 ```
 
 Before configuring automation, scan the project to find ALL places where dependencies are installed and builds happen:
@@ -391,7 +391,7 @@ Detect Dockerfiles and edit them directly to integrate Socket's firewall and/or 
 Run the helper to find all Dockerfiles in the project:
 
 ```shell
-node scripts/helpers/socket-setup.mjs detect-dockerfiles --dir .
+node scripts/repo/helpers/socket-setup.mjs detect-dockerfiles --dir .
 ```
 
 Output example:
@@ -478,7 +478,7 @@ Configure Socket policies to control which issues are flagged during scans and C
 Generate a `socket.yml` template using the helper:
 
 ```shell
-node scripts/helpers/socket-setup.mjs generate-config --tier enterprise > socket.yml
+node scripts/repo/helpers/socket-setup.mjs generate-config --tier enterprise > socket.yml
 ```
 
 This creates a `socket.yml` with `version: 2` and default issue rules:
@@ -585,7 +585,7 @@ For local development, authenticate using one of:
 - **`socket organization list` returns empty**: The API token may lack organization access. Verify the token at <https://socket.dev/dashboard> and ensure it has the correct scopes.
 - **`sfw` not intercepting installs**: Ensure `sfw` is in `PATH` before the package manager. In CI, verify the install step runs before any dependency install commands.
 - **GitHub Action fails with permission errors**: Ensure the `socket-token` secret is set correctly in the repository settings and the workflow has `contents: read` permission.
-- **Socket CLI version < 1.x**: Run `npm install -g socket@latest` to update. Verify with `node scripts/helpers/socket-setup.mjs check-prereqs`.
+- **Socket CLI version < 1.x**: Run `npm install -g socket@latest` to update. Verify with `node scripts/repo/helpers/socket-setup.mjs check-prereqs`.
 - **Dockerfile editing issues**: Run `detect-dockerfiles` to verify which files and lines need changes. Only edit stages with dependency install steps and skip lines that already contain `sfw` or `socket-patch`.
 
 ## Tips
@@ -598,6 +598,6 @@ For local development, authenticate using one of:
 - After setup, use the `/socket-scan` skill for a first audit and the `/socket-inspect` skill for package inspection.
 - For GitHub repos, consider also installing the Socket Security GitHub App
   for automatic PR scanning.
-- Run `node scripts/helpers/socket-setup.mjs check-prereqs` at any time to verify tool installation status.
-- Use `node scripts/helpers/socket-setup.mjs detect-dockerfiles --dir .` to find all Dockerfiles before manual editing.
+- Run `node scripts/repo/helpers/socket-setup.mjs check-prereqs` at any time to verify tool installation status.
+- Use `node scripts/repo/helpers/socket-setup.mjs detect-dockerfiles --dir .` to find all Dockerfiles before manual editing.
 - The generated `socket.yml` uses `version: 2` — ensure this line is preserved when editing policies.

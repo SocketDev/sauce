@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest'
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import * as path from 'node:path'
 import * as os from 'node:os'
-import { parseFrontmatter } from '../../scripts/lib/frontmatter.mts'
+import { parseFrontmatter } from '../../scripts/repo/lib/frontmatter.mts'
 import {
   collectSkills,
   validateMarketplace,
-} from '../../scripts/lib/validate-marketplace.mts'
+} from '../../scripts/repo/lib/validate-marketplace.mts'
 import { safeDeleteSync } from '@socketsecurity/lib/fs/safe'
 
 const ROOT = path.resolve(__dirname, '../..')
