@@ -4,8 +4,8 @@
  * Inline shared content into SKILL.md files. Finds markers of the form: <!--
  * BEGIN_SECTION:filename.md --> ... (auto-generated content) ... <!--
  * END_SECTION:filename.md --> and replaces the content between them with the
- * contents of skills/_shared/filename.md. Run as part of the publish pipeline
- * to keep shared sections in sync.
+ * contents of skills/_shared/docs/filename.md. Run as part of the publish
+ * pipeline to keep shared sections in sync.
  */
 
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
@@ -21,7 +21,7 @@ const ROOT = path.resolve(
   '..',
 )
 const SKILLS_DIR = path.join(ROOT, 'skills')
-const SHARED_DIR = path.join(SKILLS_DIR, '_shared')
+const SHARED_DIR = path.join(SKILLS_DIR, '_shared', 'docs')
 
 const BEGIN_RE = /^<!-- BEGIN_SECTION:(\S+) -->$/
 const END_RE = /^<!-- END_SECTION:(\S+) -->$/

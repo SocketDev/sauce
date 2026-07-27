@@ -1,7 +1,8 @@
 #!/usr/bin/env pnpm dlx tsx
 /* eslint-disable no-shadow -- nested cached-length for-loops intentionally reuse `i`/`length` names for the fleet-wide cached-loop idiom; renaming would diverge from the codebase pattern. */
 /**
- * Generate AGENTS.md from AGENTS_TEMPLATE.md and SKILL.md frontmatter.
+ * Generate agents/README.md — the AGENTS.md-style fallback bundle — from
+ * docs/agents-template.md and SKILL.md frontmatter.
  *
  * Also validates that marketplace.json is in sync with discovered skills, and
  * updates the skills table in README.md.
@@ -24,8 +25,8 @@ const ROOT = path.resolve(
   '..',
   '..',
 )
-const TEMPLATE_PATH = path.join(ROOT, 'scripts', 'repo', 'AGENTS_TEMPLATE.md')
-const OUTPUT_PATH = path.join(ROOT, 'agents', 'AGENTS.md')
+const TEMPLATE_PATH = path.join(ROOT, 'docs', 'agents-template.md')
+const OUTPUT_PATH = path.join(ROOT, 'agents', 'README.md')
 const SKILLS_DIR = path.join(ROOT, 'skills')
 const MARKETPLACE_PATH = path.join(ROOT, '.claude-plugin', 'marketplace.json')
 const README_PATH = path.join(ROOT, 'README.md')

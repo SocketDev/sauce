@@ -15,7 +15,7 @@ Socket Security Skills are definitions for dependency security tasks like vulner
 - **Roo Code** — via Skills CLI
 - **Any agent supporting the Agent Skills standard** — via `pnpm dlx skills add`
 
-If your agent isn't listed above but supports skills, extensions, or custom instructions, it can likely use these skills via the [Skills CLI](https://skills.sh/) or the [`agents/AGENTS.md`](agents/AGENTS.md) fallback.
+If your agent isn't listed above but supports skills, extensions, or custom instructions, it can likely use these skills via the [Skills CLI](https://skills.sh/) or the [`agents/README.md`](agents/README.md) fallback.
 
 ## How do Skills work?
 
@@ -25,7 +25,7 @@ In practice, skills are self-contained folders that package instructions, script
 > 'Skills' is actually an Anthropic term used within Claude AI and Claude Code and not adopted by other agent tools, but we love it! OpenAI Codex uses the open [Agent Skills](https://agentskills.io/specification) format, where each skill is a directory with a `SKILL.md` file that Codex discovers from standard `.agents/skills` locations documented in the [Codex Skills guide](https://developers.openai.com/codex/skills/). Codex can also work with an `AGENTS.md` file. Google Gemini uses 'extensions' to define the instructions for your coding agent in a `gemini-extension.json` file. **This repo is compatible with all of them, and more!**
 >
 > [!TIP]
-> If your agent doesn't support skills, you can use [`agents/AGENTS.md`](agents/AGENTS.md) directly as a fallback.
+> If your agent doesn't support skills, you can use [`agents/README.md`](agents/README.md) directly as a fallback — copy it into your project as `AGENTS.md`.
 
 ## Installation
 
@@ -71,7 +71,7 @@ For example:
 
 2. Once a skill is available in one of those locations, Codex will discover it using the Agent Skills standard and load the `SKILL.md` instructions when it decides to use that skill or when you explicitly invoke it.
 
-3. If your Codex setup still relies on `AGENTS.md`, you can use the generated [`agents/AGENTS.md`](agents/AGENTS.md) file in this repo as a fallback bundle of instructions.
+3. If your Codex setup still relies on `AGENTS.md`, you can use the generated [`agents/README.md`](agents/README.md) file in this repo as a fallback bundle of instructions — copy it into your project as `AGENTS.md`.
 
 ### Gemini CLI
 
@@ -124,7 +124,7 @@ For any agent that supports the Agent Skills standard or custom instructions:
 pnpm dlx skills add SocketDev/skills
 ```
 
-1. Or manually copy the [`agents/AGENTS.md`](agents/AGENTS.md) file into your agent's instructions/context directory. This file contains a summary of all available skills and their locations.
+1. Or manually copy the [`agents/README.md`](agents/README.md) file into your agent's instructions/context directory as `AGENTS.md`. This file contains a summary of all available skills and their locations.
 
 2. Skills use the Socket CLI and Batch PURL API directly — no MCP server required.
 

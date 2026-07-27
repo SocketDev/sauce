@@ -25,7 +25,7 @@ const rootPath = path.resolve(
 )
 
 const GENERATED_FILES = [
-  'agents/AGENTS.md',
+  'agents/README.md',
   'README.md',
   '.cursor-plugin/plugin.json',
   '.mcp.json',

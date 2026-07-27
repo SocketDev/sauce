@@ -45,7 +45,7 @@ describe('Manifest Consistency', () => {
     version: string
   }
   /* eslint-enable typescript/no-unsafe-type-assertion */
-  const agentsMd = readFileSync(path.join(ROOT, 'agents', 'AGENTS.md'), 'utf-8')
+  const agentsMd = readFileSync(path.join(ROOT, 'agents', 'README.md'), 'utf-8')
 
   describe('marketplace.json', () => {
     it('passes shared validation (skills ↔ marketplace sync)', () => {
@@ -69,14 +69,14 @@ describe('Manifest Consistency', () => {
     })
   })
 
-  describe('AGENTS.md', () => {
+  describe('agents/README.md', () => {
     it('references all skill paths', () => {
       const dirs = getSkillDirs()
       for (let i = 0, { length } = dirs; i < length; i += 1) {
         const dir = dirs[i]
         expect(
           agentsMd,
-          `AGENTS.md does not reference skills/${dir}/SKILL.md`,
+          `agents/README.md does not reference skills/${dir}/SKILL.md`,
         ).toContain(`skills/${dir}/SKILL.md`)
       }
     })
@@ -90,7 +90,7 @@ describe('Manifest Consistency', () => {
         const tableRowRe = new RegExp(`\\|\\s*${dir}\\s*\\|`)
         expect(
           tableRowRe.test(agentsMd),
-          `AGENTS.md table does not list skill '${dir}'`,
+          `agents/README.md table does not list skill '${dir}'`,
         ).toBe(true)
       }
     })

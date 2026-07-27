@@ -172,7 +172,7 @@ If the removed package has a corresponding `@types/{package}` in devDependencies
 
 ## Step 6: Verify
 
-Follow the standard build & test verification workflow (see `skills/_shared/verify-build.md`):
+Follow the standard build & test verification workflow (see `skills/_shared/docs/verify-build.md`):
 
 1. **Build the project** using its standard build command
 2. **Run the test suite** to catch any runtime dependency on the removed package

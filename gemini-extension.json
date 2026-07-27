@@ -2,5 +2,5 @@
   "name": "socket-skills",
   "description": "Provides access to Socket Security Skills.",
   "version": "1.0.0",
-  "contextFileName": "agents/AGENTS.md"
+  "contextFileName": "agents/README.md"
 }
