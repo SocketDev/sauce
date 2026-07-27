@@ -9,6 +9,10 @@
     "from": "npm-registry",
     "type": "js"
   },
+  "fuzz": {
+    "exempt": true,
+    "reason": "Skills content repo: the published artifact is markdown skills plus generated manifests. The only parsers (scripts/repo/lib/frontmatter.mts, scripts/repo/lib/validate-marketplace.mts) consume repo-tracked SKILL.md/marketplace.json files, never untrusted input — no fuzzable boundary."
+  },
   "hooks": {
     "enablePrePush": true,
     "enableCommitMsg": true,
