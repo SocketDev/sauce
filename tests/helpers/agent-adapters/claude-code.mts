@@ -41,13 +41,23 @@ export class ClaudeCodeAdapter implements AgentAdapter {
     return new Promise((resolve, reject) => {
       const proc = spawn(
         'claude',
-        ['--print', cfg.prompt, '--output-format', 'json', '--max-turns', '10'],
+        // Multi-phase skill prompts (scan → classify → report) legitimately
+        // burn 15-25 turns; at 10 the CLI stops with subtype
+        // "error_max_turns", an EMPTY result and exit code 1, which scored
+        // 0% in CI. 30 bounds runaway sessions while timeoutMs bounds cost.
+        ['--print', cfg.prompt, '--output-format', 'json', '--max-turns', '30'],
         {
           cwd: cfg.workingDir,
           env: cleanEnv(),
           stdio: ['ignore', 'pipe', 'pipe'],
         },
       )
+      // `spawn` is promise-spawn shaped: the returned handle is itself a
+      // promise that REJECTS on any non-zero exit (e.g. max-turns exits 1
+      // with a JSON payload on stdout). All outcome handling lives on the
+      // `close` listener below, so swallow the duplicate rejection channel —
+      // otherwise it escapes as a vitest unhandled-rejection error.
+      void proc.catch(() => {})
 
       let stdout = ''
       let stderr = ''
