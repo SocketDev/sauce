@@ -19,17 +19,17 @@ packages:
 # keeps the entire hook tree in lockstep without each hook duplicating
 # literal pins.
 catalog:
-  '@anthropic-ai/claude-code': 2.1.198
+  '@anthropic-ai/claude-code': 2.1.216
   '@redwoodjs/agent-ci': 0.17.1
   '@sinclair/typebox': 0.34.52
-  '@socketregistry/packageurl-js': 1.4.7
-  '@socketregistry/packageurl-js-stable': npm:@socketregistry/packageurl-js@1.4.7
-  '@socketsecurity/lib': 6.2.3
-  '@socketsecurity/lib-stable': npm:@socketsecurity/lib@6.2.3
-  '@socketsecurity/registry': 2.0.2
-  '@socketsecurity/registry-stable': npm:@socketsecurity/registry@2.0.2
-  '@socketsecurity/sdk': 4.0.3
-  '@socketsecurity/sdk-stable': npm:@socketsecurity/sdk@4.0.3
+  '@socketregistry/packageurl-js': 1.4.8
+  '@socketregistry/packageurl-js-stable': npm:@socketregistry/packageurl-js@1.4.8
+  '@socketsecurity/lib': 6.3.0
+  '@socketsecurity/lib-stable': npm:@socketsecurity/lib@6.3.0
+  '@socketsecurity/registry': 2.0.5
+  '@socketsecurity/registry-stable': npm:@socketsecurity/registry@2.0.5
+  '@socketsecurity/sdk': 4.1.2
+  '@socketsecurity/sdk-stable': npm:@socketsecurity/sdk@4.1.2
   '@types/mdast': 4.0.4
   '@types/node': 26.1.1
   '@types/semver': 7.7.1
@@ -45,7 +45,7 @@ catalog:
   'ecc-agentshield': 1.4.0
   'fast-check': 4.9.0
   'magic-string': 1.0.0
-  'markdownlint-cli2': 0.23.0
+  'markdownlint-cli2': 0.23.1
   'mdast-util-from-markdown': 2.0.3
   'micromark': 4.0.2
   'neosanitize': 0.3.0
@@ -60,13 +60,13 @@ catalog:
   'rolldown': 1.1.4
   'semver': 7.8.5
   'shell-quote': 1.10.0
-  'svgo': 4.0.1
+  'svgo': 4.0.2
   'taze': 19.16.0
   'typescript': 7.0.2
   # vite 8 swaps esbuild → rolldown natively, so the override below
   # removes esbuild from the install tree. Matches the wheelhouse
   # catalog pin.
-  'vite': 8.1.0
+  'vite': 8.1.5
   'vitest': 4.1.10
 
 # Wait 7 days (10080 minutes) before installing newly published
@@ -162,10 +162,10 @@ overrides:
   'has-symbols': 'npm:@socketregistry/has-symbols@1.0.7'
   'has-tostringtag': 'npm:@socketregistry/has-tostringtag@1.0.7'
   'hasown': 'npm:@socketregistry/hasown@1.0.7'
-  'iconv-lite': '0.7.2'
+  'iconv-lite': '0.7.3'
   'isexe@>=3': '4.0.0'
   'js-yaml@>=5.0.0 <5.2.2': '5.2.2'
-  'lru-cache@>=10': '11.3.6'
+  'lru-cache@>=10': '11.5.2'
   'magic-string': '1.0.0'
   'mime-db': '1.54.0'
   'mime-types@>=3': '3.0.2'
@@ -175,7 +175,7 @@ overrides:
   'semver@>=5.0.0 <7.6.0': '7.8.1'
   'side-channel': 'npm:@socketregistry/side-channel@1.0.10'
   'ssri@>=12': '13.0.1'
-  'string-width@>=5': '8.1.0'
+  'string-width@>=5': '8.2.2'
   'update-notifier@>=4.0.0': '7.3.1'
   'uuid': '11.1.1'
   'which': '7.0.0'
