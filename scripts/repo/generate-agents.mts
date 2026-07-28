@@ -161,7 +161,7 @@ export function loadTemplate(): string {
   return readFileSync(TEMPLATE_PATH, 'utf-8')
 }
 
-export function render(template: string, skills: Skill[]): string {
+export function renderAgentsDoc(template: string, skills: Skill[]): string {
   return template.replace(
     /\{\{#skills\}\}([\s\S]*?)\{\{\/skills\}\}/g,
     (_match, block: string) => {
@@ -216,7 +216,7 @@ export function updateReadme(skills: Skill[]): boolean {
 function main(): void {
   const template = loadTemplate()
   const skills = collectSkills(SKILLS_DIR)
-  const output = render(template, skills)
+  const output = renderAgentsDoc(template, skills)
 
   const outputDir = path.dirname(OUTPUT_PATH)
   if (!existsSync(outputDir)) {
