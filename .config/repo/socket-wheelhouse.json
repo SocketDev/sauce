@@ -1,0 +1,55 @@
+{
+  "$schema": "./socket-wheelhouse-schema.json",
+  "schemaVersion": 1,
+  "repoName": "skills",
+  "repo": {
+    "type": "solo"
+  },
+  "build": {
+    "from": "npm-registry",
+    "type": "js"
+  },
+  "fuzz": {
+    "exempt": true,
+    "reason": "Skills content repo: the published artifact is markdown skills plus generated manifests. The only parsers (scripts/repo/lib/frontmatter.mts, scripts/repo/lib/validate-marketplace.mts) consume repo-tracked SKILL.md/marketplace.json files, never untrusted input — no fuzzable boundary."
+  },
+  "hooks": {
+    "enablePrePush": true,
+    "enableCommitMsg": true,
+    "enablePreCommit": true,
+    "preCommitVariant": "lint-test"
+  },
+  "scripts": {
+    "optional": {
+      "check": true,
+      "clean": false,
+      "cover": false,
+      "fix": true,
+      "security": true,
+      "setup": false,
+      "type": false,
+      "update": true
+    }
+  },
+  "lint": {
+    "profile": "standard"
+  },
+  "workflows": {
+    "ci": true,
+    "provenance": false,
+    "requirePinnedFullSha": true,
+    "weeklyUpdate": true
+  },
+  "claude": {
+    "includeSecurityScanSkill": true,
+    "includeSharedSkills": true,
+    "includeUpdatingSkill": true
+  },
+  "workspace": {
+    "blockExoticSubdeps": true,
+    "minimumReleaseAge": 10080,
+    "minimumReleaseAgeExclude": ["@socketregistry/*", "@socketsecurity/*"],
+    "resolutionMode": "highest",
+    "trustPolicy": "no-downgrade"
+  }
+}

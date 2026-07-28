@@ -1,0 +1,248 @@
+#!/usr/bin/env pnpm dlx tsx
+/* eslint-disable no-shadow -- nested cached-length for-loops intentionally reuse `i`/`length` names for the fleet-wide cached-loop idiom; renaming would diverge from the codebase pattern. */
+/**
+ * Generate agents/README.md — the AGENTS.md-style fallback bundle — from
+ * docs/agents-template.md and SKILL.md frontmatter.
+ *
+ * Also validates that marketplace.json is in sync with discovered skills, and
+ * updates the skills table in README.md.
+ */
+
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import * as path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
+import {
+  collectSkills,
+  validateMarketplace,
+} from './lib/validate-marketplace.mts'
+import type { Skill } from './lib/validate-marketplace.mts'
+
+const logger = getDefaultLogger()
+
+const ROOT = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '..',
+  '..',
+)
+const TEMPLATE_PATH = path.join(ROOT, 'docs', 'agents-template.md')
+const OUTPUT_PATH = path.join(ROOT, 'agents', 'README.md')
+const SKILLS_DIR = path.join(ROOT, 'skills')
+const MARKETPLACE_PATH = path.join(ROOT, '.claude-plugin', 'marketplace.json')
+const README_PATH = path.join(ROOT, 'README.md')
+
+const README_TABLE_START = '<!-- BEGIN_SKILLS_TABLE -->'
+const README_TABLE_END = '<!-- END_SKILLS_TABLE -->'
+
+interface MarketplacePlugin {
+  name: string
+  source: string
+  skills: string
+  description: string
+}
+
+interface Marketplace {
+  name: string
+  owner: { name: string }
+  metadata: { description: string; version: string }
+  plugins: MarketplacePlugin[]
+}
+
+interface CategoryDef {
+  label: string
+  description: string
+}
+
+const CATEGORIES: Array<[string, CategoryDef]> = [
+  [
+    'setup',
+    {
+      label: 'Setup',
+      description:
+        'Install, authenticate, and configure Socket for your project.',
+    },
+  ],
+  [
+    'analysis',
+    {
+      label: 'Analysis',
+      description:
+        'Scan dependencies and inspect individual packages for security risks.',
+    },
+  ],
+  [
+    'fix',
+    {
+      label: 'Fix',
+      description:
+        'Holistic dependency repair — orchestrate cleanup, replacement, patching, and upgrades in a single phased workflow with individual subskills for each operation.',
+    },
+  ],
+]
+
+export function generateReadmeTable(skills: Skill[]): string {
+  const marketplace = loadMarketplace()
+  const pluginsBySource = new Map<string, MarketplacePlugin>()
+  const plugins = marketplace.plugins
+  for (let i = 0, { length } = plugins; i < length; i += 1) {
+    const p = plugins[i]!
+    pluginsBySource.set(p.source, p)
+  }
+
+  const grouped = new Map<string, Skill[]>()
+  for (let i = 0, { length } = CATEGORIES; i < length; i += 1) {
+    const key = CATEGORIES[i]![0]
+    grouped.set(key, [])
+  }
+  for (let i = 0, { length } = skills; i < length; i += 1) {
+    const skill = skills[i]!
+    const cat = getCategory(skill.name)
+    grouped.get(cat)?.push(skill)
+  }
+
+  const lines: string[] = []
+
+  for (let i = 0, { length } = CATEGORIES; i < length; i += 1) {
+    const [key, def] = CATEGORIES[i]!
+    const catSkills = grouped.get(key)
+    if (!catSkills || catSkills.length === 0) {
+      continue
+    }
+
+    lines.push(`#### ${def.label}`)
+    lines.push('')
+    lines.push(def.description)
+    lines.push('')
+    lines.push('| Name | Description | Documentation |')
+    lines.push('|------|-------------|---------------|')
+
+    for (let i = 0, { length } = catSkills; i < length; i += 1) {
+      const skill = catSkills[i]!
+      const source = `./${skill.path}`
+      const plugin = pluginsBySource.get(source)
+      const name = plugin?.name ?? skill.name
+      const description = plugin?.description ?? skill.description
+      const docLink = `[SKILL.md](${skill.path}/SKILL.md)`
+      lines.push(`| \`${name}\` | ${description} | ${docLink} |`)
+    }
+
+    lines.push('')
+  }
+
+  // Remove trailing empty line
+  while (lines.length > 0 && lines[lines.length - 1] === '') {
+    lines.pop()
+  }
+
+  return lines.join('\n')
+}
+
+export function getCategory(skillName: string): string {
+  if (skillName === 'socket-setup') {
+    return 'setup'
+  }
+  if (skillName === 'socket-inspect' || skillName === 'socket-scan') {
+    return 'analysis'
+  }
+  if (skillName.startsWith('socket-dep-') || skillName === 'socket-fix') {
+    return 'fix'
+  }
+  return 'setup'
+}
+
+export function loadMarketplace(): Marketplace {
+  if (!existsSync(MARKETPLACE_PATH)) {
+    throw new Error(`marketplace.json not found at ${MARKETPLACE_PATH}`)
+  }
+  return JSON.parse(readFileSync(MARKETPLACE_PATH, 'utf-8'))
+}
+
+export function loadTemplate(): string {
+  return readFileSync(TEMPLATE_PATH, 'utf-8')
+}
+
+export function render(template: string, skills: Skill[]): string {
+  return template.replace(
+    /\{\{#skills\}\}([\s\S]*?)\{\{\/skills\}\}/g,
+    (_match, block: string) => {
+      const trimmed = block.replace(/^\n/, '').replace(/\n$/, '')
+      return skills
+        .map(skill =>
+          trimmed
+            .replace(/\{\{name\}\}/g, skill.name)
+            .replace(/\{\{description\}\}/g, skill.description)
+            .replace(/\{\{path\}\}/g, skill.path),
+        )
+        .join('\n')
+    },
+  )
+}
+
+export function updateReadme(skills: Skill[]): boolean {
+  if (!existsSync(README_PATH)) {
+    logger.fail(`Warning: README.md not found at ${README_PATH}`)
+    return false
+  }
+
+  const content = readFileSync(README_PATH, 'utf-8')
+  const startIdx = content.indexOf(README_TABLE_START)
+  const endIdx = content.indexOf(README_TABLE_END)
+
+  if (startIdx === -1 || endIdx === -1) {
+    logger.fail(
+      `Warning: README.md markers not found. Add ${README_TABLE_START} and ` +
+        `${README_TABLE_END} to enable table generation.`,
+    )
+    return false
+  }
+
+  if (endIdx < startIdx) {
+    logger.fail('Warning: README.md markers are in wrong order.')
+    return false
+  }
+
+  const table = generateReadmeTable(skills)
+  const newContent =
+    content.slice(0, startIdx + README_TABLE_START.length) +
+    '\n' +
+    table +
+    '\n' +
+    content.slice(endIdx)
+
+  writeFileSync(README_PATH, newContent, 'utf-8')
+  return true
+}
+
+function main(): void {
+  const template = loadTemplate()
+  const skills = collectSkills(SKILLS_DIR)
+  const output = render(template, skills)
+
+  const outputDir = path.dirname(OUTPUT_PATH)
+  if (!existsSync(outputDir)) {
+    mkdirSync(outputDir, { recursive: true })
+  }
+
+  writeFileSync(OUTPUT_PATH, output, 'utf-8')
+  logger.log(
+    `Wrote ${path.relative(ROOT, OUTPUT_PATH)} with ${skills.length} skills.`,
+  )
+
+  const errors = validateMarketplace(SKILLS_DIR, MARKETPLACE_PATH)
+  if (errors.length > 0) {
+    logger.error('')
+    logger.fail('Marketplace.json validation errors:')
+    for (let i = 0, { length } = errors; i < length; i += 1) {
+      const error = errors[i]!
+      logger.fail(`  - ${error.message}`)
+    }
+    process.exit(1)
+  }
+  logger.log('Marketplace.json validation passed.')
+
+  if (updateReadme(skills)) {
+    logger.log(`Updated ${path.relative(ROOT, README_PATH)} skills table.`)
+  }
+}
+
+main()

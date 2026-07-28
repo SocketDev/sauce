@@ -1,0 +1,14 @@
+{
+  "extends": "./.config/fleet/tsconfig.base.json",
+  "compilerOptions": {
+    "declarationMap": false,
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "noEmit": true,
+    "rewriteRelativeImportExtensions": true,
+    "sourceMap": false,
+    "types": ["node"]
+  },
+  "include": ["scripts/**/*.mts", "tests/**/*.mts"],
+  "exclude": [".cache", "dist", "node_modules"]
+}

@@ -1,0 +1,6 @@
+{
+  "name": "socket-skills",
+  "description": "Provides access to Socket Security Skills.",
+  "version": "1.0.0",
+  "contextFileName": "agents/README.md"
+}

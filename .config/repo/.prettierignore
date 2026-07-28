@@ -1,0 +1,4 @@
+# Repository fixtures and vendored patch payloads are byte-owned by their
+# source or generator. Formatting them would invalidate their contract.
+**/tests/fixtures/**
+**/scripts/repo/plugin-patches/**
