@@ -72,7 +72,8 @@ async function main(): Promise<void> {
   }
 
   // Step 2: zizmor — fixes GitHub Actions workflow security issues.
-  // Only runs if .github/ directory exists (some repos don't have workflows).
+  // Only runs when the .github/ directory exists, because some repos have no
+  // workflows to scan.
   if (existsSync('.github')) {
     await run('zizmor', ['--fix', '.github/'], {
       label: 'zizmor --fix',

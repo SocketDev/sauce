@@ -219,7 +219,8 @@ async function extractBundledPackages(filePath: string): Promise<Set<string>> {
       packageName.includes(']') ||
       packageName.includes('(') ||
       packageName.includes(')') ||
-      // Filter out common false positives (strings that appear in code but aren't packages)
+      // Filter out common false positives. These are strings that appear in
+      // code but aren't packages.
       packageName === 'bin' ||
       packageName === '.bin' ||
       packageName === 'npm' ||

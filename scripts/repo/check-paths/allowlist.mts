@@ -178,7 +178,7 @@ export const loadAllowlist = (repoRoot: string): AllowlistEntry[] => {
     if (blockKey !== null) {
       if (line.trim() === '') {
         // Preserve blank lines inside a literal block; folded blocks
-        // turn them into paragraph breaks (kept as separate joins).
+        // turn them into paragraph breaks and keep them as separate joins.
         blockLines.push('')
         continue
       }

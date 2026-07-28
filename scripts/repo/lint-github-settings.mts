@@ -260,7 +260,7 @@ function main(): number {
   )
   // Union of apps actually-observed via check-suites + apps
   // declared in .github/required-apps.yml. Declared-apps are how
-  // socket-trufflehog (which only posts on findings) gets credit.
+  // socket-trufflehog gets credit, because it only posts on findings.
   const installedApps = new Set<string>([
     ...detectInstalledApps(repo, defaultBranch),
     ...readDeclaredApps(),

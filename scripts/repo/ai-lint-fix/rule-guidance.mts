@@ -36,8 +36,8 @@ export const AI_HANDLED_RULES: ReadonlySet<string> = new Set([
 /**
  * Capability tier per rule. The orchestrator picks the highest-tier model
  * among a per-file batch's rules so a single Haiku-only file goes cheap, a
- * mixed batch gets Sonnet, and any `max-file-lines` finding triggers Opus
- * (module splits are real refactoring).
+ * mixed batch gets Sonnet, and any `max-file-lines` finding triggers Opus.
+ * Splitting a module is real refactoring, so it earns the strongest model.
  *
  * Why per-rule rather than per-file or per-finding:
  *
@@ -141,9 +141,9 @@ export function escalateTier(
 }
 
 /**
- * Per-rule guidance — concise, low-freedom (one canonical rewrite per rule).
- * Built per Anthropic's prompt-engineering best practices: direct instructions,
- * XML structure, examples per rule.
+ * Per-rule guidance kept concise and low-freedom so each rule maps to one
+ * canonical rewrite. Built per Anthropic's prompt-engineering best
+ * practices: direct instructions, XML structure, examples per rule.
  *
  * Each entry is rendered into the prompt as `<rule id="...">…</rule>` inside a
  * `<rules>` block. Claude Code sees only the rules that fired in the current
