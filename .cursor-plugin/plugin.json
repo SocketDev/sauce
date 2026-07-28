@@ -1,0 +1,23 @@
+{
+  "name": "socket-skills",
+  "skills": "skills",
+  "mcpServers": ".cursor-plugin/mcp.json",
+  "description": "Agent Skills for dependency security including vulnerability scanning, package review, patching, setup and configuration, and secure dependency updates via Socket.dev",
+  "version": "1.0.0",
+  "author": {
+    "name": "Socket"
+  },
+  "homepage": "https://github.com/SocketDev/skills",
+  "repository": "https://github.com/SocketDev/skills",
+  "license": "MIT",
+  "keywords": [
+    "socket",
+    "security",
+    "dependencies",
+    "vulnerabilities",
+    "supply-chain",
+    "scanning",
+    "firewall",
+    "patching"
+  ]
+}

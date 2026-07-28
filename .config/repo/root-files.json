@@ -1,0 +1,13 @@
+{
+  "allow": {
+    ".claude-plugin": "Claude Code plugin manifest dir — the plugin loader discovers it at the repo root by convention.",
+    ".cursor-plugin": "Cursor plugin manifest dir — the Cursor plugin loader discovers it at the repo root by convention.",
+    ".husky": "Husky hook dir — husky resolves it from the repo root by convention.",
+    ".kimi-code": "Kimi Code agent config dir — the tool discovers it at the repo root by convention.",
+    ".opencode": "OpenCode agent config dir — the opencode CLI discovers it at the repo root by convention.",
+    "agents": "Repo content dir — published agent definitions, a product surface of this repo.",
+    "gemini-extension.json": "Gemini CLI extension manifest — the gemini CLI discovers it at the repo root by convention.",
+    "opencode.json": "OpenCode config — the opencode CLI reads it from the repo root by convention.",
+    "skills": "Repo content dir — this repo's published skill definitions live here; the name is the product surface."
+  }
+}
