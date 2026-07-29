@@ -76,7 +76,7 @@ Use `socket fix` to identify dependencies with known vulnerabilities and compute
 **Fix all discoverable vulnerabilities (recommended starting point):**
 
 ```shell
-socket fix --all --no-apply-fixes --json
+pnpm dlx socket fix --all --no-apply-fixes --json
 ```
 
 This performs a dry run: it uploads project manifests to the Socket API, discovers all fixable GHSAs via Coana analysis, computes upgrade paths, and reports what would change — without modifying any files.
@@ -84,9 +84,9 @@ This performs a dry run: it uploads project manifests to the Socket API, discove
 **Target specific vulnerabilities by ID:**
 
 ```shell
-socket fix --id GHSA-xxxx-xxxx-xxxx --no-apply-fixes --json
-socket fix --id CVE-2024-12345 --no-apply-fixes --json
-socket fix --id pkg:npm/lodash@4.17.20 --no-apply-fixes --json
+pnpm dlx socket fix --id GHSA-xxxx-xxxx-xxxx --no-apply-fixes --json
+pnpm dlx socket fix --id CVE-2024-12345 --no-apply-fixes --json
+pnpm dlx socket fix --id pkg:npm/lodash@4.17.20 --no-apply-fixes --json
 ```
 
 CVE IDs and PURLs are automatically converted to GHSA IDs.
@@ -102,7 +102,7 @@ Once you understand what will change from the dry run, apply upgrades **one vuln
 1. Applies the single targeted fix:
 
    ```shell
-   socket fix --id GHSA-xxxx-xxxx-xxxx --no-major-updates
+   pnpm dlx socket fix --id GHSA-xxxx-xxxx-xxxx --no-major-updates
    ```
 
 2. Builds the project and runs the full test suite
@@ -114,7 +114,7 @@ Once you understand what will change from the dry run, apply upgrades **one vuln
 
 **When a subagent reports failure, the main agent must stop.** Do not continue to the next vulnerability. Report the failure to the user with details on what was tried and why it failed.
 
-**Do NOT use `socket fix --all` to apply everything at once.** Always target individual vulnerabilities so each change can be independently verified.
+**Do NOT use `pnpm dlx socket fix --all` to apply everything at once.** Always target individual vulnerabilities so each change can be independently verified.
 
 **Useful flags:**
 
@@ -157,7 +157,7 @@ Iterate until everything passes:
 1. **Build the project** to check for compile/type errors
 2. **Run the full test suite** and fix any failing tests
 3. **Run the `/socket-scan` skill** to confirm no new vulnerabilities were introduced by the upgrades
-4. **Re-run `socket fix --all --no-apply-fixes --json`** to verify no fixable vulnerabilities remain
+4. **Re-run `pnpm dlx socket fix --all --no-apply-fixes --json`** to verify no fixable vulnerabilities remain
 
 If tests fail after fixing, investigate each failure:
 
@@ -168,12 +168,12 @@ If tests fail after fixing, investigate each failure:
 
 Fixing all vulnerabilities in a Node.js project (success case):
 
-1. Dry run to discover issues: `socket fix --all --no-apply-fixes --json`
+1. Dry run to discover issues: `pnpm dlx socket fix --all --no-apply-fixes --json`
 2. Review output — 3 GHSAs found affecting `lodash`, `express`, and `semver`
-3. **Subagent 1 — lodash**: `socket fix --id GHSA-aaaa-aaaa-aaaa --no-major-updates` → minor bump applied → tests pass → commit → reports success
-4. **Subagent 2 — semver**: `socket fix --id GHSA-bbbb-bbbb-bbbb --no-major-updates` → patch applied → tests pass → commit → reports success
-5. **Subagent 3 — express**: `socket fix --id GHSA-cccc-cccc-cccc --no-major-updates` → no fix available without major bump
-   - Retry: `socket fix --id GHSA-cccc-cccc-cccc` (allow major bump)
+3. **Subagent 1 — lodash**: `pnpm dlx socket fix --id GHSA-aaaa-aaaa-aaaa --no-major-updates` → minor bump applied → tests pass → commit → reports success
+4. **Subagent 2 — semver**: `pnpm dlx socket fix --id GHSA-bbbb-bbbb-bbbb --no-major-updates` → patch applied → tests pass → commit → reports success
+5. **Subagent 3 — express**: `pnpm dlx socket fix --id GHSA-cccc-cccc-cccc --no-major-updates` → no fix available without major bump
+   - Retry: `pnpm dlx socket fix --id GHSA-cccc-cccc-cccc` (allow major bump)
    - Major bump applied → 2 test failures in route tests
    - Fix route handler code to match new Express API
    - Tests pass → commit → reports success
@@ -190,13 +190,13 @@ Failure case — main agent stops on first failure:
 
 Some agents (Codex, Gemini CLI) do not support spawning subagents. In this case, use a sequential workflow within the main context:
 
-1. Run `socket fix --all --no-apply-fixes --json` to discover all vulnerabilities
+1. Run `pnpm dlx socket fix --all --no-apply-fixes --json` to discover all vulnerabilities
 2. For each vulnerability, **one at a time**:
-   a. Apply the fix: `socket fix --id GHSA-xxxx --no-major-updates`
+   a. Apply the fix: `pnpm dlx socket fix --id GHSA-xxxx --no-major-updates`
    b. Build and test the project
    c. If tests pass, commit the change
    d. If tests fail, attempt to fix breaking changes, then retest. If unfixable, revert and stop.
-3. After all fixes, run `socket fix --all --no-apply-fixes --json` to verify no vulnerabilities remain
+3. After all fixes, run `pnpm dlx socket fix --all --no-apply-fixes --json` to verify no vulnerabilities remain
 
 To manage context window limits without subagents:
 
@@ -207,9 +207,9 @@ To manage context window limits without subagents:
 ## Error Handling
 
 - **`socket fix` returns no results**: The project may have no fixable vulnerabilities, or the Socket API may not cover the project's ecosystems. Check that manifest and lock files exist in the repository.
-- **`socket fix --id` fails with "GHSA not found"**: The advisory ID may be incorrect or not yet indexed. Try searching by CVE ID or PURL instead.
+- **`pnpm dlx socket fix --id` fails with "GHSA not found"**: The advisory ID may be incorrect or not yet indexed. Try searching by CVE ID or PURL instead.
 - **`socket fix` modifies files but tests fail**: The subagent (or main agent in fallback mode) should revert the changes with `git checkout -- .` and try an alternative version. Never leave the project in a broken state.
-- **Authentication required**: Run `socket login` or set `SOCKET_CLI_API_TOKEN`. For users without an account, use the `/socket-setup` skill to configure the public demo token (limited rate).
+- **Authentication required**: Run `pnpm dlx socket login` or set `SOCKET_CLI_API_TOKEN`. For users without an account, use the `/socket-setup` skill to configure the public demo token (limited rate).
 - **Network errors during fix**: `socket fix` contacts the Socket API to compute upgrade paths. Check network connectivity and try again.
 
 ## How This Differs from `/socket-dep-patch`

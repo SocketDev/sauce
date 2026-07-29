@@ -90,7 +90,7 @@ If authentication fails or the CLI is not installed, use the `/socket-setup` ski
 Run `/socket-scan` to get a full picture of the project's dependency health. Use `--tmp` for a temporary read-only scan — the default, which does not persist to the dashboard:
 
 ```shell
-socket scan create . --tmp --json
+pnpm dlx socket scan create . --tmp --json
 ```
 
 Parse the scan results to build a prioritized list of issues:
@@ -173,8 +173,8 @@ For each dependency in the project:
 Execute the `/socket-dep-patch` workflow:
 
 1. Ensure dependencies are installed (should have been verified in Step 2)
-2. Run `socket-patch scan` to discover available patches
-3. Apply all patches with `socket-patch apply`
+2. Run `pnpm dlx @socketsecurity/socket-patch scan` to discover available patches
+3. Apply all patches with `pnpm dlx @socketsecurity/socket-patch apply`
 4. Build and test to verify nothing broke
 5. Commit the patch manifest (`.socket/manifest.json`)
 
@@ -225,7 +225,7 @@ Aggressive repair. Apply everything possible, skip and continue on individual fa
 
 ### Phase 3a: Safe Upgrades
 
-1. Use scan results and `socket fix --all --no-apply-fixes --json` to discover all fixable vulnerabilities
+1. Use scan results and `pnpm dlx socket fix --all --no-apply-fixes --json` to discover all fixable vulnerabilities
 2. Filter to **minor and patch bumps only** (`--no-major-updates`)
 3. For each vulnerability, dispatch `/socket-dep-upgrade` to apply the fix
 4. **Skip and continue on failure** — if a single upgrade fails after retries, log the failure and move on to the next one. This diverges from `/socket-dep-upgrade`'s default "bail on failure" behavior — intentional for Level 3's aggressive posture
@@ -248,14 +248,14 @@ Aggressive repair. Apply everything possible, skip and continue on individual fa
 
 ### Phase 3c: Patch Everything Remaining
 
-1. Run `socket-patch scan` to discover patches for remaining dependencies
-2. Run `socket-patch apply` to apply all discovered patches
+1. Run `pnpm dlx @socketsecurity/socket-patch scan` to discover patches for remaining dependencies
+2. Run `pnpm dlx @socketsecurity/socket-patch apply` to apply all discovered patches
 3. Build and test
 4. Commit patch manifest
 
 ### Phase 3d: Risky Major Upgrades
 
-1. Re-run `socket fix --all --no-apply-fixes --json` to find remaining vulnerabilities
+1. Re-run `pnpm dlx socket fix --all --no-apply-fixes --json` to find remaining vulnerabilities
 2. Attempt **major version bumps** via `/socket-dep-upgrade` with code migration
 3. **Skip and continue on failure** — if a major upgrade cannot be completed (migration too complex, tests fail), log it and move on
 4. Commit after each successful upgrade
@@ -301,16 +301,16 @@ The user may specify a package by:
 - **PURL** — `pkg:npm/lodash@4.17.20`
 - **Advisory ID** — `GHSA-xxxx-xxxx-xxxx`, `CVE-2024-12345`
 
-If the user provides an advisory ID, resolve it to the affected package(s) using `socket fix --id <ID> --no-apply-fixes --json`.
+If the user provides an advisory ID, resolve it to the affected package(s) using `pnpm dlx socket fix --id <ID> --no-apply-fixes --json`.
 
 ## Step 2: Diagnose
 
 Investigate what's wrong with the target package:
 
 1. **Check if it's installed** — verify the package is in the manifest/lock file
-2. **Check for vulnerabilities** — run `socket fix --id pkg:<ecosystem>/<name>@<version> --no-apply-fixes --json` (requires Socket account) or check if the user provided a specific advisory
+2. **Check for vulnerabilities** — run `pnpm dlx socket fix --id pkg:<ecosystem>/<name>@<version> --no-apply-fixes --json` (requires Socket account) or check if the user provided a specific advisory
 3. **Check for usage** — search the codebase for imports and references (useful to know if cleanup is an option)
-4. **Check for patches** — run `socket-patch scan` and check if patches are available for this package
+4. **Check for patches** — run `pnpm dlx @socketsecurity/socket-patch scan` and check if patches are available for this package
 
 Report findings:
 
@@ -365,7 +365,7 @@ After the subskill completes:
 ## Error Handling
 
 - **`/socket-scan` not working (Fix All mode)**: Do not proceed with Fix All. Offer to run `/socket-setup` first, or suggest Fix Package mode as an alternative.
-- **Socket CLI not installed**: Run `/socket-setup` to install and authenticate. For users without an account, `/socket-setup` will configure the public demo token, which provides limited access to CLI features like `socket fix` and `socket package score` (but not `socket scan create`).
+- **Socket CLI not installed**: Run `/socket-setup` to install and authenticate. For users without an account, `/socket-setup` will configure the public demo token, which provides limited access to CLI features like `pnpm dlx socket fix` and `pnpm dlx socket package score` (but not `pnpm dlx socket scan create`).
 - **Rate limits hit**: The public token has rate limits. If the user hits them, suggest creating a free account at <https://socket.dev> to remove limits.
 - **No dependencies found**: The project may not have manifest files in the expected locations. Check for monorepo structures or non-standard layouts.
 - **Build/test command unknown**: Ask the user for the correct build and test commands before starting repair.
