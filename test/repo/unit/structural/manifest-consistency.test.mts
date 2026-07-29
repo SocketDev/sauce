@@ -1,3 +1,4 @@
+// socket-lint: mirror-exempt — asserts the marketplace manifest agrees with the skills tree on disk, not the behavior of one module.
 import { describe, expect, it } from 'vitest'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import * as path from 'node:path'

@@ -1,3 +1,4 @@
+// socket-lint: mirror-exempt — covers the failure branches of several scaffolding libs at once, so no one source module is the mirror.
 import { describe, expect, it } from 'vitest'
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import * as path from 'node:path'

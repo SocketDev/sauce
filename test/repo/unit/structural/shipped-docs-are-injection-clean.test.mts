@@ -1,3 +1,4 @@
+// socket-lint: mirror-exempt — scans every shipped doc for injection-class content, so the shipped tree is the subject, not a module.
 import { readdirSync, readFileSync } from 'node:fs'
 import * as path from 'node:path'
 import { describe, expect, it } from 'vitest'

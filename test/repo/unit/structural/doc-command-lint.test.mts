@@ -1,3 +1,4 @@
+// socket-lint: mirror-exempt — lints every shipped skill doc for retired commands, so no one source module is the mirror.
 import { describe, expect, it } from 'vitest'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import * as path from 'node:path'

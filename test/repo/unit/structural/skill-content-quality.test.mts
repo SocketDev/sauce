@@ -1,3 +1,4 @@
+// socket-lint: mirror-exempt — scans every skill SKILL.md against the content-quality rules, so the shipped tree is the subject, not a module.
 import { describe, expect, it } from 'vitest'
 import { readdirSync, readFileSync } from 'node:fs'
 import * as path from 'node:path'

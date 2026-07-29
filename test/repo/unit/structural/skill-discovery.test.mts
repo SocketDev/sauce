@@ -1,3 +1,4 @@
+// socket-lint: mirror-exempt — asserts every skill on disk is discoverable through its frontmatter, so the shipped tree is the subject, not a module.
 import { describe, expect, it } from 'vitest'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import * as path from 'node:path'

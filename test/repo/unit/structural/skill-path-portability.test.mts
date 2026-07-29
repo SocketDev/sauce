@@ -1,3 +1,4 @@
+// socket-lint: mirror-exempt — asserts every path a shipped doc names resolves for a consumer, so the shipped tree is the subject, not a module.
 import { describe, expect, it } from 'vitest'
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import * as path from 'node:path'
