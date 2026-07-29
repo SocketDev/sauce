@@ -1,4 +1,4 @@
-// node --test specs for scripts/repo/install-git-hooks.mts.
+// Specs for scripts/repo/install-git-hooks.mts.
 //
 // The installer is invoked from `prepare` at `pnpm install` time. Its
 // job: set `core.hooksPath = .git-hooks` in the local git config when
@@ -19,16 +19,32 @@
 // instead of the tmpdir, which is what we want to verify.
 
 import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
-import { copyFileSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
+import {
+  copyFileSync,
+  mkdirSync,
+  mkdtempSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
-import test from 'node:test'
-import assert from 'node:assert/strict'
-import { fileURLToPath } from 'node:url'
+import { expect, it } from 'vitest'
 import { safeDeleteSync } from '@socketsecurity/lib-stable/fs/safe'
 
-const here = path.dirname(fileURLToPath(import.meta.url))
-const SOURCE_SCRIPT = path.join(here, '..', 'install-git-hooks.mts')
+import { isolateGitEnv } from '../../../.git-hooks/_shared/isolate-git-env.mts'
+import { REPO_ROOT } from '../../../scripts/fleet/paths.mts'
+
+// The fleet vitest setup already pins the git env, and this suite spawns `git`
+// against throwaway tmpdirs, so pin it here too: an inherited GIT_DIR would
+// send every fixture's config write at the live checkout.
+isolateGitEnv({ pinConfigToNull: true })
+
+const SOURCE_SCRIPT = path.join(
+  REPO_ROOT,
+  'scripts',
+  'repo',
+  'install-git-hooks.mts',
+)
 
 interface TmpRepo {
   /**
@@ -56,6 +72,16 @@ function makeTmpRepo(): TmpRepo {
   mkdirSync(scriptsDir, { recursive: true })
   const installerPath = path.join(scriptsDir, 'install-git-hooks.mts')
   copyFileSync(SOURCE_SCRIPT, installerPath)
+  // The installer imports `@socketsecurity/lib-stable`, and Node resolves a
+  // bare specifier by walking up from the importing file. The copy sits in a
+  // tmpdir with no dependency tree, so link this repo's `node_modules` in as
+  // the fixture's own. `junction` is the Windows-safe directory link type and
+  // is ignored on other platforms.
+  symlinkSync(
+    path.join(REPO_ROOT, 'node_modules'),
+    path.join(dir, 'node_modules'),
+    'junction',
+  )
   // Construct once; tests reference `repo.hooksDir` everywhere they need it.
   const hooksDir = path.join(dir, '.git-hooks')
   return {
@@ -76,7 +102,15 @@ function makeTmpRepo(): TmpRepo {
 // --local writes only.
 function gitInit(dir: string): void {
   const r = spawnSync('git', ['init', '--quiet', dir], {})
-  assert.strictEqual(r.status, 0, `git init failed: ${r.stderr}`)
+  if (r.status !== 0) {
+    throw new Error(
+      `Could not create the git fixture.\n` +
+        `  Where: ${dir}\n` +
+        `  Saw: \`git init\` exited ${r.status}: ${r.stderr.trim()}\n` +
+        `  Wanted: exit 0 and a .git directory.\n` +
+        `  Fix: check that \`git\` is on PATH and the temp dir is writable.`,
+    )
+  }
 }
 
 function readLocalConfig(dir: string, key: string): string | undefined {
@@ -94,7 +128,7 @@ function runInstaller(
   return { code: r.status ?? 0, stderr: r.stderr || '' }
 }
 
-void test('install-git-hooks: sets core.hooksPath when .git + .git-hooks both present', () => {
+it('install-git-hooks: sets core.hooksPath when .git + .git-hooks both present', () => {
   const repo = makeTmpRepo()
   try {
     gitInit(repo.dir)
@@ -102,68 +136,59 @@ void test('install-git-hooks: sets core.hooksPath when .git + .git-hooks both pr
     writeFileSync(path.join(repo.hooksDir, 'pre-commit'), '#!/bin/sh\nexit 0\n')
 
     const result = runInstaller(repo.installerPath, repo.dir)
-    assert.strictEqual(result.code, 0, `installer stderr: ${result.stderr}`)
-    assert.strictEqual(
-      readLocalConfig(repo.dir, 'core.hooksPath'),
-      '.git-hooks',
-    )
+    expect(result.code, `installer stderr: ${result.stderr}`).toBe(0)
+    expect(readLocalConfig(repo.dir, 'core.hooksPath')).toBe('.git-hooks')
   } finally {
     repo.cleanup()
   }
 })
 
-void test('install-git-hooks: idempotent — second run is a silent no-op', () => {
+it('install-git-hooks: idempotent — second run is a silent no-op', () => {
   const repo = makeTmpRepo()
   try {
     gitInit(repo.dir)
     mkdirSync(repo.hooksDir, { recursive: true })
 
     const first = runInstaller(repo.installerPath, repo.dir)
-    assert.strictEqual(first.code, 0)
-    assert.strictEqual(
-      readLocalConfig(repo.dir, 'core.hooksPath'),
-      '.git-hooks',
-    )
+    expect(first.code).toBe(0)
+    expect(readLocalConfig(repo.dir, 'core.hooksPath')).toBe('.git-hooks')
 
     const second = runInstaller(repo.installerPath, repo.dir)
-    assert.strictEqual(second.code, 0)
+    expect(second.code).toBe(0)
     // Still set, still pointing at .git-hooks.
-    assert.strictEqual(
-      readLocalConfig(repo.dir, 'core.hooksPath'),
-      '.git-hooks',
-    )
+    expect(readLocalConfig(repo.dir, 'core.hooksPath')).toBe('.git-hooks')
     // Second run produced no stderr (truly silent on the no-op path).
-    assert.strictEqual(second.stderr.trim(), '')
+    expect(second.stderr.trim()).toBe('')
   } finally {
     repo.cleanup()
   }
 })
 
-void test('install-git-hooks: skips when .git dir is absent (e.g. tarball install)', () => {
+it('install-git-hooks: skips when .git dir is absent (e.g. tarball install)', () => {
   const repo = makeTmpRepo()
   try {
     // No `git init` — just create .git-hooks/ alone.
     mkdirSync(repo.hooksDir, { recursive: true })
 
     const result = runInstaller(repo.installerPath, repo.dir)
-    assert.strictEqual(result.code, 0)
+    expect(result.code).toBe(0)
     // No config to inspect — the dir isn't a git repo.
-    assert.strictEqual(readLocalConfig(repo.dir, 'core.hooksPath'), undefined)
+    expect(readLocalConfig(repo.dir, 'core.hooksPath')).toBe(undefined)
   } finally {
     repo.cleanup()
   }
 })
 
-void test('install-git-hooks: skips when .git-hooks dir is absent (pre-cascade state)', () => {
+it('install-git-hooks: skips when .git-hooks dir is absent (pre-cascade state)', () => {
   const repo = makeTmpRepo()
   try {
     gitInit(repo.dir)
     // No .git-hooks dir.
 
     const result = runInstaller(repo.installerPath, repo.dir)
-    assert.strictEqual(result.code, 0)
+    expect(result.code).toBe(0)
     // Installer bowed out before writing config.
-    assert.strictEqual(readLocalConfig(repo.dir, 'core.hooksPath'), undefined)
+    expect(readLocalConfig(repo.dir, 'core.hooksPath')).toBe(undefined)
   } finally {
     repo.cleanup()
   }

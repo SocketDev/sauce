@@ -1,4 +1,4 @@
-// node --test specs for scripts/repo/check-lock-step-header.mts.
+// Specs for scripts/repo/check-lock-step-header.mts.
 //
 // The header gate is the §7 companion to §5–6 path-refs gate. Where
 // check-lock-step-refs.mts validates that named paths resolve, this
@@ -13,14 +13,18 @@ import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
-import test from 'node:test'
-import assert from 'node:assert/strict'
-import { fileURLToPath } from 'node:url'
+import { expect, it } from 'vitest'
 import { safeDeleteSync } from '@socketsecurity/lib-stable/fs/safe'
 import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
 
-const here = path.dirname(fileURLToPath(import.meta.url))
-const SCRIPT_PATH = path.join(here, '..', 'check-lock-step-header.mts')
+import { REPO_ROOT } from '../../../scripts/fleet/paths.mts'
+
+const SCRIPT_PATH = path.join(
+  REPO_ROOT,
+  'scripts',
+  'repo',
+  'check-lock-step-header.mts',
+)
 
 interface RepoSpec {
   readonly configContent?: string | undefined
@@ -94,15 +98,15 @@ const STD_CONFIG = JSON.stringify({
   extensions: ['.rs', '.go'],
 })
 
-void test('exits 0 when config is absent', () => {
+it('exits 0 when config is absent', () => {
   const repo = makeRepo({ files: {} })
   const { exitCode, stdout } = runGate(repo)
-  assert.equal(exitCode, 0)
-  assert.match(stdout, /opt-in gate disabled/)
+  expect(exitCode).toBe(0)
+  expect(stdout).toMatch(/opt-in gate disabled/)
   safeDeleteSync(repo)
 })
 
-void test('exits 0 when no files carry a BEGIN LOCK-STEP HEADER block', () => {
+it('exits 0 when no files carry a BEGIN LOCK-STEP HEADER block', () => {
   const repo = makeRepo({
     configContent: STD_CONFIG,
     files: {
@@ -111,12 +115,12 @@ void test('exits 0 when no files carry a BEGIN LOCK-STEP HEADER block', () => {
     },
   })
   const { exitCode, stdout } = runGate(repo)
-  assert.equal(exitCode, 0)
-  assert.match(stdout, /validated 0 canonical header/)
+  expect(exitCode).toBe(0)
+  expect(stdout).toMatch(/validated 0 canonical header/)
   safeDeleteSync(repo)
 })
 
-void test('exits 0 when canonical + peer headers are byte-identical', () => {
+it('exits 0 when canonical + peer headers are byte-identical', () => {
   const repo = makeRepo({
     configContent: STD_CONFIG,
     files: {
@@ -125,14 +129,14 @@ void test('exits 0 when canonical + peer headers are byte-identical', () => {
     },
   })
   const { exitCode, stdout } = runGate(repo)
-  assert.equal(exitCode, 0)
+  expect(exitCode).toBe(0)
   // Both files carry `Lock-step with Go:` — same shared canonical header —
   // so both are counted as canonical. Each validates the other; both clean.
-  assert.match(stdout, /validated \d+ canonical header.*clean/)
+  expect(stdout).toMatch(/validated \d+ canonical header.*clean/)
   safeDeleteSync(repo)
 })
 
-void test('exits 1 when peer header drifts from canonical', () => {
+it('exits 1 when peer header drifts from canonical', () => {
   const repo = makeRepo({
     configContent: STD_CONFIG,
     files: {
@@ -141,13 +145,13 @@ void test('exits 1 when peer header drifts from canonical', () => {
     },
   })
   const { exitCode, stderr } = runGate(repo)
-  assert.equal(exitCode, 1)
-  assert.match(stderr, /1 quadruplet diff/)
-  assert.match(stderr, /with extra prose/)
+  expect(exitCode).toBe(1)
+  expect(stderr).toMatch(/1 quadruplet diff/)
+  expect(stderr).toMatch(/with extra prose/)
   safeDeleteSync(repo)
 })
 
-void test('exits 1 when peer is missing its LOCK-STEP HEADER block', () => {
+it('exits 1 when peer is missing its LOCK-STEP HEADER block', () => {
   const repo = makeRepo({
     configContent: STD_CONFIG,
     files: {
@@ -156,12 +160,12 @@ void test('exits 1 when peer is missing its LOCK-STEP HEADER block', () => {
     },
   })
   const { exitCode, stderr } = runGate(repo)
-  assert.equal(exitCode, 1)
-  assert.match(stderr, /peer is missing its BEGIN LOCK-STEP HEADER block/)
+  expect(exitCode).toBe(1)
+  expect(stderr).toMatch(/peer is missing its BEGIN LOCK-STEP HEADER block/)
   safeDeleteSync(repo)
 })
 
-void test('exits 1 when peer file does not exist', () => {
+it('exits 1 when peer file does not exist', () => {
   const repo = makeRepo({
     configContent: STD_CONFIG,
     files: {
@@ -170,12 +174,12 @@ void test('exits 1 when peer file does not exist', () => {
     },
   })
   const { exitCode, stderr } = runGate(repo)
-  assert.equal(exitCode, 1)
-  assert.match(stderr, /peer path doesn't exist/)
+  expect(exitCode).toBe(1)
+  expect(stderr).toMatch(/peer path doesn't exist/)
   safeDeleteSync(repo)
 })
 
-void test('--json emits machine-readable diffs', () => {
+it('--json emits machine-readable diffs', () => {
   const repo = makeRepo({
     configContent: STD_CONFIG,
     files: {
@@ -184,18 +188,18 @@ void test('--json emits machine-readable diffs', () => {
     },
   })
   const { exitCode, stdout } = runGate(repo, ['--json'])
-  assert.equal(exitCode, 1)
+  expect(exitCode).toBe(1)
   const parsed: unknown = JSON.parse(stdout)
-  assert.ok(Array.isArray(parsed))
-  assert.equal(parsed.length, 1)
+  expect(Array.isArray(parsed)).toBeTruthy()
+  expect(parsed.length).toBe(1)
   const first: unknown = parsed[0]
-  assert.ok(isObject(first))
-  assert.equal(first['lang'], 'Go')
-  assert.equal(first['reason'], 'body-mismatch')
+  expect(isObject(first)).toBeTruthy()
+  expect(first['lang']).toBe('Go')
+  expect(first['reason']).toBe('body-mismatch')
   safeDeleteSync(repo)
 })
 
-void test('--quiet suppresses clean-run stdout', () => {
+it('--quiet suppresses clean-run stdout', () => {
   const repo = makeRepo({
     configContent: STD_CONFIG,
     files: {
@@ -204,12 +208,12 @@ void test('--quiet suppresses clean-run stdout', () => {
     },
   })
   const { exitCode, stdout } = runGate(repo, ['--quiet'])
-  assert.equal(exitCode, 0)
-  assert.equal(stdout, '')
+  expect(exitCode).toBe(0)
+  expect(stdout).toBe('')
   safeDeleteSync(repo)
 })
 
-void test('header body comparison ignores leading whitespace after // prefix', () => {
+it('header body comparison ignores leading whitespace after // prefix', () => {
   // Both files use `// content` — same prefix stripping. The content
   // bytes must match exactly.
   const repo = makeRepo({
@@ -228,11 +232,11 @@ void test('header body comparison ignores leading whitespace after // prefix', (
     },
   })
   const { exitCode } = runGate(repo)
-  assert.equal(exitCode, 0)
+  expect(exitCode).toBe(0)
   safeDeleteSync(repo)
 })
 
-void test('handles multi-peer canonical file', () => {
+it('handles multi-peer canonical file', () => {
   const multiPeerHeader = [
     '// BEGIN LOCK-STEP HEADER',
     '// Class Parsing',
@@ -254,6 +258,6 @@ void test('handles multi-peer canonical file', () => {
     },
   })
   const { exitCode } = runGate(repo)
-  assert.equal(exitCode, 0)
+  expect(exitCode).toBe(0)
   safeDeleteSync(repo)
 })

@@ -1,4 +1,4 @@
-// node --test specs for scripts/repo/check-lock-step-refs.mts.
+// Specs for scripts/repo/check-lock-step-refs.mts.
 //
 // The script is the CI-gate side of the Lock-step convention. It walks
 // the scan dirs declared in .config/lock-step-refs.json, greps every
@@ -15,14 +15,18 @@ import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
-import test from 'node:test'
-import assert from 'node:assert/strict'
-import { fileURLToPath } from 'node:url'
+import { expect, it } from 'vitest'
 import { safeDeleteSync } from '@socketsecurity/lib-stable/fs/safe'
 import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
 
-const here = path.dirname(fileURLToPath(import.meta.url))
-const SCRIPT_PATH = path.join(here, '..', 'check-lock-step-refs.mts')
+import { REPO_ROOT } from '../../../scripts/fleet/paths.mts'
+
+const SCRIPT_PATH = path.join(
+  REPO_ROOT,
+  'scripts',
+  'repo',
+  'check-lock-step-refs.mts',
+)
 
 interface RepoSpec {
   readonly configContent?: string | undefined
@@ -60,37 +64,37 @@ function runGate(
   }
 }
 
-void test('exits 0 cleanly when .config/lock-step-refs.json is absent', () => {
+it('exits 0 cleanly when .config/lock-step-refs.json is absent', () => {
   const repo = makeRepo({ files: {} })
   const { exitCode, stdout } = runGate(repo)
-  assert.equal(exitCode, 0)
-  assert.match(stdout, /opt-in gate disabled/)
+  expect(exitCode).toBe(0)
+  expect(stdout).toMatch(/opt-in gate disabled/)
   safeDeleteSync(repo)
 })
 
-void test('exits 2 when config is malformed JSON', () => {
+it('exits 2 when config is malformed JSON', () => {
   const repo = makeRepo({
     configContent: '{ not valid json',
     files: {},
   })
   const { exitCode, stderr } = runGate(repo)
-  assert.equal(exitCode, 2)
-  assert.match(stderr, /not valid JSON/)
+  expect(exitCode).toBe(2)
+  expect(stderr).toMatch(/not valid JSON/)
   safeDeleteSync(repo)
 })
 
-void test('exits 2 when config is missing "roots"', () => {
+it('exits 2 when config is missing "roots"', () => {
   const repo = makeRepo({
     configContent: JSON.stringify({ scan: [], extensions: [] }),
     files: {},
   })
   const { exitCode, stderr } = runGate(repo)
-  assert.equal(exitCode, 2)
-  assert.match(stderr, /missing required "roots"/)
+  expect(exitCode).toBe(2)
+  expect(stderr).toMatch(/missing required "roots"/)
   safeDeleteSync(repo)
 })
 
-void test('exits 0 when all refs resolve', () => {
+it('exits 0 when all refs resolve', () => {
   const repo = makeRepo({
     configContent: JSON.stringify({
       roots: { Rust: ['crates'] },
@@ -104,12 +108,12 @@ void test('exits 0 when all refs resolve', () => {
     },
   })
   const { exitCode, stdout } = runGate(repo)
-  assert.equal(exitCode, 0)
-  assert.match(stdout, /scanned \d+ files — clean/)
+  expect(exitCode).toBe(0)
+  expect(stdout).toMatch(/scanned \d+ files — clean/)
   safeDeleteSync(repo)
 })
 
-void test('exits 1 when a ref points at a missing path', () => {
+it('exits 1 when a ref points at a missing path', () => {
   const repo = makeRepo({
     configContent: JSON.stringify({
       roots: { Rust: ['crates'] },
@@ -122,13 +126,13 @@ void test('exits 1 when a ref points at a missing path', () => {
     },
   })
   const { exitCode, stderr } = runGate(repo)
-  assert.equal(exitCode, 1)
-  assert.match(stderr, /stale reference/)
-  assert.match(stderr, /parser-stmt\/src\/class\.rs/)
+  expect(exitCode).toBe(1)
+  expect(stderr).toMatch(/stale reference/)
+  expect(stderr).toMatch(/parser-stmt\/src\/class\.rs/)
   safeDeleteSync(repo)
 })
 
-void test('exits 1 when <Lang> is not in roots config', () => {
+it('exits 1 when <Lang> is not in roots config', () => {
   const repo = makeRepo({
     configContent: JSON.stringify({
       roots: { Rust: ['crates'] },
@@ -141,12 +145,12 @@ void test('exits 1 when <Lang> is not in roots config', () => {
     },
   })
   const { exitCode, stderr } = runGate(repo)
-  assert.equal(exitCode, 1)
-  assert.match(stderr, /unknown <Lang>/)
+  expect(exitCode).toBe(1)
+  expect(stderr).toMatch(/unknown <Lang>/)
   safeDeleteSync(repo)
 })
 
-void test('does NOT match prose "Lock-step with Go: JSON parser"', () => {
+it('does NOT match prose "Lock-step with Go: JSON parser"', () => {
   const repo = makeRepo({
     configContent: JSON.stringify({
       roots: { Go: ['src'] },
@@ -159,12 +163,12 @@ void test('does NOT match prose "Lock-step with Go: JSON parser"', () => {
     },
   })
   const { exitCode, stdout } = runGate(repo)
-  assert.equal(exitCode, 0)
-  assert.match(stdout, /clean/)
+  expect(exitCode).toBe(0)
+  expect(stdout).toMatch(/clean/)
   safeDeleteSync(repo)
 })
 
-void test('accepts inline ref with line range', () => {
+it('accepts inline ref with line range', () => {
   const repo = makeRepo({
     configContent: JSON.stringify({
       roots: { Go: ['src'] },
@@ -177,11 +181,11 @@ void test('accepts inline ref with line range', () => {
     },
   })
   const { exitCode } = runGate(repo)
-  assert.equal(exitCode, 0)
+  expect(exitCode).toBe(0)
   safeDeleteSync(repo)
 })
 
-void test('--json emits machine-readable findings', () => {
+it('--json emits machine-readable findings', () => {
   const repo = makeRepo({
     configContent: JSON.stringify({
       roots: { Rust: ['crates'] },
@@ -194,18 +198,18 @@ void test('--json emits machine-readable findings', () => {
     },
   })
   const { exitCode, stdout } = runGate(repo, ['--json'])
-  assert.equal(exitCode, 1)
+  expect(exitCode).toBe(1)
   const parsed: unknown = JSON.parse(stdout)
-  assert.ok(Array.isArray(parsed))
-  assert.equal(parsed.length, 1)
+  expect(Array.isArray(parsed)).toBeTruthy()
+  expect(parsed.length).toBe(1)
   const first: unknown = parsed[0]
-  assert.ok(isObject(first))
-  assert.equal(first['lang'], 'Rust')
-  assert.equal(first['reason'], 'path-not-found')
+  expect(isObject(first)).toBeTruthy()
+  expect(first['lang']).toBe('Rust')
+  expect(first['reason']).toBe('path-not-found')
   safeDeleteSync(repo)
 })
 
-void test('--quiet suppresses clean-run stdout', () => {
+it('--quiet suppresses clean-run stdout', () => {
   const repo = makeRepo({
     configContent: JSON.stringify({
       roots: { Rust: ['crates'] },
@@ -219,12 +223,12 @@ void test('--quiet suppresses clean-run stdout', () => {
     },
   })
   const { exitCode, stdout } = runGate(repo, ['--quiet'])
-  assert.equal(exitCode, 0)
-  assert.equal(stdout, '')
+  expect(exitCode).toBe(0)
+  expect(stdout).toBe('')
   safeDeleteSync(repo)
 })
 
-void test('skips SKIP_DIRS (node_modules, dist, target)', () => {
+it('skips SKIP_DIRS (node_modules, dist, target)', () => {
   const repo = makeRepo({
     configContent: JSON.stringify({
       roots: { Rust: ['crates'] },
@@ -240,11 +244,11 @@ void test('skips SKIP_DIRS (node_modules, dist, target)', () => {
     },
   })
   const { exitCode } = runGate(repo)
-  assert.equal(exitCode, 0)
+  expect(exitCode).toBe(0)
   safeDeleteSync(repo)
 })
 
-void test('resolves path against repo-root before per-lang roots', () => {
+it('resolves path against repo-root before per-lang roots', () => {
   // A Rust file in ultrathink references `parser.go` — root-relative form
   // (the Go impl tree puts parser.go where it does without lang-prefix).
   // Should resolve when EITHER repo-root OR <lang>-root contains it.
@@ -261,11 +265,11 @@ void test('resolves path against repo-root before per-lang roots', () => {
     },
   })
   const { exitCode } = runGate(repo)
-  assert.equal(exitCode, 0)
+  expect(exitCode).toBe(0)
   safeDeleteSync(repo)
 })
 
-void test('reports findings grouped by file', () => {
+it('reports findings grouped by file', () => {
   const repo = makeRepo({
     configContent: JSON.stringify({
       roots: { Rust: ['crates'] },
@@ -279,11 +283,11 @@ void test('reports findings grouped by file', () => {
     },
   })
   const { exitCode, stderr } = runGate(repo)
-  assert.equal(exitCode, 1)
+  expect(exitCode).toBe(1)
   // Three findings across two files.
-  assert.match(stderr, /3 stale reference/)
+  expect(stderr).toMatch(/3 stale reference/)
   // File-grouped: each file appears once in the output even with multiple hits.
-  assert.match(stderr, /src\/a\.go/)
-  assert.match(stderr, /src\/b\.go/)
+  expect(stderr).toMatch(/src\/a\.go/)
+  expect(stderr).toMatch(/src\/b\.go/)
   safeDeleteSync(repo)
 })
