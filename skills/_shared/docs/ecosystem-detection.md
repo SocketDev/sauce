@@ -2,19 +2,15 @@
 
 How to detect which package ecosystems are present in a project.
 
-## Automated Detection
+## Detection
 
-Run the ecosystem detection helper:
+List the manifest and lock files that exist in the project root — the command prints only the ones that are present:
 
 ```shell
-pnpm dlx tsx scripts/repo/helpers/detect-ecosystems.ts [--dir <path>]
+ls -d package.json package-lock.json pnpm-lock.yaml yarn.lock bun.lock bun.lockb requirements.txt pyproject.toml setup.py setup.cfg Pipfile Cargo.toml Gemfile pom.xml packages.config go.mod 2>/dev/null || true
 ```
 
-This outputs JSON listing all detected ecosystems and their manifest files.
-
-## Manual Detection
-
-Scan the project root for manifest and lock files:
+Match the results against this table:
 
 | Ecosystem | Manifest Files                                                           |
 | --------- | ------------------------------------------------------------------------ |

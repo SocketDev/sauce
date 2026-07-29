@@ -4,13 +4,13 @@ Common CI/CD detection and setup instructions shared across skills.
 
 ## Detecting the CI/CD System
 
-Run the automated detection helper:
+List the CI config files that exist in the project root — the command prints only the ones that are present:
 
 ```shell
-pnpm dlx tsx scripts/repo/helpers/detect-ci.ts
+ls -d .github/workflows .gitlab-ci.yml bitbucket-pipelines.yml Jenkinsfile .circleci/config.yml .travis.yml azure-pipelines.yml 2>/dev/null || true
 ```
 
-Or manually check for config files:
+Map each result to its CI system:
 
 | CI System           | Config File               |
 | ------------------- | ------------------------- |

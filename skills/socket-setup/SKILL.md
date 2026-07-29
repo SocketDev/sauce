@@ -23,38 +23,32 @@ description: Set up Socket — prompt for API key, install the CLI, authenticate
 
 ## Step 1: Check Prerequisites
 
-Run the helper to detect installed tools and their versions:
+Ask each tool for its version. A `command not found` error means the tool is not installed:
 
 ```shell
-node scripts/repo/helpers/socket-setup.mjs check-prereqs --dir .
+node --version
+socket --version
+sfw --version
+socket-patch --version
 ```
 
-Output example:
+Detect the package manager from the lock file in the project root — the command prints only the files that exist:
 
-```json
-{
-  "node": { "installed": true, "version": "20.11.0", "ok": true },
-  "socketCli": {
-    "installed": true,
-    "version": "1.2.3",
-    "ok": true,
-    "needsUpdate": false
-  },
-  "sfw": { "installed": false },
-  "socketPatch": { "installed": false },
-  "packageManager": "npm"
-}
+```shell
+ls -d package-lock.json pnpm-lock.yaml yarn.lock bun.lock bun.lockb 2>/dev/null || true
 ```
+
+`package-lock.json` means npm, `pnpm-lock.yaml` means pnpm, `yarn.lock` means yarn, and `bun.lock` or `bun.lockb` means bun. With no lock file, ask the user which package manager the project uses.
 
 Handle results:
 
-- If `node.installed` is false: prompt the user to install Node.js. Suggest:
+- If `node --version` fails: prompt the user to install Node.js. Suggest:
   - **nvm** (recommended): `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash` then `nvm install 20`
   - **Homebrew** (macOS): `brew install node`
   - **Official installer**: <https://nodejs.org/>
-- If `node.ok` is false: warn that Node.js 18+ is required and suggest upgrading
-- If `socketCli.needsUpdate` is true: warn that the Socket CLI is below 1.x and prompt to update with `npm install -g socket@latest`
-- If `socketCli.installed` is false: proceed to Step 3 (Install the CLI)
+- If `node --version` reports below v18: warn that Node.js 18+ is required and suggest upgrading
+- If `socket --version` reports below 1.0.0: warn that the Socket CLI is below 1.x and prompt to update with `npm install -g socket@latest`
+- If `socket --version` fails: proceed to Step 3 (Install the CLI)
 
 ## Step 2: Ask About Socket Account
 
@@ -72,15 +66,14 @@ Store the tier choice for subsequent steps.
 
 - Prerequisites: Node.js 18+ (verified in Step 1)
 - `npm install -g socket`
-- Verify: `socket --version`
-- After install, re-run the helper to confirm the version is >= 1.x:
+- After install, confirm the version is >= 1.x:
 
   ```shell
-  node scripts/repo/helpers/socket-setup.mjs check-prereqs --dir .
+  socket --version
   ```
 
-- If `socketCli.ok` is false after install, error and suggest `npm install -g socket@latest`
-- PATH troubleshooting: if `socket` is not found, check that the npm global bin directory is in `PATH` (run `npm bin -g` to find it)
+- If the version is still below 1.x after install, error and suggest `npm install -g socket@latest`
+- PATH troubleshooting: if `socket` is not found, check that the npm global bin directory is in `PATH`. Print the global install prefix with `npm prefix -g`; the bin directory is `<prefix>/bin` on macOS and Linux, and the prefix itself on Windows
 
 ## Step 4: Authenticate
 
@@ -138,25 +131,27 @@ npm install -g sfw
 npm install -g @socketsecurity/socket-patch
 ```
 
-After installing, re-run the helper to verify each tool is available:
+After installing, verify each tool is available:
 
 ```shell
-node scripts/repo/helpers/socket-setup.mjs check-prereqs --dir .
+socket --version
+sfw --version
+socket-patch --version
 ```
 
-Confirm that `socketCli.installed`, `sfw.installed`, and `socketPatch.installed` are all true.
+Confirm all three print a version rather than `command not found`.
 
-If any tool fails to install, check PATH and retry. The npm global bin directory can be found with `npm bin -g`.
+If any tool fails to install, check PATH and retry. `npm prefix -g` prints the global install prefix; the bin directory is `<prefix>/bin` on macOS and Linux, and the prefix itself on Windows.
 
 ## Step 7: Detect SCM and CI System
 
-Run the CI detection helper for automated detection:
+List the CI config files that exist in the project root — the command prints only the ones that are present:
 
 ```shell
-pnpm dlx tsx scripts/repo/helpers/detect-ci.ts
+ls -d .github/workflows .gitlab-ci.yml bitbucket-pipelines.yml Jenkinsfile .circleci/config.yml .travis.yml azure-pipelines.yml 2>/dev/null || true
 ```
 
-Or manually detect:
+Then identify the SCM and map the results:
 
 - Run `git remote -v` to detect the SCM:
   - github.com → GitHub
@@ -249,10 +244,10 @@ Set up automated patching so `socket-patch apply` runs after every dependency in
 
 ### Scan Codebase for Install/Build Locations
 
-Run the CI detection helper to identify the project's CI/CD system:
+Identify the project's CI/CD system — the command prints only the config files that are present:
 
 ```shell
-pnpm dlx tsx scripts/repo/helpers/detect-ci.ts
+ls -d .github/workflows .gitlab-ci.yml bitbucket-pipelines.yml Jenkinsfile .circleci/config.yml .travis.yml azure-pipelines.yml 2>/dev/null || true
 ```
 
 Before configuring automation, scan the project to find ALL places where dependencies are installed and builds happen:
@@ -275,18 +270,18 @@ Present findings to the user before making changes.
 
 Use the appropriate command to run `socket-patch` based on the project's package manager:
 
-| Package Manager | Run socket-patch |
-| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
-| npm | `pnpm dlx @socketsecurity/socket-patch scan` then `pnpm dlx @socketsecurity/socket-patch apply` |
-| pnpm | `pnpx @socketsecurity/socket-patch scan` then `pnpx @socketsecurity/socket-patch apply` |
-| yarn | `pnpm dlx @socketsecurity/socket-patch scan` then `pnpm dlx @socketsecurity/socket-patch apply` |
-| bun | `bunx @socketsecurity/socket-patch scan` then `bunx @socketsecurity/socket-patch apply` |
-| deno | `deno run npm:@socketsecurity/socket-patch scan` then `deno run npm:@socketsecurity/socket-patch apply` |
-| Python | `pipx run socket-patch scan && pipx run socket-patch apply` (if pipx available), else `pip install socket-patch && socket-patch scan && socket-patch apply` |
-| Standalone | `curl -fsSL https://raw.githubusercontent.com/SocketDev/socket-patch/main/install.sh                                                                        | sh`then`socket-patch scan && socket-patch apply` |
-| GitHub Actions | `SocketDev/action@v1` with `mode: patch` (preferred — handles scan+apply automatically) |
+| Package Manager | Run socket-patch                                                                                                                                            |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| npm             | `npx @socketsecurity/socket-patch scan` then `npx @socketsecurity/socket-patch apply`                                                                       |
+| pnpm            | `pnpm dlx @socketsecurity/socket-patch scan` then `pnpm dlx @socketsecurity/socket-patch apply`                                                             |
+| yarn            | `npx @socketsecurity/socket-patch scan` then `npx @socketsecurity/socket-patch apply`                                                                       |
+| bun             | `bunx @socketsecurity/socket-patch scan` then `bunx @socketsecurity/socket-patch apply`                                                                     |
+| deno            | `deno run npm:@socketsecurity/socket-patch scan` then `deno run npm:@socketsecurity/socket-patch apply`                                                     |
+| Python          | `pipx run socket-patch scan && pipx run socket-patch apply` (if pipx available), else `pip install socket-patch && socket-patch scan && socket-patch apply` |
+| Standalone      | `curl -fsSL https://raw.githubusercontent.com/SocketDev/socket-patch/main/install.sh \| sh` then `socket-patch scan && socket-patch apply`                  |
+| GitHub Actions  | `SocketDev/action@v1` with `mode: patch` (preferred — handles scan+apply automatically)                                                                     |
 
-Use the appropriate runner (`npx`, `pnpx`, `bunx`, etc.) based on the detected package manager in the sections below.
+Use the runner that matches the detected package manager in the sections below: `npx` for npm and yarn, `pnpm dlx` for pnpm, `bunx` for bun.
 
 ### GitHub Actions (Preferred for GitHub repos)
 
@@ -347,7 +342,7 @@ This auto-adds a postinstall hook to your `package.json` scripts that runs `sock
 
 ### Dockerfile Patterns
 
-Add a `RUN socket-patch apply` layer after the install layer. Use the appropriate runner for the project's package manager (e.g., `pnpx` for pnpm, `bunx` for bun):
+Add a `RUN socket-patch apply` layer after the install layer. Use the appropriate runner for the project's package manager (e.g. `pnpm dlx` for pnpm, `bunx` for bun):
 
 ```dockerfile
 FROM node:20-alpine
@@ -388,28 +383,17 @@ Detect Dockerfiles and edit them directly to integrate Socket's firewall and/or 
 
 ### Step 1: Detect Dockerfiles
 
-Run the helper to find all Dockerfiles in the project:
+Find every Dockerfile in the project:
 
 ```shell
-node scripts/repo/helpers/socket-setup.mjs detect-dockerfiles --dir .
+find . -type f \( -name 'Dockerfile' -o -name 'Dockerfile.*' -o -name '*.Dockerfile' -o -name 'Containerfile' \) -not -path '*/node_modules/*' -not -path '*/.git/*'
 ```
 
-Output example:
+Read each file that the command lists and record, per file:
 
-```json
-{
-  "dockerfiles": [
-    {
-      "path": "Dockerfile",
-      "installLines": [
-        { "line": 5, "command": "RUN npm ci", "ecosystem": "npm" }
-      ],
-      "hasSfw": false,
-      "hasPatch": false
-    }
-  ]
-}
-```
+- Each `RUN` line that installs dependencies — `npm ci`, `npm install`, `yarn install`, `pnpm install`, `bun install`, `pip install`, `bundle install`, `cargo build`, `go mod download` — along with its line number and ecosystem
+- Whether the file already mentions `sfw`
+- Whether the file already mentions `socket-patch`
 
 If no Dockerfiles are found or none contain dependency install steps, skip this section.
 
@@ -419,7 +403,7 @@ For each Dockerfile that has install steps, read the file and apply edits direct
 
 **Determine the mode** based on what the user chose in Step 5 (Firewall, Patches, or both).
 
-**For each install line** reported by `detect-dockerfiles`:
+**For each install line** recorded in Step 1:
 
 - **Firewall mode**: Insert `RUN npm install -g sfw` on a new line before the install step. Prefix the install command with `sfw` (e.g., `RUN npm ci` → `RUN sfw npm ci`).
 - **Patch mode**: Insert `RUN pnpm dlx @socketsecurity/socket-patch scan` and `RUN pnpm dlx @socketsecurity/socket-patch apply` on new lines after the install step, before any build or COPY steps.
@@ -428,8 +412,8 @@ For each Dockerfile that has install steps, read the file and apply edits direct
 **Rules**:
 
 - Only modify stages that have dependency install steps (multi-stage build awareness — check for `FROM` lines to identify stage boundaries)
-- Skip lines that already contain `sfw` (check `hasSfw` from detection output) or `socket-patch` (check `hasPatch`) to ensure idempotency
-- Use the appropriate package manager runner for socket-patch (`npx` for npm, `pnpx` for pnpm, `bunx` for bun — see Package Manager Reference table)
+- Skip lines that already contain `sfw` or `socket-patch` to ensure idempotency
+- Use the appropriate package manager runner for socket-patch (`npx` for npm and yarn, `pnpm dlx` for pnpm, `bunx` for bun — see Package Manager Reference table)
 
 ### Step 3: Present Changes for Approval
 
@@ -475,13 +459,7 @@ Configure Socket policies to control which issues are flagged during scans and C
 
 ### Repository-Level Policy (`socket.yml`)
 
-Generate a `socket.yml` template using the helper:
-
-```shell
-node scripts/repo/helpers/socket-setup.mjs generate-config --tier enterprise > socket.yml
-```
-
-This creates a `socket.yml` with `version: 2` and default issue rules:
+Create `socket.yml` in the repository root with `version: 2` and these default issue rules, then adjust the values with the user:
 
 ```text
 version: 2
@@ -580,13 +558,13 @@ For local development, authenticate using one of:
 
 ## Error Handling
 
-- **`socket: command not found`**: Ensure Node.js 18+ is installed, then run `npm install -g socket`. Check that the npm global bin directory is in `PATH` (run `npm bin -g` to find it).
+- **`socket: command not found`**: Ensure Node.js 18+ is installed, then run `npm install -g socket`. Check that the npm global bin directory is in `PATH` — `npm prefix -g` prints the global prefix, and the bin directory is `<prefix>/bin` on macOS and Linux, or the prefix itself on Windows.
 - **`socket login` fails**: Check network connectivity. If behind a proxy, ensure `HTTPS_PROXY` is set. Try setting `SOCKET_CLI_API_TOKEN` directly as an environment variable instead.
 - **`socket organization list` returns empty**: The API token may lack organization access. Verify the token at <https://socket.dev/dashboard> and ensure it has the correct scopes.
 - **`sfw` not intercepting installs**: Ensure `sfw` is in `PATH` before the package manager. In CI, verify the install step runs before any dependency install commands.
 - **GitHub Action fails with permission errors**: Ensure the `socket-token` secret is set correctly in the repository settings and the workflow has `contents: read` permission.
-- **Socket CLI version < 1.x**: Run `npm install -g socket@latest` to update. Verify with `node scripts/repo/helpers/socket-setup.mjs check-prereqs`.
-- **Dockerfile editing issues**: Run `detect-dockerfiles` to verify which files and lines need changes. Only edit stages with dependency install steps and skip lines that already contain `sfw` or `socket-patch`.
+- **Socket CLI version < 1.x**: Run `npm install -g socket@latest` to update. Verify with `socket --version`.
+- **Dockerfile editing issues**: Re-run the Dockerfile `find` command from the Dockerfile Integration section to verify which files and lines need changes. Only edit stages with dependency install steps and skip lines that already contain `sfw` or `socket-patch`.
 
 ## Tips
 
@@ -598,6 +576,6 @@ For local development, authenticate using one of:
 - After setup, use the `/socket-scan` skill for a first audit and the `/socket-inspect` skill for package inspection.
 - For GitHub repos, consider also installing the Socket Security GitHub App
   for automatic PR scanning.
-- Run `node scripts/repo/helpers/socket-setup.mjs check-prereqs` at any time to verify tool installation status.
-- Use `node scripts/repo/helpers/socket-setup.mjs detect-dockerfiles --dir .` to find all Dockerfiles before manual editing.
+- Run `socket --version`, `sfw --version`, and `socket-patch --version` at any time to verify tool installation status.
+- Run the Dockerfile `find` command from the Dockerfile Integration section to locate all Dockerfiles before manual editing.
 - The generated `socket.yml` uses `version: 2` — ensure this line is preserved when editing policies.
