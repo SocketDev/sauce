@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { readdirSync, readFileSync } from 'node:fs'
 import * as path from 'node:path'
+import { REPO_ROOT } from '../../../../scripts/fleet/paths.mts'
 
-const ROOT = path.resolve(__dirname, '../..')
-const SKILLS_DIR = path.join(ROOT, 'skills')
+const SKILLS_DIR = path.join(REPO_ROOT, 'skills')
 
 export function getSkillContent(dir: string): string {
   return readFileSync(path.join(SKILLS_DIR, dir, 'SKILL.md'), 'utf-8')

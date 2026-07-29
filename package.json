@@ -28,7 +28,7 @@
     "test:integration:claude": "TEST_AGENT=claude-code pnpm run test:integration",
     "test:integration:codex": "TEST_AGENT=codex pnpm run test:integration",
     "test:integration:gemini": "TEST_AGENT=gemini pnpm run test:integration",
-    "test:structural": "vitest run --config tests/vitest.config.mts tier1-structural/",
+    "test:structural": "node scripts/fleet/test.mts test/repo/unit/structural",
     "update": "node scripts/fleet/update.mts",
     "setup-security-tools": "node .claude/hooks/fleet/setup-security-tools/install.mts",
     "ci:local": "node scripts/fleet/agent-ci-skip-locks.mts run --all --quiet --pause-on-failure --github-token",

@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import * as path from 'node:path'
 import { getSkillMarkdownFiles } from './skill-path-portability.test.mts'
+import { REPO_ROOT } from '../../../../scripts/fleet/paths.mts'
 
-const ROOT = path.resolve(__dirname, '../..')
-const SKILLS_DIR = path.join(ROOT, 'skills')
+const SKILLS_DIR = path.join(REPO_ROOT, 'skills')
 const SHARED_DOCS_DIR = path.join(SKILLS_DIR, '_shared', 'docs')
 
 /**
@@ -67,8 +67,8 @@ export interface DocTable {
  */
 export function getLintedDocs(): string[] {
   const docs = [
-    path.join(ROOT, 'README.md'),
-    path.join(ROOT, 'agents', 'README.md'),
+    path.join(REPO_ROOT, 'README.md'),
+    path.join(REPO_ROOT, 'agents', 'README.md'),
     ...getSkillMarkdownFiles(SKILLS_DIR),
   ]
   const sharedDocs = readdirSync(SHARED_DOCS_DIR)
@@ -185,7 +185,7 @@ describe('Doc Command Lint', () => {
 
   for (let i = 0, { length } = docs; i < length; i += 1) {
     const doc = docs[i]!
-    const relDoc = path.relative(ROOT, doc)
+    const relDoc = path.relative(REPO_ROOT, doc)
 
     describe(relDoc, () => {
       const content = readFileSync(doc, 'utf-8')

@@ -1,11 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import * as path from 'node:path'
-import { validateMarketplace } from '../../scripts/repo/lib/validate-marketplace.mts'
+import { validateMarketplace } from '../../../../scripts/repo/lib/validate-marketplace.mts'
+import { REPO_ROOT } from '../../../../scripts/fleet/paths.mts'
 
-const ROOT = path.resolve(__dirname, '../..')
-const SKILLS_DIR = path.join(ROOT, 'skills')
-const MARKETPLACE_PATH = path.join(ROOT, '.claude-plugin', 'marketplace.json')
+const SKILLS_DIR = path.join(REPO_ROOT, 'skills')
+const MARKETPLACE_PATH = path.join(
+  REPO_ROOT,
+  '.claude-plugin',
+  'marketplace.json',
+)
 
 interface MarketplacePlugin {
   name: string
@@ -29,7 +33,7 @@ export function getSkillDirs(): string[] {
 }
 
 export function loadJSON(relPath: string): unknown {
-  const fullPath = path.join(ROOT, relPath)
+  const fullPath = path.join(REPO_ROOT, relPath)
   return JSON.parse(readFileSync(fullPath, 'utf-8'))
 }
 
@@ -45,7 +49,10 @@ describe('Manifest Consistency', () => {
     version: string
   }
   /* eslint-enable typescript/no-unsafe-type-assertion */
-  const agentsMd = readFileSync(path.join(ROOT, 'agents', 'README.md'), 'utf-8')
+  const agentsMd = readFileSync(
+    path.join(REPO_ROOT, 'agents', 'README.md'),
+    'utf-8',
+  )
 
   describe('marketplace.json', () => {
     it('passes shared validation (skills ↔ marketplace sync)', () => {
@@ -60,7 +67,7 @@ describe('Manifest Consistency', () => {
       const plugins = marketplace.plugins
       for (let i = 0, { length } = plugins; i < length; i += 1) {
         const plugin = plugins[i]!
-        const skillMd = path.join(ROOT, plugin.source, 'SKILL.md')
+        const skillMd = path.join(REPO_ROOT, plugin.source, 'SKILL.md')
         expect(
           existsSync(skillMd),
           `plugin '${plugin.name}' source '${plugin.source}' has no SKILL.md`,

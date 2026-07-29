@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import * as path from 'node:path'
-import { parseFrontmatter } from '../../scripts/repo/lib/frontmatter.mts'
+import { parseFrontmatter } from '../../../../scripts/repo/lib/frontmatter.mts'
+import { REPO_ROOT } from '../../../../scripts/fleet/paths.mts'
 
-const ROOT = path.resolve(__dirname, '../..')
-const SKILLS_DIR = path.join(ROOT, 'skills')
+const SKILLS_DIR = path.join(REPO_ROOT, 'skills')
 
 /**
  * Top-level skill directories expected under skills/

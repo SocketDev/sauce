@@ -2,15 +2,15 @@ import { describe, expect, it } from 'vitest'
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import * as path from 'node:path'
 import * as os from 'node:os'
-import { parseFrontmatter } from '../../scripts/repo/lib/frontmatter.mts'
+import { parseFrontmatter } from '../../../../scripts/repo/lib/frontmatter.mts'
 import {
   collectSkills,
   validateMarketplace,
-} from '../../scripts/repo/lib/validate-marketplace.mts'
+} from '../../../../scripts/repo/lib/validate-marketplace.mts'
 import { safeDeleteSync } from '@socketsecurity/lib/fs/safe'
+import { REPO_ROOT } from '../../../../scripts/fleet/paths.mts'
 
-const ROOT = path.resolve(__dirname, '../..')
-const SKILLS_DIR = path.join(ROOT, 'skills')
+const SKILLS_DIR = path.join(REPO_ROOT, 'skills')
 
 describe('Error Paths', () => {
   describe('parseFrontmatter()', () => {

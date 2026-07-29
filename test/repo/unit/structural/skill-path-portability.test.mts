@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import * as path from 'node:path'
+import { REPO_ROOT } from '../../../../scripts/fleet/paths.mts'
 
-const ROOT = path.resolve(__dirname, '../..')
-const SKILLS_DIR = path.join(ROOT, 'skills')
+const SKILLS_DIR = path.join(REPO_ROOT, 'skills')
 const SHARED_DOCS_DIR = path.join(SKILLS_DIR, '_shared', 'docs')
 
 /**
@@ -125,8 +125,11 @@ export function resolveRepoFile(token: string): string | undefined {
       return undefined
     }
   }
-  const resolved = path.resolve(ROOT, token)
-  if (resolved !== ROOT && !resolved.startsWith(`${ROOT}${path.sep}`)) {
+  const resolved = path.resolve(REPO_ROOT, token)
+  if (
+    resolved !== REPO_ROOT &&
+    !resolved.startsWith(`${REPO_ROOT}${path.sep}`)
+  ) {
     return undefined
   }
   if (!existsSync(resolved) || !statSync(resolved).isFile()) {
@@ -140,7 +143,7 @@ describe('Skill Path Portability', () => {
 
   for (let i = 0, { length } = docs; i < length; i += 1) {
     const { file, owningDir } = docs[i]!
-    const relFile = path.relative(ROOT, file)
+    const relFile = path.relative(REPO_ROOT, file)
 
     it(`${relFile} references no file outside its own folder`, () => {
       const content = readFileSync(file, 'utf-8')
@@ -162,7 +165,7 @@ describe('Skill Path Portability', () => {
       expect(
         [...new Set(escapes)].toSorted(),
         `${relFile} references ${escapes.length} path(s) that live outside ` +
-          `${path.relative(ROOT, owningDir)}.\n` +
+          `${path.relative(REPO_ROOT, owningDir)}.\n` +
           `  Where: ${relFile}\n` +
           `  Saw:   ${[...new Set(escapes)].toSorted().join(', ')}\n` +
           `         (wanted: only paths inside the folder that ships with the skill)\n` +
