@@ -27,7 +27,7 @@ echo "Running integration tests with agent: $AGENT"
 
 if [ -n "$SKILL" ]; then
   echo "Skill filter: $SKILL"
-  npx vitest run --config tests/vitest.config.ts "tier3-e2e/${SKILL}.e2e.test.ts"
+  pnpm exec vitest run --config tests/vitest.config.mts "tier3-e2e/${SKILL}.e2e.test.ts"
 else
-  npm run test:e2e
+  pnpm run test:e2e
 fi
