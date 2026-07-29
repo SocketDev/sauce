@@ -21,7 +21,9 @@ Paths referenced within SKILL folders are relative to that SKILL. For example th
 ## Skill Files
 
 The skills are located in:
+
 {{#skills}}
 
 - `{{path}}/SKILL.md`
-  {{/skills}}
+
+{{/skills}}

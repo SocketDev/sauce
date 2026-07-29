@@ -161,20 +161,25 @@ export function loadTemplate(): string {
   return readFileSync(TEMPLATE_PATH, 'utf-8')
 }
 
+/**
+ * The `{{#skills}}` / `{{/skills}}` loop, consuming each marker's WHOLE line.
+ * The markers sit inside a markdown table, where the formatter wraps every line
+ * in pipes — leaving those pipes in the repeated block emits a stray `| |` row
+ * per skill and breaks the rendered table.
+ */
+const SKILLS_LOOP_RE =
+  /^[^\n]*\{\{#skills\}\}[^\n]*\n(?<block>[\s\S]*?)^[^\n]*\{\{\/skills\}\}[^\n]*(?:\n|$)/gm
+
 export function renderAgentsDoc(template: string, skills: Skill[]): string {
-  return template.replace(
-    /\{\{#skills\}\}([\s\S]*?)\{\{\/skills\}\}/g,
-    (_match, block: string) => {
-      const trimmed = block.replace(/^\n/, '').replace(/\n$/, '')
-      return skills
-        .map(skill =>
-          trimmed
-            .replace(/\{\{name\}\}/g, skill.name)
-            .replace(/\{\{description\}\}/g, skill.description)
-            .replace(/\{\{path\}\}/g, skill.path),
-        )
-        .join('\n')
-    },
+  return template.replace(SKILLS_LOOP_RE, (_match, block: string) =>
+    skills
+      .map(skill =>
+        block
+          .replace(/\{\{name\}\}/g, skill.name)
+          .replace(/\{\{description\}\}/g, skill.description)
+          .replace(/\{\{path\}\}/g, skill.path),
+      )
+      .join(''),
   )
 }
 
