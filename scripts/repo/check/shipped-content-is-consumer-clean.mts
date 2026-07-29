@@ -1,4 +1,4 @@
-/**
+/*
  * @file Boundary gate: shipped content never exposes fleet scaffolding.
  *   Three assertions, all read-only:
  *
@@ -39,7 +39,7 @@ export function listTrackedFiles(): string[] {
       `git ls-files failed.\n  Where: ${ROOT}\n  Saw: exit ${result.status}; wanted 0.\n  Fix: run inside the repo checkout.`,
     )
   }
-  return String(result.stdout).split('\n').filter(Boolean)
+  return result.stdout.split('\n').filter(Boolean)
 }
 
 export function findUnclassifiedEntries(tracked: string[]): string[] {
@@ -78,7 +78,8 @@ export function findFleetLeaks(tracked: string[]): string[] {
 
 export function findUnshippedManifestSources(): string[] {
   const manifestPath = path.join(ROOT, '.claude-plugin', 'marketplace.json')
-  const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8')) as {
+  const parsed: unknown = JSON.parse(readFileSync(manifestPath, 'utf-8'))
+  const manifest = parsed as {
     plugins?:
       | Array<{
           name?: string | undefined
