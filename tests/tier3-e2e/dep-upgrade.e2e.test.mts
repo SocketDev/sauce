@@ -1,3 +1,12 @@
+/**
+ * @file End-to-end check that the dependency-upgrade skill drives a coding
+ *   agent to raise a pinned version in a real fixture project.
+ *   Opt-in lane: `pnpm run test:e2e`, which sets RUN_E2E=1. The run needs an
+ *   agent CLI on PATH and live network, so the `pnpm test` / `pnpm run cover`
+ *   gate deliberately does not reach it. A gate has to be runnable by anyone
+ *   who clones the repo, and this suite is not.
+ *   runner-collection: opt-in lane.
+ */
 import { afterAll, beforeAll, beforeEach, describe, it } from 'vitest'
 import { getAdapter } from '../helpers/agent-adapters/index.mts'
 import type { AgentAdapter } from '../helpers/agent-adapters/index.mts'

@@ -1,3 +1,12 @@
+/**
+ * @file Live Socket API check that the batch PURL endpoint answers with data
+ *   for a real organization token.
+ *   Opt-in lane: `pnpm run test:api`, which passes SOCKET_API_TOKEN through to
+ *   the run. The `pnpm test` / `pnpm run cover` gate deliberately does not
+ *   reach it. A token-less clone would fail on missing credentials instead of
+ *   on this repo's code, and every run spends live API quota.
+ *   runner-collection: opt-in lane.
+ */
 import { describe, expect, it } from 'vitest'
 import { httpRequest } from '@socketsecurity/lib/http-request'
 import { readSocketApiTokenSync } from '@socketsecurity/lib/secrets/socket-api-token'
