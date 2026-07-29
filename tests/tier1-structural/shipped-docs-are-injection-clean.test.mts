@@ -11,11 +11,9 @@ import { describe, expect, it } from 'vitest'
  * install one-liners outside an auditable trusted-prefix allowlist.
  */
 
-const ROOT = path.resolve(__dirname, '../..')
+import { SHIPPED_DIRS } from '../../scripts/repo/constants/shipped-surfaces.mts'
 
-// Root-level trees this repo ships to consumers. Extend as shipped surfaces
-// are added (rules/, hooks/, guides/, integrations/).
-export const SHIPPED_DIRS = ['skills', 'agents'] as const
+const ROOT = path.resolve(__dirname, '../..')
 
 const SCANNED_EXTENSIONS = new Set([
   '.json',
