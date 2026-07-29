@@ -31,7 +31,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
-import { REPO_ROOT } from '../fleet/paths.mts'
+import { REPO_CACHE_DIR } from '../fleet/paths.mts'
 import {
   detectInstalledApps,
   detectLocalShadows,
@@ -49,24 +49,13 @@ import type {
   RepoApiPayload,
 } from './lint-github-settings-types.mts'
 
-// Inline path equivalent of the wheelhouse template's paths.mts helper.
-// `lint-github-settings.mts` cascades into fleet repos whose per-package
-// `paths.mts` is intentionally minimal (`socket-cli`, `ultrathink`, etc.
-// only export REPO_ROOT + package-specific build paths). Importing
-// `NODE_MODULES_CACHE_DIR` from `./paths.mts` would force every consumer
-// to widen their paths.mts surface — wrong direction. Keep the
-// per-package paths.mts narrow; carry the standalone constant here.
-const NODE_MODULES_CACHE_DIR = path.join(REPO_ROOT, 'node_modules', '.cache')
-
-// Cache lives at `node_modules/.cache/` — fleet convention for
-// build-tool state (vitest, etc.) and the only `.cache/` flavor
-// that's auto-ignored everywhere (via pnpm/npm's gitignore + the
-// fleet's `**/.cache/` rule). Path constructed once.
-// Cache file name mirrors the script name (`lint-github-settings`)
-// + the `socket-wheelhouse-` fleet prefix so it doesn't collide with
-// any other tool's cache file under node_modules/.cache/.
+// Cache lives under the repo-root `.cache/repo/` store that paths.mts owns,
+// so `pnpm run clean` sweeping `node_modules/.cache` cannot take the audit
+// cache with it. The file name mirrors the script name plus the
+// `socket-wheelhouse-` fleet prefix so it cannot collide with another tool's
+// cache file in the same store.
 const CACHE_FILE = path.join(
-  NODE_MODULES_CACHE_DIR,
+  REPO_CACHE_DIR,
   'socket-wheelhouse-lint-github-settings.json',
 )
 // 7 days in ms. Mirrors the fleet's npm catalog soak time
@@ -121,8 +110,8 @@ function readCache(repo: string): CacheEntry | undefined {
 }
 
 function writeCache(entry: CacheEntry): void {
-  if (!existsSync(NODE_MODULES_CACHE_DIR)) {
-    mkdirSync(NODE_MODULES_CACHE_DIR, { recursive: true })
+  if (!existsSync(REPO_CACHE_DIR)) {
+    mkdirSync(REPO_CACHE_DIR, { recursive: true })
   }
   writeFileSync(CACHE_FILE, JSON.stringify(entry, null, 2) + '\n')
 }

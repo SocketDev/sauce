@@ -78,15 +78,14 @@ export function findFleetLeaks(tracked: string[]): string[] {
 
 export function findUnshippedManifestSources(): string[] {
   const manifestPath = path.join(ROOT, '.claude-plugin', 'marketplace.json')
-  const parsed: unknown = JSON.parse(readFileSync(manifestPath, 'utf-8'))
-  const manifest = parsed as {
+  const manifest: {
     plugins?:
       | Array<{
           name?: string | undefined
           source?: string | undefined
         }>
       | undefined
-  }
+  } = JSON.parse(readFileSync(manifestPath, 'utf-8'))
   const offenders: string[] = []
   const plugins = manifest.plugins ?? []
   for (let i = 0, { length } = plugins; i < length; i += 1) {
