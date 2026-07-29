@@ -61,8 +61,10 @@ pnpm dlx skills add SocketDev/skills --list
 For example:
 
 ```text
-/plugin install scan@SocketDev/skills
+/plugin install socket-scan@SocketDev/skills
 ```
+
+The installable plugin names are `socket-setup`, `socket-scan`, `socket-scan-setup`, `socket-inspect`, `socket-fix`, `socket-dep-cleanup`, `socket-dep-patch`, `socket-dep-replace`, and `socket-dep-upgrade`.
 
 ### Codex
 
