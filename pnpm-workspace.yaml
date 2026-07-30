@@ -19,14 +19,14 @@ packages:
 # keeps the entire hook tree in lockstep without each hook duplicating
 # literal pins.
 catalog:
-  '@anthropic-ai/claude-code': 2.1.216
+  '@anthropic-ai/claude-code': 2.1.218
   '@redwoodjs/agent-ci': 0.17.1
   '@shadscan/cli': 0.2.0
   '@sinclair/typebox': 0.34.52
   '@socketregistry/packageurl-js': 1.4.8
   '@socketregistry/packageurl-js-stable': npm:@socketregistry/packageurl-js@1.4.8
-  '@socketsecurity/lib': 6.3.0
-  '@socketsecurity/lib-stable': npm:@socketsecurity/lib@6.3.0
+  '@socketsecurity/lib': 6.5.0
+  '@socketsecurity/lib-stable': npm:@socketsecurity/lib@6.5.0
   '@socketsecurity/registry': 2.0.5
   '@socketsecurity/registry-stable': npm:@socketsecurity/registry@2.0.5
   '@socketsecurity/sdk': 4.1.2
