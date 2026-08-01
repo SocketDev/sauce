@@ -61,6 +61,36 @@
       "source": "./skills/socket-scan/socket-scan-setup",
       "skills": "./",
       "description": "Set up prerequisites for Socket scanning — install the CLI, configure auth with the public demo token, and verify scan access."
+    },
+    {
+      "name": "socket-release",
+      "source": "./skills/socket-release",
+      "skills": "./",
+      "description": "Stand up SocketDev publishing (npm, crates.io, GitHub releases, Homebrew tap) in a repo: copy in the release kit and run its bootstrap — name reservation, GitHub environments, npm trusted publisher, staged publish config, verification."
+    },
+    {
+      "name": "npm-publish",
+      "source": "./skills/socket-release/npm-publish",
+      "skills": "./",
+      "description": "Operate the socket-release npm flow end to end — bootstrap (permissive-then-staged-only publishing access), staged publish dispatch, soak, --approve promote, backfill, and rollback/deprecate."
+    },
+    {
+      "name": "gh-release",
+      "source": "./skills/socket-release/gh-release",
+      "skills": "./",
+      "description": "Cut, verify, and reconcile immutable GitHub releases — the registry-resolvability ORDER RULE, the draft-upload-undraft cut, checksums.txt, and tag-gap healing."
+    },
+    {
+      "name": "crates-publish",
+      "source": "./skills/socket-release/crates-publish",
+      "skills": "./",
+      "description": "Operate the socket-release crates.io flow — the cargo staged model, trusted publishing (OIDC), index-propagation waits, and yank-as-rollback."
+    },
+    {
+      "name": "brew-tap",
+      "source": "./skills/socket-release/brew-tap",
+      "skills": "./",
+      "description": "Operate the socket-release Homebrew tap flow — tap repo layout, formula bumps tied to published releases, and sha256 verification against the release's own checksums.txt."
     }
   ]
 }
