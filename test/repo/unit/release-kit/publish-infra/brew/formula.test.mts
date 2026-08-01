@@ -14,10 +14,10 @@ import {
   planFormulaBump,
   renderFormula,
   versionFromUrl,
-} from '../../../../../release-kit/payload/scripts/socket-release/publish-infra/brew/formula.mts'
-import type { FormulaSpec } from '../../../../../release-kit/payload/scripts/socket-release/publish-infra/brew/formula.mts'
-import { formulaClassName } from '../../../../../release-kit/payload/scripts/socket-release/publish-infra/brew/shared.mts'
-import { fixture } from '../helpers.mts'
+} from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/brew/formula.mts'
+import type { FormulaSpec } from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/brew/formula.mts'
+import { formulaClassName } from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/brew/shared.mts'
+import { fixture } from '../../helpers.mts'
 
 function spec(version = '1.2.3', shaSeed = ['1', '2', '3', '4']): FormulaSpec {
   const platforms = {} as FormulaSpec['platforms']

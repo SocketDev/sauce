@@ -48,7 +48,11 @@ export function extractChangelogSection(
       return false
     }
     const rest = line.slice(3).trim().replace(/^\[/, '').replace(/^v/, '')
-    return rest.startsWith(version)
+    if (!rest.startsWith(version)) {
+      return false
+    }
+    const boundary = rest.charAt(version.length)
+    return boundary === '' || boundary === ']' || /\s/.test(boundary)
   }
   const start = lines.findIndex(isVersionHeading)
   if (start === -1) {

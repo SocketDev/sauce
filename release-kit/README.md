@@ -168,9 +168,10 @@ and a README documenting `HOMEBREW_REQUIRE_TAP_TRUST=1` →
 `examples/brew-cli/tap-fixture/`.
 
 1. Cut the release first: registry publish → tag → GitHub release with
-   assets + `checksums.txt` (produce releases with
-   `scripts/socket-release/create-release.mts`; the npm/cargo release tail
-   writes sha1/sha256/sha512-base64 lines per asset). brew-publish refuses a
+   assets + `checksums.txt` (cut releases with
+   `scripts/socket-release/github-release.mts --tag vX.Y.Z --release`; the
+   npm/cargo release tail writes sha1/sha256/sha512-base64 lines per asset).
+   brew-publish refuses a
    missing tag, a draft release, a missing asset, and a missing
    checksums.txt — the four refusals are byte contracts.
 2. `node scripts/socket-release/brew-publish.mts --tag vX.Y.Z` — dry-run
@@ -256,14 +257,15 @@ release-kit/
 ├── README.md                 this file
 ├── gen-manifest.mts          (re)generate kit-manifest.json; --check
 ├── install.mts               the installer CLI
-├── install/{manifest,plan,effects}.mts
+├── install/{manifest,plan,seams}.mts
 ├── examples/{npm-lib,rust-crate,brew-cli}/
 └── payload/scripts/socket-release/   the copy-in engine (see kit-manifest.json)
 ```
 
 Sauce-side gates: `scripts/repo/check/release-kit-is-coherent.mts`,
 `release-kit-launches-are-sanctioned.mts`,
-`release-kit-workflows-are-env-mapped.mts` — auto-discovered by
+`release-kit-workflows-are-env-mapped.mts`,
+`release-kit-types-resolve.mts` — auto-discovered by
 `pnpm run check` (repo-owned checks run in the gate on every push). Tests
 live under `test/repo/unit/release-kit/` and
 `test/repo/integration/release-kit/`, all offline, importing straight from
@@ -345,10 +347,10 @@ exists under `scripts/fleet/` is done **fleet-first or not at all**.
    `cargo-publish`, `brew-publish`, `github-release`. An entry contains only
    its usage header, `OPTIONS`, unknown-flag rejection (exit 2), mode
    dispatch, and the `isMainModule` guard. The only other permitted root
-   residents are the grandfathered `npm-web-auth.mts`,
-   `registry-liveness-gate.mjs`(+`.d.mts`), `paths.mts`, `kit-manifest.json`
-   (and, until deleted, `create-release.mts`). **Nothing else may be added at
-   root.** _(machine-enforced)_
+   residents are `bootstrap.mts` (the one-time bootstrap CLI) and the
+   grandfathered `npm-web-auth.mts`, `registry-liveness-gate.mjs`(+`.d.mts`),
+   `paths.mts`, `kit-manifest.json` (and, until deleted, `create-release.mts`).
+   **Nothing else may be added at root.** _(machine-enforced)_
 2. **Tiers.** A flow's implementation lives in `publish-infra/<flow>/` using
    phase names from the closed set `{registry, staged, approve, placeholder,
 trusted-publisher}`; flow-specific nouns (brew `formula`/`tap`) appear in

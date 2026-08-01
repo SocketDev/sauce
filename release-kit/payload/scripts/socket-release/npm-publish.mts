@@ -106,12 +106,20 @@ const OPTIONS = {
   yes: { default: false, type: 'boolean' },
 } as const
 
-async function main(): Promise<void> {
-  const { values } = parseArgs({
+export function parsePublishArgs(
+  args: readonly string[] = process.argv.slice(2),
+): Record<string, unknown> {
+  return parseArgs({
+    args,
     options: OPTIONS,
     allowPositionals: false,
     strict: false,
-  })
+    configuration: { 'boolean-negation': false },
+  }).values
+}
+
+async function main(): Promise<void> {
+  const values = parsePublishArgs()
 
   const unknown = unknownFlags(values, Object.keys(OPTIONS))
   if (unknown.length > 0) {

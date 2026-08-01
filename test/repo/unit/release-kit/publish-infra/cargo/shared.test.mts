@@ -11,7 +11,7 @@ import {
   CARGO_APPROVE_COMMAND,
   cratePath,
   isPublishable,
-} from '../../../../../release-kit/payload/scripts/socket-release/publish-infra/cargo/shared.mts'
+} from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/cargo/shared.mts'
 
 describe('isPublishable', () => {
   it('treats the Cargo.toml default (null/undefined) as publishable', () => {

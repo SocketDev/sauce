@@ -12,8 +12,8 @@ import { describe, expect, it } from 'vitest'
 import {
   conformsToLaw,
   trustedPublisherLaw,
-} from '../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/trust-sweep.mts'
-import type { TrustConfig } from '../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/trust-sweep.mts'
+} from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/trust-sweep.mts'
+import type { TrustConfig } from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/trust-sweep.mts'
 
 const LAW = trustedPublisherLaw('SocketDev/example')
 

@@ -12,13 +12,13 @@ import { fileURLToPath } from 'node:url'
 
 import { describe, expect, it } from 'vitest'
 
-import * as stagedConfig from '../../../../../release-kit/payload/scripts/socket-release/bootstrap/steps/staged-config.mts'
-import { KitError } from '../../../../../release-kit/payload/scripts/socket-release/bootstrap/render.mts'
-import { fakeSeams, makeCtx } from '../helpers.mts'
+import * as stagedConfig from '../../../../../../release-kit/payload/scripts/socket-release/bootstrap/steps/staged-config.mts'
+import { KitError } from '../../../../../../release-kit/payload/scripts/socket-release/bootstrap/render.mts'
+import { fakeSeams, makeCtx } from '../../helpers.mts'
 
 const PAYLOAD = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
-  '../../../../../release-kit/payload/scripts/socket-release',
+  '../../../../../../release-kit/payload/scripts/socket-release',
 )
 const NPM_TEMPLATE = readFileSync(
   path.join(PAYLOAD, 'templates/workflows/npm-publish.yml'),

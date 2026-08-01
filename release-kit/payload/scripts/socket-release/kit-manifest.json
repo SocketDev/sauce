@@ -138,7 +138,7 @@
     {
       "channels": ["brew"],
       "path": "brew-publish.mts",
-      "sha256": "32e49230dcb8bc3eaeef8c4ba8ebe3d39a957caf1780c4707656123ceb58dbd6"
+      "sha256": "cd06e66accf914fc976752b17dea77fde1139c718fd24d950f39c98cba72e05b"
     },
     {
       "channels": ["crates"],
@@ -198,7 +198,7 @@
     {
       "channels": ["npm"],
       "path": "npm-publish.mts",
-      "sha256": "b04a722a6c2397ab5fe8ec5bdd674d1c37523dd03057ee7f5614b1d1d97a2f7c"
+      "sha256": "f3822619d8ee6c4f076eb2587c93fdf228a05806718c5a47669d0b9b7ad70c04"
     },
     {
       "channels": ["npm"],
@@ -413,7 +413,7 @@
     {
       "channels": ["common"],
       "path": "publish-infra/release.mts",
-      "sha256": "38fdcd5af4cfb9466457e857603a3f915f820a82700e2b68a44938bf386c82bd"
+      "sha256": "7c45ee232e2b20ab6357a229cb6841ac6bb7b2d2f701a460d5250c27fb5be1f1"
     },
     {
       "channels": ["common"],
@@ -433,7 +433,7 @@
     {
       "channels": ["github-release"],
       "path": "registry-liveness-gate.mjs",
-      "sha256": "074e978f68390ca8081325d37515ff0bf059c840ae2ab85698ae4ee1f7d149e9"
+      "sha256": "b050bcc0dc3a33a0b89098a1e8665dd12b16e284ebaebe61f6a8eee88e6b39d6"
     },
     {
       "channels": ["brew"],

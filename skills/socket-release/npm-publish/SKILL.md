@@ -67,11 +67,13 @@ STOP AND GATE, never improvise, at these moments:
 
 ## Backfill
 
-An already-tagged version that never published: dispatch the workflow with
-`backfill-version: X.Y.Z` + `checkout-ref: vX.Y.Z`, or locally
+An already-tagged version that never published: a backfill never moves the
+`latest` pointer, so it always needs an explicit non-`latest` dist-tag.
+Dispatch the workflow with `backfill-version: X.Y.Z` + `checkout-ref: vX.Y.Z`
+\+ `dist-tag: backfill` (any non-`latest` tag), or locally
 
 ```
-node scripts/socket-release/npm-publish.mts --staged --backfill X.Y.Z --checkout-ref vX.Y.Z --dry-run
+node scripts/socket-release/npm-publish.mts --staged --backfill X.Y.Z --checkout-ref vX.Y.Z --tag backfill --dry-run
 ```
 
 Drop `--dry-run` only after the plan reads clean; promotion is the same

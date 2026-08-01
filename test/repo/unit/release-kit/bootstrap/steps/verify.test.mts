@@ -11,19 +11,19 @@ import { fileURLToPath } from 'node:url'
 
 import { describe, expect, it } from 'vitest'
 
-import * as verify from '../../../../../release-kit/payload/scripts/socket-release/bootstrap/steps/verify.mts'
-import type { VerifyInputs } from '../../../../../release-kit/payload/scripts/socket-release/bootstrap/steps/verify.mts'
-import { KIT_SCRIPTS } from '../../../../../release-kit/payload/scripts/socket-release/bootstrap/steps/staged-config.mts'
+import * as verify from '../../../../../../release-kit/payload/scripts/socket-release/bootstrap/steps/verify.mts'
+import type { VerifyInputs } from '../../../../../../release-kit/payload/scripts/socket-release/bootstrap/steps/verify.mts'
+import { KIT_SCRIPTS } from '../../../../../../release-kit/payload/scripts/socket-release/bootstrap/steps/staged-config.mts'
 import {
   fixture,
   livePackument,
   makeCtx,
   unpublishedPackument,
-} from '../helpers.mts'
+} from '../../helpers.mts'
 
 const PAYLOAD = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
-  '../../../../../release-kit/payload/scripts/socket-release',
+  '../../../../../../release-kit/payload/scripts/socket-release',
 )
 const NPM_TEMPLATE = readFileSync(
   path.join(PAYLOAD, 'templates/workflows/npm-publish.yml'),

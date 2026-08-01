@@ -10,20 +10,20 @@ import { describe, expect, it } from 'vitest'
 import {
   classifyPublishingAccess,
   parsePublishingAccess,
-} from '../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/access-parse.mts'
+} from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/access-parse.mts'
 import {
   allowsAction,
   classifyAccessPage,
   extractAllowedActions,
   parseTrustedPublisherForm,
-} from '../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/trusted-publisher-parse.mts'
+} from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/trusted-publisher-parse.mts'
 import {
   classifyStagedFetch,
   isCloudflareChallenge,
   looksLikeHtmlBody,
   mapStagedTarball,
   parseStagedPayload,
-} from '../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/staged-browser-parse.mts'
+} from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/staged-browser-parse.mts'
 
 describe('classifyPublishingAccess', () => {
   it('maps every readable pair and refuses on either unreadable toggle', () => {

@@ -7,11 +7,11 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { runBrewPublish } from '../../../../../release-kit/payload/scripts/socket-release/brew-publish.mts'
-import type { BrewSeams } from '../../../../../release-kit/payload/scripts/socket-release/publish-infra/brew/tap.mts'
-import { renderFormula } from '../../../../../release-kit/payload/scripts/socket-release/publish-infra/brew/formula.mts'
-import type { FormulaSpec } from '../../../../../release-kit/payload/scripts/socket-release/publish-infra/brew/formula.mts'
-import { fixture } from '../helpers.mts'
+import { runBrewPublish } from '../../../../../../release-kit/payload/scripts/socket-release/brew-publish.mts'
+import type { BrewSeams } from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/brew/tap.mts'
+import { renderFormula } from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/brew/formula.mts'
+import type { FormulaSpec } from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/brew/formula.mts'
+import { fixture } from '../../helpers.mts'
 
 const ASSETS = [
   'examplecli-darwin-arm64.tar.gz',
@@ -115,11 +115,14 @@ describe('refusals (exit 1, zero commits)', () => {
     expect(fake.commits).toEqual([])
   })
 
-  it('missing checksums.txt → checksums-authority', async () => {
+  it('missing checksums.txt → checksums-authority pointing at github-release.mts, never the dead create-release.mts', async () => {
     const fake = fakeBrewSeams({ checksums: '' })
     const result = await run(fake, { apply: true })
     expect(result.exitCode).toBe(1)
-    expect(result.checks.at(-1)!.id).toBe('checksums-authority')
+    const check = result.checks.at(-1)!
+    expect(check.id).toBe('checksums-authority')
+    expect(check.fix).toContain('github-release.mts')
+    expect(check.fix).not.toContain('create-release.mts')
     expect(fake.commits).toEqual([])
   })
 

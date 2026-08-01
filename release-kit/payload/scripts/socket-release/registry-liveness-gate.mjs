@@ -26,7 +26,8 @@
  */
 
 import crypto from 'node:crypto'
-import { existsSync, globSync, readFileSync, realpathSync } from 'node:fs'
+import { existsSync, readFileSync, realpathSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
@@ -39,7 +40,22 @@ const REPO_ROOT = path.resolve(
   '..',
 )
 
-const defaultFsLike = { existsSync, globSync, readFileSync }
+function loadGlobSync() {
+  const { globSync } = createRequire(import.meta.url)('node:fs')
+  if (typeof globSync !== 'function') {
+    throw new Error(
+      '× fs.globSync is unavailable on this Node (added in Node 22) — needed only to expand a crates.io workspace-member glob.\n' +
+        '  Fix: run the release-liveness gate on Node >=22, or list the workspace members without a glob.',
+    )
+  }
+  return globSync
+}
+
+const defaultFsLike = {
+  existsSync,
+  globSync: (pattern, options) => loadGlobSync()(pattern, options),
+  readFileSync,
+}
 
 /**
  * The version a release tag names — a single leading `v` stripped, the

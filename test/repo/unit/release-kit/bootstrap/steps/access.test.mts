@@ -11,22 +11,22 @@ import { describe, expect, it } from 'vitest'
 import {
   classifyPublishingAccess,
   parsePublishingAccess,
-} from '../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/access-parse.mts'
+} from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/access-parse.mts'
 import {
   PERMISSIVE_ACCESS,
   STAGED_ONLY_ACCESS,
   accessMatchesDesired,
   diffPublishingAccess,
-} from '../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/access-plan.mts'
-import * as permissive from '../../../../../release-kit/payload/scripts/socket-release/bootstrap/steps/npm-access-permissive.mts'
-import * as stagedOnly from '../../../../../release-kit/payload/scripts/socket-release/bootstrap/steps/npm-access-staged-only.mts'
+} from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/access-plan.mts'
+import * as permissive from '../../../../../../release-kit/payload/scripts/socket-release/bootstrap/steps/npm-access-permissive.mts'
+import * as stagedOnly from '../../../../../../release-kit/payload/scripts/socket-release/bootstrap/steps/npm-access-staged-only.mts'
 import {
   fakeSeams,
   fixture,
   livePackument,
   makeCtx,
   unpublishedPackument,
-} from '../helpers.mts'
+} from '../../helpers.mts'
 
 describe('parsePublishingAccess over the golden pages', () => {
   it('both-enabled.html → both-enabled', () => {

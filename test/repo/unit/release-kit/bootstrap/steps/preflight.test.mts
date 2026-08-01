@@ -10,15 +10,15 @@ import {
   classifyPackument,
   classifyPreflightInputs,
   nodeVersionOk,
-} from '../../../../../release-kit/payload/scripts/socket-release/bootstrap/steps/preflight.mts'
-import type { PreflightInputs } from '../../../../../release-kit/payload/scripts/socket-release/bootstrap/steps/preflight.mts'
+} from '../../../../../../release-kit/payload/scripts/socket-release/bootstrap/steps/preflight.mts'
+import type { PreflightInputs } from '../../../../../../release-kit/payload/scripts/socket-release/bootstrap/steps/preflight.mts'
 import {
   OK,
   fixture,
   livePackument,
   makeCtx,
   unreachableRegistry,
-} from '../helpers.mts'
+} from '../../helpers.mts'
 
 function goodInputs(): PreflightInputs {
   return {

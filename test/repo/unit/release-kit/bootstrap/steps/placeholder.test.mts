@@ -8,8 +8,8 @@
 
 import { describe, expect, it } from 'vitest'
 
-import * as placeholder from '../../../../../release-kit/payload/scripts/socket-release/bootstrap/steps/placeholder.mts'
-import { PERMISSIVE_ACCESS } from '../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/access-plan.mts'
+import * as placeholder from '../../../../../../release-kit/payload/scripts/socket-release/bootstrap/steps/placeholder.mts'
+import { PERMISSIVE_ACCESS } from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/access-plan.mts'
 import {
   fakeSeams,
   fixture,
@@ -17,7 +17,7 @@ import {
   makeCtx,
   unpublishedPackument,
   unreachableRegistry,
-} from '../helpers.mts'
+} from '../../helpers.mts'
 
 const emptyStage = {
   code: 0,

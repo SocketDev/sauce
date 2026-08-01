@@ -188,10 +188,10 @@ export async function runBrewPublish(
       [
         `x release ${cfg.tag} carries no checksums.txt.`,
         "The formula sha256 is derived from the release's own checksum manifest, never re-hashed independently.",
-        'Fix: produce releases with scripts/socket-release/create-release.mts (it writes sha256-hex checksums.txt).',
+        'Fix: cut the release with scripts/socket-release/github-release.mts --tag <tag> --release (it writes the sha256-hex checksums.txt).',
       ],
       'no checksums.txt',
-      'produce releases with scripts/socket-release/create-release.mts (it writes sha256-hex checksums.txt).',
+      'cut the release with scripts/socket-release/github-release.mts --tag <tag> --release (it writes the sha256-hex checksums.txt).',
     )
   }
   const checksums = parseChecksumsTxt(checksumsText)

@@ -13,18 +13,19 @@ import path from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import { packumentUrl } from '../../../../../release-kit/payload/scripts/socket-release/constants/npm-registry.mts'
+import { packumentUrl } from '../../../../../../release-kit/payload/scripts/socket-release/constants/npm-registry.mts'
 import {
   unknownFlags,
   unknownFlagsMessage,
-} from '../../../../../release-kit/payload/scripts/socket-release/_shared/cli-flags.mts'
+} from '../../../../../../release-kit/payload/scripts/socket-release/_shared/cli-flags.mts'
 import {
   readPublishConfigAccess,
   resolveNpmAccess,
-} from '../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/shared.mts'
-import { stageAction } from '../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/staged.mts'
-import { readStagedShasum } from '../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/shared.mts'
-import { extractChangelogSection } from '../../../../../release-kit/payload/scripts/socket-release/publish-infra/release.mts'
+} from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/shared.mts'
+import { stageAction } from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/staged.mts'
+import { readStagedShasum } from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/shared.mts'
+import { extractChangelogSection } from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/release.mts'
+import { parsePublishArgs } from '../../../../../../release-kit/payload/scripts/socket-release/npm-publish.mts'
 
 describe('resolveNpmAccess', () => {
   it('honors the kit config over everything', () => {
@@ -153,6 +154,33 @@ describe('unknownFlags', () => {
   })
 })
 
+describe('parsePublishArgs (documented --no-* opt-outs)', () => {
+  it('maps --no-reconcile to its declared key, never a phantom reconcile key', () => {
+    const values = parsePublishArgs(['--no-reconcile'])
+    expect(values['no-reconcile']).toBe(true)
+    expect(values['reconcile']).toBeUndefined()
+  })
+
+  it('maps --no-release to its declared key, never a phantom release key', () => {
+    const values = parsePublishArgs(['--approve', '--no-release'])
+    expect(values['no-release']).toBe(true)
+    expect(values['release']).toBeUndefined()
+  })
+
+  it('maps --no-scan to its declared key, never a phantom scan key', () => {
+    const values = parsePublishArgs(['--approve', '--no-scan'])
+    expect(values['no-scan']).toBe(true)
+    expect(values['scan']).toBeUndefined()
+  })
+
+  it('leaves every opt-out at its false default when omitted', () => {
+    const values = parsePublishArgs(['--staged'])
+    expect(values['no-reconcile']).toBe(false)
+    expect(values['no-release']).toBe(false)
+    expect(values['no-scan']).toBe(false)
+  })
+})
+
 describe('extractChangelogSection', () => {
   it('returns the section body for the version and stops at the next heading', () => {
     const dir = mkdtempSync(path.join(os.tmpdir(), 'kit-changelog-'))
@@ -180,5 +208,44 @@ describe('extractChangelogSection', () => {
       '# Changelog\n\n## 1.0.0\n\n- old\n',
     )
     expect(extractChangelogSection('9.9.9', dir)).toBe('Release 9.9.9.')
+  })
+
+  it('does not grab a longer version whose heading begins with the target (1.2.30 above 1.2.3)', () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'kit-changelog-'))
+    writeFileSync(
+      path.join(dir, 'package.json'),
+      JSON.stringify({ name: 'x', version: '1.2.3' }),
+    )
+    writeFileSync(
+      path.join(dir, 'CHANGELOG.md'),
+      '# Changelog\n\n## 1.2.30\n\n- notes for 1.2.30\n\n## 1.2.3\n\n- notes for 1.2.3\n',
+    )
+    expect(extractChangelogSection('1.2.3', dir)).toBe('- notes for 1.2.3')
+  })
+
+  it('does not grab a prerelease heading when the target is the final version (2.0.0-rc.1 above 2.0.0)', () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'kit-changelog-'))
+    writeFileSync(
+      path.join(dir, 'package.json'),
+      JSON.stringify({ name: 'x', version: '2.0.0' }),
+    )
+    writeFileSync(
+      path.join(dir, 'CHANGELOG.md'),
+      '# Changelog\n\n## 2.0.0-rc.1\n\n- prerelease notes\n\n## 2.0.0\n\n- final notes\n',
+    )
+    expect(extractChangelogSection('2.0.0', dir)).toBe('- final notes')
+  })
+
+  it('still matches bracketed and dated headings at the version boundary', () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'kit-changelog-'))
+    writeFileSync(
+      path.join(dir, 'package.json'),
+      JSON.stringify({ name: 'x', version: '1.2.3' }),
+    )
+    writeFileSync(
+      path.join(dir, 'CHANGELOG.md'),
+      '# Changelog\n\n## [1.2.3] - 2024-01-01\n\n- dated notes\n\n## [1.2.2]\n\n- older\n',
+    )
+    expect(extractChangelogSection('1.2.3', dir)).toBe('- dated notes')
   })
 })

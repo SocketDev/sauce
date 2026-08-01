@@ -6,9 +6,9 @@
 
 import { describe, expect, it } from 'vitest'
 
-import * as trustedPublisher from '../../../../../release-kit/payload/scripts/socket-release/bootstrap/steps/trusted-publisher.mts'
-import { trustedPublisherLaw } from '../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/trust-sweep.mts'
-import { fakeSeams, fixture, makeCtx } from '../helpers.mts'
+import * as trustedPublisher from '../../../../../../release-kit/payload/scripts/socket-release/bootstrap/steps/trusted-publisher.mts'
+import { trustedPublisherLaw } from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/trust-sweep.mts'
+import { fakeSeams, fixture, makeCtx } from '../../helpers.mts'
 
 const LAW = trustedPublisherLaw('SocketDev/example')
 

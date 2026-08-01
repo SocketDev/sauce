@@ -181,6 +181,37 @@ export function readRunnableCommands(
   return commands
 }
 
+describe('documented --backfill commands carry the mandatory non-latest --tag', () => {
+  it('every documented npm-publish --backfill invocation names a non-latest --tag', () => {
+    const docs = getLintedDocs()
+    const offenders: string[] = []
+    for (let i = 0, { length } = docs; i < length; i += 1) {
+      const doc = docs[i]!
+      const relDoc = path.relative(REPO_ROOT, doc)
+      const content = readFileSync(doc, 'utf-8')
+      const commands = readRunnableCommands(content)
+      for (let j = 0, count = commands.length; j < count; j += 1) {
+        const command = commands[j]!
+        if (
+          !/npm-publish\.mts\b/.test(command.text) ||
+          !/--backfill\b/.test(command.text)
+        ) {
+          continue
+        }
+        const tag = /--tag\s+(\S+)/.exec(command.text)
+        if (!tag || tag[1] === 'latest') {
+          offenders.push(`${relDoc}:${command.line} \`${command.text}\``)
+        }
+      }
+    }
+    expect(
+      offenders,
+      `A backfill never moves the latest pointer, so the gate refuses any backfill without an explicit non-latest --tag. ${offenders.length} documented command(s) omit it:\n` +
+        offenders.map(offender => `  - ${offender}`).join('\n'),
+    ).toEqual([])
+  })
+})
+
 describe('Doc Command Lint', () => {
   const docs = getLintedDocs()
 

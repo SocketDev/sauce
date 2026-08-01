@@ -8,9 +8,10 @@
  *   closed.
  */
 
-import { mkdtempSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import { describe, expect, it } from 'vitest'
 
@@ -18,11 +19,19 @@ import {
   cacheBustedNpmUrl,
   checkNpmLive,
   crateIndexPath,
+  deriveCrateNames,
   indexHasVersion,
   planGate,
   runGate,
   versionFromTag,
 } from '../../../../release-kit/payload/scripts/socket-release/registry-liveness-gate.mjs'
+
+const GATE_SOURCE = fileURLToPath(
+  new URL(
+    '../../../../release-kit/payload/scripts/socket-release/registry-liveness-gate.mjs',
+    import.meta.url,
+  ),
+)
 
 function tempRepo(files: Record<string, string>): string {
   const dir = mkdtempSync(path.join(os.tmpdir(), 'kit-gate-'))
@@ -87,6 +96,29 @@ describe('planGate', () => {
 
   it('skips a repo with neither manifest', () => {
     expect(planGate(tempRepo({}))).toEqual({ registry: 'none' })
+  })
+})
+
+describe('loads on the runner system Node <22 (globSync deferred, not statically imported)', () => {
+  it('does not statically import globSync from node:fs (a Node 22+ named export)', () => {
+    const src = readFileSync(GATE_SOURCE, 'utf8')
+    const fsImport = /import\s*\{([^}]*)\}\s*from\s*'node:fs'/.exec(src)
+    expect(fsImport).not.toBeNull()
+    expect(fsImport![1]).not.toContain('globSync')
+  })
+
+  it('still expands a workspace-member glob (globSync resolved lazily at call time)', () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'kit-gate-glob-'))
+    writeFileSync(
+      path.join(dir, 'Cargo.toml'),
+      '[workspace]\nmembers = ["crates/*"]\n',
+    )
+    mkdirSync(path.join(dir, 'crates', 'alpha'), { recursive: true })
+    writeFileSync(
+      path.join(dir, 'crates', 'alpha', 'Cargo.toml'),
+      '[package]\nname = "alpha"\nversion = "1.0.0"\n',
+    )
+    expect(deriveCrateNames(dir)).toEqual(['alpha'])
   })
 })
 

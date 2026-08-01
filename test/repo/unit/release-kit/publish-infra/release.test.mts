@@ -8,8 +8,8 @@ import { createHash } from 'node:crypto'
 
 import { describe, expect, it } from 'vitest'
 
-import { formatReleaseChecksums } from '../../../../release-kit/payload/scripts/socket-release/publish-infra/release.mts'
-import { parseChecksumsTxt } from '../../../../release-kit/payload/scripts/socket-release/publish-infra/brew/shared.mts'
+import { formatReleaseChecksums } from '../../../../../release-kit/payload/scripts/socket-release/publish-infra/release.mts'
+import { parseChecksumsTxt } from '../../../../../release-kit/payload/scripts/socket-release/publish-infra/brew/shared.mts'
 
 describe('formatReleaseChecksums ↔ parseChecksumsTxt', () => {
   const bytes = Buffer.from('fixture tarball bytes — deterministic digest')

@@ -7,8 +7,8 @@
 
 import { describe, expect, it } from 'vitest'
 
-import * as githubEnv from '../../../../../release-kit/payload/scripts/socket-release/bootstrap/steps/github-env.mts'
-import { OK, fakeSeams, fixture, makeCtx } from '../helpers.mts'
+import * as githubEnv from '../../../../../../release-kit/payload/scripts/socket-release/bootstrap/steps/github-env.mts'
+import { OK, fakeSeams, fixture, makeCtx } from '../../helpers.mts'
 
 const envList = (name: string) => ({
   code: 0,

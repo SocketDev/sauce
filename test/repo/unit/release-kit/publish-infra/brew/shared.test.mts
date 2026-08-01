@@ -11,8 +11,8 @@ import {
   formulaPath,
   normalizeTap,
   parseChecksumsTxt,
-} from '../../../../../release-kit/payload/scripts/socket-release/publish-infra/brew/shared.mts'
-import { fixture } from '../helpers.mts'
+} from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/brew/shared.mts'
+import { fixture } from '../../helpers.mts'
 
 describe('normalizeTap', () => {
   it('accepts the brew slug form', () => {
