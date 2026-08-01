@@ -23,7 +23,7 @@ import {
 import {
   PAYLOAD_ROOT,
   walkPayload,
-} from '../../../release-kit/install/effects.mts'
+} from '../../../release-kit/install/seams.mts'
 
 const logger = getDefaultLogger()
 

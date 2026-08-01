@@ -15,7 +15,7 @@ import process from 'node:process'
 
 import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 
-import { PAYLOAD_ROOT } from '../../../release-kit/install/effects.mts'
+import { PAYLOAD_ROOT } from '../../../release-kit/install/seams.mts'
 
 const logger = getDefaultLogger()
 

@@ -1,8 +1,9 @@
 /**
  * @file The installer's filesystem effects, behind `InstallSeams` so the
- *   pure planner never sees fs. Walking, hashing, reading the target's
- *   current shas, copying payload files, and the write-only-if-absent
- *   consumer config seed all live here.
+ *   pure planner never sees fs (Law 3: an injectable effect module is
+ *   `seams.mts` exporting `<Area>Seams` + `resolve<Area>Seams`). Walking,
+ *   hashing, reading the target's current shas, copying payload files, and
+ *   the write-only-if-absent consumer config seed all live here.
  */
 
 import crypto from 'node:crypto'

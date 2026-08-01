@@ -25,8 +25,8 @@ import {
   readTargetShas,
   resolveInstallSeams,
   sha256Hex,
-} from './install/effects.mts'
-import type { InstallSeams } from './install/effects.mts'
+} from './install/seams.mts'
+import type { InstallSeams } from './install/seams.mts'
 import {
   filterByChannels,
   MANIFEST_FILENAME,

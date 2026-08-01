@@ -32,7 +32,6 @@
     "scripts/socket-release/create-release.mts",
     "scripts/socket-release/github-release.mts",
     "scripts/socket-release/kit-manifest.json",
-    "scripts/socket-release/lib/commit-via-github-api.mts",
     "scripts/socket-release/lib/github-git-refs.mts",
     "scripts/socket-release/lib/release-anchor.mts",
     "scripts/socket-release/lib/release-checksums/core.mts",

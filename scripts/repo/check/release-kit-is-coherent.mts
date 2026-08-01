@@ -15,6 +15,13 @@
  *      formula/shared, install manifest/plan) import no effects modules —
  *      `node:fs`, `node:child_process`, `node:net`, `node:http` — a
  *      module-source scan that keeps the pure/effects split honest.
+ *   5. Naming law 1 (entries): the only code files at the payload ROOT are
+ *      the sanctioned flow entries plus the grandfathered residents —
+ *      nothing new may be added at root.
+ *   6. Naming law 6 (suffixes): every payload code file is `.mts`, except
+ *      `.mjs` scripts that must run on system Node before any install
+ *      (workflow gate jobs, composite-action scripts); any `.mjs` imported
+ *      from TypeScript carries a `.d.mts` sidecar.
  */
 
 import { readFileSync } from 'node:fs'
@@ -31,7 +38,7 @@ import {
 import {
   PAYLOAD_ROOT,
   walkPayload,
-} from '../../../release-kit/install/effects.mts'
+} from '../../../release-kit/install/seams.mts'
 
 const logger = getDefaultLogger()
 const REPO_ROOT = path.resolve(
@@ -83,6 +90,33 @@ const SAUCE_PURE_MODULES = [
 ] as const
 
 const EFFECT_IMPORT = /from\s+['"]node:(?:child_process|fs|http|net)['"]/
+
+// Naming law 1: the closed set of code files permitted at the payload root.
+// `create-release.mts` is a grandfathered dead github-release entry, kept
+// until it is deleted fleet-side. See the README "Known divergence" note.
+const ROOT_ENTRY_ALLOWLIST: ReadonlySet<string> = new Set([
+  'bootstrap.mts',
+  'brew-publish.mts',
+  'cargo-publish.mts',
+  'create-release.mts',
+  'github-release.mts',
+  'npm-publish.mts',
+  'npm-web-auth.mts',
+  'paths.mts',
+  'registry-liveness-gate.d.mts',
+  'registry-liveness-gate.mjs',
+])
+
+// Naming law 6: `.mjs` is allowed only for scripts that run on system Node
+// before any install — the two known homes are the payload-root registry
+// liveness gate job and the composite-action minter under templates/actions/.
+const SYSTEM_NODE_MJS: readonly RegExp[] = [
+  /^registry-liveness-gate\.mjs$/,
+  /^templates\/actions\/[^/]+\/[^/]+\.mjs$/,
+]
+
+const CODE_FILE = /\.(?:cjs|cts|js|mjs|mts|ts)$/
+const DISALLOWED_CODE_EXT = /\.(?:cjs|cts|js|ts)$/
 
 function isMarkerAllowlisted(rel: string, marker: string): boolean {
   return MARKER_ALLOWLIST.some(
@@ -199,6 +233,75 @@ function main(): void {
           'Fix: move the effect behind the seams module and pass data in.',
         ].join('\n'),
       )
+    }
+  }
+
+  // 5. Naming law 1: only sanctioned code files live at the payload root.
+  for (let i = 0, { length } = payloadFiles; i < length; i += 1) {
+    const rel = payloadFiles[i]!
+    if (path.dirname(rel) !== '.' || !CODE_FILE.test(rel)) {
+      continue
+    }
+    if (!ROOT_ENTRY_ALLOWLIST.has(rel)) {
+      failures.push(
+        [
+          'What: an unsanctioned code file lives at the payload root.',
+          `Where: release-kit/payload/scripts/socket-release/${rel}`,
+          `Saw: ${rel}`,
+          'Wanted: root holds only the sanctioned flow entries and grandfathered residents (naming law 1)',
+          'Fix: move it under its tier (publish-infra/<flow>/, bootstrap/, lib/, _shared/) or add it to ROOT_ENTRY_ALLOWLIST with the reason.',
+        ].join('\n'),
+      )
+    }
+  }
+
+  // 6. Naming law 6: .mts everywhere; .mjs only for system-Node scripts, each
+  //    TypeScript-importable one carrying a .d.mts sidecar.
+  for (let i = 0, { length } = payloadFiles; i < length; i += 1) {
+    const rel = payloadFiles[i]!
+    if (DISALLOWED_CODE_EXT.test(rel)) {
+      failures.push(
+        [
+          'What: a payload code file uses a non-.mts extension.',
+          `Where: release-kit/payload/scripts/socket-release/${rel}`,
+          `Saw: ${rel}`,
+          'Wanted: .mts everywhere (naming law 6); .mjs only for system-Node scripts',
+          'Fix: rename to .mts, or (for a system-Node script) to .mjs with a .d.mts sidecar.',
+        ].join('\n'),
+      )
+      continue
+    }
+    if (!rel.endsWith('.mjs')) {
+      continue
+    }
+    if (!SYSTEM_NODE_MJS.some(re => re.test(rel))) {
+      failures.push(
+        [
+          'What: a .mjs script lives outside the sanctioned system-Node homes.',
+          `Where: release-kit/payload/scripts/socket-release/${rel}`,
+          `Saw: ${rel}`,
+          'Wanted: .mjs only for the registry liveness gate job or a composite-action minter (naming law 6)',
+          'Fix: convert it to .mts, or add its home to SYSTEM_NODE_MJS with the reason.',
+        ].join('\n'),
+      )
+      continue
+    }
+    // The system-Node .mjs at the payload root is the registry liveness gate;
+    // TypeScript imports it, so it needs a .d.mts sidecar. The composite-action
+    // minter nested under templates/actions/ is never TypeScript-imported.
+    if (path.dirname(rel) === '.') {
+      const sidecar = rel.replace(/\.mjs$/, '.d.mts')
+      if (!payloadFiles.includes(sidecar)) {
+        failures.push(
+          [
+            'What: a TypeScript-importable .mjs is missing its .d.mts sidecar.',
+            `Where: release-kit/payload/scripts/socket-release/${rel}`,
+            `Saw: no ${sidecar}`,
+            'Wanted: every .mjs imported from TypeScript carries a .d.mts sidecar (naming law 6)',
+            'Fix: add the .d.mts sidecar next to the .mjs.',
+          ].join('\n'),
+        )
+      }
     }
   }
 

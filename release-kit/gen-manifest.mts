@@ -19,7 +19,7 @@ import {
   MANIFEST_FILENAME,
 } from './install/manifest.mts'
 import type { KitManifest } from './install/manifest.mts'
-import { PAYLOAD_ROOT, sha256Hex, walkPayload } from './install/effects.mts'
+import { PAYLOAD_ROOT, sha256Hex, walkPayload } from './install/seams.mts'
 
 /**
  * Build the manifest from the payload's current bytes.

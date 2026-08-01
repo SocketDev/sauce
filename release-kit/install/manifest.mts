@@ -62,6 +62,7 @@ export function channelsForPath(relPath: string): ManifestChannel[] {
   if (
     p.startsWith('publish-infra/brew/') ||
     p === 'brew-publish.mts' ||
+    p === 'lib/commit-via-github-api.mts' ||
     p === 'templates/workflows/brew-publish.yml' ||
     p.startsWith('templates/actions/socket-release-app-token/') ||
     p === 'util/pack-app-triplets.mts'

@@ -2,7 +2,7 @@
  * @file PURE install planning: given the selected manifest entries and a
  *   map of the target's current file hashes, classify every file as
  *   copy / skip-identical / conflict. The planner never touches the
- *   filesystem — `install/effects.mts` gathers `targetReads` and performs
+ *   filesystem — `install/seams.mts` gathers `targetReads` and performs
  *   the copies; this module only decides.
  */
 

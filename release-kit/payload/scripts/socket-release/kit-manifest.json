@@ -161,7 +161,7 @@
       "sha256": "977136498db436a0c13ba8efead5a4e738d35ff15fa9f4e87f2ce525175e487e"
     },
     {
-      "channels": ["common"],
+      "channels": ["brew"],
       "path": "lib/commit-via-github-api.mts",
       "sha256": "cda30ad2d61cd648c8a8ca357880c259187f82db3780170645f5749a5da0abe8"
     },

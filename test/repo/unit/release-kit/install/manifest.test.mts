@@ -12,7 +12,7 @@ import {
   parseChannelsFlag,
   parseKitManifest,
 } from '../../../../../release-kit/install/manifest.mts'
-import { walkPayload } from '../../../../../release-kit/install/effects.mts'
+import { walkPayload } from '../../../../../release-kit/install/seams.mts'
 import { buildManifest } from '../../../../../release-kit/gen-manifest.mts'
 
 describe('channelsForPath', () => {
@@ -33,6 +33,7 @@ describe('channelsForPath', () => {
       'github-release',
     ])
     expect(channelsForPath('publish-infra/brew/formula.mts')).toEqual(['brew'])
+    expect(channelsForPath('lib/commit-via-github-api.mts')).toEqual(['brew'])
     expect(channelsForPath('util/pack-app-triplets.mts')).toEqual(['brew'])
     expect(
       channelsForPath('templates/actions/socket-release-app-token/action.yml'),
@@ -80,6 +81,7 @@ describe('filterByChannels (the npm+github-release exclusion list)', () => {
           p === 'brew-publish.mts' ||
           p === 'templates/workflows/cargo-publish.yml' ||
           p === 'templates/workflows/brew-publish.yml' ||
+          p === 'lib/commit-via-github-api.mts' ||
           p.startsWith('templates/actions/') ||
           p === 'util/pack-app-triplets.mts',
         p,

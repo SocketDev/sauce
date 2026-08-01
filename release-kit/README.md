@@ -268,3 +268,118 @@ Sauce-side gates: `scripts/repo/check/release-kit-is-coherent.mts`,
 live under `test/repo/unit/release-kit/` and
 `test/repo/integration/release-kit/`, all offline, importing straight from
 the payload.
+
+## Architecture — the npm thread, file by file
+
+Every flow (npm, cargo, brew, github-release) runs the same shape:
+`config → converge → stage → approve → mark → verify → heal`. **Knowing the
+npm thread teaches the others** — the cargo tier mirrors it phase for phase,
+and brew swaps the promotion phases for a `plan → apply` formula bump. Read
+the npm release thread in this order (each line names the real payload file):
+
+1. `templates/workflows/npm-publish.yml` — the CI invocation a consumer copies
+   into `.github/workflows/`; dispatches the entry with `publish: true`.
+2. `npm-publish.mts` — the flow entry (Layer 1): usage header, `OPTIONS`,
+   unknown-flag rejection, mode dispatch (stage / approve / direct), and
+   access + dist-tag resolution. It wires the tier below; it holds no
+   registry logic of its own.
+3. `_shared/cli-flags.mts` — the usage gate: any flag the entry did not
+   declare exits 2 before a single registry read.
+4. `publish-infra/npm/backfill.mts` — the pure gap-fill gate, consulted only
+   under `--backfill`: which already-cut versions still need a tag/release.
+5. `publish-infra/npm/staged.mts` — stage orchestration (`runStaged` /
+   `runDirect` / `verifyStagedEntry`), which drives in turn
+   `pack-preflight.mts` (hollow-tarball gate) → `pack-manifest.mts` +
+   `_shared/{lifecycle-scripts,pack-files}.mts` (the pure pack surface) →
+   `publish-infra/shared.mts` (the process seam: spawn / PTY / git / JSON) →
+   `publish-infra/npm/registry.mts` (the registry read) →
+   `lib/verify-release-hashes.mts` (byte-verify of the staged entry).
+6. `publish-infra/npm/approve.mts` — promote orchestration (`runApprove`),
+   which drives `login.mts` / `auth-identity.mts` (auth seams: logged-out vs
+   wrong-user repair) → `shared.mts` (the stage-list wire parse, the kit's
+   most safety-critical parser) → `scan.mts` / `threat-scan.mts` (Socket
+   full-scan gate and local threat scan) → `lib/verify-release-hashes.mts`
+   (the three-way hash gate before promote).
+7. `publish-infra/release.mts` — the release tail: `releaseBehindLiveGate`
+   (registry-live gate) → `ensureTagAndRelease` + `extractChangelogSection`,
+   driving `lib/github-git-refs.mts` (the gh seam).
+8. `publish-infra/reconcile.mts` — post-publish git alignment (fetch the
+   published version, find its base sha, rebase/sync onto it).
+9. Failure tail — the healer: `_shared/release-gap-recovery.mts` →
+   `registry-liveness-gate.mjs` (the CI gate job, npm- AND crates-aware) →
+   `github-release.mts` (cuts the immutable release once the registry is live).
+
+The layers the thread crosses:
+
+| Layer           | Home                                                                          | Holds                                                                                                                                   |
+| --------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| 0 kit tooling   | `release-kit/{install,gen-manifest}.mts`, `install/{manifest,plan,seams}.mts` | installer + manifest generator + pure copy planner behind `InstallSeams` (not shipped)                                                  |
+| 1 flow entries  | payload root                                                                  | one CLI per flow; grandfathered residents `npm-web-auth.mts`, `registry-liveness-gate.mjs`(+`.d.mts`), `paths.mts`, `kit-manifest.json` |
+| 2 orchestration | `bootstrap/`, `publish-infra/<flow>/`                                         | read → classify → plan → apply per step/phase                                                                                           |
+| 3 pure logic    | `plan / parse / render / state / config / gates`                              | no `node:{fs,child_process,net,http}`                                                                                                   |
+| 4 effect seams  | `seams.mts`, `shared.mts`, registry / browser / git / gh                      | injectable effects                                                                                                                      |
+| 5 shared homes  | `_shared/` · `lib/` · `constants/` · `util/`                                  | fleet-mirrored · kit-local cross-flow · import-free data · frozen target tables                                                         |
+| 6 templates     | `templates/`                                                                  | adoption docs (comments allowed)                                                                                                        |
+| 7 tests         | `test/repo/**` (never in the payload)                                         | mirror the payload path                                                                                                                 |
+
+The distinction between `_shared/` and `lib/` is provenance, not taste:
+`_shared/` holds ONLY files whose relative path also exists under the fleet's
+`scripts/fleet/_shared/` (fleet-mirrored); `lib/` holds kit-local cross-flow
+logic. This is the fleet's own taxonomy — it is documented, never merged.
+
+Known divergence pending removal: `create-release.mts` +
+`lib/release-checksums/` is a dead second github-release entry (superseded by
+`github-release.mts`); it is grandfathered in the root-entry allowlist below
+until it is deleted fleet-side.
+
+## The naming law
+
+New payload files MUST conform. Rules 1 and 6 are enforced mechanically by
+`scripts/repo/check/release-kit-is-coherent.mts` (which also pins manifest
+freshness, the pure/effects import split, and the no-tests-in-payload rule);
+the remainder is review law. A rename that touches a file whose relative path
+exists under `scripts/fleet/` is done **fleet-first or not at all**.
+
+1. **Entries.** The payload root holds exactly one CLI per flow, named
+   `<flow>-<act>.mts`, act ∈ {`publish`, `release`}: `npm-publish`,
+   `cargo-publish`, `brew-publish`, `github-release`. An entry contains only
+   its usage header, `OPTIONS`, unknown-flag rejection (exit 2), mode
+   dispatch, and the `isMainModule` guard. The only other permitted root
+   residents are the grandfathered `npm-web-auth.mts`,
+   `registry-liveness-gate.mjs`(+`.d.mts`), `paths.mts`, `kit-manifest.json`
+   (and, until deleted, `create-release.mts`). **Nothing else may be added at
+   root.** _(machine-enforced)_
+2. **Tiers.** A flow's implementation lives in `publish-infra/<flow>/` using
+   phase names from the closed set `{registry, staged, approve, placeholder,
+trusted-publisher}`; flow-specific nouns (brew `formula`/`tap`) appear in
+   the layout table. A phase-named file contains only that phase.
+3. **Pure vs effect.** PURE ⇔ imports no `node:{fs,child_process,net,http}`.
+   Pure modules take the nouns `plan / parse / render / state / config /
+gates`. Every injectable effect module is `seams.mts` exporting
+   `<Area>Seams` + `resolve<Area>Seams`; browser lanes are the triple
+   `<subject>-{plan,parse,page}` sharing `browser-session.mts`.
+4. **Gate vocabulary.** A refusal point is a _gate_ — the only sanctioned
+   word. `check` is reserved for CI checks; `law` may name a data constant
+   (`trustedPublisherLaw`) but never a module; `preflight` is reserved to the
+   bootstrap step id and `pack-preflight.mts`.
+5. **Two-phase verbs.** Artifact-promotion flows speak `stage → soak →
+approve` (npm, cargo). Idempotent-convergence flows speak `plan → apply`
+   (bootstrap, install, brew). Never mix the two within a flow; `--dry-run`
+   stays a flag name only.
+6. **Suffixes.** `.mts` always; `.mjs` only when the script must run on system
+   Node before any install (workflow gate jobs, composite-action scripts), and
+   any `.mjs` imported from TypeScript carries a `.d.mts` sidecar.
+   _(machine-enforced)_
+7. **Shared homes (closed list).** `_shared/` = fleet-mirrored (same relative
+   path under `scripts/fleet/_shared/`); `lib/` = kit-local cross-flow;
+   `constants/` = import-free data; `util/` is frozen (no new files).
+8. **Tests mirror paths.** `test/repo/unit/release-kit/<payload-relative-path>.test.mts`
+   (consumers: `tests/socket-release/<payload-relative-path>.test.mts`).
+   Cross-module scenario tests are `<flow>.flow.test.mts`. A new payload
+   module lands with its mirror test in the same commit.
+9. **Parity.** Every file in an adopted channel is byte-identical with the
+   payload — `install.mts --verify` is the oracle.
+10. **Renames.** Any payload rename regenerates `kit-manifest.json`, updates
+    `channelsForPath` when an exact filename is pinned, and updates the
+    coherence check + `shipped-surfaces.mts` + the `skills/socket-release/*`
+    docs in the same commit.
