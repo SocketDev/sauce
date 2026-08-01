@@ -364,9 +364,11 @@ gates`. Every injectable effect module is `seams.mts` exporting
    word. `check` is reserved for CI checks; `law` may name a data constant
    (`trustedPublisherLaw`) but never a module; `preflight` is reserved to the
    bootstrap step id and `pack-preflight.mts`.
-5. **Two-phase verbs.** Artifact-promotion flows speak `stage → soak →
-approve` (npm, cargo). Idempotent-convergence flows speak `plan → apply`
-   (bootstrap, install, brew). Never mix the two within a flow; `--dry-run`
+5. **Two-phase verbs.** Artifact-promotion flows speak `stage → approve`
+   (npm, cargo — crates.io has no dist-tags and no unpublish, so its promote
+   is a permanent one-way approve). Idempotent-convergence flows speak
+   `plan → apply` (bootstrap, install, and brew — a formula bump tied to an
+   already-published release). Never mix the two within a flow; `--dry-run`
    stays a flag name only.
 6. **Suffixes.** `.mts` always; `.mjs` only when the script must run on system
    Node before any install (workflow gate jobs, composite-action scripts), and

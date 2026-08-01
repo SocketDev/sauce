@@ -3,7 +3,7 @@ name: npm-publish
 description:
   Operate the socket-release npm flow end to end — bootstrap a package
   (name reservation, permissive-then-staged-only publishing access, trusted
-  publishing), dispatch a staged publish, soak, promote with --approve,
+  publishing), dispatch a staged publish, promote with --approve,
   backfill an old version, and roll back with deprecate. Use when
   publishing an npm package in a repo carrying scripts/socket-release/.
 ---
