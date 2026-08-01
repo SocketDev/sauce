@@ -3,7 +3,7 @@
     {
       "channels": ["common"],
       "path": "_shared/cli-flags.mts",
-      "sha256": "e4bf7835f96bf7f5bb2ef6e0ccb7ccb5f40a36d6c376b240a0badea18523b05b"
+      "sha256": "21015afa59710c3108905d823f96a7532b3f4e70d707628a45b104e0ce27dbf4"
     },
     {
       "channels": ["common"],
@@ -88,7 +88,7 @@
     {
       "channels": ["common"],
       "path": "bootstrap/seams.mts",
-      "sha256": "232ca15050dd593aff32cbcef10a8c86b2129a25372da82bc57049e2dbf4a42c"
+      "sha256": "4317d2d24284c8508dcf7f31869135bb7295c48b4ef295905fe5bb50667ee137"
     },
     {
       "channels": ["common"],
@@ -198,7 +198,7 @@
     {
       "channels": ["npm"],
       "path": "npm-publish.mts",
-      "sha256": "f3822619d8ee6c4f076eb2587c93fdf228a05806718c5a47669d0b9b7ad70c04"
+      "sha256": "37bc5c5c2e573d9ca27a43c37a8c4315ae8ea302e0b3a3b3f8d6c8c3457e7a09"
     },
     {
       "channels": ["npm"],
@@ -358,7 +358,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/staged.mts",
-      "sha256": "fcef56a9d0138116206b54b9757f9aec0a79f7dcf306b1c0e42d3953e5ae1fa9"
+      "sha256": "28294e81178bcd08f9bfad4d96c9270a7792724a9d8f3a0308ee57912b6b01ce"
     },
     {
       "channels": ["npm"],
@@ -418,7 +418,7 @@
     {
       "channels": ["common"],
       "path": "publish-infra/shared.mts",
-      "sha256": "c637130250f63887b61f0fd1aaed2022dfe99035baf88dc416347f53e80173cc"
+      "sha256": "075168aa1abfb30e042c68f4ec4fb17196ccde3515557348d4b0abb918e7b040"
     },
     {
       "channels": ["npm"],
@@ -443,7 +443,7 @@
     {
       "channels": ["brew"],
       "path": "templates/actions/socket-release-app-token/mint-app-installation-token.mjs",
-      "sha256": "60839cfc9e7faab4424873c690e071fe7c9927662d31dfd3443f5b4679c7fcfe"
+      "sha256": "2f95db9b0dd6aa964cf6b58cab57c805ae61db85c9ff9a506f7385ab4ea3d97e"
     },
     {
       "channels": ["common"],

@@ -38,6 +38,7 @@ import {
   fetchPublishedState,
   isAlreadyPublished,
 } from './registry.mts'
+import type { PublishedState } from './registry.mts'
 import type { StageListEntry } from './shared.mts'
 import {
   isStagingExpected,
@@ -258,16 +259,29 @@ export async function runStaged(
  */
 export async function runDirect(
   tag: string,
-  config: { dryRun: boolean },
+  config: {
+    dryRun: boolean
+    ensureAlreadyPublishedRelease?:
+      | ((pkg: { name: string; version: string }) => Promise<boolean>)
+      | undefined
+    fetchPublished?: ((name: string) => Promise<PublishedState>) | undefined
+    root?: string | undefined
+  },
 ): Promise<void> {
-  const { dryRun } = { __proto__: null, ...config } as typeof config
+  const {
+    dryRun,
+    ensureAlreadyPublishedRelease,
+    fetchPublished,
+    root: rootOverride,
+  } = { __proto__: null, ...config } as typeof config
+  const root = rootOverride ?? rootPath
   // Multi-package workspace: same delegation as runStaged.
-  const layout = resolveNpmWorkspaceLayout(rootPath)
+  const layout = resolveNpmWorkspaceLayout(root)
   if (layout.kind === 'multi') {
     await runWorkspacePublish('direct', tag, layout, { dryRun })
     return
   }
-  const pkg = resolveReleaseSubject(rootPath)
+  const pkg = resolveReleaseSubject(root)
   logger.log(
     `Direct-publishing ${pkg.name}@${pkg.version} (tag=${tag})${dryRun ? ' [dry-run]' : ''}`,
   )
@@ -276,7 +290,7 @@ export async function runDirect(
   // target is already live. If it is, re-publishing errors; skip the upload and
   // heal idempotently — ensure the tag + GH release exist behind the liveness
   // gate — instead of failing.
-  const published = await fetchPublishedState(pkg.name)
+  const published = await (fetchPublished ?? fetchPublishedState)(pkg.name)
   if (
     stageAction({
       publishedLatest: published.latest,
@@ -284,14 +298,28 @@ export async function runDirect(
       target: pkg.version,
     }) === 'already-published'
   ) {
+    if (dryRun) {
+      logger.log(
+        `[dry-run] ${pkg.name}@${pkg.version} already published — would ensure ` +
+          `the tag + GitHub release exist (no writes).`,
+      )
+      return
+    }
     logger.success(
       `${pkg.name}@${pkg.version} already published — nothing to publish; ` +
         `ensuring the tag + GH release exist.`,
     )
-    const released = await releaseBehindLiveGate({
-      isLive: () => isAlreadyPublished(pkg.name, pkg.version),
-      pkg: { name: pkg.name, version: pkg.version },
-      registry: 'npm',
+    const ensureRelease =
+      ensureAlreadyPublishedRelease ??
+      ((target: { name: string; version: string }) =>
+        releaseBehindLiveGate({
+          isLive: () => isAlreadyPublished(target.name, target.version),
+          pkg: target,
+          registry: 'npm',
+        }))
+    const released = await ensureRelease({
+      name: pkg.name,
+      version: pkg.version,
     })
     if (!released) {
       process.exitCode = 1

@@ -15,6 +15,7 @@ import { describe, expect, it } from 'vitest'
 
 import { packumentUrl } from '../../../../../../release-kit/payload/scripts/socket-release/constants/npm-registry.mts'
 import {
+  unexpectedPositionalsMessage,
   unknownFlags,
   unknownFlagsMessage,
 } from '../../../../../../release-kit/payload/scripts/socket-release/_shared/cli-flags.mts'
@@ -22,10 +23,16 @@ import {
   readPublishConfigAccess,
   resolveNpmAccess,
 } from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/shared.mts'
-import { stageAction } from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/staged.mts'
+import {
+  runDirect,
+  stageAction,
+} from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/staged.mts'
 import { readStagedShasum } from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/shared.mts'
 import { extractChangelogSection } from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/release.mts'
-import { parsePublishArgs } from '../../../../../../release-kit/payload/scripts/socket-release/npm-publish.mts'
+import {
+  parsePublishArgs,
+  parsePublishArgv,
+} from '../../../../../../release-kit/payload/scripts/socket-release/npm-publish.mts'
 
 describe('resolveNpmAccess', () => {
   it('honors the kit config over everything', () => {
@@ -151,6 +158,76 @@ describe('unknownFlags', () => {
   it('renders each unknown flag with leading dashes', () => {
     expect(unknownFlagsMessage(['dryrun'])).toBe('Unknown flag: --dryrun')
     expect(unknownFlagsMessage(['x', 'yy'])).toBe('Unknown flags: -x, --yy')
+  })
+})
+
+describe('unexpectedPositionalsMessage', () => {
+  it('names the stray token(s) and hints the dropped dashes', () => {
+    expect(unexpectedPositionalsMessage(['approve'])).toBe(
+      'Unexpected argument: approve (did you drop a leading --?)',
+    )
+    expect(unexpectedPositionalsMessage(['a', 'b'])).toBe(
+      'Unexpected arguments: a, b (did you drop a leading --?)',
+    )
+  })
+})
+
+describe('parsePublishArgv captures stray positionals (dash-less mode typos)', () => {
+  it('folds a bare `approve` into positionals instead of a silent --staged fallthrough', () => {
+    const { positionals } = parsePublishArgv(['approve'])
+    expect(positionals).toEqual(['approve'])
+  })
+
+  it('separates a trailing positional from a real flag value', () => {
+    const { positionals } = parsePublishArgv(['--tag', 'latest', 'stray'])
+    expect(positionals).toEqual(['stray'])
+  })
+
+  it('reports no positionals for a well-formed flag-only invocation', () => {
+    expect(parsePublishArgv(['--staged', '--dry-run']).positionals).toEqual([])
+  })
+})
+
+describe('runDirect --dry-run on an already-published version', () => {
+  function tempRepo(version: string): string {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'kit-direct-'))
+    writeFileSync(
+      path.join(dir, 'package.json'),
+      JSON.stringify({ name: '@scope/pkg', version }),
+    )
+    return dir
+  }
+  const alreadyPublished = async () => ({
+    latest: '1.0.0',
+    versions: ['1.0.0'],
+  })
+
+  it('never touches the tag + GitHub release gate (no remote mutations)', async () => {
+    let releaseCalls = 0
+    await runDirect('latest', {
+      dryRun: true,
+      root: tempRepo('1.0.0'),
+      fetchPublished: alreadyPublished,
+      ensureAlreadyPublishedRelease: async () => {
+        releaseCalls += 1
+        return true
+      },
+    })
+    expect(releaseCalls).toBe(0)
+  })
+
+  it('runs the release gate for a real (non-dry-run) already-published direct publish', async () => {
+    let releaseCalls = 0
+    await runDirect('latest', {
+      dryRun: false,
+      root: tempRepo('1.0.0'),
+      fetchPublished: alreadyPublished,
+      ensureAlreadyPublishedRelease: async () => {
+        releaseCalls += 1
+        return true
+      },
+    })
+    expect(releaseCalls).toBe(1)
   })
 })
 

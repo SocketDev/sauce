@@ -218,7 +218,7 @@ export function runCapture(
   args: string[],
   cwd: string,
 ): Promise<{ stdout: string; code: number }> {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     const childPromise = spawn(cmd, args, {
       cwd,
       shell: WIN32,
@@ -236,7 +236,10 @@ export function runCapture(
     child.stdout?.on('data', (chunk: Buffer) => {
       stdout += chunk.toString('utf8')
     })
-    child.on('error', reject)
+    child.on('error', (e: Error) => {
+      process.stderr.write(`spawn ${cmd} failed: ${e.message}\n`)
+      resolve({ stdout, code: 127 })
+    })
     child.on('exit', code => {
       resolve({ stdout, code: code ?? 0 })
     })

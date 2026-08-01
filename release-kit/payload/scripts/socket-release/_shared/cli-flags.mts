@@ -40,3 +40,15 @@ export function unknownFlagsMessage(unknown: readonly string[]): string {
     .join(', ')
   return `Unknown flag${unknown.length === 1 ? '' : 's'}: ${flags}`
 }
+
+/**
+ * The one-line refusal for stray positionals. @socketsecurity/lib parseArgs
+ * folds a dash-less token into `positionals` without throwing even under
+ * allowPositionals:false, so a mode typo like `approve` (for `--approve`) would
+ * otherwise fall through to the default publish path.
+ */
+export function unexpectedPositionalsMessage(
+  positionals: readonly string[],
+): string {
+  return `Unexpected argument${positionals.length === 1 ? '' : 's'}: ${positionals.join(', ')} (did you drop a leading --?)`
+}

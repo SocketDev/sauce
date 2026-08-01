@@ -73,7 +73,7 @@ async function execCapture(
   args: string[],
   cwd: string,
 ): Promise<ExecResult> {
-  return await new Promise((resolve, reject) => {
+  return await new Promise(resolve => {
     const childPromise = spawn(cmd, args, {
       cwd,
       shell: process.platform === 'win32',
@@ -91,7 +91,13 @@ async function execCapture(
     child.stderr?.on('data', (chunk: Buffer) => {
       stderr += chunk.toString('utf8')
     })
-    child.on('error', reject)
+    child.on('error', (e: Error) => {
+      resolve({
+        code: 127,
+        stderr: stderr || `spawn ${cmd} failed: ${e.message}`,
+        stdout,
+      })
+    })
     child.on('exit', code => {
       resolve({ code: code ?? 0, stderr, stdout })
     })

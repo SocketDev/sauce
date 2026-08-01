@@ -78,7 +78,11 @@ import {
   extractChangelogSection,
 } from './publish-infra/release.mts'
 import { logger, rootPath } from './publish-infra/shared.mts'
-import { unknownFlags, unknownFlagsMessage } from './_shared/cli-flags.mts'
+import {
+  unexpectedPositionalsMessage,
+  unknownFlags,
+  unknownFlagsMessage,
+} from './_shared/cli-flags.mts'
 import { isMainModule } from './_shared/is-main-module.mts'
 
 export {
@@ -106,20 +110,39 @@ const OPTIONS = {
   yes: { default: false, type: 'boolean' },
 } as const
 
-export function parsePublishArgs(
+export function parsePublishArgv(
   args: readonly string[] = process.argv.slice(2),
-): Record<string, unknown> {
-  return parseArgs({
+): { positionals: string[]; values: Record<string, unknown> } {
+  const parsed = parseArgs({
     args,
     options: OPTIONS,
     allowPositionals: false,
     strict: false,
     configuration: { 'boolean-negation': false },
-  }).values
+  })
+  return {
+    positionals: parsed.positionals as string[],
+    values: parsed.values as Record<string, unknown>,
+  }
+}
+
+export function parsePublishArgs(
+  args: readonly string[] = process.argv.slice(2),
+): Record<string, unknown> {
+  return parsePublishArgv(args).values
 }
 
 async function main(): Promise<void> {
-  const values = parsePublishArgs()
+  const { positionals, values } = parsePublishArgv()
+
+  if (positionals.length > 0) {
+    logger.fail(unexpectedPositionalsMessage(positionals))
+    logger.error(
+      'Usage: node scripts/socket-release/npm-publish.mts [--staged | --approve | --direct] [--dry-run] [--otp <code>] [--yes]',
+    )
+    process.exitCode = 2
+    return
+  }
 
   const unknown = unknownFlags(values, Object.keys(OPTIONS))
   if (unknown.length > 0) {

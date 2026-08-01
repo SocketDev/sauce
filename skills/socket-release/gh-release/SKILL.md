@@ -25,13 +25,14 @@ cuts the release. Nothing to run by hand when that succeeds.
 
 ## Cutting a release with assets
 
-`create-release.mts` performs the fleet-canonical three-step immutable cut —
-`gh release create --draft --verify-tag` → upload assets → `gh release edit
---draft=false` — and writes a sha256-hex `checksums.txt` (the manifest the
-brew channel treats as its sha256 authority):
+`github-release.mts --release` performs the fleet-canonical three-step immutable
+cut — `gh release create --draft --verify-tag` → upload assets → `gh release
+edit --draft=false` — and writes a `checksums.txt` manifest (sha1 + sha256 +
+sha512) alongside the tarball, so the GitHub-release digest stays directly
+comparable to the npm published shasum:
 
 ```
-node scripts/socket-release/create-release.mts --help
+node scripts/socket-release/github-release.mts --tag vX.Y.Z --release
 ```
 
 Never hand-run `gh release create` without `--draft`: the release goes

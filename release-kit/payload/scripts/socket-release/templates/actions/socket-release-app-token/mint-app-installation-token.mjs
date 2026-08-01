@@ -11,9 +11,9 @@
  * org installation -> an installation token scoped by the PERMISSIONS env. The
  * token is masked, then handed back via $GITHUB_OUTPUT. Least-privilege is the
  * fleet check's contract, not GitHub's: zizmor's github-app audit recognizes
- * create-github-app-token's `permission-*` inputs, not this minter, so
- * scripts/socket-release/check/app-tokens-are-scoped.mts is the sole enforcement that
- * every action passes a scoped (non-blank) PERMISSIONS.
+ * create-github-app-token's `permission-*` inputs, not this minter, so a
+ * dedicated fleet CI check is the sole enforcement that every action passes a
+ * scoped (non-blank) PERMISSIONS.
  *
  * Env:
  *   CLIENT_ID       (required) the GitHub App Client ID
