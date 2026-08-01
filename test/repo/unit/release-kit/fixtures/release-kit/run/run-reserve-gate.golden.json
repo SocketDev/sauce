@@ -1,0 +1,178 @@
+{
+  "exitCode": 3,
+  "kit": {
+    "name": "socket-release-kit",
+    "version": "0.1.0"
+  },
+  "mode": "apply",
+  "nextCommand": "node scripts/socket-release/bootstrap.mts placeholder --apply --reserve @socketsecurity/example-lib",
+  "nextStep": "placeholder",
+  "package": {
+    "access": "restricted",
+    "name": "@socketsecurity/example-lib",
+    "version": "1.0.0"
+  },
+  "repo": {
+    "defaultBranch": "main",
+    "root": "/tmp/npm-lib",
+    "slug": "SocketDev/example-lib",
+    "visibility": "private"
+  },
+  "requestedSteps": [
+    "preflight",
+    "placeholder",
+    "npm-access-permissive",
+    "github-env",
+    "staged-config",
+    "trusted-publisher",
+    "npm-access-staged-only",
+    "verify"
+  ],
+  "schemaVersion": 1,
+  "state": {
+    "path": ".cache/socket-release/bootstrap-state.json",
+    "receipts": {
+      "preflight": {
+        "at": "<at>",
+        "detail": "all preflight checks pass",
+        "dryRun": false,
+        "status": "passed"
+      },
+      "placeholder": {
+        "at": "<at>",
+        "detail": "@socketsecurity/example-lib is unclaimed on npm — reserving it publishes a real 0.0.0 placeholder.",
+        "dryRun": false,
+        "status": "blocked"
+      }
+    }
+  },
+  "steps": [
+    {
+      "already": true,
+      "checks": [
+        {
+          "fix": null,
+          "id": "node-version",
+          "ok": true,
+          "saw": "<node-version>",
+          "wanted": "node >= 22.18 (native .mts execution)"
+        },
+        {
+          "fix": null,
+          "id": "git-origin-github",
+          "ok": true,
+          "saw": "https://github.com/SocketDev/example-lib.git",
+          "wanted": "https://github.com/<owner>/<repo>(.git) or git@github.com:<owner>/<repo>(.git)"
+        },
+        {
+          "fix": null,
+          "id": "default-branch",
+          "ok": true,
+          "saw": "default branch main, visibility private",
+          "wanted": "a readable repo with a default branch"
+        },
+        {
+          "fix": null,
+          "id": "provenance-expectation",
+          "ok": true,
+          "saw": "private repo — provenance disabled (npm rejects private-repo attestations); staged publishing still works",
+          "wanted": "informational"
+        },
+        {
+          "fix": null,
+          "id": "package-manifest",
+          "ok": true,
+          "saw": "name @socketsecurity/example-lib, version 1.0.0, files present, packageManager pnpm@11.17.0",
+          "wanted": "name + version + non-empty files + packageManager matching ^pnpm@X.Y.Z$"
+        },
+        {
+          "fix": null,
+          "id": "pnpm-stage-support",
+          "ok": true,
+          "saw": "pnpm help stage exited 0",
+          "wanted": "exit 0 (staged publishing supported)"
+        },
+        {
+          "fix": null,
+          "id": "npm-trust-support",
+          "ok": true,
+          "saw": "npm trust --help exited 0",
+          "wanted": "exit 0 (npm trust available)"
+        },
+        {
+          "fix": null,
+          "id": "gh-auth",
+          "ok": true,
+          "saw": "gh auth status exited 0",
+          "wanted": "exit 0 (gh authenticated)"
+        },
+        {
+          "fix": null,
+          "id": "kit-deps-resolvable",
+          "ok": true,
+          "saw": "all three kit dependencies resolve",
+          "wanted": "@socketsecurity/lib + @socketsecurity/sdk + playwright-core resolvable from the repo root"
+        },
+        {
+          "fix": null,
+          "id": "registry-reachable",
+          "ok": true,
+          "saw": "unpublished",
+          "wanted": "a 200 packument or a definitive 404"
+        },
+        {
+          "fix": null,
+          "id": "access-resolved",
+          "ok": true,
+          "saw": "restricted",
+          "wanted": "public or restricted"
+        }
+      ],
+      "detail": "all preflight checks pass",
+      "durationMs": 0,
+      "effects": [],
+      "gate": null,
+      "status": "passed",
+      "step": "preflight"
+    },
+    {
+      "already": false,
+      "checks": [
+        {
+          "fix": null,
+          "id": "registry-name-unclaimed",
+          "ok": true,
+          "saw": "definitive 404 — the name is unclaimed",
+          "wanted": "a definitive registry answer"
+        }
+      ],
+      "detail": "@socketsecurity/example-lib is unclaimed on npm — reserving it publishes a real 0.0.0 placeholder.",
+      "durationMs": 0,
+      "effects": [
+        {
+          "applied": false,
+          "description": "publish @socketsecurity/example-lib@0.0.0 --access restricted via npm-web-auth PTY (placeholder package: package.json + one-line README, files: [])",
+          "kind": "registry-publish"
+        },
+        {
+          "applied": false,
+          "description": "ensure publishing access PERMISSIVE (direct + staged) on @socketsecurity/example-lib while the placeholder is pending",
+          "kind": "npm-access"
+        }
+      ],
+      "gate": {
+        "lines": [
+          "🖐  HUMAN GATE — reserve name [1/1]",
+          "  Need: @socketsecurity/example-lib is unclaimed on npm; reserving it publishes a real 0.0.0 placeholder (access restricted).",
+          "  Mind: publishing @socketsecurity/example-lib@0.0.0 is irreversible — the version is burned forever and unpublish closes after 72h — so no default run performs it; --reserve must name the exact package.",
+          "  A) You: run `node scripts/socket-release/bootstrap.mts placeholder --apply --reserve @socketsecurity/example-lib` yourself.",
+          "  B) Me: say \"reserve the name\" and I run `node scripts/socket-release/bootstrap.mts placeholder --apply --reserve @socketsecurity/example-lib` through its PTY — npm's web-2FA opens in your browser, I wait.",
+          "  Then: the bootstrap resumes at placeholder and continues to the remaining steps."
+        ],
+        "name": "reserve name"
+      },
+      "status": "blocked",
+      "step": "placeholder"
+    }
+  ]
+}

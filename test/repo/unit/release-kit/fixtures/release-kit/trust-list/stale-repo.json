@@ -1,0 +1,9 @@
+{
+  "_note": "synthetic — a config bound to the wrong repository (fleet trust-sweep observations, 2026-07-31)",
+  "type": "github",
+  "file": "npm-publish.yml",
+  "repository": "SocketDev/other-repo",
+  "environment": "npm-publish",
+  "permissions": ["createPackage", "createStagedPackage"],
+  "id": "tp-002"
+}

@@ -1,0 +1,5 @@
+{
+  "_note": "synthetic — the deployment-branch-policies list for restricted.json",
+  "total_count": 1,
+  "branch_policies": [{ "id": 2, "name": "main", "type": "branch" }]
+}

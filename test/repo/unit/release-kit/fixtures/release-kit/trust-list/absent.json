@@ -1,0 +1,4 @@
+{
+  "_note": "synthetic — clean exit without config is plain text, not JSON; this file records the stdout shape",
+  "stdout": "No trusted publishers configured for this package.\n"
+}
