@@ -1,0 +1,13 @@
+{
+  "name": "examplecli",
+  "version": "1.2.3",
+  "description": "Example CLI consumer for socket-release-kit with a Homebrew tap channel.",
+  "license": "MIT",
+  "bin": {
+    "examplecli": "bin/examplecli.js"
+  },
+  "files": [
+    "bin"
+  ],
+  "packageManager": "pnpm@11.17.0"
+}

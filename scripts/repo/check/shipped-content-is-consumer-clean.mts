@@ -23,6 +23,7 @@ import {
   FLEET_INTERNAL_MARKERS,
   SCAFFOLDING_ENTRIES,
   SHIPPED_DIRS,
+  SHIPPED_MARKER_ALLOWLIST,
   SHIPPED_ROOT_FILES,
 } from '../constants/shipped-surfaces.mts'
 
@@ -52,6 +53,18 @@ export function findUnclassifiedEntries(tracked: string[]): string[] {
   return [...topLevel].filter(entry => !classified.has(entry)).toSorted()
 }
 
+/**
+ * True when `marker` appearing in `rel` is a documented carve-out rather than
+ * a leak — see SHIPPED_MARKER_ALLOWLIST for why each pair is load-bearing.
+ */
+export function isAllowlistedMarker(rel: string, marker: string): boolean {
+  return SHIPPED_MARKER_ALLOWLIST.some(
+    entry =>
+      entry.marker === marker &&
+      (entry.paths as readonly string[]).includes(rel),
+  )
+}
+
 export function findFleetLeaks(tracked: string[]): string[] {
   const leaks: string[] = []
   const shipped = tracked.filter(f =>
@@ -66,6 +79,9 @@ export function findFleetLeaks(tracked: string[]): string[] {
       m += 1
     ) {
       const marker = FLEET_INTERNAL_MARKERS[m]!
+      if (isAllowlistedMarker(rel, marker)) {
+        continue
+      }
       const idx = content.indexOf(marker)
       if (idx !== -1) {
         const line = content.slice(0, idx).split('\n').length

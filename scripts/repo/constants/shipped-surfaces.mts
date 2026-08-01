@@ -11,7 +11,7 @@
 /**
  * Trees consumers install or copy — Socket-integration content only.
  */
-export const SHIPPED_DIRS = ['agents', 'skills'] as const
+export const SHIPPED_DIRS = ['agents', 'release-kit', 'skills'] as const
 
 /**
  * Consumer-facing manifests and adapters at the root: generated for the
@@ -54,6 +54,23 @@ export const SCAFFOLDING_ENTRIES = [
   'test',
   'tests',
   'tsconfig.json',
+] as const
+
+/**
+ * Narrow carve-outs from {@link FLEET_INTERNAL_MARKERS}: an exact
+ * marker/path pair whose appearance in a shipped file is load-bearing, with
+ * the reason it cannot be renamed. Anything not listed here is a leak.
+ */
+export const SHIPPED_MARKER_ALLOWLIST = [
+  {
+    marker: 'socket-wheelhouse',
+    paths: [
+      'release-kit/payload/scripts/socket-release/_shared/playwright-law.mts',
+      'release-kit/payload/scripts/socket-release/publish-infra/npm/browser-session.mts',
+      'release-kit/payload/scripts/socket-release/publish-infra/npm/trusted-publisher-browser.mts',
+    ],
+    why: 'the ONE durable Chrome profile every Socket npm browser tool shares lives at ~/.config/socket-wheelhouse/staged-browser-profile; renaming it would sign every already-authenticated operator out.',
+  },
 ] as const
 
 /**

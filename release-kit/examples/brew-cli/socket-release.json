@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "channels": ["npm", "github-release", "brew"],
+  "npm": { "access": "public", "distTag": "latest" },
+  "brew": {
+    "tap": "SocketDev/socket",
+    "formula": "examplecli",
+    "assetTemplate": "<name>-<triplet>.tar.gz",
+    "triplets": ["darwin-arm64", "darwin-x64", "linux-arm64", "linux-x64"]
+  }
+}
