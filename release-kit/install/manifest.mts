@@ -85,6 +85,31 @@ export function filterByChannels(
 }
 
 /**
+ * Whether a manifest path is a safe payload-relative destination: no absolute
+ * root, no drive letter, no `..` or empty segment that could escape the
+ * `scripts/socket-release/` install prefix. A manifest that fails this must
+ * never drive a copy — the installer joins the path under the target root, so
+ * an unchecked `../` would clobber files outside the target.
+ */
+export function isSafePayloadPath(rel: string): boolean {
+  if (typeof rel !== 'string' || rel === '') {
+    return false
+  }
+  const normalized = rel.replaceAll('\\', '/')
+  if (normalized.startsWith('/') || /^[A-Za-z]:/.test(normalized)) {
+    return false
+  }
+  const segments = normalized.split('/')
+  for (let i = 0, { length } = segments; i < length; i += 1) {
+    const seg = segments[i]!
+    if (seg === '' || seg === '..') {
+      return false
+    }
+  }
+  return true
+}
+
+/**
  * Parse a `--channels` flag value. Throws on unknown names with the exact
  * valid set.
  */
@@ -191,6 +216,17 @@ export function parseKitManifest(raw: string, where: string): KitManifest {
           `  Where: ${where}`,
           `  Saw: ${JSON.stringify(f)}`,
           '  Wanted: {path, sha256 (64 hex), channels (non-empty)}',
+          '  Fix: node release-kit/gen-manifest.mts',
+        ].join('\n'),
+      )
+    }
+    if (!isSafePayloadPath(f.path)) {
+      throw new Error(
+        [
+          `Kit manifest files[${i}] has an unsafe path.`,
+          `  Where: ${where}`,
+          `  Saw: ${JSON.stringify(f.path)}`,
+          '  Wanted: a payload-relative path with no absolute root, drive letter, or ".." segment',
           '  Fix: node release-kit/gen-manifest.mts',
         ].join('\n'),
       )

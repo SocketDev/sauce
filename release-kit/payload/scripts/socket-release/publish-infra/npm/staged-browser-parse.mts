@@ -119,7 +119,8 @@ export function parseStagedPayload(
   body: string,
   packageFilter?: string | undefined,
 ): StagedPayload {
-  const payload = JSON.parse(body) as {
+  const parsed: unknown = JSON.parse(body)
+  const payload = (parsed && typeof parsed === 'object' ? parsed : {}) as {
     approveURL?: unknown | undefined
     csrftoken?: unknown | undefined
     rejectURL?: unknown | undefined

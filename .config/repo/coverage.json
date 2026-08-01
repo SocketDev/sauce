@@ -1,0 +1,10 @@
+{
+  "include": ["release-kit/**/*.mts", "release-kit/**/*.mjs"],
+  "exclude": {
+    "add": [
+      "release-kit/examples/**",
+      "release-kit/**/*.d.mts",
+      "release-kit/payload/scripts/socket-release/templates/**"
+    ]
+  }
+}

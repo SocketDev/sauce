@@ -343,7 +343,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/staged-browser-parse.mts",
-      "sha256": "18412c361ef69b10875333df4aad4263884b04a832a6f6f95dd56d247f73e6f9"
+      "sha256": "3bddb49a910fbd78288cb35a19fc13fea28198ee814fb9f1dddaae38b94bd0d8"
     },
     {
       "channels": ["npm"],
