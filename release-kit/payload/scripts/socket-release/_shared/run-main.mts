@@ -5,9 +5,8 @@
  *   MESSAGE, never a stack, and the process exits non-zero. `main()` may return
  *   its exit code (or nothing → 0). This replaces the bare `void (async () => {
  *   process.exitCode = await main() })()` entry pattern, which crashes with a
- *   raw stack if `main()` throws. Enforced by
- *   `scripts/socket-release/check/entry-scripts-are-fail-soft.mts` (a fleet CLI
- *   entry must fail soft — never hard-crash the user).
+ *   raw stack if `main()` throws. The contract: a fleet CLI entry must fail
+ *   soft — never hard-crash the user with a raw stack.
  */
 
 import process from 'node:process'

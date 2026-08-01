@@ -13,7 +13,10 @@ import process from 'node:process'
 import { httpRequest } from '@socketsecurity/lib/http-request'
 import { sleep } from '@socketsecurity/lib/promises/timers'
 
-import { NPM_REGISTRY_URL } from '../../constants/npm-registry.mts'
+import {
+  NPM_AUTH_TOKEN_KEY,
+  NPM_REGISTRY_URL,
+} from '../../constants/npm-registry.mts'
 import { npmScratchCwd } from './shared.mts'
 import { logger, runCapture, runInherit } from '../shared.mts'
 
@@ -85,12 +88,7 @@ async function webLogin(scratchCwd: string): Promise<boolean> {
       // cwd, so the scratch cwd never redirects where the token lands.
       const { code } = await runCapture(
         'npm',
-        [
-          'config',
-          'set',
-          `//registry.npmjs.org/:_authToken=${token}`,
-          '--location=user',
-        ],
+        ['config', 'set', `${NPM_AUTH_TOKEN_KEY}=${token}`, '--location=user'],
         npmScratchCwd(),
       )
       if (code !== 0) {

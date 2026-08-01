@@ -13,26 +13,21 @@ import type {
   AccessPageState,
   TrustedPublisherCurrent,
 } from './trusted-publisher-parse.mts'
+import { trustedPublisherLaw } from './trust-sweep.mts'
 
-// --- The canonical desired config: LAW AS DATA -----------------------------
-//
-// The law is the OBSERVED working shape of @socketsecurity/odai and
-// @socketsecurity/lib — the two packages that publish successfully through
-// the staged flow today — never a guess. Provenance, 2026-07-30: the fleet's
-// publish surface pins workflow `npm-publish.yml` and the branch-restricted
-// `npm-publish` environment; the staged flow stages via `npm stage publish`
-// and the approve step promotes via plain `npm publish`, so BOTH actions are
-// expected allowed. The confirming live `read` against odai + lib did not
-// complete at authoring time — the durable profile had no npm sign-in within
-// the wait budget — so BEFORE the first live sweep, run:
-//   node scripts/socket-release/publish-infra/npm/trusted-publisher-browser.mts \
-//     read @socketsecurity/odai @socketsecurity/lib
-// and reconcile any delta here (dated) before trusting `apply --drive`.
+// The canonical desired config is derived from the ONE law
+// (`trustedPublisherLaw`), so the browser plan and the registry sweep can
+// never assert different desired shapes. `createPackage` maps to plain
+// `npm publish`, `createStagedPackage` to `npm stage publish` — both allowed.
+const LAW = trustedPublisherLaw('')
 
-export const CANONICAL_WORKFLOW_FILENAME = 'npm-publish.yml'
-export const CANONICAL_ENVIRONMENT_NAME = 'npm-publish'
-export const CANONICAL_ALLOW_NPM_PUBLISH = true
-export const CANONICAL_ALLOW_NPM_STAGE_PUBLISH = true
+export const CANONICAL_WORKFLOW_FILENAME = LAW.file
+export const CANONICAL_ENVIRONMENT_NAME = LAW.environment
+export const CANONICAL_ALLOW_NPM_PUBLISH =
+  LAW.permissions.includes('createPackage')
+export const CANONICAL_ALLOW_NPM_STAGE_PUBLISH = LAW.permissions.includes(
+  'createStagedPackage',
+)
 
 // The pre-rename legacy workflow filename still stored on stale fleet
 // configs (seen on @socketregistry/es-iterator-helpers, 2026-07-29). A config

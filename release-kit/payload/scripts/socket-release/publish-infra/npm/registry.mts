@@ -8,7 +8,7 @@ import crypto from 'node:crypto'
 
 import { httpJson, HttpResponseError } from '@socketsecurity/lib/http-request'
 
-import { NPM_REGISTRY_URL } from '../../constants/npm-registry.mts'
+import { packumentUrl } from '../../constants/npm-registry.mts'
 
 import type { RegistryLatestRead } from '../../lib/release-anchor.mts'
 
@@ -54,7 +54,7 @@ export function cacheBustedRead(
 export async function fetchLatestPublishedVersionChecked(
   name: string,
 ): Promise<RegistryLatestRead> {
-  const url = `${NPM_REGISTRY_URL}/${encodeURIComponent(name).replace('%40', '@')}`
+  const url = packumentUrl(name)
   const read = cacheBustedRead(url, 'application/vnd.npm.install-v1+json')
   try {
     const json = await httpJson<{
@@ -115,7 +115,7 @@ export interface RegistryReleaseState {
 export async function fetchRegistryReleaseState(
   name: string,
 ): Promise<RegistryReleaseState | undefined> {
-  const url = `${NPM_REGISTRY_URL}/${encodeURIComponent(name).replace('%40', '@')}`
+  const url = packumentUrl(name)
   // Full packument — the abbreviated install-v1 format drops `time`.
   const read = cacheBustedRead(url, 'application/json')
   try {
@@ -153,7 +153,7 @@ export async function isAlreadyPublished(
   name: string,
   version: string,
 ): Promise<boolean> {
-  const url = `${NPM_REGISTRY_URL}/${encodeURIComponent(name).replace('%40', '@')}`
+  const url = packumentUrl(name)
   const read = cacheBustedRead(url, 'application/vnd.npm.install-v1+json')
   try {
     const json = await httpJson<{
@@ -185,7 +185,7 @@ export interface PublishedState {
 export async function fetchPublishedState(
   name: string,
 ): Promise<PublishedState> {
-  const url = `${NPM_REGISTRY_URL}/${encodeURIComponent(name).replace('%40', '@')}`
+  const url = packumentUrl(name)
   const read = cacheBustedRead(url, 'application/vnd.npm.install-v1+json')
   try {
     const json = await httpJson<{
@@ -273,7 +273,7 @@ export async function fetchVersionTrustInfo(
   name: string,
   variant: 'abbreviated' | 'full' = 'abbreviated',
 ): Promise<Record<string, RegistryVersionInfo>> {
-  const url = `${NPM_REGISTRY_URL}/${encodeURIComponent(name).replace('%40', '@')}`
+  const url = packumentUrl(name)
   let json: {
     versions?:
       | Record<

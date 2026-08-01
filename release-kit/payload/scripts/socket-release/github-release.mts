@@ -28,16 +28,26 @@ import {
 import { logger } from './publish-infra/shared.mts'
 
 async function main(): Promise<void> {
-  const { values } = parseArgs({
-    allowPositionals: false,
-    args: process.argv.slice(2),
-    options: {
-      help: { type: 'boolean' },
-      release: { type: 'boolean' },
-      tag: { type: 'string' },
-    },
-    strict: true,
-  })
+  let values: { help?: boolean; release?: boolean; tag?: string }
+  try {
+    ;({ values } = parseArgs({
+      allowPositionals: false,
+      args: process.argv.slice(2),
+      options: {
+        help: { type: 'boolean' },
+        release: { type: 'boolean' },
+        tag: { type: 'string' },
+      },
+      strict: true,
+    }))
+  } catch (e) {
+    logger.fail(errorMessage(e))
+    logger.error(
+      'Usage: node scripts/socket-release/github-release.mts [--tag vX.Y.Z] [--release]',
+    )
+    process.exitCode = 2
+    return
+  }
   if (values.help) {
     logger.log(
       'Usage: node scripts/socket-release/github-release.mts [--tag vX.Y.Z] [--release]',

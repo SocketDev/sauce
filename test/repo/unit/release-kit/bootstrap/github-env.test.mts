@@ -194,7 +194,7 @@ describe('apply (idempotency via exec recorder)', () => {
     )
     const plan = githubEnv.plan(detection, ctx)
     const fake = fakeSeams({
-      exec: (cmd, args) =>
+      exec: (_cmd, args) =>
         args.includes('--jq')
           ? { code: 0, stderr: '', stdout: '["main"]' }
           : { code: 0, stderr: '', stdout: '{}' },

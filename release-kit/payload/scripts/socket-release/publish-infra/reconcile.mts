@@ -14,7 +14,7 @@
  *     tree matches the freshly-released remote.
  */
 
-import { NPM_REGISTRY_URL } from '../constants/npm-registry.mts'
+import { packumentUrl } from '../constants/npm-registry.mts'
 import { fetchLatestPublishedVersion } from './npm/registry.mts'
 import { logger, runCapture } from './shared.mts'
 
@@ -29,7 +29,7 @@ export async function fetchPublishedVersion(name: string): Promise<string> {
   if (!latest) {
     throw new Error(
       `reconcile: could not read the published version of ${name}.\n` +
-        `  Where: ${NPM_REGISTRY_URL}/${encodeURIComponent(name).replace('%40', '@')}\n` +
+        `  Where: ${packumentUrl(name)}\n` +
         `  Saw: no dist-tags.latest (registry unreachable, or first publish / dist-tag lag)\n` +
         `  Fix: check network / registry reachability, then re-run — or --no-reconcile.`,
     )

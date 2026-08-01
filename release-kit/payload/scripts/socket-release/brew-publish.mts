@@ -298,20 +298,38 @@ export async function runBrewPublish(
 }
 
 async function main(): Promise<void> {
-  const { values } = parseArgs({
-    allowPositionals: false,
-    args: process.argv.slice(2),
-    options: {
-      apply: { type: 'boolean' },
-      formula: { type: 'string' },
-      help: { type: 'boolean' },
-      json: { type: 'boolean' },
-      repo: { type: 'string' },
-      tag: { type: 'string' },
-      tap: { type: 'string' },
-    },
-    strict: true,
-  })
+  let values: {
+    apply?: boolean
+    formula?: string
+    help?: boolean
+    json?: boolean
+    repo?: string
+    tag?: string
+    tap?: string
+  }
+  try {
+    ;({ values } = parseArgs({
+      allowPositionals: false,
+      args: process.argv.slice(2),
+      options: {
+        apply: { type: 'boolean' },
+        formula: { type: 'string' },
+        help: { type: 'boolean' },
+        json: { type: 'boolean' },
+        repo: { type: 'string' },
+        tag: { type: 'string' },
+        tap: { type: 'string' },
+      },
+      strict: true,
+    }))
+  } catch (e) {
+    logger.fail(errorMessage(e))
+    logger.error(
+      'Usage: node scripts/socket-release/brew-publish.mts --tag vX.Y.Z [--apply] [--json] [--tap <owner/name>] [--formula <name>] [--repo <owner/name>]',
+    )
+    process.exitCode = 2
+    return
+  }
   if (values.help) {
     logger.log(
       'Usage: node scripts/socket-release/brew-publish.mts --tag vX.Y.Z [--apply] [--json] [--tap <owner/name>] [--formula <name>] [--repo <owner/name>]',

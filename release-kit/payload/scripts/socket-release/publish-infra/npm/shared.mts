@@ -5,7 +5,9 @@
  *   staging-expected trust check consumed by both --staged and --direct.
  */
 
+import { readFileSync } from 'node:fs'
 import os from 'node:os'
+import path from 'node:path'
 
 import {
   extractFirstJson,
@@ -16,11 +18,93 @@ import {
 import { fetchVersionTrustInfo } from './registry.mts'
 import { resolveNpmWorkspaceLayout } from './workspace.mts'
 
-// The approve leg an operator runs after staging. `npm:publish` is
-// channel-enforced on every npm-registry member (RELEASE_SCRIPTS_BY_CHANNEL),
-// so this resolves in exactly the repos that reach the staged message, and it
-// routes through publish-pipeline.mts — the entry verify-before-publish-guard
-// sanctions.
+export type NpmAccess = 'public' | 'restricted'
+
+function accessFromValue(value: unknown): NpmAccess | undefined {
+  return value === 'public' || value === 'restricted' ? value : undefined
+}
+
+/**
+ * Resolve the npm access level for a release-time publish: the kit config wins,
+ * then the subject manifest's publishConfig.access, then npm's own default for
+ * the name (scoped defaults to restricted, unscoped to public). A literal
+ * `--access public` on the publish command would override publishConfig, so the
+ * resolved value is passed explicitly to keep the configured intent.
+ */
+export function resolveNpmAccess(config: {
+  kitConfigAccess?: NpmAccess | undefined
+  packageName: string
+  publishConfigAccess?: NpmAccess | undefined
+}): NpmAccess {
+  const cfg = { __proto__: null, ...config } as typeof config
+  return (
+    cfg.kitConfigAccess ??
+    cfg.publishConfigAccess ??
+    (cfg.packageName.startsWith('@') ? 'restricted' : 'public')
+  )
+}
+
+export function readKitNpmAccess(
+  root: string = rootPath,
+): NpmAccess | undefined {
+  try {
+    const raw = readFileSync(
+      path.join(root, '.config', 'socket-release.json'),
+      'utf8',
+    )
+    const doc = JSON.parse(raw) as { npm?: { access?: unknown } | undefined }
+    return accessFromValue(doc.npm?.access)
+  } catch {
+    return undefined
+  }
+}
+
+export function readKitDistTag(root: string = rootPath): string | undefined {
+  try {
+    const raw = readFileSync(
+      path.join(root, '.config', 'socket-release.json'),
+      'utf8',
+    )
+    const doc = JSON.parse(raw) as { npm?: { distTag?: unknown } | undefined }
+    const distTag = doc.npm?.distTag
+    return typeof distTag === 'string' && distTag ? distTag : undefined
+  } catch {
+    return undefined
+  }
+}
+
+export function readPublishConfigAccess(
+  manifestPath: string,
+): NpmAccess | undefined {
+  try {
+    const raw = readFileSync(manifestPath, 'utf8')
+    const doc = JSON.parse(raw) as {
+      publishConfig?: { access?: unknown } | undefined
+    }
+    return accessFromValue(doc.publishConfig?.access)
+  } catch {
+    return undefined
+  }
+}
+
+/**
+ * The release-time access level for a publish subject, reading both config
+ * sources from disk and applying {@link resolveNpmAccess}.
+ */
+export function resolveReleaseAccess(config: {
+  manifestPath: string
+  packageName: string
+  root?: string | undefined
+}): NpmAccess {
+  const cfg = { __proto__: null, ...config } as typeof config
+  return resolveNpmAccess({
+    kitConfigAccess: readKitNpmAccess(cfg.root ?? rootPath),
+    packageName: cfg.packageName,
+    publishConfigAccess: readPublishConfigAccess(cfg.manifestPath),
+  })
+}
+
+// The approve leg an operator runs after staging.
 export const NPM_APPROVE_COMMAND =
   'node scripts/socket-release/npm-publish.mts --approve'
 

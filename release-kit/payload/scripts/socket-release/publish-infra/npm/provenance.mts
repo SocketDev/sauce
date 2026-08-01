@@ -20,8 +20,7 @@
  *   Every read is classified rather than collapsed to undefined: a registry
  *   that ANSWERED "this version has no provenance" (404) is a different fact
  *   from a registry that could not be reached, and a gate that conflates them
- *   reports a green it did not earn. See
- *   docs/agents.md/fleet/release-tag-escape-hatch.md.
+ *   reports a green it did not earn.
  */
 
 import { httpJson, HttpResponseError } from '@socketsecurity/lib/http-request'

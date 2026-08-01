@@ -15,7 +15,7 @@
  *     targets, `-gnu`/`-msvc` explicit (`linux-x64-gnu`, `win32-x64-msvc`),
  *     the wasm fallback covers platforms outside the native set.
  *   Never blur the two: the suffix tells a reader which artifact kind a tail
- *   ships. See docs/agents.md/fleet/binary-vs-napi-naming.md.
+ *   ships.
  *
  * @see https://github.com/napi-rs/napi-rs — `parseTriple` derives
  *   `platformArchABI` exactly this way (oxc's `@oxc-parser/binding-*` packages

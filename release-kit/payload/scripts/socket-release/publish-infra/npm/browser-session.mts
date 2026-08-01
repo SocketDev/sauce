@@ -47,8 +47,8 @@
  *     elapsed/remaining countdown, NEVER retried on a backoff ladder: a blind
  *     retry against a bot challenge earns a rate limit, which then masquerades
  *     as a broken session. Nothing is written while a challenge is outstanding.
- *     `scripts/socket-release/check/playwright-launches-are-sanctioned.mts` enforces the
- *     launch rules across the tree, so a new tool cannot re-derive its own.
+ *     A launch-sanction check enforces the launch rules across the tree, so a
+ *     new tool cannot re-derive its own.
  */
 
 import { safeDelete } from '@socketsecurity/lib/fs/safe'

@@ -56,6 +56,7 @@ import {
   extractChangelogSection,
 } from './publish-infra/release.mts'
 import { logger } from './publish-infra/shared.mts'
+import { unknownFlags, unknownFlagsMessage } from './_shared/cli-flags.mts'
 import { isMainModule } from './_shared/is-main-module.mts'
 
 export {
@@ -72,23 +73,35 @@ export {
   resolveStagedSha256,
 }
 
+const OPTIONS = {
+  approve: { default: false, type: 'boolean' },
+  direct: { default: false, type: 'boolean' },
+  'dry-run': { default: false, type: 'boolean' },
+  help: { default: false, type: 'boolean' },
+  // Accepted for signature parity with npm-publish.mts; a no-op on crates.io
+  // (no OTP on publish). Threaded to runApprove so the parity is honest.
+  otp: { type: 'string' },
+  package: { type: 'string' },
+  staged: { default: false, type: 'boolean' },
+  yes: { default: false, type: 'boolean' },
+} as const
+
 async function main(): Promise<void> {
   const { values } = parseArgs({
-    options: {
-      approve: { default: false, type: 'boolean' },
-      direct: { default: false, type: 'boolean' },
-      'dry-run': { default: false, type: 'boolean' },
-      help: { default: false, type: 'boolean' },
-      // Accepted for signature parity with npm-publish.mts; a no-op on crates.io
-      // (no OTP on publish). Threaded to runApprove so the parity is honest.
-      otp: { type: 'string' },
-      package: { type: 'string' },
-      staged: { default: false, type: 'boolean' },
-      yes: { default: false, type: 'boolean' },
-    },
+    options: OPTIONS,
     allowPositionals: false,
     strict: false,
   })
+
+  const unknown = unknownFlags(values, Object.keys(OPTIONS))
+  if (unknown.length > 0) {
+    logger.fail(unknownFlagsMessage(unknown))
+    logger.error(
+      'Usage: node scripts/socket-release/cargo-publish.mts [--staged | --approve | --direct] [--dry-run] [--package <name>] [--yes]',
+    )
+    process.exitCode = 2
+    return
+  }
 
   if (values['help']) {
     logger.log(

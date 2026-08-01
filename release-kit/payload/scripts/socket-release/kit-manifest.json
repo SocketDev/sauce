@@ -2,6 +2,11 @@
   "files": [
     {
       "channels": ["common"],
+      "path": "_shared/cli-flags.mts",
+      "sha256": "e4bf7835f96bf7f5bb2ef6e0ccb7ccb5f40a36d6c376b240a0badea18523b05b"
+    },
+    {
+      "channels": ["common"],
       "path": "_shared/human-gate.mts",
       "sha256": "98e800a36b303409b50ecefc5bbcafac9afbea52a9172ac9ab3459e949949008"
     },
@@ -18,7 +23,7 @@
     {
       "channels": ["common"],
       "path": "_shared/mirror-lock.mts",
-      "sha256": "663c3c7a23466388a0d77e5698da5ed20bb5b11556e92868f8bca4b6061dee16"
+      "sha256": "22bcf60e975f1ef5c439aef340f0418881c1124699922635d66ccccea7e333b5"
     },
     {
       "channels": ["common"],
@@ -28,12 +33,12 @@
     {
       "channels": ["common"],
       "path": "_shared/playwright-law.mts",
-      "sha256": "ff30a7bd1caef9a2b9955b25528315ee131e84226179b36bd4cea5d902712da3"
+      "sha256": "0778f105bd16e0413e58c41327421a282391de9d0fd2f1181b6344ebdb8ab90f"
     },
     {
       "channels": ["common"],
       "path": "_shared/release-gap-recovery.mts",
-      "sha256": "8118077d3a89074b4b2183dd45230ffdcd8a60d1a0a7fca91fb6658d8b4fe5f6"
+      "sha256": "2157b3fd82ba70e314ee8781f381e56ccb09f0e79d0489ee884a4a552e5acd94"
     },
     {
       "channels": ["common"],
@@ -43,7 +48,7 @@
     {
       "channels": ["common"],
       "path": "_shared/run-main.mts",
-      "sha256": "6283cfdb70d553e2901663d174d3392002bef22b9b71b2f3a5dc54952c01fa6c"
+      "sha256": "fc23aec8a709ba6143738cf656401a25de30321e0c2429e92a3cb76721d99ca9"
     },
     {
       "channels": ["common"],
@@ -133,27 +138,27 @@
     {
       "channels": ["brew"],
       "path": "brew-publish.mts",
-      "sha256": "bd44a99cf873eaf49d76d2d9349929952daaa6c32c66fff7e3243a484cf49aea"
+      "sha256": "32e49230dcb8bc3eaeef8c4ba8ebe3d39a957caf1780c4707656123ceb58dbd6"
     },
     {
       "channels": ["crates"],
       "path": "cargo-publish.mts",
-      "sha256": "3e2584bd799fcdc9562dcac949cca43b10d48abaf3b905f7ad1da23cf818e167"
+      "sha256": "af0874198748ba3d44985c96ed7cb36698dff11810b620dd0c9a0d341a1675b0"
     },
     {
       "channels": ["common"],
       "path": "constants/npm-registry.mts",
-      "sha256": "cb6f5c4a7ab95b8a7d73c6cc53942cba6e1e4ecb6cc32c3334af91dabc27cfcd"
+      "sha256": "12ee5b71a86c1fc5eca2ad6fdce2d3db5def3211e93d4854edea994128c66486"
     },
     {
       "channels": ["github-release"],
       "path": "create-release.mts",
-      "sha256": "ea36052f97e3fd127afaa1bf64da7e4337eb4fdc05f81345d799bcc9bd43d07f"
+      "sha256": "d8f8c5d457b49fee899cccd1a97ca3cf09b91be1c0eee7b9e3cb69ae13a4c903"
     },
     {
       "channels": ["github-release"],
       "path": "github-release.mts",
-      "sha256": "e87905b85f7df179db984d41929d56782e5bf2ccc6d314f72bf1828b94df479d"
+      "sha256": "977136498db436a0c13ba8efead5a4e738d35ff15fa9f4e87f2ce525175e487e"
     },
     {
       "channels": ["common"],
@@ -193,17 +198,17 @@
     {
       "channels": ["npm"],
       "path": "npm-publish.mts",
-      "sha256": "8a1cfea4614fcff8962e10616af86af2f989678ff9e3cb28c7c07c5e4aa42b93"
+      "sha256": "b04a722a6c2397ab5fe8ec5bdd674d1c37523dd03057ee7f5614b1d1d97a2f7c"
     },
     {
       "channels": ["npm"],
       "path": "npm-web-auth.mts",
-      "sha256": "aabdbaf24d72f6522b78e003f925e4c29f2773ca6ad67081b5dde26e34041ae6"
+      "sha256": "4a57c4826ec8865948e4bc97c1574401dd0c87cdd67d5a6284fbdd46b5a95ec4"
     },
     {
       "channels": ["common"],
       "path": "paths.mts",
-      "sha256": "b96f473d68c979322c83e92a81fae42054e261aba38817859b942b8b30e57aef"
+      "sha256": "009a9d0faa11030dfc90271dd8d7fa2b771dba541643aa8127d55d9600de5c1c"
     },
     {
       "channels": ["brew"],
@@ -268,12 +273,12 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/approve.mts",
-      "sha256": "8120150c14b3e84daa5bd4a82b41a69cd2b9ee99c823a10972a91c2bf514dd7a"
+      "sha256": "2703b825b97583b0213af73d0bb1f5e42d076d7426a0f28a51c497a0c508d60e"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/auth-identity.mts",
-      "sha256": "2c90032fe09a89beb29ff3098bce433556767adc150fdddae04e98cec6abd505"
+      "sha256": "ec656fe3876d6eb9fc1e1747d2a2de23b625d9dccc45de2858157021c48925b7"
     },
     {
       "channels": ["npm"],
@@ -283,7 +288,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/browser-session.mts",
-      "sha256": "d5f8b35ccc28614c6951868e9303e2cc4e42c181596b9429e5d7d9822ca22820"
+      "sha256": "2baa6cc3cb55909e6447d64107353f122c4ac516e4737e743e7bb29e98d0b26f"
     },
     {
       "channels": ["npm"],
@@ -293,7 +298,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/login.mts",
-      "sha256": "7f9baa5c217d182203d7b97e47dc3e55e7cf22e698a08b0bbabce4ebd6c41660"
+      "sha256": "4a1605e06ef014c92bda1f5458083f62ccd3f141ebdd60160120874c6b465581"
     },
     {
       "channels": ["npm"],
@@ -318,12 +323,12 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/provenance.mts",
-      "sha256": "52298a6b9da49681516e30d1d38bb9cf7c37b17db1f9904d61017f7c9a08de83"
+      "sha256": "1060211545f7101f7349b4eeb6a16c0d3b55b93e2b7b5be38a3685cb94aa68e5"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/registry.mts",
-      "sha256": "3e5461cc8aaaee3d80c6cb3b9f74592cd803af312ff4642787e01b478516e9f1"
+      "sha256": "0eddfb756a4e6ed1d63314b96c895fe38140e91eb083347ce67cc1013e46d3c6"
     },
     {
       "channels": ["npm"],
@@ -333,7 +338,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/shared.mts",
-      "sha256": "0be57d52f3db0e8fc9e06cb2b0674d6e1e63e83e856a921b2d2a6c1020e3be7e"
+      "sha256": "5eddbf569593b5bda87c42dcc8e618ecc1bb98dd9259bc783613bd9bbac6cd1f"
     },
     {
       "channels": ["npm"],
@@ -348,12 +353,12 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/staged-workspace.mts",
-      "sha256": "59277b9867e0bc3f8dad9a47d357f25cd27e4e6aea7ad40aad930f5c56f96beb"
+      "sha256": "1d50706d7b1be06a510fd567ecee6a4f8f1f8a71e6a47861a1cf3b19d9fcc10f"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/staged.mts",
-      "sha256": "d66367ca43cb815e6f35d4afe58504abd336d0bcc77bf3631921c968a69e806e"
+      "sha256": "fcef56a9d0138116206b54b9757f9aec0a79f7dcf306b1c0e42d3953e5ae1fa9"
     },
     {
       "channels": ["npm"],
@@ -383,7 +388,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/trusted-publisher-plan.mts",
-      "sha256": "d3c20537b824f70e679ec7fe8e5b76615d472e84553887b1694dac19d799a946"
+      "sha256": "633db22478264448c13bfbe4e27cfd7a1548a789b8f56d037e32172fd8d38a4d"
     },
     {
       "channels": ["npm"],
@@ -393,7 +398,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/workspace.mts",
-      "sha256": "9f30156f8716af8abb9e9d30450d8613158c82f9e249de979a3fbfce2ca38fe5"
+      "sha256": "3a90ea986083c174eabdb00946a8428303f69c021a2ff31baa6edcf3d8a3bc50"
     },
     {
       "channels": ["common"],
@@ -403,7 +408,7 @@
     {
       "channels": ["common"],
       "path": "publish-infra/reconcile.mts",
-      "sha256": "4ce407cfa4e6c29e226f0fe9614ace76a813ae32ce8a7823067962fa1a507159"
+      "sha256": "6f96fc78255225984f3e29ca3c45df4ea4eee2904f162004a7ef6f87ffa25bce"
     },
     {
       "channels": ["common"],
@@ -428,7 +433,7 @@
     {
       "channels": ["github-release"],
       "path": "registry-liveness-gate.mjs",
-      "sha256": "775e89573b6e76270e25e0129a53520b9d496e2b295c4ade2a6152f8355d09ea"
+      "sha256": "074e978f68390ca8081325d37515ff0bf059c840ae2ab85698ae4ee1f7d149e9"
     },
     {
       "channels": ["brew"],
@@ -473,7 +478,7 @@
     {
       "channels": ["common"],
       "path": "util/napi-targets.mts",
-      "sha256": "3dbc5138b9862cdfb34fc75f38f4c8a7ccb3fa3697eb6b0203e39249dbc13e18"
+      "sha256": "26bcf30c592fc941f2cad03cef2665cd7bad9fe535ec9da635cca3dafc072214"
     },
     {
       "channels": ["brew"],

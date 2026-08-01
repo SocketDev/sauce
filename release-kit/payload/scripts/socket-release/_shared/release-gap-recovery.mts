@@ -3,8 +3,8 @@
  *   on its registry while its `v<version>` git tag and GitHub release are
  *   missing. Two surfaces share it so they can never drift: the publish tail
  *   (`publish-infra/release.mts`) shouts it the moment the tag/release leg
- *   fails, and the drift gate (`check/published-versions-have-releases.mts`)
- *   shouts it for a gap that already landed.
+ *   fails, and the published-versions drift gate shouts it for a gap that
+ *   already landed.
  *   The gap sits in the irreversible window: an npm publish cannot be undone,
  *   so the operator must leave with the exact healing command, never a hint.
  *   That command is `github-release.mts --tag vX.Y.Z --release` — the stateless

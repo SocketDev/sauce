@@ -1,7 +1,6 @@
 /**
- * @file Repo-root resolution for the release kit. The fleet's own `paths.mts`
- *   is a 500-line workspace atlas bound to the wheelhouse layout; a consumer
- *   repo needs exactly one fact: where its root is. The kit always installs at
+ * @file Repo-root resolution for the release kit. A consumer repo needs
+ *   exactly one fact: where its root is. The kit always installs at
  *   `<repo>/scripts/socket-release/`, so the root is two directories up from
  *   this file — no `process.cwd()`, no upward `package.json` hunt, no
  *   dependence on where the operator's shell happened to be. Anchoring on

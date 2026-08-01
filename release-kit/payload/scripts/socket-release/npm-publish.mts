@@ -64,6 +64,7 @@ import {
 import {
   isStagingExpected,
   parseStageListJson,
+  readKitDistTag,
   readPackageJson,
   readStagedShasum,
 } from './publish-infra/npm/shared.mts'
@@ -77,6 +78,7 @@ import {
   extractChangelogSection,
 } from './publish-infra/release.mts'
 import { logger, rootPath } from './publish-infra/shared.mts'
+import { unknownFlags, unknownFlagsMessage } from './_shared/cli-flags.mts'
 import { isMainModule } from './_shared/is-main-module.mts'
 
 export {
@@ -88,30 +90,42 @@ export {
   verifyStagedEntry,
 }
 
+const OPTIONS = {
+  approve: { default: false, type: 'boolean' },
+  backfill: { type: 'string' },
+  'checkout-ref': { type: 'string' },
+  direct: { default: false, type: 'boolean' },
+  'dry-run': { default: false, type: 'boolean' },
+  help: { default: false, type: 'boolean' },
+  'no-reconcile': { default: false, type: 'boolean' },
+  'no-release': { default: false, type: 'boolean' },
+  'no-scan': { default: false, type: 'boolean' },
+  otp: { type: 'string' },
+  staged: { default: false, type: 'boolean' },
+  tag: { type: 'string' },
+  yes: { default: false, type: 'boolean' },
+} as const
+
 async function main(): Promise<void> {
   const { values } = parseArgs({
-    options: {
-      approve: { default: false, type: 'boolean' },
-      backfill: { type: 'string' },
-      'checkout-ref': { type: 'string' },
-      direct: { default: false, type: 'boolean' },
-      'dry-run': { default: false, type: 'boolean' },
-      help: { default: false, type: 'boolean' },
-      'no-reconcile': { default: false, type: 'boolean' },
-      'no-release': { default: false, type: 'boolean' },
-      'no-scan': { default: false, type: 'boolean' },
-      otp: { type: 'string' },
-      staged: { default: false, type: 'boolean' },
-      tag: { default: 'latest', type: 'string' },
-      yes: { default: false, type: 'boolean' },
-    },
+    options: OPTIONS,
     allowPositionals: false,
     strict: false,
   })
 
+  const unknown = unknownFlags(values, Object.keys(OPTIONS))
+  if (unknown.length > 0) {
+    logger.fail(unknownFlagsMessage(unknown))
+    logger.error(
+      'Usage: node scripts/socket-release/npm-publish.mts [--staged | --approve | --direct] [--dry-run] [--otp <code>] [--yes]',
+    )
+    process.exitCode = 2
+    return
+  }
+
   if (values['help']) {
     logger.log(
-      'Usage: pnpm publish [--staged | --approve | --direct] [--dry-run] [--otp <code>] [--yes]',
+      'Usage: node scripts/socket-release/npm-publish.mts [--staged | --approve | --direct] [--dry-run] [--otp <code>] [--yes]',
     )
     logger.log('  (no mode → --staged, the default publish path)')
     logger.log('')
@@ -146,7 +160,7 @@ async function main(): Promise<void> {
       '  --no-release         with --approve: skip the tag + GitHub release',
     )
     logger.log(
-      '                       (the publish-pipeline release stage owns them)',
+      '                       (cut them later with github-release.mts --tag vX.Y.Z --release)',
     )
     logger.log(
       '  --no-reconcile       local: skip the once-published reconcile (rebase',
@@ -160,7 +174,12 @@ async function main(): Promise<void> {
     logger.log(
       '                       (fails loud on conflict); CI --staged never does.',
     )
-    logger.log('  --tag <tag>          dist-tag for --staged (default: latest)')
+    logger.log(
+      '  --tag <tag>          dist-tag for --staged (default: npm.distTag from',
+    )
+    logger.log(
+      '                       .config/socket-release.json, else latest)',
+    )
     logger.log(
       '  --backfill <ver>     CI: stage a never-published GAP version of prior',
     )
@@ -184,8 +203,11 @@ async function main(): Promise<void> {
     Boolean,
   ).length
   if (modes > 1) {
-    logger.fail('Pass at most one of --staged / --approve / --direct.')
-    process.exitCode = 1
+    logger.fail(
+      'Pass at most one of --staged / --approve / --direct.\n' +
+        '  Fix: pick one mode; a bare invocation defaults to --staged.',
+    )
+    process.exitCode = 2
     return
   }
   // Default to staged — the safest publish path (server-side rejectable before
@@ -197,6 +219,13 @@ async function main(): Promise<void> {
       : 'staged'
 
   const dryRun = !!values['dry-run']
+  // The staged dist-tag: an explicit --tag wins, else the kit config's
+  // npm.distTag, else npm's own 'latest'. Resolving here keeps the config knob
+  // live instead of silently discarding it for a hard-coded default.
+  const tag =
+    typeof values['tag'] === 'string' && values['tag']
+      ? values['tag']
+      : (readKitDistTag(rootPath) ?? 'latest')
   const otpFromFlag =
     typeof values['otp'] === 'string' ? values['otp'] : undefined
   // Reconcile is the DEFAULT once published (local, not a flag — a flag is
@@ -225,7 +254,7 @@ async function main(): Promise<void> {
   })
   if (flagConflict) {
     logger.fail(flagConflict)
-    process.exitCode = 1
+    process.exitCode = 2
     return
   }
   // Backfill: the ONLY sanctioned path to a version below registry latest.
@@ -236,7 +265,7 @@ async function main(): Promise<void> {
     const allowed = await runBackfillGate({
       backfillVersion,
       checkoutRef,
-      distTag: String(values['tag']),
+      distTag: tag,
     })
     if (!allowed) {
       process.exitCode = 1
@@ -244,9 +273,9 @@ async function main(): Promise<void> {
     }
   }
   if (mode === 'staged') {
-    await runStaged(String(values['tag']), { dryRun })
+    await runStaged(tag, { dryRun })
   } else if (mode === 'direct') {
-    await runDirect(String(values['tag']), { dryRun })
+    await runDirect(tag, { dryRun })
   } else {
     await runApprove({
       dryRun,

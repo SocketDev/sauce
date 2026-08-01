@@ -474,13 +474,12 @@ export async function runApprove(config: {
   // locally where git, gh, and npm are all authenticated; the CI --staged step
   // holds only an OIDC npm token (no contents:write / GH_TOKEN), so a release
   // attempt there fails and is also premature, nothing is public yet.
-  // `skipRelease` (--no-release) hands the tag + release to the caller — the
-  // publish pipeline's release stage owns them there, with verify-time
-  // checksums.
+  // `skipRelease` (--no-release) hands the tag + release to the caller, which
+  // cuts them later via github-release.mts with verify-time checksums.
   if (skipRelease) {
     logger.log(
       '--no-release: leaving the tag + GitHub release to the caller ' +
-        '(publish-pipeline release stage).',
+        '(cut them with github-release.mts --tag vX.Y.Z --release).',
     )
     return
   }

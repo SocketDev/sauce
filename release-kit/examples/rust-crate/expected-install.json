@@ -1,6 +1,7 @@
 {
   "channels": ["common", "crates", "github-release"],
   "files": [
+    "scripts/socket-release/_shared/cli-flags.mts",
     "scripts/socket-release/_shared/human-gate.mts",
     "scripts/socket-release/_shared/is-main-module.mts",
     "scripts/socket-release/_shared/lifecycle-scripts.mts",

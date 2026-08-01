@@ -41,7 +41,7 @@ describe('validateRunJson', () => {
   it('rejects six mutated documents, each naming its violation', () => {
     const base = () => golden('run-plan')
 
-    const noSteps = base() as Record<string, unknown>
+    const noSteps = base() as unknown as Record<string, unknown>
     delete noSteps['steps']
     expect(validateRunJson(noSteps).join(' ')).toContain(
       'steps must be an array',

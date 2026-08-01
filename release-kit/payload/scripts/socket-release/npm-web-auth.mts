@@ -54,6 +54,7 @@ import process from 'node:process'
 import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 import { spawnSync } from '@socketsecurity/lib/process/spawn/child'
 
+import { NPM_AUTH_TOKEN_KEY } from './constants/npm-registry.mts'
 import { isMainModule } from './_shared/is-main-module.mts'
 import { runMain } from './_shared/run-main.mts'
 import { npmScratchCwd } from './publish-infra/npm/shared.mts'
@@ -392,11 +393,10 @@ export async function runNpmWebAuth(config: RunConfig): Promise<number> {
 function bridgePnpmTokenToNpm(env: NodeJS.ProcessEnv | undefined): boolean {
   try {
     // oxlint-disable-next-line socket/prefer-async-spawn -- one-shot sync config read on the login path.
-    const read = spawnSync(
-      'pnpm',
-      ['config', 'get', '//registry.npmjs.org/:_authToken'],
-      { cwd: npmScratchCwd(), env },
-    )
+    const read = spawnSync('pnpm', ['config', 'get', NPM_AUTH_TOKEN_KEY], {
+      cwd: npmScratchCwd(),
+      env,
+    })
     const token = String(read.stdout ?? '').trim()
     if (read.status !== 0 || !token || token === 'undefined') {
       return false
@@ -404,12 +404,7 @@ function bridgePnpmTokenToNpm(env: NodeJS.ProcessEnv | undefined): boolean {
     // oxlint-disable-next-line socket/prefer-async-spawn -- one-shot sync config write on the login path.
     const write = spawnSync(
       'npm',
-      [
-        'config',
-        'set',
-        `//registry.npmjs.org/:_authToken=${token}`,
-        '--location=user',
-      ],
+      ['config', 'set', `${NPM_AUTH_TOKEN_KEY}=${token}`, '--location=user'],
       { cwd: npmScratchCwd(), env, stdio: 'ignore' },
     )
     return write.status === 0

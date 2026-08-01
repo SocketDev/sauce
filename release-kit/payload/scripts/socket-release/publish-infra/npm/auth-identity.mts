@@ -23,7 +23,7 @@ import { errorMessage } from '@socketsecurity/lib/errors/message'
 import { httpJson, HttpResponseError } from '@socketsecurity/lib/http-request'
 import { confirm } from '@socketsecurity/lib/stdio/prompts'
 
-import { NPM_REGISTRY_URL } from '../../constants/npm-registry.mts'
+import { packumentUrl } from '../../constants/npm-registry.mts'
 import { ensureNpmLogin } from './login.mts'
 import { npmScratchCwd } from './shared.mts'
 import { logger, runCapture, runInherit } from '../shared.mts'
@@ -59,7 +59,7 @@ export type MaintainerRead =
 export async function readPackageMaintainers(
   name: string,
 ): Promise<MaintainerRead> {
-  const url = `${NPM_REGISTRY_URL}/${encodeURIComponent(name).replace('%40', '@')}`
+  const url = packumentUrl(name)
   try {
     const json = await httpJson<{
       maintainers?: Array<{ name?: string | undefined }> | undefined

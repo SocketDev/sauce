@@ -377,7 +377,7 @@ export function resolveNpmWorkspaceLayout(
   if (packages.length === 0) {
     if (typeof root?.version === 'string' && root.version) {
       // A private, versioned root with no publishable members: the
-      // bump-only shape, the wheelhouse itself. The root stays the subject.
+      // bump-only shape. The root stays the subject.
       const subject = resolveReleaseSubject(rootPath)
       return {
         kind: 'single',

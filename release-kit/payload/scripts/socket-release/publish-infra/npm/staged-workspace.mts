@@ -38,7 +38,11 @@ import {
   diagnoseStagedAuthFailure,
   isAlreadyPublished,
 } from './registry.mts'
-import { isStagingExpected, logNpmApproveHandoff } from './shared.mts'
+import {
+  isStagingExpected,
+  logNpmApproveHandoff,
+  resolveReleaseAccess,
+} from './shared.mts'
 import {
   checkVersionLockstep,
   computePublishOrder,
@@ -424,10 +428,14 @@ export async function runWorkspacePublish(
         return
       }
     }
+    const access = resolveReleaseAccess({
+      manifestPath: pkg.manifestPath,
+      packageName: pkg.name,
+    })
     const args = mode === 'staged' ? ['stage', 'publish'] : ['publish']
     args.push(
       '--access',
-      'public',
+      access,
       '--tag',
       tag,
       '--no-git-checks',

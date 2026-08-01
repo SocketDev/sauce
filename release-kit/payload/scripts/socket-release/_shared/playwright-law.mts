@@ -4,9 +4,9 @@
  *   single importable statement of both, so drivers, guards, checks, and
  *   agent prompts cite the same law instead of re-deriving it from prose.
  *   The reference implementation is the sanctioned session module
- *   (`scripts/socket-release/publish-infra/npm/browser-session.mts`); the
- *   `playwright-launch-guard` hook and the playwright-launches-are-sanctioned
- *   check enforce the same rules at write time and in CI.
+ *   (`scripts/socket-release/publish-infra/npm/browser-session.mts`); a
+ *   launch-sanction check asserts this module's law matches the shipped launch
+ *   so the two can never drift.
  *   The law, and why each clause exists:
  *
  *   - `chromiumSandbox: true` is MANDATORY. Playwright defaults the Chromium

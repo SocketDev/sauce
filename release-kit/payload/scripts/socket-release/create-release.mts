@@ -48,6 +48,7 @@ import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 // don't ship create-release.mts.
 import { REPO_ROOT } from './paths.mts'
 import { gitShortSha, runInherit } from './publish-infra/shared.mts'
+import { unknownFlags, unknownFlagsMessage } from './_shared/cli-flags.mts'
 import { isMainModule } from './_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
@@ -220,17 +221,28 @@ async function main(): Promise<void> {
   logger.success(`Released ${tag}`)
 }
 
+const OPTIONS = {
+  'dry-run': { default: false, type: 'boolean' },
+  'no-pin': { default: false, type: 'boolean' },
+  help: { default: false, type: 'boolean' },
+  tag: { type: 'string' },
+} as const
+
 function parseCli(): CliArgs {
   const { values } = parseArgs({
-    options: {
-      'dry-run': { default: false, type: 'boolean' },
-      'no-pin': { default: false, type: 'boolean' },
-      help: { default: false, type: 'boolean' },
-      tag: { type: 'string' },
-    },
+    options: OPTIONS,
     allowPositionals: false,
     strict: false,
   })
+  const unknown = unknownFlags(values, Object.keys(OPTIONS))
+  if (unknown.length > 0) {
+    logger.fail(unknownFlagsMessage(unknown))
+    logger.error(
+      'Usage: node scripts/socket-release/create-release.mts [options]',
+    )
+    process.exitCode = 2
+    process.exit(2)
+  }
   if (values['help']) {
     logger.log(
       'Usage: node scripts/socket-release/create-release.mts [options]',
@@ -258,8 +270,9 @@ async function loadConfig(): Promise<ReleaseAssetsConfig> {
   if (!existsSync(configPath)) {
     logger.fail(
       `Missing release-assets.config.mts at repo root.\n` +
-        `  Path:   ${configPath}\n` +
-        `  Action: create the file with \`export const config: ReleaseAssetsConfig = { … }\` (see template/scripts/release-assets.mts for the interface).`,
+        `  Where: ${configPath}\n` +
+        `  Wanted: a per-repo config exporting \`export const config: ReleaseAssetsConfig = { … }\`.\n` +
+        `  Fix: create it; the ReleaseAssetsConfig interface is defined in scripts/socket-release/create-release.mts.`,
     )
     process.exit(1)
   }

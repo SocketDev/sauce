@@ -1,10 +1,7 @@
 /**
- * @file Mirror-lock shim. In the wheelhouse, lockstep mirrors are read-only
- *   files a cascade owns; writing one requires lifting a chmod lock first.
- *   A consumer repo has no lockstep mirrors, so every lift is a no-op and a
- *   write is just a write. The export surface is IDENTICAL to the fleet
- *   module on purpose: the ported engine files import `writeThroughMirrorLock`
- *   unchanged (R3), and a future consumer that DOES grow a mirror system
+ * @file Mirror-lock shim. A consumer repo has no lockstep mirrors, so lifting
+ *   a lock is a no-op and a write is just a write. The `writeThroughMirrorLock`
+ *   export surface is stable so a consumer that later grows a mirror system
  *   swaps this file without touching a single importer.
  */
 

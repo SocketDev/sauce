@@ -18,13 +18,11 @@
  *     under the step's `set -e`.
  *   - neither → skip, a github-release-only repo. Dependency-free on purpose:
  *     github-release.yml runs it on the runner's system Node BEFORE any install
- *     exists, so only `node:` builtins are used — same constraint as
- *     scripts/socket-release/setup/setup-tools.mjs. Node fetch stands in for
- *     the old `curl -fsS`: same URLs, same pass/fail mapping. Pure decision
- *     functions are exported for the wheelhouse unit suite; the thin CLI shell
- *     at the bottom reads TAG from the env and exits non-zero when the gate
- *     refuses. Usage: TAG=v1.2.3 node
- *     scripts/socket-release/registry-liveness-gate.mjs
+ *     exists, so only `node:` builtins are used. Node fetch stands in for the
+ *     old `curl -fsS`: same URLs, same pass/fail mapping. Pure decision
+ *     functions are exported for unit tests; the thin CLI shell at the bottom
+ *     reads TAG from the env and exits non-zero when the gate refuses. Usage:
+ *     TAG=v1.2.3 node scripts/socket-release/registry-liveness-gate.mjs
  */
 
 import crypto from 'node:crypto'

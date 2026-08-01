@@ -39,7 +39,11 @@ import {
   isAlreadyPublished,
 } from './registry.mts'
 import type { StageListEntry } from './shared.mts'
-import { isStagingExpected, logNpmApproveHandoff } from './shared.mts'
+import {
+  isStagingExpected,
+  logNpmApproveHandoff,
+  resolveReleaseAccess,
+} from './shared.mts'
 import {
   packWorkspaceMemberTarball,
   runWorkspacePublish,
@@ -154,11 +158,15 @@ export async function runStaged(
     return
   }
 
+  const access = resolveReleaseAccess({
+    manifestPath: pkg.manifestPath,
+    packageName: pkg.name,
+  })
   const args = [
     'stage',
     'publish',
     '--access',
-    'public',
+    access,
     '--tag',
     tag,
     '--no-git-checks',
@@ -306,10 +314,14 @@ export async function runDirect(
     return
   }
 
+  const access = resolveReleaseAccess({
+    manifestPath: pkg.manifestPath,
+    packageName: pkg.name,
+  })
   const args = [
     'publish',
     '--access',
-    'public',
+    access,
     '--tag',
     tag,
     '--no-git-checks',

@@ -1,19 +1,25 @@
 /**
- * @file The single canonical npm registry the fleet talks to. ONE source of
- *   truth shared by: the `.npmrc` `registry=` setting npm + pnpm read for
- *   installs/lookups (a check asserts `.npmrc` matches this), the soak-exclude
- *   publish-date verification (fleet-soak-exclude-parity fetches packuments
- *   from here), the publish-config hardening gate (publishConfig.registry, if
- *   set, must equal this), and any tooling that probes the registry. The fleet
- *   publishes provenance-signed tarballs to public npm, so this is npmjs.org —
- *   not a Socket-owned registry. Change it in ONE place and everything
- *   follows.
+ * @file The single canonical npm registry the fleet talks to, plus the two
+ *   derivations every registry caller needs: the packument URL for a package
+ *   and the `.npmrc` auth-token key. The fleet publishes provenance-signed
+ *   tarballs to public npm, so this is npmjs.org — not a Socket-owned
+ *   registry. Change it in ONE place and everything follows.
  */
 
-// Base URL, NO trailing slash — callers append `/${name}` for a packument, or
-// use NPM_REGISTRY, the trailing-slash form, where a config value is expected.
 export const NPM_REGISTRY_URL = 'https://registry.npmjs.org'
 
-// Trailing-slash form — the value npm/pnpm write into `.npmrc` `registry=` and
-// the form a `publishConfig.registry` pin must equal.
-export const NPM_REGISTRY = `${NPM_REGISTRY_URL}/`
+export const NPM_REGISTRY_HOST = new URL(NPM_REGISTRY_URL).host
+
+/**
+ * The packument URL for a package name. encodeURIComponent escapes a scope's
+ * leading `@` to `%40`, which the registry path rejects, so it is un-escaped
+ * back — the one subtle rule every registry read shares.
+ */
+export function packumentUrl(name: string): string {
+  return `${NPM_REGISTRY_URL}/${encodeURIComponent(name).replace('%40', '@')}`
+}
+
+/**
+ * The registry-scoped auth-token key npm/pnpm read from and write to `.npmrc`.
+ */
+export const NPM_AUTH_TOKEN_KEY = `//${NPM_REGISTRY_HOST}/:_authToken`
