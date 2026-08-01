@@ -1,0 +1,8 @@
+{
+  "extends": "../fleet/tsconfig.check.base.json",
+  "compilerOptions": {
+    "rootDir": "../.."
+  },
+  "include": ["../../release-kit/**/*.mts"],
+  "exclude": ["**/node_modules"]
+}
