@@ -1,0 +1,9 @@
+{
+  "_note": "synthetic — hand-authored from the npm trust list --json wire contract (fleet trust-sweep observations, 2026-07-31)",
+  "type": "github",
+  "file": "npm-publish.yml",
+  "repository": "SocketDev/example",
+  "environment": "npm-publish",
+  "permissions": ["createPackage", "createStagedPackage"],
+  "id": "tp-001"
+}

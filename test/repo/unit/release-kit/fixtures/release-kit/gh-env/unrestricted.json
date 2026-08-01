@@ -1,0 +1,5 @@
+{
+  "_note": "synthetic — the env exists with no branch restriction",
+  "total_count": 1,
+  "environments": [{ "name": "npm-publish", "deployment_branch_policy": null }]
+}

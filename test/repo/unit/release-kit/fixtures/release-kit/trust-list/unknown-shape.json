@@ -1,0 +1,4 @@
+{
+  "_note": "synthetic — a parseable JSON document that is NOT a trust config; must classify auth-died (refuse), never absent",
+  "unexpected": { "shape": true }
+}

@@ -1,0 +1,7 @@
+{
+  "_note": "synthetic — gh api repos/<slug>/environments with the desired env absent (GitHub REST wire contract)",
+  "total_count": 1,
+  "environments": [
+    { "name": "some-other-env", "deployment_branch_policy": null }
+  ]
+}

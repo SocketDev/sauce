@@ -1,0 +1,6 @@
+sha1: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa  examplecli-darwin-arm64.tar.gz
+sha256: 1111111111111111111111111111111111111111111111111111111111111111  examplecli-darwin-arm64.tar.gz
+sha512-base64: c29tZS1iYXNlNjQtZGlnZXN0  examplecli-darwin-arm64.tar.gz
+sha1: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  examplecli-darwin-x64.tar.gz
+sha256: 2222222222222222222222222222222222222222222222222222222222222222  examplecli-darwin-x64.tar.gz
+sha512-base64: b3RoZXItYmFzZTY0LWRpZ2VzdA==  examplecli-darwin-x64.tar.gz

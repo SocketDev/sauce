@@ -1,0 +1,194 @@
+# pnpm workspace config for the single-package socket-skills repo.
+# Even though there's no top-level packages registration, pnpm reads
+# this file for workspace-scoped policy: minimumReleaseAge,
+# blockExoticSubdeps, trustPolicy, etc. — the supply-chain controls
+# that need to live above package.json so they apply uniformly to
+# every install.
+
+# Workspace member globs. The .claude/hooks/* tree holds nested
+# package.json files (one per hook); registering them here lets each
+# hook declare workspace-aware deps via `catalog:` instead of brittle
+# literal pins that drift from the parent.
+packages:
+  - '.config/fleet/oxlint-plugin'
+  - '.config/fleet/oxlint-plugin/fleet/*'
+  - '.claude/hooks/fleet/*'
+
+# Catalog entries shared across hook workspaces. Each hook depends on
+# the same Socket fleet packages the parent ships; pinning them here
+# keeps the entire hook tree in lockstep without each hook duplicating
+# literal pins.
+catalog:
+  '@anthropic-ai/claude-code': 2.1.216
+  '@redwoodjs/agent-ci': 0.17.1
+  '@shadscan/cli': 0.2.0
+  '@sinclair/typebox': 0.34.52
+  '@socketregistry/packageurl-js': 1.5.0
+  '@socketregistry/packageurl-js-stable': npm:@socketregistry/packageurl-js@1.4.8
+  '@socketsecurity/lib': 6.5.2
+  '@socketsecurity/lib-stable': npm:@socketsecurity/lib@6.5.2
+  '@socketsecurity/registry': 2.0.5
+  '@socketsecurity/registry-stable': npm:@socketsecurity/registry@2.0.5
+  '@socketsecurity/sdk': 4.1.3
+  '@socketsecurity/sdk-stable': npm:@socketsecurity/sdk@4.1.2
+  '@types/mdast': 4.0.4
+  '@types/node': 26.1.1
+  '@types/semver': 7.7.1
+  '@types/shell-quote': 1.7.5
+  '@ultrathink/acorn.rs.wasm': 0.1.1
+  '@typescript/native-preview': 7.0.0-dev.20260415.1
+  '@ultrathink/acorn.wasm': npm:@ultrathink/acorn-wasm@0.0.1
+  '@vitest/coverage-v8': 4.1.10
+  '@vitest/ui': 4.1.10
+  'c8': 12.0.0
+  'chrome-devtools-mcp': 1.6.0
+  'compromise': 14.16.0
+  'dtu-github-actions': 0.17.1
+  'ecc-agentshield': 1.4.0
+  'fast-check': 4.9.0
+  'magic-string': 1.1.0
+  'markdownlint-cli2': 0.23.1
+  'mdast-util-from-markdown': 2.0.3
+  'micromark': 4.0.2
+  'neosanitize': 0.3.0
+  'nock': 14.0.16
+  'npm-high-impact': 1.13.0
+  'npm-run-all2': 9.0.2
+  'oxfmt': 0.60.0
+  'oxlint': 1.75.0
+  'oxlint-tsgolint': 7.0.2001
+  'playwright-core': 1.62.0
+  'portless': 0.15.4
+  'regjsparser': 0.13.2
+  'rolldown': 1.1.4
+  'semver': 7.8.5
+  'shell-quote': 1.10.0
+  'svgo': 4.0.2
+  'taze': 19.16.0
+  'typescript': 7.0.2
+  # vite 8 swaps esbuild → rolldown natively, so the override below
+  # removes esbuild from the install tree. Matches the wheelhouse
+  # catalog pin.
+  'vite': 8.1.5
+  'vitest': 4.1.10
+
+# Wait 7 days (10080 minutes) before installing newly published
+# packages. Reduces blast radius from hijacked-but-not-yet-detected
+# packages. minimumReleaseAgeExclude lists Socket-published scopes
+# whose releases we trust without the soak window.
+minimumReleaseAge: 10080
+minimumReleaseAgeExclude:
+  - '@socketregistry/*'
+  - '@socketsecurity/*'
+  - 'sfw'
+  - '@stuie/*'
+  - '@ultrathink/*'
+  - '@socketoverride/*'
+  - 'socket'
+  - '@sdxgen/*'
+  - 'sdxgen'
+  - 'stuie'
+  # oxlint-tsgolint — type-aware lint sidecar for oxlint --type-aware
+  # (fleet lint stack); exact-pinned so future versions re-soak.
+  # obug + verkit — new dev-only transitives of taze 19.16.0 (same owner
+  # directive); exact-pinned so future versions re-soak.
+
+# Refuse "exotic" subdeps (git URLs, tarballs, file: links) anywhere
+# in the dep graph. Forces every dep to come from a public registry
+# where the integrity hash + version + minimumReleaseAge soak apply.
+blockExoticSubdeps: true
+confirmModulesPurge: false
+managePackageManagerVersions: false
+
+# Resolve to highest matching range (default: lowest). Aligns with
+# the rest of the fleet so security fixes propagate without manual
+# bumps.
+resolutionMode: highest
+
+# Refuse to run if the pnpm version on PATH differs from the
+# packageManager field in package.json. Drift should fail fast, not
+# silently auto-download via @pnpm/exe.
+pmOnFail: warn
+trustPolicy: no-downgrade
+trustPolicyExclude:
+  - 'compromise@14.15.0'
+  - 'ast-v8-to-istanbul@1.0.2'
+
+# Auto-install missing peer deps. pnpm default; declared explicitly
+# so a future default flip can't silently change install behavior.
+autoInstallPeers: true
+
+# Run pre/post lifecycle scripts on the root (e.g. prepare -> husky).
+# pnpm default; declared explicitly to lock the behavior.
+enablePrePostScripts: true
+
+# Pin exact versions on `pnpm add` (no `^` / `~`). Matches the rest
+# of the fleet's discipline.
+saveExact: true
+
+overrides:
+  # Fleet-canonical overrides (managed by socket-wheelhouse sync; do not edit).
+  '@socketregistry/packageurl-js': 'catalog:'
+  '@socketsecurity/lib': 'catalog:'
+  '@socketsecurity/registry': 'catalog:'
+  '@socketsecurity/sdk': 'catalog:'
+  'chalk@>=5': '5.6.2'
+  'es-define-property': 'npm:@socketregistry/es-define-property@1.0.7'
+  'es-set-tostringtag': 'npm:@socketregistry/es-set-tostringtag@1.0.10'
+  'function-bind': 'npm:@socketregistry/function-bind@1.0.7'
+  'glob': '13.0.6'
+  'gopd': 'npm:@socketregistry/gopd@1.0.7'
+  'has-symbols': 'npm:@socketregistry/has-symbols@1.0.7'
+  'has-tostringtag': 'npm:@socketregistry/has-tostringtag@1.0.7'
+  'hasown': 'npm:@socketregistry/hasown@1.0.7'
+  'iconv-lite': '0.7.3'
+  'isexe@>=3': '4.0.0'
+  'js-yaml@>=5.0.0 <5.2.2': '5.2.2'
+  'lru-cache@>=10': '11.5.2'
+  'magic-string': '1.1.0'
+  'mime-db': '1.54.0'
+  'mime-types@>=3': '3.0.2'
+  'minipass@>=4': '7.1.3'
+  'safe-buffer': 'npm:@socketregistry/safe-buffer@1.0.9'
+  'safer-buffer': 'npm:@socketregistry/safer-buffer@1.0.10'
+  'semver@>=5.0.0 <7.6.0': '7.8.5'
+  'side-channel': 'npm:@socketregistry/side-channel@1.0.10'
+  'ssri@>=12': '13.0.1'
+  'string-width@>=5': '8.2.2'
+  'update-notifier@>=4.0.0': '7.3.1'
+  'uuid': '11.1.1'
+  'which': '7.0.0'
+  'wrap-ansi@>=8': '9.0.2'
+  'yaml@2': '2.9.0'
+
+  # Repo-specific overrides below.
+  # vitest's transitive vite resolves to the rolldown-native 8.x line.
+  'rolldown': 'catalog:'
+  'vite': 'catalog:'
+
+# vite 8 keeps esbuild only as an unused optional escape hatch; never
+# install it (esbuild is fleet-banned — rolldown is the bundler).
+ignoredOptionalDependencies:
+  - 'esbuild'
+
+allowBuilds:
+  # The published sdk leaks fleet repo scripts including a preinstall
+  # (bootstrap-zero-dep-packages.mjs) meant for the sdk repo itself, not
+  # consumers. Explicitly deny it.
+  '@socketsecurity/sdk': false
+  cpu-features: false
+  protobufjs: false
+  puppeteer: false
+  ssh2: false
+
+patchedDependencies:
+  # single-registry (managed by socket-wheelhouse sync; do not edit):
+  # routes taze version resolution through its own bundled direct-registry
+  # client (getVersionsFromRegistry — full packument, .npmrc/auth-aware) for
+  # EVERY registry, instead of the fast-npm-meta hosted endpoint it uses
+  # when the registry is the npm default. That third-party hop leaks
+  # dependency names, violates the fleet single-registry posture, and is
+  # blocked by egress policy — every lookup then hits the request timeout
+  # while taze still exits 0 (false green; update.mts fails loud on it).
+  # On a taze bump, regenerate via `pnpm patch taze` + `pnpm patch-commit`.
+  taze@19.16.0: patches/taze@19.16.0.patch

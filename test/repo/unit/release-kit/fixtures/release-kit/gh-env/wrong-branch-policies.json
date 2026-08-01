@@ -1,0 +1,5 @@
+{
+  "_note": "synthetic — the deployment-branch-policies list for wrong-branch.json",
+  "total_count": 1,
+  "branch_policies": [{ "id": 1, "name": "develop", "type": "branch" }]
+}

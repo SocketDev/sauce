@@ -1,0 +1,13 @@
+{
+  "name": "@socketsecurity/example-lib",
+  "version": "1.0.0",
+  "description": "Example npm library consumer for socket-release-kit.",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "echo build"
+  },
+  "packageManager": "pnpm@11.17.0"
+}

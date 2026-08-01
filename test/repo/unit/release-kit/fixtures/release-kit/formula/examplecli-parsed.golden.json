@@ -1,0 +1,23 @@
+{
+  "className": "Examplecli",
+  "name": "examplecli",
+  "platforms": {
+    "darwin-arm64": {
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "url": "https://github.com/SocketDev/example-cli/releases/download/v1.2.3/examplecli-darwin-arm64.tar.gz"
+    },
+    "darwin-x64": {
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "url": "https://github.com/SocketDev/example-cli/releases/download/v1.2.3/examplecli-darwin-x64.tar.gz"
+    },
+    "linux-arm64": {
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "url": "https://github.com/SocketDev/example-cli/releases/download/v1.2.3/examplecli-linux-arm64.tar.gz"
+    },
+    "linux-x64": {
+      "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+      "url": "https://github.com/SocketDev/example-cli/releases/download/v1.2.3/examplecli-linux-x64.tar.gz"
+    }
+  },
+  "version": "1.2.3"
+}

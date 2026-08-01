@@ -1,0 +1,4 @@
+[
+  {"name": "@socketsecurity/example", "version": "0.0.0", "stageId": "stage-0001", "shasum": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+  {"name": "@socketsecurity/other", "version": "2.0.0", "stageId": "stage-0002", "shasum": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+]

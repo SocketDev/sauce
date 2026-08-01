@@ -1,0 +1,96 @@
+{
+  "name": "socket-skills",
+  "owner": {
+    "name": "Socket"
+  },
+  "metadata": {
+    "description": "Agent Skills for dependency security including vulnerability scanning, package review, patching, setup and configuration, and secure dependency updates via Socket.dev",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "socket-scan",
+      "source": "./skills/socket-scan",
+      "skills": "./",
+      "description": "Run a full dependency scan using the Socket CLI. Creates a scan in the Socket dashboard, checks all dependencies for vulnerabilities and supply-chain risks, performs Tier 1 reachability analysis for enterprise customers, and provides license compliance auditing."
+    },
+    {
+      "name": "socket-inspect",
+      "source": "./skills/socket-inspect",
+      "skills": "./",
+      "description": "Research a package before you depend on it — pull every signal from Socket (scores, alerts, malware verdicts, CVEs, supply-chain risk), check the socket.dev package page, evaluate alternatives, and surface available Socket patches."
+    },
+    {
+      "name": "socket-setup",
+      "source": "./skills/socket-setup",
+      "skills": "./",
+      "description": "Set up Socket — prompt for API key, install the CLI, authenticate, configure policies and tokens, set up CI/CD for firewall or patch modes across GitHub, GitLab, Bitbucket, and other systems."
+    },
+    {
+      "name": "socket-dep-patch",
+      "source": "./skills/socket-fix/socket-dep-patch",
+      "skills": "./",
+      "description": "Apply Socket's binary-level security patches without changing dependency versions. Uses socket-patch apply to fix vulnerabilities in-place, then verifies automated patching is configured so patches persist across installs."
+    },
+    {
+      "name": "socket-dep-upgrade",
+      "source": "./skills/socket-fix/socket-dep-upgrade",
+      "skills": "./",
+      "description": "Use socket fix to find and update vulnerable dependencies one at a time, then fix any breaking changes in the codebase. Security-audited upgrades with automated code migration."
+    },
+    {
+      "name": "socket-dep-cleanup",
+      "source": "./skills/socket-fix/socket-dep-cleanup",
+      "skills": "./",
+      "description": "Evaluate and remove a single unused dependency from your project. Searches the entire codebase for all usages (imports, requires, config refs, scripts, type packages, indirect usage), reports findings, and performs full removal with verification."
+    },
+    {
+      "name": "socket-dep-replace",
+      "source": "./skills/socket-fix/socket-dep-replace",
+      "skills": "./",
+      "description": "Replace a dependency with an alternative package, eliminate it via code rewrite, or use socket-optimize for optimized replacements."
+    },
+    {
+      "name": "socket-fix",
+      "source": "./skills/socket-fix",
+      "skills": "./",
+      "description": "Fix dependency security issues — either scan and fix everything (requires /socket-scan), or target a single named package. Orchestrates /socket-dep-cleanup, /socket-dep-replace, /socket-dep-patch, and /socket-dep-upgrade as subskills."
+    },
+    {
+      "name": "socket-scan-setup",
+      "source": "./skills/socket-scan/socket-scan-setup",
+      "skills": "./",
+      "description": "Set up prerequisites for Socket scanning — install the CLI, configure auth with the public demo token, and verify scan access."
+    },
+    {
+      "name": "socket-release",
+      "source": "./skills/socket-release",
+      "skills": "./",
+      "description": "Stand up SocketDev publishing (npm, crates.io, GitHub releases, Homebrew tap) in a repo: copy in the release kit and run its bootstrap — name reservation, GitHub environments, npm trusted publisher, staged publish config, verification."
+    },
+    {
+      "name": "npm-publish",
+      "source": "./skills/socket-release/npm-publish",
+      "skills": "./",
+      "description": "Operate the socket-release npm flow end to end — bootstrap (permissive-then-staged-only publishing access), staged publish dispatch, soak, --approve promote, backfill, and rollback/deprecate."
+    },
+    {
+      "name": "github-release",
+      "source": "./skills/socket-release/github-release",
+      "skills": "./",
+      "description": "Cut, verify, and reconcile immutable GitHub releases — the registry-resolvability ORDER RULE, the draft-upload-undraft cut, checksums.txt, and tag-gap healing."
+    },
+    {
+      "name": "cargo-publish",
+      "source": "./skills/socket-release/cargo-publish",
+      "skills": "./",
+      "description": "Operate the socket-release crates.io flow — the cargo staged model, trusted publishing (OIDC), index-propagation waits, and yank-as-rollback."
+    },
+    {
+      "name": "brew-publish",
+      "source": "./skills/socket-release/brew-publish",
+      "skills": "./",
+      "description": "Operate the socket-release Homebrew tap flow — tap repo layout, formula bumps tied to published releases, and sha256 verification against the release's own checksums.txt."
+    }
+  ]
+}

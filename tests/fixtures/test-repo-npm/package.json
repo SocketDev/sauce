@@ -1,0 +1,9 @@
+{
+  "name": "test-repo-npm",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Test fixture with a known vulnerable dependency",
+  "dependencies": {
+    "lodash": "4.17.20"
+  }
+}

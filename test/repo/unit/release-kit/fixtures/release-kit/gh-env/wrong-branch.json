@@ -1,0 +1,13 @@
+{
+  "_note": "synthetic — custom policies restrict to a non-default branch",
+  "total_count": 1,
+  "environments": [
+    {
+      "name": "npm-publish",
+      "deployment_branch_policy": {
+        "protected_branches": false,
+        "custom_branch_policies": true
+      }
+    }
+  ]
+}

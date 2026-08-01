@@ -1,0 +1,28 @@
+{
+  "exitCode": 0,
+  "kit": {
+    "name": "socket-release-kit",
+    "version": "0.1.0"
+  },
+  "mode": "status",
+  "nextCommand": "node scripts/socket-release/bootstrap.mts preflight --apply",
+  "nextStep": "preflight",
+  "package": {
+    "access": "restricted",
+    "name": "@socketsecurity/example-lib",
+    "version": "1.0.0"
+  },
+  "repo": {
+    "defaultBranch": "main",
+    "root": "/tmp/npm-lib",
+    "slug": "SocketDev/example-lib",
+    "visibility": "private"
+  },
+  "requestedSteps": [],
+  "schemaVersion": 1,
+  "state": {
+    "path": ".cache/socket-release/bootstrap-state.json",
+    "receipts": {}
+  },
+  "steps": []
+}

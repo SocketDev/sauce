@@ -1,0 +1,199 @@
+/* eslint-disable no-shadow -- nested cached-length for-loops intentionally reuse `i`/`length` names for the fleet-wide cached-loop idiom; renaming would diverge from the codebase pattern. */
+/**
+ * @file Canonical minimal lint runner for socket-* repos.
+ *   Scope modes:
+ *   (default)   Lint files modified in the working tree vs HEAD.
+ *   --staged    Lint files in the git index (used by .husky/pre-commit).
+ *   --all       Lint the entire workspace.
+ *   Flags:
+ *   --fix       Auto-fix issues.
+ *   --quiet     Suppress progress output.
+ *   If the chosen scope has no lintable files, the script is a no-op.
+ *   Config or infrastructure changes (.config/oxlintrc.json,
+ *   .config/oxfmtrc.json, tsconfig*.json, pnpm-lock.yaml, .config/**,
+ *   scripts/**, package.json) escalate to `--all` automatically, since they
+ *   can affect everything.
+ *   This is the minimal zero-dependency reference implementation. Larger repos
+ *   (socket-lib, socket-registry, socket-sdk-js, etc.) use a richer version
+ *   based on @socketsecurity/lib-stable helpers; this one keeps the same CLI
+ *   contract so pre-commit hooks and CI work identically across repos.
+ */
+
+import { existsSync } from 'node:fs'
+import path from 'node:path'
+import process from 'node:process'
+import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
+import { spawnSync } from '@socketsecurity/lib/process/spawn/child'
+
+const logger = getDefaultLogger()
+
+const args = process.argv.slice(2)
+const mode: 'staged' | 'all' | 'modified' = args.includes('--all')
+  ? 'all'
+  : args.includes('--staged')
+    ? 'staged'
+    : 'modified'
+const fix = args.includes('--fix')
+const quiet = args.includes('--quiet') || args.includes('--silent')
+const stdio: 'pipe' | 'inherit' = quiet ? 'pipe' : 'inherit'
+
+const LINTABLE_EXTS = new Set(['.cjs', '.cts', '.js', '.mjs', '.mts', '.ts'])
+
+// Paths that, when touched, force a full-workspace lint.
+const ESCALATION_PATTERNS = [
+  /^\.config\//,
+  /^scripts\//,
+  /^pnpm-lock\.yaml$/,
+  /^tsconfig.*\.json$/,
+  /^package\.json$/,
+  /^lockstep\.schema\.json$/,
+]
+
+export function filterLintable(files: string[]): string[] {
+  return files.filter(f => LINTABLE_EXTS.has(path.extname(f)) && existsSync(f))
+}
+
+export function getModifiedFiles(): string[] {
+  return gitFiles(['diff', '--name-only', '--diff-filter=ACMR', 'HEAD'])
+}
+
+export function getStagedFiles(): string[] {
+  return gitFiles(['diff', '--cached', '--name-only', '--diff-filter=ACMR'])
+}
+
+export function gitFiles(gitArgs: string[]): string[] {
+  const result = spawnSync('git', gitArgs, {
+    stdio: ['ignore', 'pipe', 'pipe'],
+  })
+  if (result.status !== 0) {
+    return []
+  }
+  return result.stdout
+    .split('\n')
+    .map(s => s.trim())
+    .filter(s => s.length > 0)
+}
+
+export function log(msg: string): void {
+  if (!quiet) {
+    logger.log(msg)
+  }
+}
+
+export function runAll(): number {
+  log('Formatting all files…')
+  const oxfmtResult = spawnSync(
+    'pnpm',
+    [
+      'exec',
+      'oxfmt',
+      '-c',
+      '.config/oxfmtrc.json',
+      fix ? '--write' : '--check',
+      '.',
+    ],
+    { stdio },
+  )
+  if (oxfmtResult.status !== 0) {
+    return 1
+  }
+  log('Running oxlint on all files…')
+  const oxlintArgs = ['exec', 'oxlint', '-c', '.config/oxlintrc.json']
+  if (fix) {
+    oxlintArgs.push('--fix')
+  }
+  const oxlintResult = spawnSync('pnpm', oxlintArgs, { stdio })
+  if (oxlintResult.status !== 0) {
+    return 1
+  }
+  return 0
+}
+
+export function runFiles(files: string[]): number {
+  if (files.length === 0) {
+    log('No lintable files; skipping.')
+    return 0
+  }
+  log(`Formatting ${files.length} file(s)...`)
+  const oxfmtArgs = [
+    'exec',
+    'oxfmt',
+    '-c',
+    '.config/oxfmtrc.json',
+    fix ? '--write' : '--check',
+    '--no-error-on-unmatched-pattern',
+    ...files,
+  ]
+  const oxfmtResult = spawnSync('pnpm', oxfmtArgs, { stdio })
+  if (oxfmtResult.status !== 0) {
+    return 1
+  }
+  log(`Running oxlint on ${files.length} file(s)...`)
+  const oxlintArgs = ['exec', 'oxlint', '-c', '.config/oxlintrc.json']
+  if (fix) {
+    oxlintArgs.push('--fix')
+  }
+  oxlintArgs.push(...files)
+  const oxlintResult = spawnSync('pnpm', oxlintArgs, { stdio })
+  if (oxlintResult.status !== 0) {
+    return 1
+  }
+  return 0
+}
+
+export function shouldEscalate(files: string[]): boolean {
+  for (let i = 0, { length } = files; i < length; i += 1) {
+    const f = files[i]!
+    for (let i = 0, { length } = ESCALATION_PATTERNS; i < length; i += 1) {
+      const pattern = ESCALATION_PATTERNS[i]!
+      if (pattern.test(f)) {
+        return true
+      }
+    }
+  }
+  return false
+}
+
+function main(): void {
+  if (mode === 'all') {
+    log('Lint scope: all')
+    process.exitCode = runAll()
+    if (process.exitCode === 0) {
+      log('Lint passed')
+    } else {
+      log('Lint failed')
+    }
+    return
+  }
+
+  const files = mode === 'staged' ? getStagedFiles() : getModifiedFiles()
+
+  if (files.length === 0) {
+    log(`No ${mode} files; skipping lint.`)
+    return
+  }
+
+  if (shouldEscalate(files)) {
+    log(`Config files changed; escalating to full lint.`)
+    process.exitCode = runAll()
+    if (process.exitCode === 0) {
+      log('Lint passed')
+    } else {
+      log('Lint failed')
+    }
+    return
+  }
+
+  const lintable = filterLintable(files)
+  log(
+    `Lint scope: ${mode} (${lintable.length} of ${files.length} files lintable)`,
+  )
+  process.exitCode = runFiles(lintable)
+  if (process.exitCode === 0) {
+    log('Lint passed')
+  } else {
+    log('Lint failed')
+  }
+}
+
+main()

@@ -1,0 +1,5 @@
+{
+  "schemaVersion": 1,
+  "channels": ["npm", "github-release"],
+  "npm": { "access": "restricted", "distTag": "latest" }
+}

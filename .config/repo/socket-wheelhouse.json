@@ -1,0 +1,55 @@
+{
+  "$schema": "./socket-wheelhouse-schema.json",
+  "schemaVersion": 1,
+  "repoName": "skills",
+  "repo": {
+    "type": "solo"
+  },
+  "build": {
+    "from": "npm-registry",
+    "type": "js"
+  },
+  "fuzz": {
+    "exempt": true,
+    "reason": "The release-kit payload's pure parsers (brew formula rewrite, npm access/trusted-publisher/staged page parsers, the pnpm-workspace catalog editor, and the installer manifest/path-safety + byte-parity checker) ARE covered by Tier-1 fast-check property suites under test/repo/unit/release-kit/fuzz/*.fuzz.test.mts. The Tier-2 vitiate coverage-guided lane (*.fuzz.ts) is not adopted: vitiate is not a catalog dependency here, and the skills content tooling itself parses only repo-tracked SKILL.md/marketplace.json, never untrusted input."
+  },
+  "hooks": {
+    "enablePrePush": true,
+    "enableCommitMsg": true,
+    "enablePreCommit": true,
+    "preCommitVariant": "lint-test"
+  },
+  "scripts": {
+    "optional": {
+      "check": true,
+      "clean": false,
+      "cover": false,
+      "fix": true,
+      "security": true,
+      "setup": false,
+      "type": false,
+      "update": true
+    }
+  },
+  "lint": {
+    "profile": "standard"
+  },
+  "workflows": {
+    "ci": true,
+    "provenance": false,
+    "requirePinnedFullSha": true,
+    "weeklyUpdate": true
+  },
+  "claude": {
+    "includeSecurityScanSkill": true,
+    "includeSharedSkills": true,
+    "includeUpdatingSkill": true
+  },
+  "workspace": {
+    "blockExoticSubdeps": true,
+    "minimumReleaseAge": 10080,
+    "minimumReleaseAgeExclude": ["@socketregistry/*", "@socketsecurity/*"],
+    "resolutionMode": "highest",
+    "trustPolicy": "no-downgrade"
+  }
+}
