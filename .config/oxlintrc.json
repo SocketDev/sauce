@@ -1,7 +1,13 @@
 {
   "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/856781f99c7eb521b6221fab0047cfd09343df50/npm/oxlint/configuration_schema.json",
-  "plugins": ["typescript", "unicorn", "import"],
-  "jsPlugins": ["./fleet/oxlint-plugin/index.mts"],
+  "plugins": [
+    "typescript",
+    "unicorn",
+    "import"
+  ],
+  "jsPlugins": [
+    "./fleet/oxlint-plugin/index.mts"
+  ],
   "categories": {
     "correctness": "error",
     "suspicious": "error"
@@ -33,9 +39,12 @@
     "import/no-named-as-default-member": "off",
     "import/no-self-import": "error",
     "import/no-unassigned-import": "off",
+    "socket/bag-param-optionality-naming": "error",
     "socket/export-top-level-functions": "error",
+    "socket/exported-name-has-domain-word": "error",
     "socket/guard-contract": "error",
     "socket/inclusive-language": "error",
+    "socket/max-comment-block-lines": "error",
     "socket/max-file-lines": "error",
     "socket/no-agent-brand-assumption": "error",
     "socket/no-bare-crypto-named-usage": "error",
@@ -45,6 +54,7 @@
     "socket/no-comment-glob-star-slash": "error",
     "socket/no-console-prefer-logger": "error",
     "socket/no-default-export": "error",
+    "socket/no-deprecation": "error",
     "socket/no-dynamic-import-outside-bundle": "error",
     "socket/no-eslint-biome-config-ref": "error",
     "socket/no-fetch-prefer-http-request": "error",
@@ -59,6 +69,7 @@
     "socket/no-module-eval-side-effects": "error",
     "socket/no-namespace-import": "error",
     "socket/no-npx-dlx": "error",
+    "socket/no-optional-positional-trap": "error",
     "socket/no-options-param-mutation": "error",
     "socket/no-package-manager-auto-update-reenable": "error",
     "socket/no-placeholders": "error",
@@ -69,6 +80,7 @@
     "socket/no-promise-race": "error",
     "socket/no-promise-race-in-loop": "error",
     "socket/no-runtime-features-below-engine-floor": "error",
+    "socket/no-source-content-tests": "error",
     "socket/no-source-sniffing": "error",
     "socket/no-spawn-stream-double-consume": "error",
     "socket/no-spawnsync-code-field": "error",
@@ -90,6 +102,7 @@
     "socket/options-null-proto": "error",
     "socket/options-param-naming": "error",
     "socket/personal-path-placeholders": "error",
+    "socket/prefer-all-settled": "error",
     "socket/prefer-async-spawn": "error",
     "socket/prefer-cached-for-loop": "error",
     "socket/prefer-ellipsis-char": "error",
@@ -100,6 +113,7 @@
     "socket/prefer-find-repo-root": "error",
     "socket/prefer-find-up-package-json": "error",
     "socket/prefer-function-declaration": "error",
+    "socket/prefer-lib-versions-over-semver": "error",
     "socket/prefer-mock-import": "error",
     "socket/prefer-node-builtin-imports": "error",
     "socket/prefer-node-modules-dot-cache": "error",
@@ -107,6 +121,7 @@
     "socket/prefer-normalize-path": "error",
     "socket/prefer-optional-chain": "error",
     "socket/prefer-pure-call-form": "error",
+    "socket/prefer-repo-root-dot-cache": "error",
     "socket/prefer-safe-delete": "error",
     "socket/prefer-separate-type-import": "error",
     "socket/prefer-shell-win32": "error",
@@ -150,12 +165,14 @@
     "typescript/no-extraneous-class": "off",
     "typescript/no-misused-new": "error",
     "typescript/no-non-null-asserted-optional-chain": "off",
+    "typescript/no-redundant-type-constituents": "off",
     "typescript/no-this-alias": [
       "error",
       {
         "allowDestructuring": true
       }
     ],
+    "typescript/no-unnecessary-type-assertion": "off",
     "typescript/no-useless-empty-export": "error",
     "typescript/no-wrapper-object-types": "error",
     "typescript/prefer-as-const": "error",

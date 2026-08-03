@@ -13,6 +13,8 @@ packages:
   - '.config/fleet/oxlint-plugin'
   - '.config/fleet/oxlint-plugin/fleet/*'
   - '.claude/hooks/fleet/*'
+  - '.claude/hooks/repo/*'
+  - '.config/repo/oxlint-plugin/*'
 
 # Catalog entries shared across hook workspaces. Each hook depends on
 # the same Socket fleet packages the parent ships; pinning them here
