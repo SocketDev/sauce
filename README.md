@@ -26,7 +26,7 @@ Skills are self-contained folders that package instructions, scripts, and resour
 
 If your agent doesn't support skills, use [`agents/README.md`](agents/README.md) as a fallback: copy it into your project as `AGENTS.md`.
 
-## Installation
+## Install
 
 Socket Security Skills are compatible with Claude Code, Codex, Gemini CLI, Cursor, and any agent supporting the [Agent Skills standard](https://agentskills.io/specification).
 
@@ -129,7 +129,7 @@ pnpm dlx skills add SocketDev/skills
 
 2. Skills call the Socket CLI and Batch PURL API directly, so no MCP server is required.
 
-## Skills
+## Usage
 
 This repository contains security-focused skills for dependency management. You can also contribute your own skills to the repository.
 
@@ -175,7 +175,7 @@ Holistic dependency repair — orchestrate cleanup, replacement, patching, and u
 
 <!-- END_SKILLS_TABLE -->
 
-## Contributing
+## Development
 
 1. Create a new directory under `skills/` with a descriptive name
 2. Add a `SKILL.md` file with YAML frontmatter (`name` and `description`) followed by guidance content
