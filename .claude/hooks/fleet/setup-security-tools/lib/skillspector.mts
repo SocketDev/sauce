@@ -22,8 +22,10 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 import { whichSync } from '@socketsecurity/lib-stable/bin/which'
+import { ensureDlxDirSync } from '@socketsecurity/lib-stable/dlx/dir'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { getSocketDlxDir } from '@socketsecurity/lib-stable/paths/socket'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
 import { SKILLSPECTOR } from './tool-config.mts'
@@ -89,14 +91,43 @@ export async function runSetupSkillSpector(): Promise<boolean> {
     return false
   }
 
+  // The entry point lands in the project's venv. POSIX: .venv/bin/skillspector;
+  // Windows: .venv/Scripts/skillspector.exe.
+  const venvDir = path.join(projectDir, '.venv')
+  const venvBin =
+    process.platform === 'win32'
+      ? path.join(venvDir, 'Scripts', 'skillspector.exe')
+      : path.join(venvDir, 'bin', 'skillspector')
+
   // `uv sync --locked` installs the lock's exact closure into the project venv
   // and hard-fails on lock drift — the verification-grade, reproducible path.
+  //
+  // The env is PINNED, matching setupHeadroom: UV_CACHE_DIR keeps the wheel
+  // cache `~/.socket/_dlx` contained instead of seeding the developer's real
+  // `~/.cache/uv` (this closure is ~179 MB), UV_PROJECT_ENVIRONMENT names
+  // the venv explicitly so an operator's inherited UV_PROJECT_ENVIRONMENT
+  // cannot redirect the install somewhere the entry-point check below would
+  // then fail to find, and UV_PYTHON_INSTALL_DIR keeps the managed CPython
+  // uv downloads when the required version is absent (~65 MB) out of the
+  // operator's `~/.local/share/uv`.
+  ensureDlxDirSync()
+  const cacheDir = path.join(getSocketDlxDir(), '_uv-cache')
+  const pythonInstallDir = path.join(getSocketDlxDir(), '_uv-python')
   logger.log(`Syncing locked uv project (skillspector@${sha})`)
   try {
     const result = await spawn(
       uvBin,
       ['sync', '--locked', '--project', projectDir],
-      { stdio: 'pipe' },
+      {
+        env: {
+          __proto__: null,
+          ...process.env,
+          UV_CACHE_DIR: cacheDir,
+          UV_PROJECT_ENVIRONMENT: venvDir,
+          UV_PYTHON_INSTALL_DIR: pythonInstallDir,
+        } as unknown as Record<string, string>,
+        stdio: 'pipe',
+      },
     )
     const stdout = String(result.stdout).trim()
     if (stdout) {
@@ -107,12 +138,6 @@ export async function runSetupSkillSpector(): Promise<boolean> {
     return false
   }
 
-  // The entry point lands in the project's venv. POSIX: .venv/bin/skillspector;
-  // Windows: .venv/Scripts/skillspector.exe.
-  const venvBin =
-    process.platform === 'win32'
-      ? path.join(projectDir, '.venv', 'Scripts', 'skillspector.exe')
-      : path.join(projectDir, '.venv', 'bin', 'skillspector')
   if (!existsSync(venvBin)) {
     logger.error(
       'uv sync succeeded but the skillspector entry point is absent.',

@@ -57,7 +57,7 @@ export function cacheBustedRead(
 export async function fetchLatestPublishedVersionChecked(
   name: string,
 ): Promise<RegistryLatestRead> {
-  const url = `${NPM_REGISTRY_URL}/${encodeURIComponent(name).replace('%40', '@')}`
+  const url = `${NPM_REGISTRY_URL}/${encodeURIComponent(name).replaceAll('%40', '@')}`
   const read = cacheBustedRead(url, 'application/vnd.npm.install-v1+json')
   try {
     const json = await httpJson<{
@@ -91,6 +91,56 @@ export async function fetchLatestPublishedVersion(
 }
 
 /**
+ * The source commit npm recorded for a package's newest published version —
+ * `versions[<latest>].gitHead` — a squash-freeze-boundary anchor: the exact
+ * commit a published tarball was built from. Requires the FULL packument;
+ * `gitHead` is dropped from the abbreviated `install-v1+json` format the other
+ * reads in this file use for their smaller payload. Fail-open, matching every
+ * other registry read here: `reachable: false` on any network failure (never
+ * treated as "unpublished"); `reachable: true, sha: undefined` when the
+ * registry answers but the published version carries no recorded `gitHead`
+ * (an old npm CLI, or a publish that never had a git checkout) — the caller
+ * (`resolveFreezeBoundary`) treats an unresolvable anchor on a confirmed
+ * release as a fail-loud condition, never a silent full-root squash.
+ */
+export interface NpmGitHeadRead {
+  readonly reachable: boolean
+  readonly sha?: string | undefined
+  readonly version?: string | undefined
+}
+
+export async function fetchLatestGitHead(
+  name: string,
+): Promise<NpmGitHeadRead> {
+  const url = `${NPM_REGISTRY_URL}/${encodeURIComponent(name).replaceAll('%40', '@')}`
+  const read = cacheBustedRead(url, 'application/json')
+  try {
+    const json = await httpJson<{
+      'dist-tags'?: { latest?: string | undefined } | undefined
+      versions?:
+        | Record<string, { gitHead?: string | undefined } | undefined>
+        | undefined
+    }>(read.url, {
+      headers: read.headers,
+      timeout: 15_000,
+    })
+    const version = json['dist-tags']?.latest
+    if (!version) {
+      // The registry answered: never published.
+      return { reachable: true }
+    }
+    const gitHead = json.versions?.[version]?.gitHead
+    return {
+      reachable: true,
+      sha: typeof gitHead === 'string' && gitHead ? gitHead : undefined,
+      version,
+    }
+  } catch {
+    return { reachable: false }
+  }
+}
+
+/**
  * The registry state the backfill gate reads in one packument fetch: the
  * `dist-tags.latest` pointer plus the `time` map. The time map is the
  * registry's PERMANENT publish ledger — it keeps an entry for every version
@@ -118,7 +168,7 @@ export interface RegistryReleaseState {
 export async function fetchRegistryReleaseState(
   name: string,
 ): Promise<RegistryReleaseState | undefined> {
-  const url = `${NPM_REGISTRY_URL}/${encodeURIComponent(name).replace('%40', '@')}`
+  const url = `${NPM_REGISTRY_URL}/${encodeURIComponent(name).replaceAll('%40', '@')}`
   // Full packument — the abbreviated install-v1 format drops `time`.
   const read = cacheBustedRead(url, 'application/json')
   try {
@@ -156,7 +206,7 @@ export async function isAlreadyPublished(
   name: string,
   version: string,
 ): Promise<boolean> {
-  const url = `${NPM_REGISTRY_URL}/${encodeURIComponent(name).replace('%40', '@')}`
+  const url = `${NPM_REGISTRY_URL}/${encodeURIComponent(name).replaceAll('%40', '@')}`
   const read = cacheBustedRead(url, 'application/vnd.npm.install-v1+json')
   try {
     const json = await httpJson<{
@@ -188,7 +238,7 @@ export interface PublishedState {
 export async function fetchPublishedState(
   name: string,
 ): Promise<PublishedState> {
-  const url = `${NPM_REGISTRY_URL}/${encodeURIComponent(name).replace('%40', '@')}`
+  const url = `${NPM_REGISTRY_URL}/${encodeURIComponent(name).replaceAll('%40', '@')}`
   const read = cacheBustedRead(url, 'application/vnd.npm.install-v1+json')
   try {
     const json = await httpJson<{
@@ -253,30 +303,27 @@ export interface RegistryVersionInfo {
 
 /**
  * Fetch a package's registry packument and return the per-version trust
- * metadata. Returns `{}` for any package that isn't on the registry (or that
- * the fetch itself failed for).
+ * metadata. Returns `{}` for any package not on the registry, or when the
+ * fetch itself failed.
  *
  * The npm registry exposes two packument formats:
  *
- * - Full (~100KB+): includes per-version `_npmUser.trustedPublisher` (OIDC
+ * - Full (~100KB+): per-version `_npmUser.trustedPublisher` (OIDC
  *   trusted-publisher attribution) AND `dist.attestations` (SLSA provenance
  *   bundle URL).
  * - Abbreviated (~10-20KB, Accept: application/vnd.npm.install-v1+json): drops
  *   `_npmUser` but keeps `dist.attestations`.
  *
- * Callers pick: `'abbreviated'` for cheap attestation-only checks (Stop-hook,
- * approve-flow enrich), `'full'` for audits that need to confirm
- * trusted-publisher attribution (check/provenance-is-attested.mts).
- *
- * Use this from `check/provenance-is-attested.mts` (CLI audit), the approve
- * flow, show prior-version status, and the Stop-hook (verify a freshly- bumped
- * version landed with provenance).
+ * Callers pick `'abbreviated'` for cheap attestation-only checks and `'full'`
+ * when confirming trusted-publisher attribution. Consumers: the approve flow,
+ * prior-version status display, the Stop-hook's freshly-bumped provenance
+ * check, and check/provenance-is-attested.mts.
  */
 export async function fetchVersionTrustInfo(
   name: string,
   variant: 'abbreviated' | 'full' = 'abbreviated',
 ): Promise<Record<string, RegistryVersionInfo>> {
-  const url = `${NPM_REGISTRY_URL}/${encodeURIComponent(name).replace('%40', '@')}`
+  const url = `${NPM_REGISTRY_URL}/${encodeURIComponent(name).replaceAll('%40', '@')}`
   let json: {
     versions?:
       | Record<
@@ -341,15 +388,6 @@ export async function fetchVersionTrustInfo(
 }
 
 /**
- * Post-failure diagnosis for a staged upload under CI OIDC. pnpm's token
- * exchange 404s (`ERR_PNPM_AUTH_TOKEN_EXCHANGE`, logged as "Skipped OIDC")
- * when the registry has NO trusted-publisher registration matching this
- * run's OIDC claims — the upload then proceeds tokenless and fails. The
- * packument's per-version `_npmUser.trustedPublisher` splits the two causes:
- * never registered vs. registered-but-claims-drifted. Returns the diagnosis
- * lines to log (empty outside GitHub Actions).
- */
-/**
  * Post-failure diagnosis for a stage-conflict (E409-shaped) upload failure:
  * the target version is NOT publicly published, yet the stage was refused —
  * a staged (unpublished) entry for that exact version already exists, and
@@ -389,6 +427,15 @@ export async function diagnoseStageConflict(
   ]
 }
 
+/**
+ * Post-failure diagnosis for a staged upload under CI OIDC. pnpm's token
+ * exchange 404s (`ERR_PNPM_AUTH_TOKEN_EXCHANGE`, logged as "Skipped OIDC")
+ * when the registry has NO trusted-publisher registration matching this
+ * run's OIDC claims — the upload then proceeds tokenless and fails. The
+ * packument's per-version `_npmUser.trustedPublisher` splits the two causes:
+ * never registered vs. registered-but-claims-drifted. Returns the diagnosis
+ * lines to log (empty outside GitHub Actions).
+ */
 export async function diagnoseStagedAuthFailure(
   name: string,
 ): Promise<string[]> {

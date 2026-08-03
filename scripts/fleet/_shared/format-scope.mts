@@ -12,6 +12,7 @@
 
 import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 import { normalizePath } from '@socketsecurity/lib-stable/paths/normalize'
+import { escapeRegExp } from '@socketsecurity/lib-stable/regexps/escape'
 import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -44,7 +45,7 @@ export function pickConfig(
 // Resolve the oxfmt `--ignore-path`. The fleet canonical
 // `.config/fleet/.prettierignore` excludes `.claude/`, the `.agents/` mirror,
 // `**/fleet/**` — the patterns every repo shares.
-// A repo with its OWN verbatim trees (e.g. socket-btm's
+// A repo with its OWN verbatim trees (e.g. node-smol's
 // `additions/source-patched/` synced into the Node build, or `test/fixtures/`
 // corpora) declares them in a repo overlay at `.config/repo/.prettierignore`.
 // oxfmt takes a single `--ignore-path` and does NOT honor the flag twice, so
@@ -156,7 +157,7 @@ export function ignoreGlobToRegExp(glob: string): RegExp {
         out += '[^/]*'
       }
     } else {
-      out += c.replace(/[$()+.?[\]\\^{|}]/, m => `\\${m}`)
+      out += escapeRegExp(c)
     }
   }
   return new RegExp(`${out}$`)

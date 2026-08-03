@@ -132,12 +132,15 @@ template/.claude/hooks/fleet/_shared/acorn/acorn.wasm binary
 .github/actions/fleet/setup linguist-generated=true
 .github/actions/fleet/setup-and-install linguist-generated=true
 .github/actions/fleet/setup-git-signing linguist-generated=true
+.github/actions/fleet/setup-rust-cache linguist-generated=true
+.github/actions/fleet/setup-rust-toolchain linguist-generated=true
 .github/agent-ci.Dockerfile linguist-generated=true
 .github/dependabot.yml linguist-generated=true
 .github/workflows/*.lock.yml linguist-generated=true merge=ours
 .github/workflows/get-green.lock.yml linguist-generated=true
 .github/workflows/get-green.md linguist-generated=true
 .github/workflows/github-release.yml linguist-generated=true
+.github/workflows/npm-publish-dryrun.yml linguist-generated=true
 .github/workflows/npm-publish.yml linguist-generated=true
 .github/workflows/prune-workflow-runs.yml linguist-generated=true
 .github/workflows/release-reconcile.yml linguist-generated=true
@@ -162,3 +165,5 @@ test/fleet/nock-loopback-passthrough.test.mts linguist-generated=true
 test/fleet/publish-infra-placeholder.test.mts linguist-generated=true
 test/fleet/scripts/setup.mts linguist-generated=true
 # </fleet>
+# <repo>
+# </repo>

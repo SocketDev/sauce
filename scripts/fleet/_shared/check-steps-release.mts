@@ -78,12 +78,11 @@ export function buildReleaseAndDocsSteps(): CheckStep[] {
     // runs in its OWN context and inherits none of the main session's memory
     // of CLAUDE.md, so an uncited definition produces an actor who learns the
     // conventions one tool-refusal at a time. pr-feedback.md was the real
-    // miss (2026-08-01) — and it is the broadest-privileged agent in the
+    // miss on 2026-08-01, and it is the broadest-privileged agent in the
     // fleet: it commits, pushes, and comments as the operator. The hooks bind
-    // subagents regardless (they fire at the tool layer for every caller);
-    // this is about knowing the rule before spending a turn on it.
-    () =>
-      run('node', ['scripts/fleet/check/agents-cite-the-fleet-rules.mts']),
+    // subagents regardless, because they fire at the tool layer for every
+    // caller. This is about knowing the rule before spending a turn on it.
+    () => run('node', ['scripts/fleet/check/agents-have-rule-citations.mts']),
     // Every file under template/base is classified into exactly one distribution
     // channel (mirror / optional / preset / conditional / expected / carveOut /
     // overrides / native handler) — Assertion A (blocking) fails when a file
@@ -228,6 +227,20 @@ export function buildReleaseAndDocsSteps(): CheckStep[] {
     // (fleet-main-protection) and never touches any other. Strict; skips
     // cleanly off the release tier / member checkouts / no gh.
     releaseStep(['scripts/fleet/check/main-branch-rules-are-enforced.mts']),
+    // Every member's GitHub security posture matches the posture law
+    // (_shared/security-posture-law.mts): CodeQL default setup configured with
+    // a SANITISED language set on public repos — at most one of the
+    // javascript/javascript-typescript/typescript trio, which are three names
+    // for ONE extractor, and only languages actually present in the tree —
+    // plus secret scanning + push protection on public repos, vulnerability
+    // alerts on everywhere, automated-security-fixes OFF everywhere (alerts
+    // without PRs), and the canonical no-op dependabot.yml. socket-vscode read
+    // `configured` for months while permanently erroring on the trio, and
+    // GitHub SUGGESTS that same trio on every unconfigured public fleet repo.
+    // --fix converges settings only, never dependabot.yml (cascade-owned) and
+    // never a private repo's paid-GHAS scanning. REPORT-ONLY until the fleet
+    // burns down; skips cleanly off the release tier / member checkouts / no gh.
+    releaseStep(['scripts/fleet/check/security-posture-matches-law.mts']),
     // Every member's default GITHUB_TOKEN must be read-only and Actions must
     // not be able to approve pull requests — a compromised workflow step
     // otherwise gets a write token and can satisfy review gates. --fix is a
@@ -431,9 +444,8 @@ export function buildReleaseAndDocsSteps(): CheckStep[] {
     // `--check`: fail-open where the member did not set the `docs` opt-in or has
     // no export surface, and staleness compared on whitespace-normalized text so
     // a formatter's table alignment is not drift.
-    () => run('node', ['scripts/fleet/make-api-md.mts', '--check', '--quiet']),
-    () =>
-      run('node', ['scripts/fleet/make-llms-txt.mts', '--check', '--quiet']),
+    () => run('node', ['scripts/fleet/gen/api-md.mts', '--check', '--quiet']),
+    () => run('node', ['scripts/fleet/gen/llms-txt.mts', '--check', '--quiet']),
     // Test mirror-naming convention: every unit test basename matches the basename
     // of its one first-party static import. Run with --strict so violations exit
     // non-zero; mirror-exempt markers on skip files suppress known exceptions.
@@ -504,6 +516,19 @@ export function buildReleaseAndDocsSteps(): CheckStep[] {
     () =>
       run('node', [
         'scripts/fleet/check/publish-workflows-are-staged-fail-closed.mts',
+        '--quiet',
+      ]),
+    // Every publish entry point resolves to the fleet script or to a
+    // repo-local orchestrator that imports the fleet primitives, and the npm
+    // UPLOAD invocation itself exists once, in
+    // publish-infra/npm/publish-command.mts. Five members shipped identical
+    // publish bytes and still published under two different credentials — a
+    // second copy of the upload command is a second place provenance and the
+    // trusted-publishing auth posture get decided, and it will be the stale
+    // one. Orchestration stays repo-local; the upload does not. Strict.
+    () =>
+      run('node', [
+        'scripts/fleet/check/publish-entrypoints-are-fleet-composed.mts',
         '--quiet',
       ]),
     // Every workflow job that runs a version-derivation leg (bump.mts,

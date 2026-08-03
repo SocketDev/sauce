@@ -293,7 +293,7 @@ export function buildPathsAndSupplyChainSteps(): CheckStep[] {
     // Lock-step reference hygiene. Opt-in gate that exits clean when the
     // repo-owned .config/repo/lock-step-refs.json (legacy top-level
     // .config/lock-step-refs.json) is absent; for repos that ship
-    // cross-language ports (acorn quadruplet, socket-btm mcp/*.cpp),
+    // cross-language ports (the acorn quadruplet, a repo's mcp/*.cpp),
     // it validates every `Lock-step with <Lang>: <path>` comment resolves
     // to an existing file. Forms documented in
     // docs/agents.md/fleet/parser-comments.md §5–6.
@@ -337,6 +337,21 @@ export function buildPathsAndSupplyChainSteps(): CheckStep[] {
     // unstable keys are inert on stable cargo, so the lock is the build-time
     // enforcement and the nightly updater is the only thing that moves it.
     () => run('node', ['scripts/fleet/check/cargo-soak-config-is-current.mts']),
+    // Every language capability a repo DECLARES must dispatch to a coverage
+    // lane that measures something. Pass 1 (static wiring: a known capability,
+    // a lane behind it, declared paths on disk carrying the language's marker)
+    // runs everywhere and always fails hard. Pass 2 (the lane actually measured
+    // lines, read off coverage/lane-summary.json) is release/CI tier only,
+    // because a fresh clone has no artifact to read.
+    () => run('node', ['scripts/fleet/check/coverage-lanes-are-wired.mts']),
+    // A repo's vitest tuning lives in the ONE settings file
+    // (socket-wheelhouse.json `vitest` section), never a standalone
+    // .config/repo/vitest.json. The canonical vitest config reads only that
+    // section, so a leftover vitest.json is dead config the tests silently
+    // ignore — this gate fails loud on the orphan a config consolidation
+    // strands when a member's old per-file config is left on disk.
+    () =>
+      run('node', ['scripts/fleet/check/vitest-config-is-consolidated.mts']),
     // Never pin the microarch of a SHIPPED build — a distributed artifact must
     // detect the CPU at run time (portable SIMD = runtime dispatch), not bake in
     // the build machine's ISA and SIGILL on older CPUs. Fails on Rust
@@ -417,6 +432,14 @@ export function buildPathsAndSupplyChainSteps(): CheckStep[] {
     // imports of the `-stable` surface resolve an older build than the catalog
     // ships. Scans both the live workspace + the fleet catalog source.
     () => run('node', ['scripts/fleet/check/stable-aliases-match-base.mts']),
+    // The other direction of the same rule: a Socket-published pin must never
+    // move DOWN from its committed value. Socket packages are soak-exempt and
+    // always take the latest, so a rollback is someone routing around a broken
+    // release by hand — and it desyncs every member's `-stable` alias from its
+    // base, which is what reds the fleet. A FLEET_CATALOG_HOLDS entry is the
+    // sanctioned exception and this gate honors it.
+    () =>
+      run('node', ['scripts/fleet/check/socket-pins-are-never-lowered.mts']),
     // Baseline catalog coverage. Wheelhouse-only (no-ops where the
     // sync-scaffolding manifest is absent). Every `catalog:` dep the fleet
     // package.json baseline (CANONICAL_CATALOG_DEPS) writes onto a member must be

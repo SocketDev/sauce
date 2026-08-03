@@ -94,6 +94,12 @@ export function buildHookAndDocSteps(forwardedArgs: string[]): CheckStep[] {
     // cargo test / go test / ctest must gate the run through the run-offline
     // action, loopback-only netns — the compiled-language nock equivalent.
     () => run('node', ['scripts/fleet/check/native-tests-are-network-off.mts']),
+    // Test isolation: a test that spawns a process must point the child at an
+    // isolation sandbox — probes included, since a `pnpm --version` against a
+    // corepack shim downloads the whole package manager — and must not wipe
+    // the cache variables it just set. Report-only; the ordering half is
+    // blocked at edit time by test-env-scrub-order-guard.
+    () => run('node', ['scripts/fleet/check/test-spawns-are-isolated.mts']),
     // Single-source for the co-located app-token minter: every action dir's
     // mint-app-installation-token.mjs copy must be byte-identical (the inlined
     // form of single-source-of-truth — a drifted copy mints with stale logic).
@@ -134,6 +140,11 @@ export function buildHookAndDocSteps(forwardedArgs: string[]): CheckStep[] {
       run('node', [
         'scripts/fleet/check/prose-parenthetical-asides-are-absent.mts',
       ]),
+    // No commit message carries an AI-attribution trailer and no branch uses an
+    // AI-agent tool prefix. Both are fleet commit-format policy, and both are
+    // scored as automation signals by the public @unveil/identity engine.
+    () =>
+      run('node', ['scripts/fleet/check/commits-carry-no-ai-attribution.mts']),
     // Commit-time twin of markdown-filename-guard: every tracked .md has a
     // canonical filename (lowercase-hyphens, or an allowlisted SCREAMING_CASE name
     // only at root/docs/.claude). Reuses the guard's classifyMarkdownPath predicate.

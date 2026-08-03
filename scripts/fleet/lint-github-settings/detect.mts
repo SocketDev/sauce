@@ -94,11 +94,46 @@ export function resolveRepo(): string | undefined {
  * undefined on any error. The caller decides whether undefined is an
  * audit-failing condition or a soft skip.
  */
+/**
+ * A `gh` runner, injected so the API-shaped detectors below are testable
+ * without the network. Mirrors the subset of `spawnSync`'s result these
+ * functions read. Same seam convention as `GitExec` in
+ * `../prune-backup-branches.mts` — one way to make a shelling-out fleet script
+ * testable, not one per script.
+ */
+export type GhSpawn = (args: string[]) => {
+  status: number | null
+  stdout: string
+  stderr?: string | undefined
+}
+
+/**
+ * The production runner: `gh` via spawnSync, rooted at the repo.
+ */
+export function ghSpawn(args: string[]): ReturnType<GhSpawn> {
+  const r = spawnSync('gh', args, { cwd: REPO_ROOT })
+  return {
+    status: r.status,
+    stderr: String(r.stderr ?? ''),
+    stdout: String(r.stdout ?? ''),
+  }
+}
+
+export interface GhApiOptions {
+  body?: Record<string, unknown> | undefined
+  method?: 'GET' | 'PATCH' | undefined
+  runGh?: GhSpawn | undefined
+}
+
 export function ghApi<T>(
   endpoint: string,
-  method: 'GET' | 'PATCH' = 'GET',
-  body?: Record<string, unknown> | undefined,
+  options?: GhApiOptions | undefined,
 ): T | undefined {
+  const {
+    body,
+    method = 'GET',
+    runGh = ghSpawn,
+  } = { __proto__: null, ...options } as GhApiOptions
   const args = ['api', endpoint]
   if (method !== 'GET') {
     args.push('-X', method)
@@ -116,10 +151,10 @@ export function ghApi<T>(
       args.push(flag, `${k}=${typeof v === 'string' ? v : JSON.stringify(v)}`)
     }
   }
-  const r = spawnSync('gh', args, {})
+  const r = runGh(args)
   if (r.status !== 0) {
     if (process.env['DEBUG']) {
-      process.stderr.write(`gh ${args.join(' ')} failed: ${r.stderr}\n`)
+      process.stderr.write(`gh ${args.join(' ')} failed: ${r.stderr ?? ''}\n`)
     }
     return undefined
   }
@@ -140,8 +175,12 @@ export function ghApi<T>(
  */
 export function loadCustomProperties(
   repo: string,
+  runGh: GhSpawn = ghSpawn,
 ): Record<string, string | null> {
-  const props = ghApi<CustomPropertyValue[]>(`repos/${repo}/properties/values`)
+  const props = ghApi<CustomPropertyValue[]>(
+    `repos/${repo}/properties/values`,
+    { runGh },
+  )
   if (!Array.isArray(props)) {
     return {}
   }
@@ -211,6 +250,7 @@ export function readDeclaredApps(): Set<string> {
 export function detectInstalledApps(
   repo: string,
   defaultBranch: string,
+  runGh: GhSpawn = ghSpawn,
 ): Set<string> {
   const seen = new Set<string>()
   // List of commits, not a single commit — `/commits` (plural) with
@@ -218,6 +258,7 @@ export function detectInstalledApps(
   // endpoint returns ONE commit, which is the bug shape this fixes.
   const commits = ghApi<Array<{ sha?: string | undefined }>>(
     `repos/${repo}/commits?sha=${encodeURIComponent(defaultBranch)}&per_page=10`,
+    { runGh },
   )
   for (const c of commits ?? []) {
     if (!c.sha) {
@@ -225,6 +266,7 @@ export function detectInstalledApps(
     }
     const suites = ghApi<CheckSuitesPayload>(
       `repos/${repo}/commits/${c.sha}/check-suites?per_page=100`,
+      { runGh },
     )
     for (const s of suites?.check_suites ?? []) {
       if (s.app?.slug) {
@@ -240,10 +282,12 @@ export function detectInstalledApps(
 
 export function detectLocalShadows(
   repo: string,
+  runGh: GhSpawn = ghSpawn,
 ): Array<{ basename: string; localPath: string }> {
   const out: Array<{ basename: string; localPath: string }> = []
   const wf = ghApi<WorkflowsPayload>(
     `repos/${repo}/actions/workflows?per_page=100`,
+    { runGh },
   )
   if (!wf?.workflows) {
     return out
@@ -263,9 +307,7 @@ export function detectLocalShadows(
     ) {
       continue
     }
-    const r = spawnSync('gh', ['api', `repos/${repo}/contents/${w.path}`], {
-      cwd: REPO_ROOT,
-    })
+    const r = runGh(['api', `repos/${repo}/contents/${w.path}`])
     if (r.status !== 0) {
       continue
     }
