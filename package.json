@@ -51,7 +51,11 @@
     "socket-wheelhouse:emit-schema": "node scripts/fleet/socket-wheelhouse-emit-schema.mts",
     "mcp:reset": "node scripts/fleet/mcp-reset.mts",
     "setup:sfw-ca": "node scripts/fleet/setup/sfw-ca.mts",
-    "get-green": "node scripts/fleet/get-green.mts"
+    "get-green": "node scripts/fleet/get-green.mts",
+    "sync-fleet": "node scripts/repo/bootstrap/fleet.mjs",
+    "fleet:status": "node scripts/repo/bootstrap/fleet.mjs --status",
+    "prune:backups": "node scripts/fleet/prune-backup-branches.mts",
+    "prune:caches": "node scripts/fleet/prune-actions-caches.mts"
   },
   "devDependencies": {
     "@redwoodjs/agent-ci": "catalog:",
