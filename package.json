@@ -58,6 +58,7 @@
     "prune:caches": "node scripts/fleet/prune-actions-caches.mts"
   },
   "devDependencies": {
+    "@actions/cache": "catalog:",
     "@redwoodjs/agent-ci": "catalog:",
     "@shadscan/cli": "catalog:",
     "@sinclair/typebox": "catalog:",
