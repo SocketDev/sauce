@@ -1,13 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/856781f99c7eb521b6221fab0047cfd09343df50/npm/oxlint/configuration_schema.json",
-  "plugins": [
-    "typescript",
-    "unicorn",
-    "import"
-  ],
-  "jsPlugins": [
-    "./fleet/oxlint-plugin/index.mts"
-  ],
+  "plugins": ["typescript", "unicorn", "import"],
+  "jsPlugins": ["./fleet/oxlint-plugin/index.mts"],
   "categories": {
     "correctness": "error",
     "suspicious": "error"
@@ -63,6 +57,7 @@
     "socket/no-glob-in-ordered-run-s": "error",
     "socket/no-inline-defer-async": "error",
     "socket/no-inline-logger": "error",
+    "socket/no-literal-control-char": "error",
     "socket/no-logger-newline-literal": "error",
     "socket/no-malformed-bypass-marker": "error",
     "socket/no-minified-bundler-output": "error",
