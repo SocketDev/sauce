@@ -266,28 +266,22 @@ function renderRuleGuidance(findings: OxlintMessage[]): string {
 }
 
 /**
- * Build the per-file prompt. Structure follows Anthropic's prompt- engineering
- * best practices for headless tool-use:
+ * Build the per-file prompt, structured per Anthropic's headless tool-use
+ * guidance:
  *
- * - <role>: senior engineer doing a careful refactor — sets the bar above "quick
- *   autofix" so the model treats edge cases.
- * - <task>: one-sentence framing.
- * - <file>: the target path. Edits must stay scoped to it.
- * - <findings>: machine-readable list of violations.
+ * - <role>: senior engineer doing a careful refactor, above "quick autofix".
+ * - <task>: one-sentence framing; <file>: the target path, edits stay scoped.
+ * - <findings>: machine-readable violations.
  * - <rules>: per-rule canonical rewrite + good/bad examples (low freedom).
- * - <process>: numbered steps that force a Read → reason → Edit → self-verify
- *   loop. Self-verify is the highest-leverage step — it catches the
- *   import/callsite mismatch class that produced past breakage.
- * - <constraints>: hard rules — no Bash, no Write, single-file scope, no orphan
- *   imports.
- * - <reminders>: instructions repeated at the END for the long- context regime
- *   per Anthropic guidance.
- * - <output>: response format expectation, prefilled to suppress markdown /
- *   preamble.
+ * - <process>: numbered Read → reason → Edit → self-verify steps. Self-verify is
+ *   the highest-leverage step — it catches the import/callsite mismatch class
+ *   that produced past breakage.
+ * - <constraints>: no Bash, no Write, single-file scope, no orphan imports.
+ * - <reminders>: repeated at the END for the long-context regime.
+ * - <output>: response format, prefilled to suppress markdown preamble.
  *
- * The prompt is intentionally short but the structure is explicit. Adding
- * boilerplate dilutes instructions; omitting the verify step is how this prompt
- * has historically produced orphan imports.
+ * Kept short deliberately: boilerplate dilutes instructions, and omitting the
+ * verify step is how this prompt has historically produced orphan imports.
  */
 function buildPrompt(filePath: string, findings: OxlintMessage[]): string {
   // oxlint-disable-next-line socket/no-process-cwd-in-scripts-hooks -- relative path for prompt display; user invokes `pnpm run fix` from their cwd and expects paths relative to where they ran.

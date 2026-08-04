@@ -41,8 +41,8 @@ export const AI_HANDLED_RULES: ReadonlySet<string> = new Set([
  *
  * Why per-rule rather than per-file or per-finding:
  *
- * - Per-finding would spawn N AI calls per file. Wasteful.
- * - Per-file flat would route everything to Sonnet defensively. Wasteful too.
+ * - Per-finding spawns N calls per file; per-file flat routes everything to
+ *   Sonnet defensively. Both waste spend.
  * - Per-rule + escalation matches the actual cost surface: simple regex-shaped
  *   rewrites (identifier rename, null→undefined, fs.X → X) work fine on Haiku;
  *   control-flow + caller-chain rewrites (fetch→httpJson, sync→async, fs.access
@@ -51,8 +51,7 @@ export const AI_HANDLED_RULES: ReadonlySet<string> = new Set([
  * Tier order: `claude-haiku-4-5` < `claude-sonnet-4-6` < `claude-opus-4-8`.
  * Add new rules to the right bucket when adding to AI_HANDLED_RULES.
  */
-// The `__proto__: null` sigil needs a double cast under strict tsconfig;
-// the literal below is otherwise fully statically typed.
+// The `__proto__: null` sigil needs a double cast under strict tsconfig.
 /* eslint-disable typescript/no-unsafe-type-assertion -- see above */
 export const RULE_MODEL_TIER: Readonly<
   Record<string, 'haiku' | 'sonnet' | 'opus'>
