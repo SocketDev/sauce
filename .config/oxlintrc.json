@@ -80,6 +80,7 @@
     "socket/no-spawn-stream-double-consume": "error",
     "socket/no-spawnsync-code-field": "error",
     "socket/no-src-import-in-test-expect": "error",
+    "socket/no-stacked-lint-disables": "error",
     "socket/no-status-emoji": "error",
     "socket/no-structured-clone-prefer-json": "error",
     "socket/no-sync-rm-in-test-lifecycle": "error",
@@ -116,6 +117,7 @@
     "socket/prefer-normalize-path": "error",
     "socket/prefer-optional-chain": "error",
     "socket/prefer-pure-call-form": "error",
+    "socket/prefer-replace-function": "error",
     "socket/prefer-repo-root-dot-cache": "error",
     "socket/prefer-safe-delete": "error",
     "socket/prefer-separate-type-import": "error",
@@ -139,6 +141,7 @@
     "socket/sort-regex-alternations": "error",
     "socket/sort-set-args": "error",
     "socket/sort-source-methods": "error",
+    "socket/terse-lint-disable-reason": "error",
     "socket/use-fleet-canonical-api-token-getter": "error",
     "typescript/array-type": [
       "error",
