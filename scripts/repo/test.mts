@@ -32,6 +32,7 @@ import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 import type { SpawnSyncOptions } from 'node:child_process'
 import process from 'node:process'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { isMainModule } from '../fleet/_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -171,4 +172,6 @@ function main(): void {
   process.exitCode = runChanged()
 }
 
-main()
+if (isMainModule(import.meta.url)) {
+  main()
+}

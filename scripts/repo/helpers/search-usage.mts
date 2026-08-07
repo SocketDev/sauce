@@ -13,6 +13,7 @@ import type { Dirent } from 'node:fs'
 import * as path from 'node:path'
 
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
 
 interface UsageMatch {
   path: string
@@ -205,4 +206,6 @@ function main(): void {
   }
 }
 
-main()
+if (isMainModule(import.meta.url)) {
+  main()
+}

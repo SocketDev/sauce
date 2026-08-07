@@ -72,6 +72,15 @@ function makeTmpRepo(): TmpRepo {
   mkdirSync(scriptsDir, { recursive: true })
   const installerPath = path.join(scriptsDir, 'install-git-hooks.mts')
   copyFileSync(SOURCE_SCRIPT, installerPath)
+  // The installer's entrypoint guard imports
+  // scripts/fleet/_shared/is-main-module.mts relative to itself, so the
+  // fixture mirrors that file too.
+  const fleetSharedDir = path.join(dir, 'scripts', 'fleet', '_shared')
+  mkdirSync(fleetSharedDir, { recursive: true })
+  copyFileSync(
+    path.join(REPO_ROOT, 'scripts', 'fleet', '_shared', 'is-main-module.mts'),
+    path.join(fleetSharedDir, 'is-main-module.mts'),
+  )
   // The installer imports `@socketsecurity/lib-stable`, and Node resolves a
   // bare specifier by walking up from the importing file. The copy sits in a
   // tmpdir with no dependency tree, so link this repo's `node_modules` in as

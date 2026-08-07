@@ -50,6 +50,7 @@ import {
   TIER_EFFORT,
   TIER_MODEL,
 } from './rule-guidance.mts'
+import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -452,8 +453,10 @@ async function main(): Promise<void> {
   )
 }
 
-main().catch((e: unknown) => {
-  const msg = errorMessage(e)
-  logger.error(`ai-lint-fix: ${msg}`)
-  process.exitCode = 1
-})
+if (isMainModule(import.meta.url)) {
+  main().catch((e: unknown) => {
+    const msg = errorMessage(e)
+    logger.error(`ai-lint-fix: ${msg}`)
+    process.exitCode = 1
+  })
+}

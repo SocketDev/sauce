@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url'
 
 import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 import { spawnSync } from '@socketsecurity/lib/process/spawn/child'
+import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 const REPO_ROOT = path.resolve(
@@ -49,4 +50,6 @@ function main(): void {
   logger.success('release-kit typechecks clean.')
 }
 
-main()
+if (isMainModule(import.meta.url)) {
+  main()
+}

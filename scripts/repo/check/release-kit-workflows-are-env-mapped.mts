@@ -16,6 +16,7 @@ import process from 'node:process'
 import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 
 import { PAYLOAD_ROOT } from '../../../release-kit/install/seams.mts'
+import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -177,4 +178,6 @@ function main(): void {
   )
 }
 
-main()
+if (isMainModule(import.meta.url)) {
+  main()
+}

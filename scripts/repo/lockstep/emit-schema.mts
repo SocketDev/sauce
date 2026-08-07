@@ -16,6 +16,7 @@ import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
 import { REPO_ROOT } from '../../fleet/paths.mts'
 import { LockstepManifestSchema } from './schema.mts'
+import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -53,7 +54,9 @@ async function main(): Promise<void> {
   logger.success(`wrote ${path.relative(rootDir, outPath)}`)
 }
 
-main().catch((e: unknown) => {
-  logger.error(errorMessage(e))
-  process.exitCode = 1
-})
+if (isMainModule(import.meta.url)) {
+  main().catch((e: unknown) => {
+    logger.error(errorMessage(e))
+    process.exitCode = 1
+  })
+}

@@ -10,6 +10,7 @@ import process from 'node:process'
 
 import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 import { findUpPackageJson } from '@socketsecurity/lib/packages/find'
+import { isMainModule } from '../fleet/_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -184,7 +185,9 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((e: unknown) => {
-  logger.error('Validation failed:', e)
-  process.exitCode = 1
-})
+if (isMainModule(import.meta.url)) {
+  main().catch((e: unknown) => {
+    logger.error('Validation failed:', e)
+    process.exitCode = 1
+  })
+}

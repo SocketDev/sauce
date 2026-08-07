@@ -7,6 +7,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import * as path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
+import { isMainModule } from '../fleet/_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -60,4 +61,6 @@ function main(): void {
   }
 }
 
-main()
+if (isMainModule(import.meta.url)) {
+  main()
+}

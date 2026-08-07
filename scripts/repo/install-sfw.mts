@@ -43,6 +43,7 @@ import {
   getSocketAppDir,
   getUserHomeDir,
 } from '@socketsecurity/lib-stable/paths/socket'
+import { isMainModule } from '../fleet/_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -227,7 +228,9 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((e: unknown) => {
-  logger.fail(errorMessage(e))
-  process.exitCode = 1
-})
+if (isMainModule(import.meta.url)) {
+  main().catch((e: unknown) => {
+    logger.fail(errorMessage(e))
+    process.exitCode = 1
+  })
+}

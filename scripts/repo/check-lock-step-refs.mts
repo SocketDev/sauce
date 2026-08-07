@@ -39,6 +39,7 @@ import process from 'node:process'
 import { parseArgs } from 'node:util'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
+import { isMainModule } from '../fleet/_shared/is-main-module.mts'
 
 const CONFIG_PATH = '.config/lock-step-refs.json'
 const SKIP_DIRS = new Set([
@@ -318,4 +319,6 @@ function main(): void {
   }
 }
 
-main()
+if (isMainModule(import.meta.url)) {
+  main()
+}

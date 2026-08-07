@@ -29,6 +29,7 @@ import {
 } from './git-partial-submodule-commands.mts'
 import type { AddOpts, CommonOpts } from './git-partial-submodule-internal.mts'
 import { checkGitVersion } from './git-partial-submodule-internal.mts'
+import { isMainModule } from '../fleet/_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -144,7 +145,9 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((err: unknown) => {
-  logger.error(`git-partial-submodule: ${errorMessage(err)}`)
-  process.exitCode = 1
-})
+if (isMainModule(import.meta.url)) {
+  main().catch((err: unknown) => {
+    logger.error(`git-partial-submodule: ${errorMessage(err)}`)
+    process.exitCode = 1
+  })
+}

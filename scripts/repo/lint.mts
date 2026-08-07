@@ -27,6 +27,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 import { spawnSync } from '@socketsecurity/lib/process/spawn/child'
+import { isMainModule } from '../fleet/_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
@@ -199,4 +200,6 @@ function main(): void {
   }
 }
 
-main()
+if (isMainModule(import.meta.url)) {
+  main()
+}

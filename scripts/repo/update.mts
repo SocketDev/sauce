@@ -21,6 +21,7 @@
  */
 import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
+import { isMainModule } from '../fleet/_shared/is-main-module.mts'
 
 async function run(cmd: string, args: string[]): Promise<boolean> {
   try {
@@ -78,7 +79,9 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((e: unknown) => {
-  process.exitCode =
-    isObject(e) && typeof e['code'] === 'number' ? e['code'] : 1
-})
+if (isMainModule(import.meta.url)) {
+  main().catch((e: unknown) => {
+    process.exitCode =
+      isObject(e) && typeof e['code'] === 'number' ? e['code'] : 1
+  })
+}
