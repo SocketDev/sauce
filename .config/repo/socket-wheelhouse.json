@@ -48,12 +48,15 @@
   "workspace": {
     "blockExoticSubdeps": true,
     "minimumReleaseAge": 10080,
-    "minimumReleaseAgeExclude": ["@socketregistry/*", "@socketsecurity/*"],
+    "minimumReleaseAgeExclude": [
+      "@socketregistry/*",
+      "@socketsecurity/*"
+    ],
     "resolutionMode": "highest",
     "trustPolicy": "no-downgrade"
   },
   "bundle": {
-    "ref": "fleet-pack-0d7e8b1f440e0aa05022f50f9f38441abcc960b7",
-    "cascadeSha": "0d7e8b1f440e0aa05022f50f9f38441abcc960b7"
+    "ref": "fleet-pack-ea8446a965074e703d3730a71140434669f874f1",
+    "cascadeSha": "ea8446a965074e703d3730a71140434669f874f1"
   }
 }
