@@ -243,7 +243,7 @@
     {
       "channels": ["crates"],
       "path": "publish-infra/cargo/shared.mts",
-      "sha256": "db7adb6c3ac97392f44818bca1747e268abb8405c92c5d532e51fc6ce2adb3e2"
+      "sha256": "966a0cd82fc7c648fdc7eeac13fa20e165843447ae8d90f903ab8f174ee9a348"
     },
     {
       "channels": ["crates"],
