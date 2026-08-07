@@ -55,7 +55,7 @@
     "sync-fleet": "node scripts/repo/bootstrap/fleet.mjs",
     "fleet:status": "node scripts/repo/bootstrap/fleet.mjs --status",
     "prune:backups": "node scripts/fleet/backup-branches.mts prune",
-    "prune:caches": "node scripts/fleet/prune-actions-caches.mts",
+    "prune:gha-caches": "node scripts/fleet/prune-actions-caches.mts",
     "strip:ai-tags": "node scripts/fleet/strip-ai-tags.mts",
     "npm:approve": "node scripts/fleet/publish-pipeline.mts --approve",
     "npm:auth": "node scripts/fleet/npm-web-auth.mts",
