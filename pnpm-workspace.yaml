@@ -432,7 +432,6 @@ minimumReleaseAgeExclude:
   # 0.27.14 (same owner directive as its entry above: build-only dts
   # emitter, never shipped to runtime). Core packages + both per-platform
   # binding families, exact-pinned so future versions re-soak.
-  - 'stuie'
 
 # Refuse transitive (sub-) deps declared via git/tarball/local-tarball
 # specs. Direct git deps in this repo are still allowed; this only

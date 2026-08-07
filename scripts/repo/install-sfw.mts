@@ -18,9 +18,9 @@
  *   `external-tools.json` under `tools.sfw-free` / `tools.sfw-enterprise`.
  *   That file is the single fleet source of truth — every consumer of
  *   external tooling reads the same entries. Usage: pnpm run install:sfw #
- *   free flavor pnpm run install:sfw -- --enterprise # requires
- *   SOCKET_API_KEY (or SOCKET_API_TOKEN) pnpm run install:sfw -- --force #
- *   ignore cache, redownload pnpm run install:sfw -- --quiet.
+ *   free flavor pnpm run install:sfw --enterprise # requires
+ *   SOCKET_API_KEY (or SOCKET_API_TOKEN) pnpm run install:sfw --force #
+ *   ignore cache, redownload pnpm run install:sfw --quiet.
  */
 
 import {

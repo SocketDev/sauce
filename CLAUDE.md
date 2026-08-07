@@ -152,6 +152,4 @@ curated), and it never interweaves with project content.
 
 ## 🏗️ Project-Specific
 
-Per-repo content lives below this header. Replace this paragraph with the host repo's architecture notes, build pipeline, commands, domain rules, etc.
-
-This template ships an empty Project-Specific section so a fresh `socket-*` repo can adopt the file unchanged. The fleet block above is byte-identical across the fleet; everything below this marker is freely editable per repo.
+sauce ships Socket's published skills and agents: `skills/` and `agents/` are the product surfaces, and `release-kit/` carries the packaged release tooling.

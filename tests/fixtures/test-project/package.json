@@ -1,6 +1,6 @@
 {
-  "name": "test-project",
-  "version": "1.0.0",
+  "name": "sauce-tests-fixtures-test-project",
+  "version": "0.0.0",
   "private": true,
   "description": "Realistic test fixture exercising all 6 Socket skills",
   "main": "src/index.js",

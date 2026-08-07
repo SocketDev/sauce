@@ -8,6 +8,7 @@
     "agents": "Repo content dir — published agent definitions, a product surface of this repo.",
     "gemini-extension.json": "Gemini CLI extension manifest — the gemini CLI discovers it at the repo root by convention.",
     "opencode.json": "OpenCode config — the opencode CLI reads it from the repo root by convention.",
+    "release-kit": "Repo content dir — the packaged release tooling this repo ships (payload, install seams, examples), a product surface of this repo.",
     "skills": "Repo content dir — this repo's published skill definitions live here; the name is the product surface."
   }
 }

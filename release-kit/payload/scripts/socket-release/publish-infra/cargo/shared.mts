@@ -14,7 +14,7 @@ import { logApproveHandoff, rootPath, runCapture } from '../shared.mts'
 
 // The approve leg an operator runs after a cargo staging run. `cargo:publish`
 // is the channel-enforced script for every crates-registry member.
-export const CARGO_APPROVE_COMMAND = 'pnpm run cargo:publish -- --approve'
+export const CARGO_APPROVE_COMMAND = 'pnpm run cargo:publish --approve'
 
 // Who owns the promotion, stated once so nobody reads cargo/approve.mts to find
 // out. It runs `cargo publish --locked` itself, then cuts the tag + release.

@@ -46,6 +46,6 @@ describe('cratePath', () => {
 
 describe('CARGO_APPROVE_COMMAND', () => {
   it('is the channel-enforced approve script', () => {
-    expect(CARGO_APPROVE_COMMAND).toBe('pnpm run cargo:publish -- --approve')
+    expect(CARGO_APPROVE_COMMAND).toBe('pnpm run cargo:publish --approve')
   })
 })

@@ -1,3 +1,4 @@
+// socket-lint: mirror-exempt — exercises the release-kit CLI entries via subprocess; the only static import is the shared paths util.
 /**
  * @file The registry-writing entries must refuse a dash-less mode typo. The
  *   kit's parseArgs (allowPositionals:false, strict:false) folds a bare token

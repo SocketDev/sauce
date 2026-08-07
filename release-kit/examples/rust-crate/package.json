@@ -1,6 +1,6 @@
 {
-  "name": "example-crate-scripts",
-  "version": "1.0.0",
+  "name": "sauce-release-kit-examples-rust-crate",
+  "version": "0.0.0",
   "private": true,
   "description": "Node-side scripts host for the example crate (the kit CLIs run on node).",
   "license": "MIT",

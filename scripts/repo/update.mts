@@ -34,8 +34,8 @@ async function run(cmd: string, args: string[]): Promise<boolean> {
   }
 }
 
-/* Socket-owned scopes — keep in lockstep with the exclude list
- * in .config/taze.config.mts. */
+// Socket-owned scopes — keep in lockstep with the exclude list
+// in .config/taze.config.mts.
 const SOCKET_SCOPES = [
   '@socketregistry/*',
   '@socketsecurity/*',
@@ -46,13 +46,13 @@ const SOCKET_SCOPES = [
 ]
 
 const steps: Array<[string, string[]]> = [
-  /* Pass 1 — third-party deps, respects the 7-day cooldown.
-   *
-   * `--maturity-period 7` MUST be passed on the CLI even though
-   * the config file (.config/taze.config.mts) sets the same
-   * value. Taze's CLI default for this flag is 0, and CLI
-   * defaults override config — without this flag, the cooldown
-   * is silently disabled. */
+  // Pass 1 — third-party deps, respects the 7-day cooldown.
+  //
+  // `--maturity-period 7` MUST be passed on the CLI even though
+  // the config file (.config/taze.config.mts) sets the same
+  // value. Taze's CLI default for this flag is 0, and CLI
+  // defaults override config — without this flag, the cooldown
+  // is silently disabled.
   ['pnpm', ['exec', 'taze', '--maturity-period', '7', '--write']],
   /* Pass 2 — Socket deps, no cooldown. --include is comma-separated. */
   [
