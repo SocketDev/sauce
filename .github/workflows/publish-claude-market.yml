@@ -66,6 +66,12 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
       - uses: ./.github/actions/fleet/setup-and-install
+        with:
+          # Thin-distribution CI auth: mint a contents:read-only token so the
+          # bootstrap fetch (fired by `prepare` during install) can download the
+          # fleet release bundle from the private wheelhouse.
+          payload-token-client-id: ${{ vars.SOCKET_PAYLOAD_CLIENT_ID }}
+          payload-token-private-key: ${{ secrets.SOCKET_PAYLOAD_APP_PRIVATE_KEY }}
 
       - name: Regenerate artifacts
         run: pnpm run generate
