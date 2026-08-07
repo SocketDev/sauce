@@ -45,6 +45,9 @@
     "includeSharedSkills": true,
     "includeUpdatingSkill": true
   },
+  "vitest": {
+    "nodeTestExclude": ["tests/fixtures/**"]
+  },
   "workspace": {
     "blockExoticSubdeps": true,
     "minimumReleaseAge": 10080,
