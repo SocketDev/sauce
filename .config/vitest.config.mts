@@ -56,5 +56,6 @@ const config = defineConfig({
   },
 })
 
-// oxlint-disable-next-line socket/no-default-export -- Vitest requires a default export from config files.
+// Vitest requires a default export from config files.
+// oxlint-disable-next-line socket/no-default-export -- config contract
 export default config

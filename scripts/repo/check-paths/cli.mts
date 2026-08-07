@@ -57,7 +57,9 @@ const logger = {
   log: (msg: string) => process.stdout.write(msg + '\n'),
   step: (msg: string) => process.stdout.write(`→ ${msg}\n`),
   substep: (msg: string) => process.stdout.write(`  ${msg}\n`),
-  // oxlint-disable-next-line socket/no-status-emoji -- local logger replica; can't import lib's logger because this gate runs in socket-lib itself.
+  // Local logger replica; can't import lib's logger because this gate runs
+  // in socket-lib itself.
+  // oxlint-disable-next-line socket/no-status-emoji -- local logger replica
   success: (msg: string) => process.stdout.write(`✔ ${msg}\n`),
 }
 

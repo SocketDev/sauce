@@ -8,7 +8,10 @@
  *   back to checking the cwd's basename and git remote.
  */
 
-// oxlint-disable-next-line socket/prefer-async-spawn -- markdownlint-cli2 calls isInsideWheelhouse() synchronously at rule init; an async spawn would require the rule loader to await, which markdownlint-cli2 doesnt support.
+// markdownlint-cli2 calls isInsideWheelhouse() synchronously at rule init;
+// an async spawn would require the rule loader to await, which
+// markdownlint-cli2 doesn't support.
+// oxlint-disable-next-line socket/prefer-async-spawn -- sync rule init
 import { spawnSync } from 'node:child_process'
 import path from 'node:path'
 import process from 'node:process'

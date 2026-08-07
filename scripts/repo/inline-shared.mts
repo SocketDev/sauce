@@ -1,5 +1,8 @@
 #!/usr/bin/env pnpm dlx tsx
-/* eslint-disable no-shadow -- nested cached-length for-loops intentionally reuse `i`/`length` names for the fleet-wide cached-loop idiom; renaming would diverge from the codebase pattern. */
+// Nested cached-length for-loops intentionally reuse `i`/`length` names for
+// the fleet-wide cached-loop idiom; renaming would diverge from the codebase
+// pattern.
+/* eslint-disable no-shadow -- cached-loop idiom */
 /**
  * Inline shared content into SKILL.md files. Finds markers of the form: <!--
  * BEGIN_SECTION:filename.md --> ... (auto-generated content) ... <!--

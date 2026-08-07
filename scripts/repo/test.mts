@@ -1,4 +1,7 @@
-/* eslint-disable no-shadow -- nested cached-length for-loops intentionally reuse `i`/`length` names for the fleet-wide cached-loop idiom; renaming would diverge from the codebase pattern. */
+// Nested cached-length for-loops intentionally reuse `i`/`length` names for
+// the fleet-wide cached-loop idiom; renaming would diverge from the codebase
+// pattern.
+/* eslint-disable no-shadow -- cached-loop idiom */
 /**
  * @file Canonical minimal test runner for socket-* repos. Delegates the
  *   scope-to-tests mapping to vitest itself rather than rolling a basename-

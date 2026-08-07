@@ -1,5 +1,8 @@
 #!/usr/bin/env pnpm dlx tsx
-/* eslint-disable no-shadow -- nested cached-length for-loops intentionally reuse `i`/`length` names for the fleet-wide cached-loop idiom; renaming would diverge from the codebase pattern. */
+// Nested cached-length for-loops intentionally reuse `i`/`length` names for
+// the fleet-wide cached-loop idiom; renaming would diverge from the codebase
+// pattern.
+/* eslint-disable no-shadow -- cached-loop idiom */
 /**
  * Generate agents/README.md — the AGENTS.md-style fallback bundle — from
  * docs/agents-template.md and SKILL.md frontmatter.
@@ -175,9 +178,9 @@ export function renderAgentsDoc(template: string, skills: Skill[]): string {
     skills
       .map(skill =>
         block
-          .replace(/\{\{name\}\}/g, skill.name)
-          .replace(/\{\{description\}\}/g, skill.description)
-          .replace(/\{\{path\}\}/g, skill.path),
+          .replace(/\{\{name\}\}/g, () => skill.name)
+          .replace(/\{\{description\}\}/g, () => skill.description)
+          .replace(/\{\{path\}\}/g, () => skill.path),
       )
       .join(''),
   )
