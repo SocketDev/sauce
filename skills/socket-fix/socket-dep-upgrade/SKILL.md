@@ -29,6 +29,8 @@ pnpm dlx socket --version
 
 All commands in this skill use the `pnpm dlx socket` prefix (e.g., `pnpm dlx socket scan create ...`).
 
+<details><summary>Authentication: demo token or account login, plus the optional global install</summary>
+
 **Optional global install:** If you prefer a global `socket` command, install with `npm install -g socket@latest` (must be version **1.0.0 or higher**).
 
 #### Authentication
@@ -54,6 +56,8 @@ pnpm dlx socket organization list
 ```
 
 If authentication fails or the CLI is not installed, use the `/socket-setup` skill for detailed guidance including Node.js installation, PATH troubleshooting, and CI/CD token configuration.
+
+</details>
 <!-- END_SECTION:cli-setup.md -->
 
 ## Update Strategy
@@ -97,6 +101,8 @@ Review the dry-run output to understand which packages will be upgraded and to w
 
 Once you understand what will change from the dry run, apply upgrades **one vulnerability at a time**. The main agent loops over the vulnerability list and dispatches a subagent for each one. This is critical - each update produces large diffs, build logs, and test output that would rapidly exhaust the main context window.
 
+<details><summary>The per-vulnerability subagent loop, its stop-on-failure rule, and the flag table</summary>
+
 **For each vulnerability from the dry-run output, the main agent spawns a subagent that:**
 
 1. Applies the single targeted fix:
@@ -129,6 +135,8 @@ Once you understand what will change from the dry run, apply upgrades **one vuln
 | `--exclude "packages/legacy"` | Skip matching workspaces                                                    |
 
 After `socket fix` completes, review the changes it made to manifest and lock files (e.g. `package.json`, `package-lock.json`, `requirements.txt`, `go.mod`).
+
+</details>
 
 ### 3. Identify Breaking Changes (runs inside each subagent)
 

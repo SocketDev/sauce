@@ -55,6 +55,8 @@ Eight steps in canonical order - `staged-config` runs BEFORE
 `trusted-publisher` (trust is configured only for a workflow that actually
 exists), and the two publishing-access steps bracket the placeholder:
 
+<details><summary>The eight bootstrap steps, in order, plus the exit-code contract</summary>
+
 1. `preflight` - ten read-only checks (node floor, GitHub origin, gh auth,
    pnpm stage support, npm trust support, kit deps, registry reachability,
    access level).
@@ -98,7 +100,13 @@ human gate · `4` precondition not done. The state file
 authority - every step re-detects live state, and `--reset` loses only
 history.
 
+</details>
+
 ## First publish (npm), end to end
+
+The seven steps below include every human gate the flow renders.
+
+<details><summary>Install → bootstrap → placeholder gates → first real release, gate by gate</summary>
 
 1. `node release-kit/install.mts --target <repo> --channels npm,github-release --apply`,
    add the three dev-dependency pins, commit.
@@ -158,6 +166,8 @@ If npm auth ever dies mid-flow, the gate is always the same:
   B) Me: say "log me in" and I run `cd <repo> && node scripts/socket-release/npm-web-auth.mts login` through its PTY — your browser opens for the OAuth + OTP, I wait.
   Then: the bootstrap resumes at the blocked step.
 ```
+
+</details>
 
 ## First brew bump
 
@@ -221,6 +231,8 @@ push, then dispatch the publish workflow.
 
 ## Deferrals (explicit)
 
+<details><summary>The fourteen deliberately-deferred surfaces and why each waits</summary>
+
 1. CI auto-bump (`--bump`/`--release-as`, bump/changelog/release-branch
    modules; `lib/release-anchor.mts` ships as a type shim only).
 2. Pipeline receipts layer (`release-pipeline/**`, reconcile-gap healers) -
@@ -250,6 +262,8 @@ push, then dispatch the publish workflow.
     sauce's own fleet gates already run here.
 14. Standalone runbook docs - folded into this README and the skills.
 
+</details>
+
 ## Layout
 
 ```
@@ -278,6 +292,8 @@ Every flow (npm, cargo, brew, github-release) runs the same shape:
 npm thread teaches the others** - the cargo tier mirrors it phase for phase,
 and brew swaps the promotion phases for a `plan → apply` formula bump. Read
 the npm release thread in this order (each line names the real payload file):
+
+<details><summary>The nine-file npm thread, the layer table, and the _shared-vs-lib split</summary>
 
 1. `templates/workflows/npm-publish.yml` - the CI invocation a consumer copies
    into `.github/workflows/`; dispatches the entry with `publish: true`.
@@ -334,6 +350,8 @@ Known divergence pending removal: `create-release.mts` +
 `github-release.mts`); it is grandfathered in the root-entry allowlist below
 until it is deleted fleet-side.
 
+</details>
+
 ## The naming law
 
 New payload files MUST conform. Rules 1 and 6 are enforced mechanically by
@@ -341,6 +359,8 @@ New payload files MUST conform. Rules 1 and 6 are enforced mechanically by
 freshness, the pure/effects import split, and the no-tests-in-payload rule);
 the remainder is review law. A rename that touches a file mirrored from the
 fleet's shared script tree is done **fleet-first or not at all**.
+
+<details><summary>The ten naming rules, entries through renames</summary>
 
 1. **Entries.** The payload root holds exactly one CLI per flow, named
    `<flow>-<act>.mts`, act ∈ {`publish`, `release`}: `npm-publish`,
@@ -387,3 +407,5 @@ gates`. Every injectable effect module is `seams.mts` exporting
     `channelsForPath` when an exact filename is pinned, and updates the
     coherence check + `shipped-surfaces.mts` + the `skills/socket-release/*`
     docs in the same commit.
+
+</details>

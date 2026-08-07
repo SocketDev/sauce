@@ -33,6 +33,8 @@ Paths referenced within SKILL folders are relative to that SKILL. For example th
 
 The skills are located in:
 
+<details><summary>Every bundled SKILL.md path</summary>
+
 - `skills/socket-release/brew-publish/SKILL.md`
 
 - `skills/socket-release/cargo-publish/SKILL.md`
@@ -60,3 +62,5 @@ The skills are located in:
 - `skills/socket-scan/socket-scan-setup/SKILL.md`
 
 - `skills/socket-setup/SKILL.md`
+
+</details>

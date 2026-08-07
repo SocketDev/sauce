@@ -56,6 +56,8 @@ pnpm dlx socket --version
 
 All commands in this skill use the `pnpm dlx socket` prefix (e.g., `pnpm dlx socket scan create ...`).
 
+<details><summary>Authentication: demo token or account login, plus the optional global install</summary>
+
 **Optional global install:** If you prefer a global `socket` command, install with `npm install -g socket@latest` (must be version **1.0.0 or higher**).
 
 #### Authentication
@@ -81,6 +83,8 @@ pnpm dlx socket organization list
 ```
 
 If authentication fails or the CLI is not installed, use the `/socket-setup` skill for detailed guidance including Node.js installation, PATH troubleshooting, and CI/CD token configuration.
+
+</details>
 <!-- END_SECTION:cli-setup.md -->
 
 **Do not proceed with Fix All mode until scanning works.** If the user cannot or will not set up Socket, offer Fix Package mode instead (which has lower requirements per subskill).
@@ -307,6 +311,8 @@ If the user provides an advisory ID, resolve it to the affected package(s) using
 
 Investigate what's wrong with the target package:
 
+<details><summary>The four diagnosis checks and the findings-report shape</summary>
+
 1. **Check if it's installed** - verify the package is in the manifest/lock file
 2. **Check for vulnerabilities** - run `pnpm dlx socket fix --id pkg:<ecosystem>/<name>@<version> --no-apply-fixes --json` (requires Socket account) or check if the user provided a specific advisory
 3. **Check for usage** - search the codebase for imports and references (useful to know if cleanup is an option)
@@ -333,6 +339,8 @@ Package: lodash@4.17.20
     3. Replace — swap for an alternative package (/socket-dep-replace)
     4. Remove — remove if unused (/socket-dep-cleanup)
 ```
+
+</details>
 
 ## Step 3: Recommend and Execute
 

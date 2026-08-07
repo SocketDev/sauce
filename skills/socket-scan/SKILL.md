@@ -45,6 +45,8 @@ pnpm dlx socket --version
 
 All commands in this skill use the `pnpm dlx socket` prefix (e.g., `pnpm dlx socket scan create ...`).
 
+<details><summary>Authentication: demo token or account login, plus the optional global install</summary>
+
 **Optional global install:** If you prefer a global `socket` command, install with `npm install -g socket@latest` (must be version **1.0.0 or higher**).
 
 #### Authentication
@@ -70,6 +72,8 @@ pnpm dlx socket organization list
 ```
 
 If authentication fails or the CLI is not installed, use the `/socket-setup` skill for detailed guidance including Node.js installation, PATH troubleshooting, and CI/CD token configuration.
+
+</details>
 <!-- END_SECTION:cli-setup.md -->
 
 For enterprise features (reachability analysis), an enterprise subscription is required in addition to authentication.
@@ -139,6 +143,8 @@ Use the result to decide the scan approach:
 
 **Skip to Step 2b if the user has no account or only the demo token.**
 
+<details><summary>Temporary vs persistent mode, the enterprise org flag, and the full flag table</summary>
+
 #### Temporary mode (default)
 
 Run a read-only scan that returns results locally without persisting to the Socket dashboard:
@@ -180,11 +186,15 @@ pnpm dlx socket scan create . --org <org-slug> --json --no-banner --no-spinner
 | `--branch <name>`  | Associate the scan with a specific branch (persistent mode only)                          |
 | `--commit <sha>`   | Associate the scan with a specific commit (persistent mode only)                          |
 
+</details>
+
 ### 2b. cdxgen Fallback (User Skipped Login)
 
 **Only use this path if the user was prompted to log in (Step 1) and chose to skip.** Before running cdxgen, display this warning:
 
 > **Warning:** Without a Socket account, alert accuracy will be greatly reduced and SBOM accuracy will be poor. You will not get malware detection, supply-chain risk analysis, Socket scores, or reachability analysis. To get accurate results, run `pnpm dlx socket login` or create a free account at <https://socket.dev>.
+
+<details><summary>The cdxgen command, its flags, and the reduced-accuracy limitations</summary>
 
 Generate an SBOM with cdxgen:
 
@@ -223,9 +233,13 @@ The `bom.json` file is a CycloneDX SBOM. Extract dependency and vulnerability in
 
 For license auditing from cdxgen output, parse the `components[].licenses[]` field in `bom.json` instead of relying on Socket's license analysis.
 
+</details>
+
 ### 3. Interpret Results
 
 When using `--json`, the raw output may include non-JSON prefix lines (banners, spinners, ANSI escape codes). Always use `--no-banner --no-spinner` flags, or use the helper script which strips noise automatically. If parsing manually, filter for lines starting with `{` or `[`.
+
+<details><summary>The JSON shape, the issue-type taxonomy, and the severity triage order</summary>
 
 The JSON output is an object with an `issues[]` array:
 
@@ -270,6 +284,8 @@ Triage issues by severity:
 - **Malware** (`malware`): If any issue has type `malware`, display a prominent warning. Malware findings should be treated as the highest priority - advise the user to remove the package immediately.
 - **Medium / Low severity** (`mediumCVE`, `mildCVE`): Summarize these for the user. Group by type and provide a brief overview rather than listing each one individually.
 - **License issues** (`licenseSpdxDisj`, `mixedLicense`): Flag for the license audit step (Section 6).
+
+</details>
 
 ### Additional Native Audit Tools
 

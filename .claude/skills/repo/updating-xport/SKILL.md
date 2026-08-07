@@ -82,6 +82,8 @@ If both lists empty: exit 0 with "no xport drift".
 
 For each row in **auto** list, in manifest declaration order:
 
+<details><summary>Steps 3a-3e: resolve, find the tag, check out, update the pins, validate + commit</summary>
+
 **3a. Resolve the upstream submodule + fetch tags**
 
 ```bash
@@ -147,6 +149,8 @@ git commit -m "chore(deps): bump $UPSTREAM_ALIAS to $LATEST"
 
 Record bumped row in summary accumulator.
 
+</details>
+
 ## Phase 4 - Compose advisory notes
 
 For each row in **advisory**, accumulate a markdown line:
@@ -163,6 +167,8 @@ For each row in **advisory**, accumulate a markdown line:
 ## Phase 5 - Report + emit
 
 Final human-readable report to stdout:
+
+<details><summary>The report shape, the CI advisory output, and the HANDOFF block</summary>
 
 ```
 ## updating-xport report
@@ -191,6 +197,8 @@ Findings: {auto_bumped: N, advisory: M}
 Summary: {one-line description}
 === END HANDOFF ===
 ```
+
+</details>
 
 </instructions>
 

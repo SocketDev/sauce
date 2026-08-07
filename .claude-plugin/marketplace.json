@@ -18,13 +18,13 @@
       "name": "socket-inspect",
       "source": "./skills/socket-inspect",
       "skills": "./",
-      "description": "Research a package before you depend on it — pull every signal from Socket (scores, alerts, malware verdicts, CVEs, supply-chain risk), check the socket.dev package page, evaluate alternatives, and surface available Socket patches."
+      "description": "Research a package before you depend on it - pull every signal from Socket (scores, alerts, malware verdicts, CVEs, supply-chain risk), check the socket.dev package page, evaluate alternatives, and surface available Socket patches."
     },
     {
       "name": "socket-setup",
       "source": "./skills/socket-setup",
       "skills": "./",
-      "description": "Set up Socket — prompt for API key, install the CLI, authenticate, configure policies and tokens, set up CI/CD for firewall or patch modes across GitHub, GitLab, Bitbucket, and other systems."
+      "description": "Set up Socket - prompt for API key, install the CLI, authenticate, configure policies and tokens, set up CI/CD for firewall or patch modes across GitHub, GitLab, Bitbucket, and other systems."
     },
     {
       "name": "socket-dep-patch",
@@ -54,43 +54,43 @@
       "name": "socket-fix",
       "source": "./skills/socket-fix",
       "skills": "./",
-      "description": "Fix dependency security issues — either scan and fix everything (requires /socket-scan), or target a single named package. Orchestrates /socket-dep-cleanup, /socket-dep-replace, /socket-dep-patch, and /socket-dep-upgrade as subskills."
+      "description": "Fix dependency security issues - either scan and fix everything (requires /socket-scan), or target a single named package. Orchestrates /socket-dep-cleanup, /socket-dep-replace, /socket-dep-patch, and /socket-dep-upgrade as subskills."
     },
     {
       "name": "socket-scan-setup",
       "source": "./skills/socket-scan/socket-scan-setup",
       "skills": "./",
-      "description": "Set up prerequisites for Socket scanning — install the CLI, configure auth with the public demo token, and verify scan access."
+      "description": "Set up prerequisites for Socket scanning - install the CLI, configure auth with the public demo token, and verify scan access."
     },
     {
       "name": "socket-release",
       "source": "./skills/socket-release",
       "skills": "./",
-      "description": "Stand up SocketDev publishing (npm, crates.io, GitHub releases, Homebrew tap) in a repo: copy in the release kit and run its bootstrap — name reservation, GitHub environments, npm trusted publisher, staged publish config, verification."
+      "description": "Stand up SocketDev publishing (npm, crates.io, GitHub releases, Homebrew tap) in a repo: copy in the release kit and run its bootstrap - name reservation, GitHub environments, npm trusted publisher, staged publish config, verification."
     },
     {
       "name": "npm-publish",
       "source": "./skills/socket-release/npm-publish",
       "skills": "./",
-      "description": "Operate the socket-release npm flow end to end — bootstrap (permissive-then-staged-only publishing access), staged publish dispatch, soak, --approve promote, backfill, and rollback/deprecate."
+      "description": "Operate the socket-release npm flow end to end - bootstrap (permissive-then-staged-only publishing access), staged publish dispatch, soak, --approve promote, backfill, and rollback/deprecate."
     },
     {
       "name": "github-release",
       "source": "./skills/socket-release/github-release",
       "skills": "./",
-      "description": "Cut, verify, and reconcile immutable GitHub releases — the registry-resolvability ORDER RULE, the draft-upload-undraft cut, checksums.txt, and tag-gap healing."
+      "description": "Cut, verify, and reconcile immutable GitHub releases - the registry-resolvability ORDER RULE, the draft-upload-undraft cut, checksums.txt, and tag-gap healing."
     },
     {
       "name": "cargo-publish",
       "source": "./skills/socket-release/cargo-publish",
       "skills": "./",
-      "description": "Operate the socket-release crates.io flow — the cargo staged model, trusted publishing (OIDC), index-propagation waits, and yank-as-rollback."
+      "description": "Operate the socket-release crates.io flow - the cargo staged model, trusted publishing (OIDC), index-propagation waits, and yank-as-rollback."
     },
     {
       "name": "brew-publish",
       "source": "./skills/socket-release/brew-publish",
       "skills": "./",
-      "description": "Operate the socket-release Homebrew tap flow — tap repo layout, formula bumps tied to published releases, and sha256 verification against the release's own checksums.txt."
+      "description": "Operate the socket-release Homebrew tap flow - tap repo layout, formula bumps tied to published releases, and sha256 verification against the release's own checksums.txt."
     }
   ]
 }

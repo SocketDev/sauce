@@ -8,6 +8,8 @@ pnpm dlx socket --version
 
 All commands in this skill use the `pnpm dlx socket` prefix (e.g., `pnpm dlx socket scan create ...`).
 
+<details><summary>Authentication: demo token or account login, plus the optional global install</summary>
+
 **Optional global install:** If you prefer a global `socket` command, install with `npm install -g socket@latest` (must be version **1.0.0 or higher**).
 
 ## Authentication
@@ -33,3 +35,5 @@ pnpm dlx socket organization list
 ```
 
 If authentication fails or the CLI is not installed, use the `/socket-setup` skill for detailed guidance including Node.js installation, PATH troubleshooting, and CI/CD token configuration.
+
+</details>

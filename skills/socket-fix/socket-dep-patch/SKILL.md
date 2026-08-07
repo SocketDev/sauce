@@ -107,6 +107,8 @@ Scan the project for evidence of automated patching in any of these locations:
 
 ### Report Results
 
+<details><summary>The configured and not-configured report shapes, and where each leads</summary>
+
 If automated patching **is** configured, report where:
 
 ```text
@@ -133,6 +135,8 @@ Patch setup check: NOT CONFIGURED
 If the user says yes (or if they don't respond and you're running inside `/socket-fix` Fix All mode), proceed to the Automated Patch Setup section below.
 
 If the user says no, skip setup and finish.
+
+</details>
 
 ---
 

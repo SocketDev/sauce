@@ -419,6 +419,8 @@ For each Dockerfile that has install steps, read the file and apply edits direct
 
 Before writing the modified Dockerfile, present the proposed changes to the user and explain each edit:
 
+<details><summary>What each mode inserts, with a before/after Dockerfile example</summary>
+
 - **Firewall**: inserts `RUN npm install -g sfw` before the install step, prefixes the install command with `sfw`
 - **Patches**: inserts `RUN pnpm dlx @socketsecurity/socket-patch scan` and `RUN pnpm dlx @socketsecurity/socket-patch apply` after the install step, before build/copy steps
 
@@ -451,6 +453,8 @@ COPY . .
 RUN npm run build
 ```
 
+</details>
+
 ## Socket Policy Configuration
 
 > **Enterprise only** - free tier users cannot configure policies. Skip this section if on the free tier.
@@ -460,6 +464,8 @@ Configure Socket policies to control which issues are flagged during scans and C
 ### Repository-Level Policy (`socket.yml`)
 
 Create `socket.yml` in the repository root with `version: 2` and these default issue rules, then adjust the values with the user:
+
+<details><summary>The default socket.yml issue rules and what error/warn/ignore mean</summary>
 
 ```text
 version: 2
@@ -498,6 +504,8 @@ Issue rule values:
 - `error` - fail the check / block the PR
 - `warn` - report but don't fail
 - `ignore` - suppress entirely
+
+</details>
 
 ### Dashboard Policy Management (Enterprise)
 

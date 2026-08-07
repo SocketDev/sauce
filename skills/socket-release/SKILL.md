@@ -37,6 +37,8 @@ actual publish.
 
 ## Steps
 
+<details><summary>Clone the kit, install it, pin its deps, then bootstrap through the gates</summary>
+
 1. **Get the kit source.** Shallow-clone sauce to the canonical clone home:
 
    ```
@@ -77,6 +79,8 @@ actual publish.
    wait. Done when: `node scripts/socket-release/bootstrap.mts verify`
    exits 0 and reports the stood-up detail (trusted publisher conforming,
    environments restricted, publishing access staged-only).
+
+</details>
 
 ## Browser law
 

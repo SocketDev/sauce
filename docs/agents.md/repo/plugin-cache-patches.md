@@ -44,6 +44,8 @@ A `# @key: value` provenance header above a **plain `diff -u` body** - never a
 smallest-footprint mechanism above) live in the companion `<x>.files/` dir, not
 in the diff.
 
+<details><summary>A worked example patch and the required header keys</summary>
+
 ```diff
 # @plugin: codex
 # @plugin-version: 1.0.1
@@ -67,6 +69,8 @@ Required header keys: `@plugin`, `@plugin-version`, `@sha`, `@description`.
 (`a/scripts/…`, `b/scripts/…`) so `patch -p1` resolves them inside the cache
 dir. No timestamps on the `---`/`+++` lines (`diff -u` adds them; strip with
 `grep -v $'^[-+]\\{3\\}.*\\t'`).
+
+</details>
 
 ## Filename
 

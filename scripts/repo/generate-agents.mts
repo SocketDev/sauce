@@ -79,7 +79,7 @@ const CATEGORIES: Array<[string, CategoryDef]> = [
     {
       label: 'Fix',
       description:
-        'Holistic dependency repair — orchestrate cleanup, replacement, patching, and upgrades in a single phased workflow with individual subskills for each operation.',
+        'Holistic dependency repair - orchestrate cleanup, replacement, patching, and upgrades in a single phased workflow with individual subskills for each operation.',
     },
   ],
 ]

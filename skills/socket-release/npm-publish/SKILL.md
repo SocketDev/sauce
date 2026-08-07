@@ -23,6 +23,8 @@ node scripts/socket-release/bootstrap.mts --apply    # stand up, stops at gates
 node scripts/socket-release/bootstrap.mts --status   # receipts
 ```
 
+<details><summary>The canonical step order, the two access phases, and the four stop-and-gate moments</summary>
+
 Steps run in canonical order: preflight → placeholder →
 npm-access-permissive → github-env → staged-config → trusted-publisher →
 npm-access-staged-only → verify. Two of them are npm publishing-access
@@ -45,6 +47,8 @@ STOP AND GATE, never improvise, at these moments:
   operator's 2FA.
 - **npm auth dead** - `node scripts/socket-release/npm-web-auth.mts login`
   (both lanes run the same router command).
+
+</details>
 
 ## Release cycle
 

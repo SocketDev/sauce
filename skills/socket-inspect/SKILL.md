@@ -31,6 +31,8 @@ pnpm dlx socket --version
 
 All commands in this skill use the `pnpm dlx socket` prefix (e.g., `pnpm dlx socket scan create ...`).
 
+<details><summary>Authentication: demo token or account login, plus the optional global install</summary>
+
 **Optional global install:** If you prefer a global `socket` command, install with `npm install -g socket@latest` (must be version **1.0.0 or higher**).
 
 #### Authentication
@@ -56,6 +58,8 @@ pnpm dlx socket organization list
 ```
 
 If authentication fails or the CLI is not installed, use the `/socket-setup` skill for detailed guidance including Node.js installation, PATH troubleshooting, and CI/CD token configuration.
+
+</details>
 <!-- END_SECTION:cli-setup.md -->
 
 **For the Batch PURL API:** `SOCKET_SECURITY_API_KEY` is required for direct API calls. Users with a free or enterprise account can create an API key at `https://socket.dev/dashboard/org/{ORG}/settings/integrations/api-tokens`.
@@ -65,6 +69,8 @@ If authentication fails or the CLI is not installed, use the `/socket-setup` ski
 Query the Socket Batch PURL REST API with the package's PURL (Package URL) to retrieve scores, alerts, CVEs, and metadata.
 
 **Supported ecosystems:** npm, pypi, go, maven, nuget, rubygems, cargo
+
+<details><summary>The curl call, its auth requirements, and every field to extract</summary>
 
 **API call:**
 
@@ -98,6 +104,8 @@ Extract **all** returned data:
 - Dependency counts (direct and transitive)
 - Maintainer and author information
 - License identifier
+
+</details>
 
 ## Step 1b - CLI Fallback
 
