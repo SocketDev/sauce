@@ -287,6 +287,47 @@ Browser-level settings that most developers miss:
 
 </details>
 
+### The toggle has two states, never three
+
+Offer **what you see** and **the other one**. A Light / Dark / System triplet
+exposes the data model instead of serving the need: nobody opens a theme menu to
+express a preference about the future, they open it because the screen is wrong
+*now*. The third control is cognitive load for a state the toggle can reach on
+its own.
+
+Two states in the UI, three values in storage:
+
+| Stored | Meaning |
+| --- | --- |
+| *nothing* | Follow the OS. The default, and where every user starts. |
+| `light` | Explicit override, stored only when the OS says dark. |
+| `dark` | Explicit override, stored only when the OS says light. |
+
+The rule that makes this work: **store an override only when the target differs
+from the OS preference; otherwise clear it.**
+
+```js
+// `target` is the mode the user just asked for.
+const stored = target === systemPreference ? null : target
+```
+
+Compare the TARGET against the OS, not the stored value. That is what returns a
+user to OS-following on the second press without a third button, and it keeps
+the control honest if the OS flipped underneath an override — clearing to
+"follow the OS" there would leave the screen unchanged and read as a dead
+control.
+
+Two things that look like polish and are not:
+
+- **Do not re-evaluate the OS preference except at user interaction.** Silently
+  dropping someone's override because the OS changed at sunset undoes a choice
+  they made deliberately.
+- **Keep an explicit override even when it happens to match the OS.** It stops
+  matching the moment the OS changes, which is exactly when the user wanted it.
+
+Socket ships one theme, **socketeer**, in a light and a dark mode. There is no
+third mode to select, so there is nothing for a third toggle position to say.
+
 ---
 
 ## 6. Naming Tokens

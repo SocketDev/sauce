@@ -29,7 +29,7 @@
  *   explanation. Reporting only: shortening prose is an authoring call, and the
  *   usual fix is to move the depth into a doc and leave a link.
  *
- *   Bypass: a `socket-lint: allow long-comment-block` marker on the block.
+ *   Bypass: a `oxlint-disable-next-line socket/max-comment-block-lines` marker on the block.
  */
 
 import {

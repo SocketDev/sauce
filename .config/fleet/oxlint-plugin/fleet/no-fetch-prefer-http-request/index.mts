@@ -18,11 +18,6 @@
 import { makeBypassChecker } from '../../lib/comment-markers.mts'
 import type { AstNode, RuleContext } from '../../lib/rule-types.mts'
 
-// socket-lint: allow global-fetch -- opt-out for a `fetch()` that genuinely
-// must use the platform global (e.g. publish / provenance tooling probing a
-// registry before the lib http-request helper is available).
-const BYPASS_RE = /socket-lint:\s*allow\s+global-fetch/
-
 const rule = {
   meta: {
     type: 'problem',
@@ -40,7 +35,10 @@ const rule = {
   },
 
   create(context: RuleContext) {
-    const hasBypassComment = makeBypassChecker(context, BYPASS_RE)
+    const hasBypassComment = makeBypassChecker(
+      context,
+      'socket/no-fetch-prefer-http-request',
+    )
     return {
       CallExpression(node: AstNode) {
         const callee = node.callee

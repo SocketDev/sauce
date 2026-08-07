@@ -36,7 +36,7 @@ Before doing anything else:
 [ -f .config/repo/rolldown/lib-stub.mts ] || {
   echo "ERROR: .config/repo/rolldown/lib-stub.mts is missing."
   echo "Cascade it from socket-wheelhouse:"
-  echo "  cd /Users/<user>/projects/socket-wheelhouse &&" # socket-lint: allow cross-repo
+  echo "  cd /Users/<user>/projects/socket-wheelhouse &&" # oxlint-disable-next-line socket/no-cross-repo-path
   echo "  node scripts/repo/sync-scaffolding/cli.mts --target <this-repo> --fix"
   exit 1
 }

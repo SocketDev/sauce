@@ -30,11 +30,10 @@ export {
 
 // Scanning kernel: line-splitting, marker/doc-context detection, LineHit shape.
 export {
-  aliasMatches,
   isInsideBackticks,
   lineIsSuppressed,
   looksLikeDocumentation,
-  socketLintMarkerFor,
+  suppressionFor,
   splitLines,
   stripTemplateLayer,
   suppressionCoversLine,

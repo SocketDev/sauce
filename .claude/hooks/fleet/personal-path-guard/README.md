@@ -30,7 +30,7 @@ path (rare - usually documentation), append the per-line marker the
 commit-time scanner also honors:
 
 ```
-/Users/jdalton/x // socket-lint: allow personal-path
+/Users/jdalton/x // oxlint-disable-next-line socket/personal-path-placeholders
 ```
 
 The bare `// socket-lint: allow` form blanket-suppresses every scanner
@@ -44,7 +44,7 @@ on that line.
 - `node_modules/`, `vendor/`, `upstream/`, `external/`, `third_party/`,
   and lockfiles - they legitimately carry absolute machine paths and
   are not author-written source.
-- Lines marked `// socket-lint: allow personal-path`.
+- Lines marked `// oxlint-disable-next-line socket/personal-path-placeholders`.
 
 ## Failure mode
 

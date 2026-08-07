@@ -65,7 +65,6 @@ Four themes ship in `tokens.css`:
 ```text
   light       Default. Cream + ink for product surfaces.
   dark        Charcoal + lavender for devtools / power-user contexts.
-  synthwave   Neon pink on deep purple — Socket-branded celebration.
   system      Follows OS via prefers-color-scheme.
 ```
 
@@ -79,7 +78,7 @@ document.documentElement.setAttribute('data-theme', 'dark')
 <summary><b>ASCII swatches</b>: the four themes side by side</summary>
 
 ```text
-  light       dark        synthwave    system
+  light       dark        system
   ┌─────┐     ┌─────┐     ┌─────┐      ┌─────┐
   │ FFF │     │ 0A0 │     │ 1A0 │      │ ??? │
   │ 18Z │     │ F4Z │     │ F8F │      │ OS  │
@@ -116,7 +115,7 @@ what you're building:
                 --background/--foreground, --card, --popover, --primary,
                 --secondary, --muted, --accent, --destructive (+ each one's
                 -foreground), --border, --input, --ring, --radius.
-                Theme-stable; the same code looks right in light/dark/synthwave.
+                Theme-stable; the same code looks right in light and dark.
 
   --mkt-*       Marketing — landing pages, docs, hero sections (Socket
                 extension). Warmer, brand-forward palette. Doesn't impose
@@ -269,7 +268,7 @@ Or with explicit toggle classes (for non-`<details>` patterns):
 ```
 
 The backdrop dims + blurs everything behind it. In light mode it's a gentle
-lavender wash; in dark / synthwave it's plum. Combine with `body:has(.modal)`
+lavender wash; in dark it's plum. Combine with `body:has(.modal)`
 to disable pointer events on the underlying chrome.
 
 ### Spinners
@@ -358,7 +357,7 @@ ASCII output sample:
 ```
 
 The CLI palette mirrors the CSS tokens by name. Switch terminal themes via
-`SOCKET_THEME=light|dark|synthwave` in your shell, or pass an explicit theme
+`SOCKET_THEME=light|dark` in your shell, or pass an explicit theme
 to `getPalette()`.
 
 ## Don'ts
@@ -393,7 +392,7 @@ hex literals, no magic numbers - even `padding: 13px` is a smell (use
 
 ### Add a new color token
 
-Add it to all four theme blocks in `tokens.css` (light, dark, synthwave,
+Add it to all three theme blocks in `tokens.css` (light, dark,
 and the `prefers-color-scheme: dark` system override). Pick perceptually
 matched values, same lightness but different hue, so the token tells the
 same story across themes. Run the contrast lint to verify any pair against

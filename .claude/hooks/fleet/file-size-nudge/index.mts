@@ -53,7 +53,7 @@ const FILE_WRITING_TOOLS = new Set(['Edit', 'NotebookEdit', 'Write'])
 const SKIP_PATH_SUBSTRINGS: readonly string[] = [
   '/node_modules/',
   // Repo-root `.cache/` exemption, distinct from .cache.
-  // oxlint-disable-next-line socket/prefer-node-modules-dot-cache -- repo-root
+  // oxlint-disable-next-line socket/prefer-repo-root-dot-cache -- repo-root
   '/.cache/',
   '/coverage/',
   '/coverage-isolated/',

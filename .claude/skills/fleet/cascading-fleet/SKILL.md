@@ -13,7 +13,7 @@ metadata:
 
 The fleet runs on `chore(wheelhouse): cascade template@<sha>` commits. Every wheelhouse template change has to land in every fleet repo to take effect. This skill packages the operation so it isn't recreated ad-hoc per session.
 
-🚨 **This is mechanical work, not a thinking task.** Run the canonical operation, commit, push. Don't analyze each modified file in the cascade, don't design alternatives, don't write multi-paragraph rationale: the wheelhouse template is the source of truth and the sync runner decides what changes. If a repo's cascade refuses to apply (lockfile policy reject, soak window, broken hook from a stale install), bump the immediate blocker (soak-exclude entry, lockfile rebuild) or defer the repo and report it —-don't reason through a multi-step manual reproduction of what the sync runner already does. Cheap/fast model settings are the right default; reserve heavier reasoning for genuine design work.
+🚨 **This is mechanical work, not a thinking task.** Run the canonical operation, commit, push. Don't analyze each modified file in the cascade, don't design alternatives, don't write multi-paragraph rationale: the wheelhouse template is the source of truth and the sync runner decides what changes. If a repo's cascade refuses to apply (lockfile policy reject, soak window, broken hook from a stale install), bump the immediate blocker (soak-exclude entry, lockfile rebuild) or defer the repo and report it --don't reason through a multi-step manual reproduction of what the sync runner already does. Cheap/fast model settings are the right default; reserve heavier reasoning for genuine design work.
 
 ## When to use
 
@@ -21,7 +21,7 @@ The fleet runs on `chore(wheelhouse): cascade template@<sha>` commits. Every whe
 - Batching multiple template SHAs into one wave.
 
 Tool-version bumps (pnpm, zizmor, sfw, …) route through the wheelhouse-owned
-<!-- socket-lint: allow cross-repo -->
+<!-- oxlint-disable-next-line socket/no-cross-repo-path -->
 
 pipeline (`node scripts/repo/pipeline.mts`, run FROM the wheelhouse: bump →
 reconcile → CI-green gate → propagate); this skill then carries the resulting
@@ -67,7 +67,7 @@ The escape hatch is explicit and audited - never an env var: `--allow-non-member
 
 ## Post-cascade: reconcile lockfiles (in parallel)
 
-🚨 A cascade that changes the catalog (`pnpm-workspace.yaml`), `packageManager`, or dep overrides lands a **lockfile-less** commit downstream —-the worktree's `pnpm-lock.yaml` regenerates locally but is excluded from the cascade commit. Downstream CI runs `pnpm install --frozen-lockfile`, so a stale lockfile **red-lines every consumer**. The cascade is not done until each affected repo's lockfile is reconciled.
+🚨 A cascade that changes the catalog (`pnpm-workspace.yaml`), `packageManager`, or dep overrides lands a **lockfile-less** commit downstream --the worktree's `pnpm-lock.yaml` regenerates locally but is excluded from the cascade commit. Downstream CI runs `pnpm install --frozen-lockfile`, so a stale lockfile **red-lines every consumer**. The cascade is not done until each affected repo's lockfile is reconciled.
 
 This is a parallel fleet operation, so it is **a Workflow, not a shell loop** (`for r in …; do … & done; wait` races - multiple instances land on one repo and orphan worktrees). Two layered surfaces, executable-first:
 
@@ -106,7 +106,7 @@ The cascade script (`lib/cascade-template.mts`) is deterministic - it `--no-veri
 
 2. **Stranded local commits** (local `main` diverged with un-pushed `chore(wheelhouse): cascade …` commits that origin already superseded). Confirm with `git branch -r --contains <sha>` (empty = local-only) and `git log --oneline HEAD..origin/main` (origin has newer cascades). If origin already has the work in canonical form, `git reset --hard origin/main` (needs `Allow reset bypass`) - nothing real is lost. Otherwise rebase the genuine local-unique commits on top.
 
-3. <!-- socket-lint: allow cross-repo --> **Soak-bypassing a tool bump** (pnpm/zizmor/sfw newer than the 7-day `minimumReleaseAge`). The auto-updater (`scripts/repo/update-external-tools.mts`, dry-run by default; `--apply` flushes) skips fresh releases. To bump anyway: hand-pin `external-tools.json` (version + every platform asset + recomputed sha256 integrity from the upstream GitHub release; npm-tarball platforms use npm `dist.integrity`), needs `Allow soak-time bypass` (alias: `Allow minimumReleaseAge bypass`). Then run the wheelhouse tool-pin pipeline (`node scripts/repo/pipeline.mts`, from the wheelhouse) to bump, reconcile, and gate on CI-green, then commit the `external-tools.json` bump and cascade it fleet-wide with this skill. **Why:** a `packageManager` pin that drifts from the CI runner's pnpm red-lines fleet CI, and a pnpm bump can surface a previously-dormant `allowBuilds` placeholder that then trips `ERR_PNPM_IGNORED_BUILDS` - bump the tool and reconcile the build allowlist in the same wave.
+3. <!-- oxlint-disable-next-line socket/no-cross-repo-path --> **Soak-bypassing a tool bump** (pnpm/zizmor/sfw newer than the 7-day `minimumReleaseAge`). The auto-updater (`scripts/repo/update-external-tools.mts`, dry-run by default; `--apply` flushes) skips fresh releases. To bump anyway: hand-pin `external-tools.json` (version + every platform asset + recomputed sha256 integrity from the upstream GitHub release; npm-tarball platforms use npm `dist.integrity`), needs `Allow soak-time bypass` (alias: `Allow minimumReleaseAge bypass`). Then run the wheelhouse tool-pin pipeline (`node scripts/repo/pipeline.mts`, from the wheelhouse) to bump, reconcile, and gate on CI-green, then commit the `external-tools.json` bump and cascade it fleet-wide with this skill. **Why:** a `packageManager` pin that drifts from the CI runner's pnpm red-lines fleet CI, and a pnpm bump can surface a previously-dormant `allowBuilds` placeholder that then trips `ERR_PNPM_IGNORED_BUILDS` - bump the tool and reconcile the build allowlist in the same wave.
 
 ## Reference
 

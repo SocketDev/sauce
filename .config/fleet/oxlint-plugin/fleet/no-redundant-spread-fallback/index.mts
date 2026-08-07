@@ -11,17 +11,13 @@
  *   is load-bearing and never reported. Only an EMPTY object literal fallback
  *   counts — `...(x ?? { retries: 1 })` expresses a real default and stays.
  *
- *   Bypass: a `socket-lint: allow redundant-spread-fallback` comment on the
+ *   Bypass: a `oxlint-disable-next-line socket/no-redundant-spread-fallback` comment on the
  *   line above, for a spread kept verbose deliberately (e.g. mirrored from an
  *   upstream snippet a diff must track).
  */
 
 import { makeBypassChecker } from '../../lib/comment-markers.mts'
 import type { AstNode, RuleContext, RuleFixer } from '../../lib/rule-types.mts'
-
-// socket-lint: allow redundant-spread-fallback -- opt-out marker, matched on
-// the line above a spread kept verbose deliberately.
-const BYPASS_RE = /socket-lint:\s*allow\s+redundant-spread-fallback/
 
 /**
  * Whether a spread argument is `<left> ?? {}` or `<left> || {}` with an EMPTY
@@ -64,7 +60,10 @@ const rule = {
     const sourceCode = context.getSourceCode
       ? context.getSourceCode()
       : context.sourceCode
-    const hasBypassComment = makeBypassChecker(context, BYPASS_RE)
+    const hasBypassComment = makeBypassChecker(
+      context,
+      'socket/no-redundant-spread-fallback',
+    )
 
     return {
       ObjectExpression(node: AstNode) {

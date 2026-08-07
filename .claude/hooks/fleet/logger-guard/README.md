@@ -44,7 +44,7 @@ The hook is intentionally narrow:
 - **Exempts** `.claude/hooks/`, `.git-hooks/`, `scripts/`, tests,
   fixtures, and external/vendored code - those have legitimate
   reasons to write directly.
-- **Exempts** lines tagged `# socket-lint: allow console` (canonical
+- **Exempts** lines tagged `# oxlint-disable-next-line socket/no-console-prefer-logger` (canonical
   per-line opt-out - names the construct being allowed, not the
   recommended replacement). The bare form `# socket-lint: allow`
   also works for blanket suppression. Legacy `allow logger` is

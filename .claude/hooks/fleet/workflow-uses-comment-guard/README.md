@@ -48,7 +48,7 @@ when you pinned / refreshed the SHA (today's date for new pins).
 For a legitimate one-off:
 
 ```yaml
-- uses: third-party/action@deadbeef... # socket-lint: allow uses-no-stamp
+- uses: third-party/action@deadbeef... # oxlint-disable-next-line socket/workflow-uses-has-stamp
 ```
 
 Don't reach for this - add the comment instead.

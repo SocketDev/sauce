@@ -5,8 +5,8 @@
  *   nobody can see by reading the two lines. Both spellings of the mistake look
  *   deliberate:
  *
- *     // oxlint-disable-next-line socket/a -- reason
- *     // oxlint-disable-next-line socket/b -- reason      <- suppresses nothing
+ *     // oxlint-disable-next-line socket/example-rule -- reason
+ *     // oxlint-disable-next-line socket/example-rule-two -- reason      <- suppresses nothing
  *     doTheThing()
  *
  *     // eslint-disable-next-line no-await-in-loop -- sequential by design
@@ -16,8 +16,16 @@
  *   Two suppressions go on ONE directive, comma-separated, which is the form
  *   both linters read:
  *
- *     // oxlint-disable-next-line socket/a, socket/b -- one short reason
+ *     // oxlint-disable-next-line socket/example-rule, socket/example-rule-two -- one short reason
  *     doTheThing()
+ *
+ *   Scoped to LINTER directives on purpose. A fleet `socket-lint: allow <rule>`
+ *   marker looks like the same thing and is not: `makeBypassChecker` walks the
+ *   whole contiguous leading-comment block, so that marker legitimately sits
+ *   anywhere above the code and stacking it is correct. Only the check-scripts
+ *   that read their marker per line (private-path, personal-path) need it on
+ *   the line carrying what it excuses, and those cannot be told apart from the
+ *   block-scoped ones by syntax.
  *
  *   An explanation belongs ABOVE the directive, the shape
  *   `terse-lint-disable-reason` already asks for, so the directive stays

@@ -45,14 +45,14 @@ date). `removable` is `published + 7d`, the natural soak-clear date.
 - **Scope-glob entries** (`'@socketsecurity/*'`, `'@socketregistry/*'`,
   etc.) - persistent fleet policy, not a time-bound bypass.
 - **Bare-name entries** without `@version` (also persistent).
-- Lines marked `# socket-lint: allow soak-exclude-no-date-annotation`.
+- Lines marked `# oxlint-disable-next-line socket/soak-exclude-has-date`.
 
 ## Override marker
 
 For a legitimate one-off where the annotation truly doesn't apply:
 
 ```yaml
-- 'pkg@1.2.3' # socket-lint: allow soak-exclude-no-date-annotation
+- 'pkg@1.2.3' # oxlint-disable-next-line socket/soak-exclude-has-date
 ```
 
 Don't reach for this - add the annotation instead.

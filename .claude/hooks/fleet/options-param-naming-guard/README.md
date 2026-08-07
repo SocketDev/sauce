@@ -60,7 +60,7 @@ For a legitimate one-off, add the marker on the param line or the line
 above the function:
 
 ```ts
-// socket-lint: allow options-param-naming
+// oxlint-disable-next-line socket/options-param-naming
 function legacy(opts: Whatever) {
   return opts
 }

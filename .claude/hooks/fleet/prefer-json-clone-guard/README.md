@@ -56,7 +56,7 @@ const copy = structuredClone(value)
   (`.ts` / `.mts` / `.cts` / `.js` / `.mjs` / `.cjs`).
 - The immediately-preceding line must contain
   `oxlint-disable-next-line socket/no-structured-clone-prefer-json`.
-- Lines marked `// socket-lint: allow structured-clone` are also
+- Lines marked `// oxlint-disable-next-line socket/no-structured-clone-prefer-json` are also
   exempt for one-off pre-rule legacy cases.
 
 ## What's exempt
@@ -71,7 +71,7 @@ const copy = structuredClone(value)
 For a legitimate one-off:
 
 ```ts
-const copy = structuredClone(value) // socket-lint: allow structured-clone
+const copy = structuredClone(value) // oxlint-disable-next-line socket/no-structured-clone-prefer-json
 ```
 
 Don't reach for this - add the `oxlint-disable-next-line` with a

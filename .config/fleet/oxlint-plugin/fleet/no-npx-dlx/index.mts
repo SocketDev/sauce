@@ -15,8 +15,9 @@
  *   foo` → `node_modules/.bin/foo` (best-effort: assumes the tool is an
  *   installed dep). Allowed exceptions (skipped):
  *
- *   - The literal `npx` inside a comment with `socket-lint: allow npx` — the
- *     canonical bypass marker, used by the lockdown skill spec.
+ *   - The literal `npx` inside a comment with `oxlint-disable-next-line
+ *     socket/no-npx-dlx` — the canonical bypass marker, used by the lockdown
+ *     skill spec.
  *   - The literal `pnpm dlx` inside a comment justifying a soak-time bypass
  *     (rare; case-by-case).
  *   - The CLAUDE.md fleet block reference itself — string literals like `'`pnpm
@@ -25,6 +26,7 @@
  *     and ends with a backtick).
  */
 
+import { suppressionWaives } from '../../../../../.claude/hooks/fleet/_shared/suppression-rules.mts'
 import type { AstNode, RuleContext, RuleFixer } from '../../lib/rule-types.mts'
 
 const PATTERNS = [
@@ -32,19 +34,22 @@ const PATTERNS = [
   // before `pnpm` and `pnx ` is matched before `pnpm`. Each entry
   // is [match-prefix, replacement-prefix, label].
   ['pnpm dlx ', 'node_modules/.bin/', 'pnpm dlx'],
-  // socket-lint: allow npx
+  // oxlint-disable-next-line socket/no-npx-dlx -- the token under test
   ['yarn dlx ', 'node_modules/.bin/', 'yarn dlx'],
-  // socket-lint: allow npx
+  // oxlint-disable-next-line socket/no-npx-dlx -- the token under test
   ['npx ', 'node_modules/.bin/', 'npx'],
   ['pnx ', 'node_modules/.bin/', 'pnx'],
 ]
 
-// socket-lint: allow npx
-const COMMENT_BYPASS_RE = /socket-lint:\s*allow\s+npx/
+// oxlint-disable-next-line socket/no-npx-dlx -- the token under test
 
 /**
  * @type {import('eslint').Rule.RuleModule}
  */
+function waivesHere(text: string): boolean {
+  return suppressionWaives(text, 'socket/no-npx-dlx')
+}
+
 const rule = {
   meta: {
     type: 'problem',
@@ -97,13 +102,14 @@ const rule = {
 
     /**
      * Skip when the surrounding source has the canonical bypass comment
-     * (`socket-lint: allow npx`) on the same or an adjacent line.
+     * (`oxlint-disable-next-line socket/no-npx-dlx`) on the same or an adjacent
+     * line.
      */
     function hasBypassComment(node: AstNode) {
       const before = sourceCode.getCommentsBefore(node)
       const after = sourceCode.getCommentsAfter(node)
       for (const c of [...before, ...after]) {
-        if (COMMENT_BYPASS_RE.test(c.value)) {
+        if (waivesHere(c.value)) {
           return true
         }
       }

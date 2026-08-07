@@ -22,11 +22,6 @@ import { makeBypassChecker } from '../../lib/comment-markers.mts'
 import { isPluginSelfFile } from '../../lib/fleet-paths.mts'
 import type { AstNode, RuleContext } from '../../lib/rule-types.mts'
 
-// socket-lint: allow eslint-biome-ref -- opt-out for a string that names a
-// legacy tool as DATA (e.g. an allowlist of popular package names), not as a
-// stale config reference.
-const BYPASS_RE = /socket-lint:\s*allow\s+eslint-biome-ref/
-
 const FORBIDDEN_REFS = [
   '.eslintrc',
   '.eslintrc.js',
@@ -84,7 +79,10 @@ const rule = {
     if (isPluginSelfFile(context)) {
       return {}
     }
-    const hasBypassComment = makeBypassChecker(context, BYPASS_RE)
+    const hasBypassComment = makeBypassChecker(
+      context,
+      'socket/no-eslint-biome-config-ref',
+    )
     return {
       Literal(node: AstNode) {
         const v = (node as { value?: unknown | undefined }).value

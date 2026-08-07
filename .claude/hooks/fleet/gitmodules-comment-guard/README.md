@@ -44,7 +44,7 @@ The slug is short (no path); the version is whatever upstream tags
 For a legitimate one-off where the comment doesn't apply:
 
 ```gitmodules
-[submodule "..."] # socket-lint: allow gitmodules-no-comment
+[submodule "..."] # oxlint-disable-next-line socket/gitmodules-entry-has-comment
 ```
 
 Don't reach for this - fix the comment instead.

@@ -8,7 +8,7 @@ Detection is additive: the guard compares the about-to-land content against what
 
 ## Blocked (when added)
 
-- `// socket-lint: allow long-comment-block -- <reason>`
+- `// oxlint-disable-next-line socket/max-comment-block-lines -- <reason>`
 - `/* oxlint-disable socket/max-comment-block-lines */`
 - `// oxlint-disable-next-line socket/max-comment-block-lines`
 
