@@ -11,9 +11,9 @@ description:
 
 # Research Scan
 
-Run a dependency scan using the Socket CLI. For authenticated users, scans run in **temporary read-only mode** (`--tmp`) by default — results are returned locally without creating a persistent entry in the Socket dashboard.
+Run a dependency scan using the Socket CLI. For authenticated users, scans run in **temporary read-only mode** (`--tmp`) by default - results are returned locally without creating a persistent entry in the Socket dashboard.
 
-For unauthenticated users (no token or demo token only), the skill **prompts the user to log in or create a free account**. If the user skips login, the scan falls back to cdxgen — but alert accuracy will be greatly reduced and SBOM accuracy will be poor.
+For unauthenticated users (no token or demo token only), the skill **prompts the user to log in or create a free account**. If the user skips login, the scan falls back to cdxgen - but alert accuracy will be greatly reduced and SBOM accuracy will be poor.
 
 When the user is authenticated with a full account (free or enterprise) and explicitly wants results saved, the scan can be promoted to a **persistent dashboard scan**.
 
@@ -37,7 +37,7 @@ When the user is authenticated with a full account (free or enterprise) and expl
 
 ### Socket CLI Setup
 
-Use `pnpm dlx socket` to run the Socket CLI — this always fetches the latest version and requires no global install. Verify it works:
+Use `pnpm dlx socket` to run the Socket CLI - this always fetches the latest version and requires no global install. Verify it works:
 
 ```shell
 pnpm dlx socket --version
@@ -118,7 +118,7 @@ pnpm dlx socket organization list --json --no-banner --no-spinner
 
 Use the result to decide the scan approach:
 
-1. **No organizations returned, or the only org is `SocketDemo`** — the user has no account or only the demo token. **Prompt the user to log in or create an account**:
+1. **No organizations returned, or the only org is `SocketDemo`** - the user has no account or only the demo token. **Prompt the user to log in or create an account**:
 
    > You're not currently logged in to Socket. To scan your project, **log in with `pnpm dlx socket login`** or **create a free account at <https://socket.dev>**.
    >
@@ -128,7 +128,7 @@ Use the result to decide the scan approach:
 
    **If the user skips login**, proceed to Step 2b (cdxgen fallback). Warn them that alert accuracy will be greatly reduced and SBOM accuracy will be poor.
 
-2. **One or more real organizations returned** — the user has a full account. Decide on scan mode:
+2. **One or more real organizations returned** - the user has a full account. Decide on scan mode:
    - Ask whether they want results saved to the dashboard:
      - If yes (or if they explicitly asked to "create a scan") → **persistent mode**
      - If no, or if the scan is for development/exploration purposes → **temporary mode** (default)
@@ -169,9 +169,9 @@ pnpm dlx socket scan create . --org <org-slug> --json --no-banner --no-spinner
 
 | Flag               | Purpose                                                                                   |
 | ------------------ | ----------------------------------------------------------------------------------------- |
-| `TARGET`           | Positional arg — path to directory or manifest files to scan (default: `.`)               |
+| `TARGET`           | Positional arg - path to directory or manifest files to scan (default: `.`)               |
 | `--repo <name>`    | Repository name for dashboard metadata (not the scan target)                              |
-| `--tmp`            | Temporary read-only scan — results returned locally, not persisted to dashboard (default) |
+| `--tmp`            | Temporary read-only scan - results returned locally, not persisted to dashboard (default) |
 | `--org <org-slug>` | Organization slug for enterprise scans (persistent mode only)                             |
 | `--json`           | Output results as JSON for easier parsing                                                 |
 | `--no-banner`      | Suppress CLI banner output                                                                |
@@ -200,7 +200,7 @@ cdxgen auto-detects the project type (npm, pip, Go, Maven, etc.) and produces a 
 | -------------------- | ------------------------------------------------------------------------------------------- |
 | `-o <file>`          | Output file path (default: `bom.json`)                                                      |
 | `-p`                 | Print the SBOM to stdout as well as writing to file                                         |
-| `-t <type>`          | Force project type (`npm`, `pip`, `go`, `maven`, `gradle`, etc.) — auto-detected if omitted |
+| `-t <type>`          | Force project type (`npm`, `pip`, `go`, `maven`, `gradle`, etc.) - auto-detected if omitted |
 | `--no-recurse`       | Do not scan subdirectories (useful for monorepos to target a specific package)              |
 | `--spec-version 1.5` | Use CycloneDX spec version 1.5 (default)                                                    |
 
@@ -208,17 +208,17 @@ cdxgen auto-detects the project type (npm, pip, Go, Maven, etc.) and produces a 
 
 The `bom.json` file is a CycloneDX SBOM. Extract dependency and vulnerability information from:
 
-- **`components[]`** — list of all dependencies with name, version, purl, and license info
-- **`vulnerabilities[]`** (if present) — known CVEs with severity, description, and affected version ranges
-- **`dependencies[]`** — dependency graph (which component depends on which)
+- **`components[]`** - list of all dependencies with name, version, purl, and license info
+- **`vulnerabilities[]`** (if present) - known CVEs with severity, description, and affected version ranges
+- **`dependencies[]`** - dependency graph (which component depends on which)
 
 **Limitations of cdxgen fallback (alert accuracy greatly reduced, SBOM accuracy poor):**
 
 - No malware detection, typosquatting detection, or install script analysis
 - No Socket scores (security, quality, maintenance, license)
 - No reachability analysis
-- Vulnerability data comes from public advisory databases (OSV, NVD) — significantly less complete than Socket's curated data, expect many false negatives
-- SBOM component resolution is less accurate — transitive dependencies and version pinning may be incomplete or incorrect
+- Vulnerability data comes from public advisory databases (OSV, NVD) - significantly less complete than Socket's curated data, expect many false negatives
+- SBOM component resolution is less accurate - transitive dependencies and version pinning may be incomplete or incorrect
 - No dashboard integration or historical tracking
 
 For license auditing from cdxgen output, parse the `components[].licenses[]` field in `bom.json` instead of relying on Socket's license analysis.
@@ -267,7 +267,7 @@ Use the `type` field and `value.severity` to programmatically filter and priorit
 Triage issues by severity:
 
 - **Critical / High severity** (`criticalCVE`, `cve`): Stop and report these to the user immediately. These represent known vulnerabilities with available exploits or severe supply-chain risks that require urgent attention.
-- **Malware** (`malware`): If any issue has type `malware`, display a prominent warning. Malware findings should be treated as the highest priority — advise the user to remove the package immediately.
+- **Malware** (`malware`): If any issue has type `malware`, display a prominent warning. Malware findings should be treated as the highest priority - advise the user to remove the package immediately.
 - **Medium / Low severity** (`mediumCVE`, `mildCVE`): Summarize these for the user. Group by type and provide a brief overview rather than listing each one individually.
 - **License issues** (`licenseSpdxDisj`, `mixedLicense`): Flag for the license audit step (Section 6).
 
@@ -295,23 +295,23 @@ This analyzes the project's dependency graph and source code to classify each vu
 
 | Reachability     | Meaning                                          | Effective Priority                    |
 | ---------------- | ------------------------------------------------ | ------------------------------------- |
-| `reachable`      | Vulnerable code path is exercised by the project | Critical — fix immediately            |
-| `unreachable`    | Vulnerable code path is not used                 | Low — deprioritize                    |
-| `unknown`        | Reachability could not be determined             | High — treat as potentially reachable |
+| `reachable`      | Vulnerable code path is exercised by the project | Critical - fix immediately            |
+| `unreachable`    | Vulnerable code path is not used                 | Low - deprioritize                    |
+| `unknown`        | Reachability could not be determined             | High - treat as potentially reachable |
 | `not_applicable` | Vulnerability does not apply to this context     | Filter out                            |
 
-Reachability analysis generates a `.socket.facts.json` file in the project root with detailed findings. This helps prioritize which vulnerabilities to fix first — focus effort on `reachable` issues rather than wasting time on `unreachable` ones.
+Reachability analysis generates a `.socket.facts.json` file in the project root with detailed findings. This helps prioritize which vulnerabilities to fix first - focus effort on `reachable` issues rather than wasting time on `unreachable` ones.
 
-**Skip this step entirely for non-enterprise users** — reachability analysis requires an enterprise subscription with an authenticated organization.
+**Skip this step entirely for non-enterprise users** - reachability analysis requires an enterprise subscription with an authenticated organization.
 
 ### 5. Act on Findings
 
 Based on scan results, cross-reference other skills to resolve issues:
 
-- **Vulnerabilities with available fixes** — use the `/socket-dep-upgrade` skill to apply safe upgrades
-- **Packages needing deeper investigation** — use the `/socket-inspect` skill to research specific packages
-- **Packages with Socket patches available** — use the `/socket-dep-patch` skill to apply security patches
-- **Unused dependencies** — use the `/socket-dep-cleanup` skill to remove packages that are no longer needed
+- **Vulnerabilities with available fixes** - use the `/socket-dep-upgrade` skill to apply safe upgrades
+- **Packages needing deeper investigation** - use the `/socket-inspect` skill to research specific packages
+- **Packages with Socket patches available** - use the `/socket-dep-patch` skill to apply security patches
+- **Unused dependencies** - use the `/socket-dep-cleanup` skill to remove packages that are no longer needed
 
 ### 6. License & Compliance Audit
 
@@ -321,11 +321,11 @@ Categorize all discovered licenses into risk tiers:
 
 | Tier                         | Licenses                                                          | Risk Level                                                              |
 | ---------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| Permissive                   | MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, 0BSD, Unlicense | Low — safe for commercial use                                           |
-| Weak Copyleft                | LGPL-2.1, LGPL-3.0, MPL-2.0, EPL-2.0                              | Medium — may require disclosure of modifications to the library itself  |
-| Strong Copyleft              | GPL-2.0, GPL-3.0, AGPL-3.0                                        | High — may require releasing your entire project under the same license |
-| Non-Commercial / Restrictive | SSPL, BSL, CC-BY-NC, Elastic License                              | High — restricts commercial use                                         |
-| No License / Unknown         | No license file, custom license, NOASSERTION                      | High — no explicit permission to use                                    |
+| Permissive                   | MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, 0BSD, Unlicense | Low - safe for commercial use                                           |
+| Weak Copyleft                | LGPL-2.1, LGPL-3.0, MPL-2.0, EPL-2.0                              | Medium - may require disclosure of modifications to the library itself  |
+| Strong Copyleft              | GPL-2.0, GPL-3.0, AGPL-3.0                                        | High - may require releasing your entire project under the same license |
+| Non-Commercial / Restrictive | SSPL, BSL, CC-BY-NC, Elastic License                              | High - restricts commercial use                                         |
+| No License / Unknown         | No license file, custom license, NOASSERTION                      | High - no explicit permission to use                                    |
 
 Flag the following issues for user attention:
 
@@ -369,7 +369,7 @@ Produce a human-readable compliance summary:
 ## Error Handling
 
 - **`socket: command not found`**: Use `pnpm dlx socket` as a prefix for all commands. If you prefer a global install, run `npm install -g socket@latest`. If you need a permanent installation, use the `/socket-setup` skill.
-- **`pnpm dlx socket scan create` fails with 403 / authentication error**: The public demo token cannot create scans. Prompt the user to log in with `pnpm dlx socket login` or create a free account at <https://socket.dev>. If they skip login, fall back to cdxgen (`pnpm dlx @cyclonedx/cdxgen -o bom.json -p`) — see Step 2b — but warn them that alert accuracy will be greatly reduced and SBOM accuracy will be poor. Use the `/socket-setup` skill for guided configuration.
+- **`pnpm dlx socket scan create` fails with 403 / authentication error**: The public demo token cannot create scans. Prompt the user to log in with `pnpm dlx socket login` or create a free account at <https://socket.dev>. If they skip login, fall back to cdxgen (`pnpm dlx @cyclonedx/cdxgen -o bom.json -p`) - see Step 2b - but warn them that alert accuracy will be greatly reduced and SBOM accuracy will be poor. Use the `/socket-setup` skill for guided configuration.
 - **`pnpm dlx socket scan reach` returns "not available"**: Reachability analysis requires an enterprise subscription. Skip this step for free-tier users.
 - **No manifest/lock files found**: The scan relies on manifest files (`package.json`, `requirements.txt`, `go.mod`, etc.). Ensure the target path points to a directory containing these files. For bun projects, if only `bun.lock` exists, run `npm install --package-lock-only` to generate a `package-lock.json` that Socket can parse.
 - **Scan times out**: Large monorepos with many manifest files may take longer. Try limiting the scan to a specific subdirectory (e.g., `pnpm dlx socket scan create ./path/to/subdir --tmp --json`).
@@ -377,18 +377,18 @@ Produce a human-readable compliance summary:
 
 ## Tips
 
-- Default to `--tmp` (temporary mode) for all scans — it's safe, fast, and works with the public token
+- Default to `--tmp` (temporary mode) for all scans - it's safe, fast, and works with the public token
 - Only omit `--tmp` when the user has a full account and explicitly wants results saved to the dashboard
 - Always run a scan after adding, updating, or removing dependencies to verify the project's security posture
 - Use `--json` for machine-readable output that is easier to parse and summarize
 - Combine with the `/socket-inspect` skill for deep-dives into specific flagged packages
 - Combine with the `/socket-dep-upgrade` skill to fix vulnerabilities discovered during the scan
-- Enterprise customers should use reachability analysis to prioritize fixes — focus on `reachable` vulnerabilities first
+- Enterprise customers should use reachability analysis to prioritize fixes - focus on `reachable` vulnerabilities first
 - Persistent scan results are available in the Socket dashboard for team visibility and historical tracking
-- Use `pnpm dlx socket` for all commands — it always uses the latest CLI version
+- Use `pnpm dlx socket` for all commands - it always uses the latest CLI version
 - Run a compliance audit before releasing a new version to catch license issues early
-- Re-audit after adding or updating dependencies — license information can change between versions
-- When flagging GPL dependencies, check if they are dev-only — GPL in devDependencies is generally lower risk for commercial projects
+- Re-audit after adding or updating dependencies - license information can change between versions
+- When flagging GPL dependencies, check if they are dev-only - GPL in devDependencies is generally lower risk for commercial projects
 - Use the `/socket-inspect` skill to deep-dive into specific packages flagged during the audit
 - If the user is not logged in, always prompt them to log in (`pnpm dlx socket login`) or create a free account at <https://socket.dev> before falling back to cdxgen. cdxgen has greatly reduced alert accuracy and poor SBOM accuracy
 - For bun projects without a `package-lock.json`, generate one with `npm install --package-lock-only` before scanning or auditing

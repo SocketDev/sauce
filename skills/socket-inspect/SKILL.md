@@ -1,11 +1,11 @@
 ---
 name: socket-inspect
-description: Research a package before you depend on it — pull every signal from Socket (scores, alerts, malware verdicts, CVEs, supply-chain risk), check the socket.dev package page, evaluate alternatives, and surface available Socket patches.
+description: Research a package before you depend on it - pull every signal from Socket (scores, alerts, malware verdicts, CVEs, supply-chain risk), check the socket.dev package page, evaluate alternatives, and surface available Socket patches.
 ---
 
 # Research Inspect
 
-Research a package before you depend on it. This skill pulls every available signal from Socket — scores, alerts, malware verdicts, CVEs, and supply-chain risk indicators — checks the socket.dev package page for additional context, evaluates alternatives when warranted, and surfaces available Socket patches. Use it to make an informed decision before adding, keeping, or replacing any dependency.
+Research a package before you depend on it. This skill pulls every available signal from Socket - scores, alerts, malware verdicts, CVEs, and supply-chain risk indicators - checks the socket.dev package page for additional context, evaluates alternatives when warranted, and surfaces available Socket patches. Use it to make an informed decision before adding, keeping, or replacing any dependency.
 
 ## When to Use
 
@@ -23,7 +23,7 @@ Research a package before you depend on it. This skill pulls every available sig
 
 ### Socket CLI Setup
 
-Use `pnpm dlx socket` to run the Socket CLI — this always fetches the latest version and requires no global install. Verify it works:
+Use `pnpm dlx socket` to run the Socket CLI - this always fetches the latest version and requires no global install. Verify it works:
 
 ```shell
 pnpm dlx socket --version
@@ -60,7 +60,7 @@ If authentication fails or the CLI is not installed, use the `/socket-setup` ski
 
 **For the Batch PURL API:** `SOCKET_SECURITY_API_KEY` is required for direct API calls. Users with a free or enterprise account can create an API key at `https://socket.dev/dashboard/org/{ORG}/settings/integrations/api-tokens`.
 
-## Step 1 — Fetch Package Data via the Socket Batch PURL API
+## Step 1 - Fetch Package Data via the Socket Batch PURL API
 
 Query the Socket Batch PURL REST API with the package's PURL (Package URL) to retrieve scores, alerts, CVEs, and metadata.
 
@@ -99,7 +99,7 @@ Extract **all** returned data:
 - Maintainer and author information
 - License identifier
 
-## Step 1b — CLI Fallback
+## Step 1b - CLI Fallback
 
 If the Batch PURL API is unavailable or returns an error, fall back to the CLI:
 
@@ -109,7 +109,7 @@ pnpm dlx socket package score <ecosystem> <name> <version>
 
 This returns score data without requiring `SOCKET_SECURITY_API_KEY`.
 
-## Step 2 — Check the socket.dev Package Page
+## Step 2 - Check the socket.dev Package Page
 
 Construct the package URL:
 
@@ -134,17 +134,17 @@ Use `WebFetch` to visit the page and extract:
 
 If `WebFetch` is unavailable or fails (including due to bot protection), note that the report is based on API data only and include the URL so the user can check manually.
 
-## Step 3 — Evaluate Supply Chain Risk
+## Step 3 - Evaluate Supply Chain Risk
 
 Analyze the package across five dimensions. **Always check malware first.**
 
 Each dimension draws from different data sources:
 
-- **3a. Malware** — Batch PURL API alerts + socket.dev package page (WebFetch)
-- **3b. Vulnerabilities** — Batch PURL API CVE data
-- **3c. Dependency Tree** — Batch PURL API dependency counts + socket.dev page (WebFetch)
-- **3d. Maintenance Health** — socket.dev package page (WebFetch) + GitHub API (for commit activity and issue counts)
-- **3e. Author & Maintainer Trust** — Batch PURL API maintainer data + socket.dev page (WebFetch)
+- **3a. Malware** - Batch PURL API alerts + socket.dev package page (WebFetch)
+- **3b. Vulnerabilities** - Batch PURL API CVE data
+- **3c. Dependency Tree** - Batch PURL API dependency counts + socket.dev page (WebFetch)
+- **3d. Maintenance Health** - socket.dev package page (WebFetch) + GitHub API (for commit activity and issue counts)
+- **3e. Author & Maintainer Trust** - Batch PURL API maintainer data + socket.dev page (WebFetch)
 
 ### 3a. Malware (CHECK FIRST)
 
@@ -191,7 +191,7 @@ If malware is detected, the warning **MUST** be the first thing in the output.
 - Typosquatting signals (name similarity to popular packages)
 - Whether maintainers publish other well-known packages
 
-## Step 4 — Research Alternatives
+## Step 4 - Research Alternatives
 
 Research alternatives when any of the following conditions are met:
 
@@ -215,13 +215,13 @@ To research alternatives:
 | alt-1    | ...          | ...             | ...          | ...            |
 | alt-2    | ...          | ...             | ...          | ...            |
 
-## Step 5 — Check for Socket Patches
+## Step 5 - Check for Socket Patches
 
 **What are Socket patches?** Socket patches are binary-level fixes applied directly to installed packages without changing their version numbers. They fix known vulnerabilities in-place, which is useful when an upstream fix doesn't exist yet or when upgrading would introduce breaking changes.
 
 - Check the API response data for available Socket patches or overrides
 - If patches are available, mention the patched version and link to the socket.dev page
-- Cross-reference the `/socket-dep-patch` and `/socket-dep-upgrade` skills — remind the user they can apply patches with `/socket-dep-patch` (binary-level, no version change) or run a security-audited upgrade with `/socket-dep-upgrade` (version upgrade with code migration)
+- Cross-reference the `/socket-dep-patch` and `/socket-dep-upgrade` skills - remind the user they can apply patches with `/socket-dep-patch` (binary-level, no version change) or run a security-audited upgrade with `/socket-dep-upgrade` (version upgrade with code migration)
 
 ## Output Format
 
@@ -229,7 +229,7 @@ To research alternatives:
 
 When malware is detected, the output **MUST** begin with this warning before any other content:
 
-> **MALWARE DETECTED — do NOT install this package.**
+> **MALWARE DETECTED - do NOT install this package.**
 >
 > **Package:** `{name}` ({ecosystem})
 > **Malware type:** {description of malware behavior}
@@ -281,9 +281,9 @@ A clear, actionable recommendation: safe to use, use with caution (with reasons)
 - Always review unfamiliar packages before adding them as dependencies
 - Single-maintainer packages carry higher supply-chain risk
 - Large transitive dependency trees increase attack surface
-- If a package is flagged as malware, do NOT install it — recommend immediate removal if already present
+- If a package is flagged as malware, do NOT install it - recommend immediate removal if already present
 - Use inspect results to inform decisions with the `/socket-dep-upgrade`, `/socket-dep-patch`, and `/socket-scan` skills
 - Weigh Socket score and maintenance health over download count alone
-- Re-review periodically — a package's security posture changes over time
+- Re-review periodically - a package's security posture changes over time
 - CLI-based inspection works with the public token (use `/socket-setup` to configure) for users without an account, subject to rate limits. The Batch PURL API requires `SOCKET_SECURITY_API_KEY` from a free or enterprise account.
 - Prefer Socket patches over manual version pinning when available

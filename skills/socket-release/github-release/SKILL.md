@@ -1,7 +1,7 @@
 ---
 name: github-release
 description: Cut, verify, and reconcile immutable GitHub releases with the
-  socket-release kit — the registry-resolvability ORDER RULE, the
+  socket-release kit - the registry-resolvability ORDER RULE, the
   three-step draft-upload-undraft cut, checksums.txt production, and tag-gap
   healing. Use when tagging a release, healing a missing tag/release, or
   when the github-release workflow gate refuses a tag.
@@ -11,7 +11,7 @@ description: Cut, verify, and reconcile immutable GitHub releases with the
 
 ORDER RULE (non-negotiable): the immutable GitHub release is the FINAL
 marker of a release. It can only follow a version that already resolves on
-its registry — never precede one. `requireRegistryLive` enforces this in
+its registry - never precede one. `requireRegistryLive` enforces this in
 every path; the `github-release.yml` workflow's `gate` job refuses a pushed
 tag whose version is not live (`registry-liveness-gate.mjs`, zero-dep, runs
 before any install).
@@ -26,7 +26,7 @@ cuts the release. Nothing to run by hand when that succeeds.
 ## Cutting a release with assets
 
 `github-release.mts --release` performs the fleet-canonical three-step immutable
-cut — `gh release create --draft --verify-tag` → upload assets → `gh release
+cut - `gh release create --draft --verify-tag` → upload assets → `gh release
 edit --draft=false` — and writes a `checksums.txt` manifest (sha1 + sha256 +
 sha512) alongside the tarball, so the GitHub-release digest stays directly
 comparable to the npm published shasum:
@@ -51,10 +51,10 @@ node scripts/socket-release/github-release.mts --tag vX.Y.Z             # dry-ru
 node scripts/socket-release/github-release.mts --tag vX.Y.Z --release   # cuts tag + release
 ```
 
-It refuses (exit 1) when the version is not live — an unreachable registry
+It refuses (exit 1) when the version is not live - an unreachable registry
 is never read as unpublished. From CI, the operator dispatches the
 `github release` workflow with `tag` + `release: true` from the Actions UI
-(`gh workflow run` is guard-blocked for agents — the human clicks; there is
+(`gh workflow run` is guard-blocked for agents - the human clicks; there is
 no agent lane for the dispatch itself).
 
 ## Verifying

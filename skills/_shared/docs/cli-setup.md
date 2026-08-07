@@ -1,6 +1,6 @@
 # Socket CLI Setup
 
-Use `pnpm dlx socket` to run the Socket CLI — this always fetches the latest version and requires no global install. Verify it works:
+Use `pnpm dlx socket` to run the Socket CLI - this always fetches the latest version and requires no global install. Verify it works:
 
 ```shell
 pnpm dlx socket --version

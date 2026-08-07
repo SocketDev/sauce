@@ -4,7 +4,7 @@ Common CI/CD detection and setup instructions shared across skills.
 
 ## Detecting the CI/CD System
 
-List the CI config files that exist in the project root — the command prints only the ones that are present:
+List the CI config files that exist in the project root - the command prints only the ones that are present:
 
 ```shell
 ls -d .github/workflows .gitlab-ci.yml bitbucket-pipelines.yml Jenkinsfile .circleci/config.yml .travis.yml azure-pipelines.yml 2>/dev/null || true

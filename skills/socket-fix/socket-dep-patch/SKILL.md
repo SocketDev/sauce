@@ -8,7 +8,7 @@ description:
 
 # Dep Patch
 
-Apply Socket's binary-level security patches to vulnerable dependencies **without changing their version numbers**. This skill uses `socket-patch apply` to fix known vulnerabilities in-place. Patches are applied in bulk — `socket-patch apply` patches all available packages at once.
+Apply Socket's binary-level security patches to vulnerable dependencies **without changing their version numbers**. This skill uses `socket-patch apply` to fix known vulnerabilities in-place. Patches are applied in bulk - `socket-patch apply` patches all available packages at once.
 
 After applying patches, this skill checks whether the project is set up to **keep patches applied automatically** (via postinstall hooks, CI steps, or Dockerfile layers). If not, it walks through configuring automated patching.
 
@@ -171,7 +171,7 @@ Use the appropriate command to run `socket-patch` based on the project's package
 | deno            | `deno run npm:@socketsecurity/socket-patch scan` then `deno run npm:@socketsecurity/socket-patch apply`                                                     |
 | Python          | `pipx run socket-patch scan && pipx run socket-patch apply` (if pipx available), else `pip install socket-patch && socket-patch scan && socket-patch apply` |
 | Standalone      | `curl -fsSL https://raw.githubusercontent.com/SocketDev/socket-patch/main/install.sh \| sh` then `socket-patch scan && socket-patch apply`                  |
-| GitHub Actions  | `SocketDev/action@v1` with `mode: patch` (preferred — handles scan+apply automatically)                                                                     |
+| GitHub Actions  | `SocketDev/action@v1` with `mode: patch` (preferred - handles scan+apply automatically)                                                                     |
 
 Use the runner that matches the detected package manager in the sections below: `npx` for npm and yarn, `pnpm dlx` for pnpm, `bunx` for bun.
 
@@ -279,7 +279,7 @@ If the project uses an unusual build system, use the appropriate package manager
 
 ## Tips
 
-- `socket-patch apply` does not require an API key — it works on the free tier
+- `socket-patch apply` does not require an API key - it works on the free tier
 - Use `SocketDev/action@v1` (correct casing) in GitHub workflow files
 - For monorepos, use `patch-cwd` to target specific directories
 - Commit `.socket/manifest.json` to track which patches are applied

@@ -23,10 +23,10 @@ The harness at `scripts/xport.mts` emits JSON reports with `severity ∈ {ok, dr
 | Kind | Drift signal | Action |
 |------|--------------|--------|
 | `version-pin` | Upstream commits on default ref since pinned SHA | **Auto-bump** per `upgrade_policy`: `track-latest` → advance to latest stable tag; `major-gate` → advance patch/minor only; `locked` → advisory only |
-| `file-fork` | Upstream file changed since `forked_at_sha` | **Advisory** — note in PR body; do NOT auto-merge (forks carry local deltas that need human review) |
-| `feature-parity` | Parity score below `criticality/10` floor | **Advisory** — note in PR body; human decides implement vs downgrade criticality |
-| `spec-conformance` | Spec submodule moved | **Advisory** — note in PR body; human decides whether to bump `spec_version` |
-| `lang-parity` | Port divergence / `rejected` anti-pattern reintroduced | **Advisory** — note in PR body; humans fix the port or update the manifest |
+| `file-fork` | Upstream file changed since `forked_at_sha` | **Advisory** - note in PR body; do NOT auto-merge (forks carry local deltas that need human review) |
+| `feature-parity` | Parity score below `criticality/10` floor | **Advisory** - note in PR body; human decides implement vs downgrade criticality |
+| `spec-conformance` | Spec submodule moved | **Advisory** - note in PR body; human decides whether to bump `spec_version` |
+| `lang-parity` | Port divergence / `rejected` anti-pattern reintroduced | **Advisory** - note in PR body; humans fix the port or update the manifest |
 
 The common rule: **version-pin is mechanical** (safe to auto-apply with `track-latest`/`major-gate` policies); everything else is **advisory** (upstream semantics and local deltas matter, humans decide).
 </context>
@@ -35,7 +35,7 @@ The common rule: **version-pin is mechanical** (safe to auto-apply with `track-l
 **Requirements:**
 - Start with clean working directory (check via `git status --porcelain`)
 - Run from repo root
-- Exit 0 cleanly if `xport.json` is absent — the repo doesn't use xport
+- Exit 0 cleanly if `xport.json` is absent - the repo doesn't use xport
 - Conventional commit format: `chore(deps): bump <upstream> to <tag>`
 - Update `.gitmodules` version comments when submodule tags change (pattern: `# <name>-<version>` on the line above the submodule block)
 - Target stable releases only (filter `-rc`, `-alpha`, `-beta`, `-dev`, `-snapshot`, `-nightly`, `-preview`)
@@ -44,7 +44,7 @@ The common rule: **version-pin is mechanical** (safe to auto-apply with `track-l
 - Never auto-edit `file-fork`, `feature-parity`, `spec-conformance`, or `lang-parity` rows' tracked state
 - Never bump a `locked` version-pin without human approval
 - Never skip the tag-stability filter
-- Never use `npx`, `pnpm dlx`, `yarn dlx` — use `pnpm exec` or `pnpm run`
+- Never use `npx`, `pnpm dlx`, `yarn dlx` - use `pnpm exec` or `pnpm run`
 
 **CI mode** (`CI=true` or `GITHUB_ACTIONS`): skip per-row test validation (workflow validates at the end); emit advisory summary to `$GITHUB_OUTPUT` when present.
 
@@ -53,7 +53,7 @@ The common rule: **version-pin is mechanical** (safe to auto-apply with `track-l
 
 <instructions>
 
-## Phase 1 — Pre-flight
+## Phase 1 - Pre-flight
 
 ```bash
 test -f xport.json || { echo "no xport.json; skill n/a"; exit 0; }
@@ -65,7 +65,7 @@ git status --porcelain | grep -v '^??' && { echo "dirty tree; aborting"; exit 1;
 [ "$CI" = "true" ] || [ -n "$GITHUB_ACTIONS" ] && CI_MODE=true || CI_MODE=false
 ```
 
-## Phase 2 — Collect drift
+## Phase 2 - Collect drift
 
 ```bash
 pnpm run lockstep --json > /tmp/xport-report.json
@@ -73,12 +73,12 @@ pnpm run lockstep --json > /tmp/xport-report.json
 
 Parse `reports[]` from the JSON. Split into:
 
-- **auto** — rows where `severity == "drift"` AND `kind == "version-pin"` AND `upgrade_policy` ∈ `{ "track-latest", "major-gate" }`
-- **advisory** — everything else with `severity != "ok"`
+- **auto** - rows where `severity == "drift"` AND `kind == "version-pin"` AND `upgrade_policy` ∈ `{ "track-latest", "major-gate" }`
+- **advisory** - everything else with `severity != "ok"`
 
 If both lists empty: exit 0 with "no xport drift".
 
-## Phase 3 — Auto-bump version-pin rows
+## Phase 3 - Auto-bump version-pin rows
 
 For each row in **auto** list, in manifest declaration order:
 
@@ -100,7 +100,7 @@ Examine existing `pinned_tag` to identify the tag scheme, then match:
 - `<prefix>-1.2.3` (project-prefixed)
 - `<prefix>_1_2_3` (underscore style; curl, liburing)
 
-For `major-gate` policy: parse major version from `LATEST` vs current `pinned_tag`. If majors differ, skip — add to advisory with note "major bump needs human review".
+For `major-gate` policy: parse major version from `LATEST` vs current `pinned_tag`. If majors differ, skip - add to advisory with note "major bump needs human review".
 
 **3c. Check out + capture new SHA**
 
@@ -123,7 +123,7 @@ jq --arg id "$ROW_ID" --arg sha "$NEW_SHA" --arg tag "$LATEST" \
   xport.json > xport.json.tmp && mv xport.json.tmp xport.json
 ```
 
-Update `.gitmodules` version comment via Edit tool (NOT sed per CLAUDE.md) — replace `# <prefix>-<old>` with `# <prefix>-<new>` on the comment line above the submodule block.
+Update `.gitmodules` version comment via Edit tool (NOT sed per CLAUDE.md) - replace `# <prefix>-<old>` with `# <prefix>-<new>` on the comment line above the submodule block.
 
 **3e. Validate + commit**
 
@@ -147,7 +147,7 @@ git commit -m "chore(deps): bump $UPSTREAM_ALIAS to $LATEST"
 
 Record bumped row in summary accumulator.
 
-## Phase 4 — Compose advisory notes
+## Phase 4 - Compose advisory notes
 
 For each row in **advisory**, accumulate a markdown line:
 
@@ -160,7 +160,7 @@ For each row in **advisory**, accumulate a markdown line:
 - **version-pin** `<id>`: upgrade_policy=locked — skipped.
 ```
 
-## Phase 5 — Report + emit
+## Phase 5 - Report + emit
 
 Final human-readable report to stdout:
 
@@ -199,14 +199,14 @@ Summary: {one-line description}
 - All actionable `version-pin` rows bumped atomically (one commit per row)
 - Advisory rows collected for PR body / workflow output
 - No edits to non-version-pin row state
-- `pnpm run lockstep` exits 0 or 2 at end (never 1 — no schema errors introduced)
+- `pnpm run lockstep` exits 0 or 2 at end (never 1 - no schema errors introduced)
 - `.gitmodules` version comments synchronized with `pinned_tag`
 
 ## Commands
 
-- `pnpm run lockstep --json` — drift report (consumed by this skill)
-- `jq` — parse + edit `xport.json` (structured JSON edits)
-- `git submodule status` — verify submodule state after bumps
+- `pnpm run lockstep --json` - drift report (consumed by this skill)
+- `jq` - parse + edit `xport.json` (structured JSON edits)
+- `git submodule status` - verify submodule state after bumps
 
 ## When to use
 

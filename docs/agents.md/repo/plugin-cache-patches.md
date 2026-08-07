@@ -4,7 +4,7 @@ Third-party Claude Code plugins (pinned in `.claude-plugin/marketplace.json`)
 occasionally ship bugs we've fixed but can't land upstream synchronously. The
 plugin install lives in a **cache** at
 `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/` that Claude Code
-**regenerates from the pinned source on every (re)install** — so a hand-edit to
+**regenerates from the pinned source on every (re)install** - so a hand-edit to
 the cache is lost the next time `node scripts/repo/install-claude-plugins.mts` runs.
 
 The durable fix: keep the change as a checked-in patch in
@@ -18,14 +18,14 @@ the freshly-installed cache as a post-reconcile pass (`reapplyPluginPatches()`).
 🚨 Keep the diff itself as small as possible. When a fix needs more than a few
 lines of new logic, **move that logic into a standalone file** and let the diff
 `import` it + swap the call sites, rather than inlining a 30-line function
-body as `+` lines. A thin diff — an import + a call-site swap — re-anchors cleanly
+body as `+` lines. A thin diff - an import + a call-site swap - re-anchors cleanly
 across upstream version bumps; a fat inlined diff breaks on the first nearby
 edit and is painful to review.
 
 Mechanism: a patch named `<x>.patch` may ship a companion **`<x>.files/`**
 directory whose tree mirrors the plugin cache root. `reapplyPluginPatches()`
 copies it into the cache (overwrite) _before_ applying the diff, so the thin
-diff's `import` of a sidecar module resolves. Example — the codex stdin fix
+diff's `import` of a sidecar module resolves. Example - the codex stdin fix
 ships `codex-1.0.1-stdin-eagain.files/scripts/lib/read-stdin-sync.mjs` (the
 30-line `readStdinSync` body) and the `.patch` is a 6-line diff that imports it
 in three files.
@@ -33,11 +33,11 @@ in three files.
 This is doable for node-smol-shaped patches (we own the consuming source) and
 for plugin-cache patches (we copy the sidecar in). It does NOT apply where the
 patch target can't import a sibling we control (e.g. some `pnpm patch`
-scenarios that rewrite a published package's internals) — there, inline.
+scenarios that rewrite a published package's internals) - there, inline.
 
 ## Patch format (socket-btm node-smol convention)
 
-A `# @key: value` provenance header above a **plain `diff -u` body** — never a
+A `# @key: value` provenance header above a **plain `diff -u` body** - never a
 `git diff` (git injects `index <hash>` / `new file mode` markers that bare
 `patch` doesn't expect). The reapply step strips everything before the first
 `---` line and pipes the diff to `patch -p1`. Sidecar modules (the
@@ -70,7 +70,7 @@ dir. No timestamps on the `---`/`+++` lines (`diff -u` adds them; strip with
 
 ## Filename
 
-`<plugin>-<version>-<slug>.patch` — e.g. `codex-1.0.1-stdin-eagain.patch`. The
+`<plugin>-<version>-<slug>.patch` - e.g. `codex-1.0.1-stdin-eagain.patch`. The
 `<plugin>` + `<version>` prefix maps to the cache dir; the version is dotted
 semver (`1.0.1`), the slug is freeform lowercase-kebab. `parsePatchFileName`
 (in `install-claude-plugins.mts`) parses it; a name that doesn't match is
@@ -86,8 +86,8 @@ skipped with a warning.
    stdin.
 3. **Idempotency:** a forward `--dry-run` that fails while a reverse `--dry-run`
    succeeds means the fix is already present → skip. A patch that applies
-   neither way — the plugin bumped, the patch went stale — **warns, doesn't
-   abort** — a stale patch must not wedge the whole reconcile.
+   neither way - the plugin bumped, the patch went stale - **warns, doesn't
+   abort** - a stale patch must not wedge the whole reconcile.
 
 ## Lifecycle
 

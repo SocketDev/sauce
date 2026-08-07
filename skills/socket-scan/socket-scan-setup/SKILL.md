@@ -1,7 +1,7 @@
 ---
 name: socket-scan-setup
 description:
-  Set up prerequisites for Socket scanning — install the CLI, configure auth
+  Set up prerequisites for Socket scanning - install the CLI, configure auth
   with the public demo token, and verify scan access. Use this before the first scan
   or when encountering auth errors.
 ---
@@ -12,9 +12,9 @@ Set up the Socket CLI and authentication so that `/socket-scan` works on the fir
 
 ## When to Use
 
-- First-time scan setup — `/socket-scan` has never been run in this environment
-- Auth errors — scan fails with 403, "org not found", or token errors
-- CLI not installed — `socket: command not found`
+- First-time scan setup - `/socket-scan` has never been run in this environment
+- Auth errors - scan fails with 403, "org not found", or token errors
+- CLI not installed - `socket: command not found`
 - The user asks to configure Socket for scanning
 
 ## Setup Steps
@@ -32,7 +32,7 @@ If `config get apiToken` returns a token value, authentication is already config
 
 ### Step 2: Ensure the Socket CLI Is Available
 
-Use `pnpm dlx socket` to run the CLI — this always fetches the latest version with no global install needed:
+Use `pnpm dlx socket` to run the CLI - this always fetches the latest version with no global install needed:
 
 ```shell
 pnpm dlx socket --version
@@ -70,7 +70,7 @@ This should return the demo token value. The CLI is now configured for basic fea
 
 ### Step 5: Test a Scan
 
-**Note:** `pnpm dlx socket scan create` requires a real account — the public demo token lacks `full-scans:create` permission. The demo token (Steps 3-4) still enables other CLI features like `pnpm dlx socket fix` and `pnpm dlx socket package score`.
+**Note:** `pnpm dlx socket scan create` requires a real account - the public demo token lacks `full-scans:create` permission. The demo token (Steps 3-4) still enables other CLI features like `pnpm dlx socket fix` and `pnpm dlx socket package score`.
 
 **If the user has a real account**, run a test scan:
 
@@ -96,8 +96,8 @@ See the `/socket-scan` skill's Step 2b for details on interpreting cdxgen output
 
 ## Important Notes
 
-- **Do NOT use `pnpm dlx socket login --public`** — this flag does not exist in the current Socket CLI (v1.1.66+). Use `pnpm dlx socket config set apiToken <token>` to configure tokens directly.
-- **The public demo token cannot create scans** — it lacks the `full-scans:create` permission. Prompt the user to log in or create a free account at <https://socket.dev>. If they skip, fall back to cdxgen (`pnpm dlx @cyclonedx/cdxgen -o bom.json -p`) — but warn that alert accuracy will be greatly reduced and SBOM accuracy will be poor. The demo token still enables `pnpm dlx socket fix`, `pnpm dlx socket package score`, and other CLI features.
+- **Do NOT use `pnpm dlx socket login --public`** - this flag does not exist in the current Socket CLI (v1.1.66+). Use `pnpm dlx socket config set apiToken <token>` to configure tokens directly.
+- **The public demo token cannot create scans** - it lacks the `full-scans:create` permission. Prompt the user to log in or create a free account at <https://socket.dev>. If they skip, fall back to cdxgen (`pnpm dlx @cyclonedx/cdxgen -o bom.json -p`) - but warn that alert accuracy will be greatly reduced and SBOM accuracy will be poor. The demo token still enables `pnpm dlx socket fix`, `pnpm dlx socket package score`, and other CLI features.
 - For persistent dashboard scans, the user needs a full account (free or paid) at <https://socket.dev>.
 - If the `SOCKET_CLI_API_TOKEN` environment variable is set, it takes precedence over any config-file token.
 

@@ -1,7 +1,7 @@
 ---
 name: socket-fix
 description:
-  Fix dependency security issues — either scan and fix everything (requires
+  Fix dependency security issues - either scan and fix everything (requires
   /socket-scan), or target a single named package. Orchestrates /socket-dep-cleanup,
   /socket-dep-replace, /socket-dep-patch, and /socket-dep-upgrade as subskills.
 ---
@@ -10,8 +10,8 @@ description:
 
 Fix dependency security issues in your project. This skill operates in two modes:
 
-- **Fix All** — scan the entire project and systematically resolve all findings
-- **Fix Package** — target a single named package and resolve its issues
+- **Fix All** - scan the entire project and systematically resolve all findings
+- **Fix Package** - target a single named package and resolve its issues
 
 This skill is an **orchestrator**. It delegates concrete actions to the subskills: `/socket-dep-cleanup`, `/socket-dep-replace`, `/socket-dep-patch`, and `/socket-dep-upgrade`.
 
@@ -29,8 +29,8 @@ This skill is an **orchestrator**. It delegates concrete actions to the subskill
 
 Determine which mode to use from the user's prompt:
 
-- **Fix All** — "fix everything", "fix all dependencies", "fix my project", "scan and fix", or no specific package named
-- **Fix Package** — "fix lodash", "fix express@4.17.1", "fix GHSA-xxxx-xxxx-xxxx", or any prompt that names a specific package, PURL, GHSA, or CVE
+- **Fix All** - "fix everything", "fix all dependencies", "fix my project", "scan and fix", or no specific package named
+- **Fix Package** - "fix lodash", "fix express@4.17.1", "fix GHSA-xxxx-xxxx-xxxx", or any prompt that names a specific package, PURL, GHSA, or CVE
 
 If ambiguous, ask: **"Do you want to fix all dependencies or a specific package?"**
 
@@ -48,7 +48,7 @@ Scan the project with `/socket-scan`, then systematically resolve findings using
 
 ### Socket CLI Setup
 
-Use `pnpm dlx socket` to run the Socket CLI — this always fetches the latest version and requires no global install. Verify it works:
+Use `pnpm dlx socket` to run the Socket CLI - this always fetches the latest version and requires no global install. Verify it works:
 
 ```shell
 pnpm dlx socket --version
@@ -87,7 +87,7 @@ If authentication fails or the CLI is not installed, use the `/socket-setup` ski
 
 ## Step 1: Run Initial Scan
 
-Run `/socket-scan` to get a full picture of the project's dependency health. Use `--tmp` for a temporary read-only scan — the default, which does not persist to the dashboard:
+Run `/socket-scan` to get a full picture of the project's dependency health. Use `--tmp` for a temporary read-only scan - the default, which does not persist to the dashboard:
 
 ```shell
 pnpm dlx socket scan create . --tmp --json
@@ -95,11 +95,11 @@ pnpm dlx socket scan create . --tmp --json
 
 Parse the scan results to build a prioritized list of issues:
 
-1. **Malware** — packages flagged as malware (highest priority)
-2. **Critical/high CVEs** — known vulnerabilities with available fixes
-3. **Medium/low CVEs** — lower-severity vulnerabilities
-4. **Low Socket scores** — packages with quality, maintenance, or supply-chain concerns
-5. **Unused dependencies** — packages with no detected usage in the codebase
+1. **Malware** - packages flagged as malware (highest priority)
+2. **Critical/high CVEs** - known vulnerabilities with available fixes
+3. **Medium/low CVEs** - lower-severity vulnerabilities
+4. **Low Socket scores** - packages with quality, maintenance, or supply-chain concerns
+5. **Unused dependencies** - packages with no detected usage in the codebase
 
 Report the scan summary to the user:
 
@@ -115,10 +115,10 @@ Scan Results:
 
 Before any repair work, identify the project's ecosystem and dependency landscape.
 
-1. **Detect ecosystems** — check for manifest and lock files (`package.json`, `requirements.txt`, `go.mod`, `Cargo.toml`, etc.) to determine which package managers are in use
-2. **Parse dependencies** — read manifest files to build a list of all direct dependencies (production and dev)
-3. **Detect CI** — check for CI/CD configuration (`.github/workflows/`, `.gitlab-ci.yml`, `bitbucket-pipelines.yml`, etc.) to understand the project's build and test infrastructure
-4. **Ensure dependencies are installed** — check for the presence of the dependency directory (`node_modules/`, `vendor/`, etc.). If dependencies are not installed, run the project's install command using the detected package manager (e.g. `npm install`, `pnpm install`, `bun install`). This is required for both patching and accurate unused dependency detection.
+1. **Detect ecosystems** - check for manifest and lock files (`package.json`, `requirements.txt`, `go.mod`, `Cargo.toml`, etc.) to determine which package managers are in use
+2. **Parse dependencies** - read manifest files to build a list of all direct dependencies (production and dev)
+3. **Detect CI** - check for CI/CD configuration (`.github/workflows/`, `.gitlab-ci.yml`, `bitbucket-pipelines.yml`, etc.) to understand the project's build and test infrastructure
+4. **Ensure dependencies are installed** - check for the presence of the dependency directory (`node_modules/`, `vendor/`, etc.). If dependencies are not installed, run the project's install command using the detected package manager (e.g. `npm install`, `pnpm install`, `bun install`). This is required for both patching and accurate unused dependency detection.
 
 Report a brief summary:
 
@@ -140,7 +140,7 @@ Ask the user which level they want, or auto-detect from their prompt:
 | ----- | ---------------- | ---------------------------------------------------------------------------------------------------- |
 | 1     | **Conservative** | Only non-breaking changes: remove trivially unused deps + apply binary patches                       |
 | 2     | **Cautious**     | Everything in Level 1, plus propose ONE risky change for user approval                               |
-| 3     | **Full**         | Safe upgrades, aggressive cleanup, patching, and risky major upgrades — skip and continue on failure |
+| 3     | **Full**         | Safe upgrades, aggressive cleanup, patching, and risky major upgrades - skip and continue on failure |
 
 If the user says "fix everything", "full repair", or "aggressive" → Level 3.
 If the user says "safe", "conservative", or "don't break anything" → Level 1.
@@ -149,7 +149,7 @@ If unclear, default to Level 1 and offer to escalate.
 
 ---
 
-## Level 1 — Conservative
+## Level 1 - Conservative
 
 Only non-breaking changes. Nothing here should break the build.
 
@@ -180,7 +180,7 @@ Execute the `/socket-dep-patch` workflow:
 
 ---
 
-## Level 2 — Cautious
+## Level 2 - Cautious
 
 Run the full Level 1 workflow first, then propose one risky change.
 
@@ -192,10 +192,10 @@ Execute Phase 1a (unused dep removal) and Phase 1b (binary patches) as described
 
 After Level 1 completes, use the scan results from Step 1 to identify the single highest-value change that carries some risk. Prioritize in this order:
 
-1. **Critical/high CVE upgrade** — a dependency with a known critical or high severity vulnerability that requires a version bump
-2. **Replacement of a flagged dependency** — a dependency with a low Socket score or known maintenance issues that should be swapped for a better alternative (use `/socket-dep-replace`)
-3. **Ambiguous unused dependency** — a package that is _probably_ unused but was excluded from Phase 1a due to ambiguity (e.g., a `@types/*` package whose base package is not used, or a build plugin that may no longer be needed)
-4. **Safe minor version bump** — a dependency with a minor/patch update available that fixes a medium-severity issue
+1. **Critical/high CVE upgrade** - a dependency with a known critical or high severity vulnerability that requires a version bump
+2. **Replacement of a flagged dependency** - a dependency with a low Socket score or known maintenance issues that should be swapped for a better alternative (use `/socket-dep-replace`)
+3. **Ambiguous unused dependency** - a package that is _probably_ unused but was excluded from Phase 1a due to ambiguity (e.g., a `@types/*` package whose base package is not used, or a build plugin that may no longer be needed)
+4. **Safe minor version bump** - a dependency with a minor/patch update available that fixes a medium-severity issue
 
 Present the proposed change to the user with full context:
 
@@ -214,12 +214,12 @@ Proposed risky change (Level 2):
 
 - If the user approves, execute via `/socket-dep-upgrade` (for version bumps) or `/socket-dep-cleanup` (for removals)
 - Build and test after applying
-- **Revert on failure** — if the change breaks the build or tests, revert immediately and report what happened
+- **Revert on failure** - if the change breaks the build or tests, revert immediately and report what happened
 - If the user declines, skip and report Level 2 complete
 
 ---
 
-## Level 3 — Full
+## Level 3 - Full
 
 Aggressive repair. Apply everything possible, skip and continue on individual failures.
 
@@ -228,22 +228,22 @@ Aggressive repair. Apply everything possible, skip and continue on individual fa
 1. Use scan results and `pnpm dlx socket fix --all --no-apply-fixes --json` to discover all fixable vulnerabilities
 2. Filter to **minor and patch bumps only** (`--no-major-updates`)
 3. For each vulnerability, dispatch `/socket-dep-upgrade` to apply the fix
-4. **Skip and continue on failure** — if a single upgrade fails after retries, log the failure and move on to the next one. This diverges from `/socket-dep-upgrade`'s default "bail on failure" behavior — intentional for Level 3's aggressive posture
+4. **Skip and continue on failure** - if a single upgrade fails after retries, log the failure and move on to the next one. This diverges from `/socket-dep-upgrade`'s default "bail on failure" behavior - intentional for Level 3's aggressive posture
 5. Commit after each successful upgrade
 
 ### Phase 3b: Aggressive Cleanup
 
-1. Re-scan all dependencies for usage — the dependency list may have changed after Phase 3a upgrades
+1. Re-scan all dependencies for usage - the dependency list may have changed after Phase 3a upgrades
 2. Run `/socket-dep-cleanup` for **both** clearly unused AND ambiguous packages
 3. After each removal, build and test
-4. **Revert removals that break the build** — if removing a package causes failures, re-add it and mark it as "still needed"
+4. **Revert removals that break the build** - if removing a package causes failures, re-add it and mark it as "still needed"
 5. Commit after each successful removal
 
 ### Phase 3b2: Replace Flagged Dependencies
 
 1. Review scan results for dependencies with low Socket scores, unmaintained status, or known supply-chain risks
 2. For each flagged dependency, run `/socket-dep-replace` to find and execute a replacement
-3. **Skip and continue on failure** — if a replacement cannot be completed (no suitable alternative, migration too complex, tests fail), log it and move on
+3. **Skip and continue on failure** - if a replacement cannot be completed (no suitable alternative, migration too complex, tests fail), log it and move on
 4. Commit after each successful replacement
 
 ### Phase 3c: Patch Everything Remaining
@@ -257,7 +257,7 @@ Aggressive repair. Apply everything possible, skip and continue on individual fa
 
 1. Re-run `pnpm dlx socket fix --all --no-apply-fixes --json` to find remaining vulnerabilities
 2. Attempt **major version bumps** via `/socket-dep-upgrade` with code migration
-3. **Skip and continue on failure** — if a major upgrade cannot be completed (migration too complex, tests fail), log it and move on
+3. **Skip and continue on failure** - if a major upgrade cannot be completed (migration too complex, tests fail), log it and move on
 4. Commit after each successful upgrade
 
 ---
@@ -290,16 +290,16 @@ Repair Complete (Level 2 — Cautious)
 
 ## Fix Package Mode
 
-Target a single named package and resolve its issues. Does not require a full scan — just operates on the specified package.
+Target a single named package and resolve its issues. Does not require a full scan - just operates on the specified package.
 
 ## Step 1: Identify the Target
 
 The user may specify a package by:
 
-- **Package name** — `lodash`, `express`
-- **Name + version** — `lodash@4.17.20`
-- **PURL** — `pkg:npm/lodash@4.17.20`
-- **Advisory ID** — `GHSA-xxxx-xxxx-xxxx`, `CVE-2024-12345`
+- **Package name** - `lodash`, `express`
+- **Name + version** - `lodash@4.17.20`
+- **PURL** - `pkg:npm/lodash@4.17.20`
+- **Advisory ID** - `GHSA-xxxx-xxxx-xxxx`, `CVE-2024-12345`
 
 If the user provides an advisory ID, resolve it to the affected package(s) using `pnpm dlx socket fix --id <ID> --no-apply-fixes --json`.
 
@@ -307,10 +307,10 @@ If the user provides an advisory ID, resolve it to the affected package(s) using
 
 Investigate what's wrong with the target package:
 
-1. **Check if it's installed** — verify the package is in the manifest/lock file
-2. **Check for vulnerabilities** — run `pnpm dlx socket fix --id pkg:<ecosystem>/<name>@<version> --no-apply-fixes --json` (requires Socket account) or check if the user provided a specific advisory
-3. **Check for usage** — search the codebase for imports and references (useful to know if cleanup is an option)
-4. **Check for patches** — run `pnpm dlx @socketsecurity/socket-patch scan` and check if patches are available for this package
+1. **Check if it's installed** - verify the package is in the manifest/lock file
+2. **Check for vulnerabilities** - run `pnpm dlx socket fix --id pkg:<ecosystem>/<name>@<version> --no-apply-fixes --json` (requires Socket account) or check if the user provided a specific advisory
+3. **Check for usage** - search the codebase for imports and references (useful to know if cleanup is an option)
+4. **Check for patches** - run `pnpm dlx @socketsecurity/socket-patch scan` and check if patches are available for this package
 
 Report findings:
 
@@ -338,10 +338,10 @@ Package: lodash@4.17.20
 
 Based on the diagnosis, recommend the best action. If multiple actions apply, prioritize in this order:
 
-1. **Upgrade** — if a version bump fixes the issue and is available, prefer this (most complete fix)
-2. **Patch** — if a binary patch is available and the user wants to avoid version changes
-3. **Replace** — if the package is unmaintained, has a low Socket score, or the user specifically wants an alternative
-4. **Remove** — if the package is unused
+1. **Upgrade** - if a version bump fixes the issue and is available, prefer this (most complete fix)
+2. **Patch** - if a binary patch is available and the user wants to avoid version changes
+3. **Replace** - if the package is unmaintained, has a low Socket score, or the user specifically wants an alternative
+4. **Remove** - if the package is unused
 
 Present the recommendation and ask for approval. Then delegate to the appropriate subskill:
 
@@ -374,7 +374,7 @@ After the subskill completes:
 
 ## Tips
 
-- Start with Level 1 if you're unsure — it's designed to be completely safe
+- Start with Level 1 if you're unsure - it's designed to be completely safe
 - Level 2 is ideal for regular maintenance: safe changes plus one carefully reviewed improvement
 - Level 3 is best for major cleanup efforts where you're prepared to review and test extensively
 - Each level builds on the previous one, so you can start conservative and escalate

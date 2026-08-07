@@ -2,14 +2,14 @@
 
 A copy-in release kit for SocketDev repos: staged npm publishing with
 trusted publishing (OIDC), crates.io trusted publishing, registry-gated
-immutable GitHub releases, and Homebrew tap formula bumps — installed
+immutable GitHub releases, and Homebrew tap formula bumps - installed
 byte-exact from `release-kit/payload/scripts/socket-release/` into a
 consumer's `scripts/socket-release/`, verified by `kit-manifest.json`.
 
 The primary users are an operator AND their AI: one entry-point command per
 flow, idempotent, resumable, dry-run by default where destructive, `--json`
 machine output, precise exit codes, every step independently re-runnable,
-and every human moment rendered as a fleet human gate — never an improvised
+and every human moment rendered as a fleet human gate - never an improvised
 prompt.
 
 ## Channels
@@ -37,7 +37,7 @@ pnpm add -D @socketsecurity/lib@6.5.2 @socketsecurity/sdk@4.1.3 playwright-core@
 ```
 
 Runtime floor for the kit CLIs: Node >= 22.18 (native `.mts`). Consumers
-must exclude `scripts/socket-release/**` from their own formatters/linters —
+must exclude `scripts/socket-release/**` from their own formatters/linters -
 the installer's `--verify` pins byte-parity with the payload, and a consumer
 formatter that rewrites the copies breaks it permanently (R11: sauce's
 formatter is the ONE formatter these bytes ever see; `kit-manifest.json`
@@ -51,43 +51,43 @@ node scripts/socket-release/bootstrap.mts --apply    # stand it up
 node scripts/socket-release/bootstrap.mts --status   # receipts table
 ```
 
-Eight steps in canonical order — `staged-config` runs BEFORE
+Eight steps in canonical order - `staged-config` runs BEFORE
 `trusted-publisher` (trust is configured only for a workflow that actually
 exists), and the two publishing-access steps bracket the placeholder:
 
-1. `preflight` — ten read-only checks (node floor, GitHub origin, gh auth,
+1. `preflight` - ten read-only checks (node floor, GitHub origin, gh auth,
    pnpm stage support, npm trust support, kit deps, registry reachability,
    access level).
-2. `placeholder` — the ONE irreversible act: publish `<name>@0.0.0` to claim
+2. `placeholder` - the ONE irreversible act: publish `<name>@0.0.0` to claim
    the name. Hard opt-in: `--apply` alone blocks on the reserve-name gate;
    only `--apply --reserve <exact-package-name>` publishes. Immediately
    after the publish creates the package, publishing access is ensured
    PERMISSIVE (direct + staged both enabled) so the one-time direct publish
    can land.
-3. `npm-access-permissive` — idempotent report/repair of that permissive
+3. `npm-access-permissive` - idempotent report/repair of that permissive
    window. NEVER re-widens: once the name is live the step is already-done
    by definition.
-4. `github-env` — deployment environments (one per channel), each restricted
+4. `github-env` - deployment environments (one per channel), each restricted
    to exactly the default branch via custom branch policies. API before
    browser: `gh api` PUT/list-before-POST first; a 403 renders the
-   github-environment gate (the browser path is gate TEXT only — no tool
+   github-environment gate (the browser path is gate TEXT only - no tool
    drives github.com).
-5. `staged-config` — the channel workflows (byte-identical to the local
+5. `staged-config` - the channel workflows (byte-identical to the local
    templates), the four release scripts + `publishConfig.access` in
    package.json (surgical edit), and the gitignore block. File writes only;
    the operator commits.
-6. `trusted-publisher` — `npm trust` through the PTY web-2FA router to the
+6. `trusted-publisher` - `npm trust` through the PTY web-2FA router to the
    law: github · `npm-publish.yml` · environment `npm-publish` ·
    createPackage + createStagedPackage. Reads fail CLOSED: any error
    envelope is auth-death, never "(no config)".
-7. `npm-access-staged-only` — TIGHTEN AFTER: with the placeholder live and
+7. `npm-access-staged-only` - TIGHTEN AFTER: with the placeholder live and
    trusted publishing standing, disable DIRECT publishing in the npm web UI
    (the sanctioned browser session drives the checkbox), leaving
    staged/trusted publishing only. A second bootstrap run cannot re-enable
    direct publishing: the permissive shape is planned only while the
    placeholder is pending, and this step's done-predicate is the staged-only
    read itself.
-8. `verify` — read-only end-to-end proof of the terminal state: name live,
+8. `verify` - read-only end-to-end proof of the terminal state: name live,
    trust conforming, environments restricted, workflows on origin,
    staged-config parity, and publishing access STAGED-ONLY (a package left
    permissive FAILS with the exact remediation command).
@@ -95,15 +95,15 @@ exists), and the two publishing-access steps bracket the placeholder:
 Exit codes: `0` passed/planned · `1` failed · `2` usage · `3` blocked on a
 human gate · `4` precondition not done. The state file
 (`.cache/socket-release/bootstrap-state.json`) is a reporting cache, never
-authority — every step re-detects live state, and `--reset` loses only
+authority - every step re-detects live state, and `--reset` loses only
 history.
 
 ## First publish (npm), end to end
 
 1. `node release-kit/install.mts --target <repo> --channels npm,github-release --apply`,
    add the three dev-dependency pins, commit.
-2. `node scripts/socket-release/bootstrap.mts` — read the plan.
-3. `node scripts/socket-release/bootstrap.mts --apply` — it stops at the
+2. `node scripts/socket-release/bootstrap.mts` - read the plan.
+3. `node scripts/socket-release/bootstrap.mts --apply` - it stops at the
    reserve gate:
 
 ```
@@ -141,7 +141,7 @@ history.
 6. Re-run `bootstrap.mts --apply` until `verify` reports stood-up. Commit
    the staged-config writes and push.
 7. First REAL release: bump version + CHANGELOG, commit
-   `chore: bump version to <version>` (load-bearing subject — reconcile
+   `chore: bump version to <version>` (load-bearing subject - reconcile
    greps it), push, dispatch `npm-publish` from the Actions UI
    (`publish: true`), then promote locally:
    `node scripts/socket-release/npm-publish.mts --approve`. The tag +
@@ -161,7 +161,7 @@ If npm auth ever dies mid-flow, the gate is always the same:
 
 ## First brew bump
 
-Prerequisite (one-time, manual — deferral #6): the tap repo
+Prerequisite (one-time, manual - deferral #6): the tap repo
 `SocketDev/homebrew-socket` exists with an unsharded `Formula/` directory
 and a README documenting `HOMEBREW_REQUIRE_TAP_TRUST=1` →
 `brew trust SocketDev/socket`. The layout is modeled by
@@ -173,16 +173,16 @@ and a README documenting `HOMEBREW_REQUIRE_TAP_TRUST=1` →
    npm/cargo release tail writes sha1/sha256/sha512-base64 lines per asset).
    brew-publish refuses a
    missing tag, a draft release, a missing asset, and a missing
-   checksums.txt — the four refusals are byte contracts.
-2. `node scripts/socket-release/brew-publish.mts --tag vX.Y.Z` — dry-run
+   checksums.txt - the four refusals are byte contracts.
+2. `node scripts/socket-release/brew-publish.mts --tag vX.Y.Z` - dry-run
    plan (action, tap repo, path, version, four sha256s, the exact apply
    command).
-3. `node scripts/socket-release/brew-publish.mts --tag vX.Y.Z --apply` —
+3. `node scripts/socket-release/brew-publish.mts --tag vX.Y.Z --apply` -
    GitHub-signed API commit direct to the tap default branch (never a PR),
    then a re-read that must parse back to the desired formula. In CI the
    `brew-publish.yml` workflow runs the same command with a per-run App
    token minted by `./.github/actions/socket-release-app-token` from the
-   org-wide App credentials (org secrets are enterprise-wide — never
+   org-wide App credentials (org secrets are enterprise-wide - never
    per-repo setup, never a human task).
 4. Manual audit on an operator Mac (deferral #7): `brew style` /
    `brew audit` against the tap.
@@ -195,7 +195,7 @@ or CLI wire drift is detected by, in order:
 1. Every parser's mandatory unknown-shape-refuses arm: an unrecognized
    `npm trust list` shape, stage list, environments response, or
    publishing-access page classifies as a REFUSAL (`auth-died`, `unknown`,
-   `garbled`) — never a default classification. Drift surfaces as a loud
+   `garbled`) - never a default classification. Drift surfaces as a loud
    runtime refusal, never a wrong answer. Pinned by tests.
 2. The bootstrap `verify` step is the designated LIVE contract test: it
    drives the real packument, real `npm trust list`, and real `gh api`
@@ -203,13 +203,13 @@ or CLI wire drift is detected by, in order:
    CLI upgrade.
 3. Fixture refresh: when a wire shape legitimately changes, update the
    synthetic fixtures under `test/repo/unit/release-kit/fixtures/` from the
-   observed new shape and change the goldens in the SAME commit — each
+   observed new shape and change the goldens in the SAME commit - each
    fixture carries a `_note`/header naming its authority and date.
 
 Browser-page fixtures are synthetic, hand-authored from the documented wire
 contract markers (`id="github-repoInfo"`, the `allowPublish` /
 `allowStagePublish` and `allowDirectPublish` / `allowStagedPublish` checkbox
-names, the escaped-JSON initial-data keys) — producing real captures needs a
+names, the escaped-JSON initial-data keys) - producing real captures needs a
 signed-in session; refuse-don't-misclassify is the compensating control.
 
 ## Manual version bumps
@@ -223,32 +223,32 @@ push, then dispatch the publish workflow.
 
 1. CI auto-bump (`--bump`/`--release-as`, bump/changelog/release-branch
    modules; `lib/release-anchor.mts` ships as a type shim only).
-2. Pipeline receipts layer (`release-pipeline/**`, reconcile-gap healers) —
+2. Pipeline receipts layer (`release-pipeline/**`, reconcile-gap healers) -
    resumability lives in the bootstrap.
-3. Remote dispatch helpers — humans dispatch from the Actions UI
+3. Remote dispatch helpers - humans dispatch from the Actions UI
    (`gh workflow run` is guard-blocked for agents).
-4. Multi-crate topological cargo ordering — single-crate only; ambiguity
+4. Multi-crate topological cargo ordering - single-crate only; ambiguity
    refusal retained.
-5. npm trusted-publisher browser WRITE lane — dead (2026-07-31, 132/132);
+5. npm trusted-publisher browser WRITE lane - dead (2026-07-31, 132/132);
    the read-side page modules ship, writes ride `npm trust` via the PTY
    router. The publishing-access toggles are the one sanctioned browser
    WRITE (owner directive), driven only through the sanctioned session.
-6. Tap-repo scaffolder — creating `SocketDev/homebrew-socket` is a one-time
+6. Tap-repo scaffolder - creating `SocketDev/homebrew-socket` is a one-time
    manual act; the layout is documented + modeled by `examples/brew-cli`.
-7. Tap-repo formula-audit CI — `brew style`/`brew audit` run manually per
+7. Tap-repo formula-audit CI - `brew style`/`brew audit` run manually per
    the first-brew procedure.
-8. Windows PTY (no wrapping on win32 — inherited).
-9. Kit self-distribution as a release tarball — consumers install from a
+8. Windows PTY (no wrapping on win32 - inherited).
+9. Kit self-distribution as a release tarball - consumers install from a
    sauce checkout.
 10. `go` channel.
 11. Operator fixture-capture script + scrubber + leak-hygiene test (needs a
     real signed-in session; synthetic fixtures instead).
-12. Stub-bin PATH e2e harness — CLI boundary covered by spawn smokes +
+12. Stub-bin PATH e2e harness - CLI boundary covered by spawn smokes +
     in-process integration with fully fake seams.
-13. Coverage thresholds / mirror-name ratchets / actionlint in consumers —
+13. Coverage thresholds / mirror-name ratchets / actionlint in consumers -
     staged-config byte detection + verify cover template drift there;
     sauce's own fleet gates already run here.
-14. Standalone runbook docs — folded into this README and the skills.
+14. Standalone runbook docs - folded into this README and the skills.
 
 ## Layout
 
@@ -265,49 +265,49 @@ release-kit/
 Sauce-side gates: `scripts/repo/check/release-kit-is-coherent.mts`,
 `release-kit-launches-are-sanctioned.mts`,
 `release-kit-workflows-are-env-mapped.mts`,
-`release-kit-types-resolve.mts` — auto-discovered by
+`release-kit-types-resolve.mts` - auto-discovered by
 `pnpm run check` (repo-owned checks run in the gate on every push). Tests
 live under `test/repo/unit/release-kit/` and
 `test/repo/integration/release-kit/`, all offline, importing straight from
 the payload.
 
-## Architecture — the npm thread, file by file
+## Architecture - the npm thread, file by file
 
 Every flow (npm, cargo, brew, github-release) runs the same shape:
 `config → converge → stage → approve → mark → verify → heal`. **Knowing the
-npm thread teaches the others** — the cargo tier mirrors it phase for phase,
+npm thread teaches the others** - the cargo tier mirrors it phase for phase,
 and brew swaps the promotion phases for a `plan → apply` formula bump. Read
 the npm release thread in this order (each line names the real payload file):
 
-1. `templates/workflows/npm-publish.yml` — the CI invocation a consumer copies
+1. `templates/workflows/npm-publish.yml` - the CI invocation a consumer copies
    into `.github/workflows/`; dispatches the entry with `publish: true`.
-2. `npm-publish.mts` — the flow entry (Layer 1): usage header, `OPTIONS`,
+2. `npm-publish.mts` - the flow entry (Layer 1): usage header, `OPTIONS`,
    unknown-flag rejection, mode dispatch (stage / approve / direct), and
    access + dist-tag resolution. It wires the tier below; it holds no
    registry logic of its own.
-3. `_shared/cli-flags.mts` — the usage gate: any flag the entry did not
+3. `_shared/cli-flags.mts` - the usage gate: any flag the entry did not
    declare exits 2 before a single registry read.
-4. `publish-infra/npm/backfill.mts` — the pure gap-fill gate, consulted only
+4. `publish-infra/npm/backfill.mts` - the pure gap-fill gate, consulted only
    under `--backfill`: which already-cut versions still need a tag/release.
-5. `publish-infra/npm/staged.mts` — stage orchestration (`runStaged` /
+5. `publish-infra/npm/staged.mts` - stage orchestration (`runStaged` /
    `runDirect` / `verifyStagedEntry`), which drives in turn
    `pack-preflight.mts` (hollow-tarball gate) → `pack-manifest.mts` +
    `_shared/{lifecycle-scripts,pack-files}.mts` (the pure pack surface) →
    `publish-infra/shared.mts` (the process seam: spawn / PTY / git / JSON) →
    `publish-infra/npm/registry.mts` (the registry read) →
    `lib/verify-release-hashes.mts` (byte-verify of the staged entry).
-6. `publish-infra/npm/approve.mts` — promote orchestration (`runApprove`),
+6. `publish-infra/npm/approve.mts` - promote orchestration (`runApprove`),
    which drives `login.mts` / `auth-identity.mts` (auth seams: logged-out vs
    wrong-user repair) → `shared.mts` (the stage-list wire parse, the kit's
    most safety-critical parser) → `scan.mts` / `threat-scan.mts` (Socket
    full-scan gate and local threat scan) → `lib/verify-release-hashes.mts`
    (the three-way hash gate before promote).
-7. `publish-infra/release.mts` — the release tail: `releaseBehindLiveGate`
+7. `publish-infra/release.mts` - the release tail: `releaseBehindLiveGate`
    (registry-live gate) → `ensureTagAndRelease` + `extractChangelogSection`,
    driving `lib/github-git-refs.mts` (the gh seam).
-8. `publish-infra/reconcile.mts` — post-publish git alignment (fetch the
+8. `publish-infra/reconcile.mts` - post-publish git alignment (fetch the
    published version, find its base sha, rebase/sync onto it).
-9. Failure tail — the healer: `_shared/release-gap-recovery.mts` →
+9. Failure tail - the healer: `_shared/release-gap-recovery.mts` →
    `registry-liveness-gate.mjs` (the CI gate job, npm- AND crates-aware) →
    `github-release.mts` (cuts the immutable release once the registry is live).
 
@@ -327,7 +327,7 @@ The layers the thread crosses:
 The distinction between `_shared/` and `lib/` is provenance, not taste:
 `_shared/` holds ONLY files whose relative path also exists under the fleet's
 `scripts/fleet/_shared/` (fleet-mirrored); `lib/` holds kit-local cross-flow
-logic. This is the fleet's own taxonomy — it is documented, never merged.
+logic. This is the fleet's own taxonomy - it is documented, never merged.
 
 Known divergence pending removal: `create-release.mts` +
 `lib/release-checksums/` is a dead second github-release entry (superseded by
@@ -360,14 +360,14 @@ trusted-publisher}`; flow-specific nouns (brew `formula`/`tap`) appear in
 gates`. Every injectable effect module is `seams.mts` exporting
    `<Area>Seams` + `resolve<Area>Seams`; browser lanes are the triple
    `<subject>-{plan,parse,page}` sharing `browser-session.mts`.
-4. **Gate vocabulary.** A refusal point is a _gate_ — the only sanctioned
+4. **Gate vocabulary.** A refusal point is a _gate_ - the only sanctioned
    word. `check` is reserved for CI checks; `law` may name a data constant
    (`trustedPublisherLaw`) but never a module; `preflight` is reserved to the
    bootstrap step id and `pack-preflight.mts`.
 5. **Two-phase verbs.** Artifact-promotion flows speak `stage → approve`
-   (npm, cargo — crates.io has no dist-tags and no unpublish, so its promote
+   (npm, cargo - crates.io has no dist-tags and no unpublish, so its promote
    is a permanent one-way approve). Idempotent-convergence flows speak
-   `plan → apply` (bootstrap, install, and brew — a formula bump tied to an
+   `plan → apply` (bootstrap, install, and brew - a formula bump tied to an
    already-published release). Never mix the two within a flow; `--dry-run`
    stays a flag name only.
 6. **Suffixes.** `.mts` always; `.mjs` only when the script must run on system
@@ -382,7 +382,7 @@ gates`. Every injectable effect module is `seams.mts` exporting
    Cross-module scenario tests are `<flow>.flow.test.mts`. A new payload
    module lands with its mirror test in the same commit.
 9. **Parity.** Every file in an adopted channel is byte-identical with the
-   payload — `install.mts --verify` is the oracle.
+   payload - `install.mts --verify` is the oracle.
 10. **Renames.** Any payload rename regenerates `kit-manifest.json`, updates
     `channelsForPath` when an exact filename is pinned, and updates the
     coherence check + `shipped-surfaces.mts` + the `skills/socket-release/*`

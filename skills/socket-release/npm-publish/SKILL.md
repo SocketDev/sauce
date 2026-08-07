@@ -1,7 +1,7 @@
 ---
 name: npm-publish
 description:
-  Operate the socket-release npm flow end to end — bootstrap a package
+  Operate the socket-release npm flow end to end - bootstrap a package
   (name reservation, permissive-then-staged-only publishing access, trusted
   publishing), dispatch a staged publish, promote with --approve,
   backfill an old version, and roll back with deprecate. Use when
@@ -12,7 +12,7 @@ description:
 
 The kit's npm model: CI STAGES the publish through trusted publishing
 (OIDC, environment `npm-publish`); a human PROMOTES it locally after
-byte-verification. Direct publishing is disabled after bootstrap — staged
+byte-verification. Direct publishing is disabled after bootstrap - staged
 is the only path. Dry-run is every command's default.
 
 ## One-time bootstrap
@@ -35,15 +35,15 @@ permissive and names the fix
 
 STOP AND GATE, never improvise, at these moments:
 
-- **reserve name** — publishing `<name>@0.0.0` is irreversible; only
+- **reserve name** - publishing `<name>@0.0.0` is irreversible; only
   `node scripts/socket-release/bootstrap.mts placeholder --apply --reserve <name>`
   performs it (the bootstrap renders the gate).
-- **npm web-2FA** — the PTY prints `APPROVE HERE (expires in minutes): <url>`;
+- **npm web-2FA** - the PTY prints `APPROVE HERE (expires in minutes): <url>`;
   the operator approves in their browser, the command keeps waiting.
-- **placeholder promote** — a staged 0.0.0 needs
+- **placeholder promote** - a staged 0.0.0 needs
   `node scripts/socket-release/npm-publish.mts --approve` plus the
   operator's 2FA.
-- **npm auth dead** — `node scripts/socket-release/npm-web-auth.mts login`
+- **npm auth dead** - `node scripts/socket-release/npm-web-auth.mts login`
   (both lanes run the same router command).
 
 ## Release cycle
@@ -52,15 +52,15 @@ STOP AND GATE, never improvise, at these moments:
    `chore: bump version to <version>` (load-bearing subject), push.
 2. Stage from CI: the operator dispatches the `npm publish` workflow from
    the Actions UI with `publish: true` (dry-run is the dispatch default;
-   `gh workflow run` is guard-blocked for agents — the human clicks).
+   `gh workflow run` is guard-blocked for agents - the human clicks).
 3. Soak: staged entries are maintainer-visible only. Inspect with
-   `pnpm stage list --json` — an unauthenticated or wrong-account list
+   `pnpm stage list --json` - an unauthenticated or wrong-account list
    reads as EMPTY, not as an error, so identity-check first
    (`node scripts/socket-release/npm-web-auth.mts login`).
-4. Promote: `node scripts/socket-release/npm-publish.mts --approve` — it
+4. Promote: `node scripts/socket-release/npm-publish.mts --approve` - it
    byte-verifies the staged tarball, promotes through the operator's 2FA,
    then cuts the git tag + immutable GitHub release once the version
-   resolves live (ORDER RULE — registry first, release marker last).
+   resolves live (ORDER RULE - registry first, release marker last).
 5. Verify: the version resolves on the registry and the release exists; a
    missing tag/release heals with
    `node scripts/socket-release/github-release.mts --tag v<version> --release`.
@@ -88,7 +88,7 @@ back). Roll back by deprecating the bad version and shipping a fixed one:
 npm deprecate <name>@<bad-version> "broken — use <fixed-version>"
 ```
 
-Deprecation needs the operator's npm auth (2FA) — gate, do not improvise.
+Deprecation needs the operator's npm auth (2FA) - gate, do not improvise.
 A never-promoted staged entry needs no rollback: reject it with
 `node scripts/socket-release/npm-web-auth.mts stage reject <stage-id>` and
 re-stage.

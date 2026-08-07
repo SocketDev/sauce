@@ -1,6 +1,6 @@
 ---
 name: brew-publish
-description: Operate the socket-release Homebrew tap flow — the binary-download
+description: Operate the socket-release Homebrew tap flow - the binary-download
   formula model, tap repo layout, formula bumps tied to published releases,
   and sha256 verification against the release's own checksums.txt. Use when
   bumping a Homebrew formula or standing up a tap for a Socket CLI.
@@ -8,7 +8,7 @@ description: Operate the socket-release Homebrew tap flow — the binary-downloa
 
 # Homebrew tap (binary-download formula)
 
-Model: no bottles, no source build — the formula downloads the release's
+Model: no bottles, no source build - the formula downloads the release's
 prebuilt per-platform tarballs by EXACT
 `releases/download/v<version>/<asset>` URL (never `latest`) and pins the
 sha256 the release's own `checksums.txt` vouched for. brew-publish NEVER
@@ -25,12 +25,12 @@ brew trust SocketDev/socket
 ```
 
 The exact layout is modeled by `release-kit/examples/brew-cli/tap-fixture/`
-in sauce. Creating the tap repo is a human act (repo creation rights) —
+in sauce. Creating the tap repo is a human act (repo creation rights) -
 note it plainly; there is no script.
 
 ## Bump cycle
 
-Prerequisite: the release is CUT — tag on origin, release published (not
+Prerequisite: the release is CUT - tag on origin, release published (not
 draft), all four platform assets uploaded, `checksums.txt` attached (the
 github-release flow produces all of this).
 
@@ -44,19 +44,19 @@ origin (it never creates tags), a draft/missing release, a missing
 templated asset, a missing/incomplete `checksums.txt`. An identical formula
 is a no-op ("already reads <version>", exit 0). `--apply` commits the
 formula DIRECT to the tap default branch with a GitHub-signed API commit
-(never a PR — the version-bump-PR shape is guard-blocked), then re-reads
+(never a PR - the version-bump-PR shape is guard-blocked), then re-reads
 the tap: the committed bytes must parse back to the desired formula, or it
 exits 1 saved-state-unproven.
 
 From CI, `brew-publish.yml` runs on `release: published` (or manual
 dispatch with `tag` + `publish: true`) and mints a per-run App token via
 the `./.github/actions/socket-release-app-token` composite from the
-org-wide App credentials — org secrets are enterprise-wide; never treat
+org-wide App credentials - org secrets are enterprise-wide; never treat
 them as missing setup or a human task.
 
 ## sha256 verification
 
-The formula's four sha256s come from `checksums.txt` — verify the chain,
+The formula's four sha256s come from `checksums.txt` - verify the chain,
 never re-hash locally as authority:
 
 ```
@@ -72,6 +72,6 @@ path and its `sha256` must equal the manifest line for that asset.
 ## Auth moments (gate, never improvise)
 
 - Local `--apply` uses ambient `gh` auth: if `gh auth status` fails, the
-  operator runs `gh auth login` (browser) — render the gate.
+  operator runs `gh auth login` (browser) - render the gate.
 - Manual audits run on an operator Mac: `brew style` / `brew audit` against
   the tap (deferred from CI).

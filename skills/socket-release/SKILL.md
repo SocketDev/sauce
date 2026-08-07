@@ -2,7 +2,7 @@
 name: socket-release
 description:
   Stand up SocketDev publishing (npm, crates.io, GitHub releases, Homebrew
-  tap) in a repo — copy in the socket-release kit from a sauce checkout and
+  tap) in a repo - copy in the socket-release kit from a sauce checkout and
   run its bootstrap through name reservation, GitHub environments, npm
   trusted publisher, publishing-access tightening, staged publish config,
   and verification.
@@ -14,19 +14,19 @@ disable-model-invocation: true
 Install the socket-release kit into the current repo and stand publishing
 up. Everything destructive is dry-run by default; the bootstrap prints the
 exact next command after every run, and every human moment renders as a
-🖐 HUMAN GATE — stop and show it, never improvise around it.
+🖐 HUMAN GATE - stop and show it, never improvise around it.
 
 ## When to Use
 
-- Standing up publishing in a repo that has never released — reserving the
+- Standing up publishing in a repo that has never released - reserving the
   package name, wiring the npm trusted publisher, restricting GitHub
   environments, and tightening publishing access to staged-only.
 - Adding a new channel (npm, crates.io, GitHub releases, or a Homebrew tap)
   to a repo that already publishes on the others.
 - Cutting a release once publishing is stood up: stage the artifact, then
   clear the human-gated approve before anything becomes public.
-- Any time you want the staged-then-approve safety model — a verified,
-  hashed artifact held behind a human gate — instead of a one-shot publish.
+- Any time you want the staged-then-approve safety model - a verified,
+  hashed artifact held behind a human gate - instead of a one-shot publish.
 - Recovering or verifying an existing setup: re-run the bootstrap `verify`
   to confirm the trusted publisher, environments, and access are still
   conforming.
@@ -73,7 +73,7 @@ actual publish.
    ```
 
    The run stops at human gates (reserve-name consent, npm web-2FA,
-   staged-placeholder promote, GitHub 403 fallback) — render the gate and
+   staged-placeholder promote, GitHub 403 fallback) - render the gate and
    wait. Done when: `node scripts/socket-release/bootstrap.mts verify`
    exits 0 and reports the stood-up detail (trusted publisher conforming,
    environments restricted, publishing access staged-only).
@@ -83,7 +83,7 @@ actual publish.
 Playwright browser law (verbatim, non-negotiable):
 
 - Launch ONLY via openNpmBrowserSession (scripts/socket-release/publish-infra/npm/browser-session.mts) on the durable profile ~/.config/socket-wheelhouse/staged-browser-profile.
-- The launch shape is channel + chromiumSandbox: true + headless + the two sanctioned ignoreDefaultArgs entries, and nothing else — never an args array, never a sandbox-disabling flag.
+- The launch shape is channel + chromiumSandbox: true + headless + the two sanctioned ignoreDefaultArgs entries, and nothing else - never an args array, never a sandbox-disabling flag.
 - Login is NEVER scripted: the operator signs in once in the headed window; no password, OTP, or cookie passes through the process.
 - All npm browser tools share the ONE durable profile so a single sign-in covers every tool.
 - npm auth is decided by the /-/whoami BODY on the website origin, never the HTTP status.
@@ -102,11 +102,11 @@ Playwright browser law (verbatim, non-negotiable):
   add `--apply`; nothing writes to a registry until you drop the dry-run.
 - Respect the human gates: when a 🖐 HUMAN GATE prints (reserve-name
   consent, npm web-2FA, staged-placeholder promote, GitHub 403 fallback),
-  render it verbatim and wait — never script the sign-in or improvise past
+  render it verbatim and wait - never script the sign-in or improvise past
   the gate.
-- Let the bootstrap run its eight steps in canonical order — `preflight`,
+- Let the bootstrap run its eight steps in canonical order - `preflight`,
   `placeholder`, `npm-access-permissive`, `github-env`, `staged-config`,
-  `trusted-publisher`, `npm-access-staged-only`, `verify` — and follow the
+  `trusted-publisher`, `npm-access-staged-only`, `verify` - and follow the
   `nextCommand` it prints rather than jumping ahead; the order brackets the
   irreversible placeholder publish between permissive and staged-only access.
 - Pin the kit dependencies to exact versions before bootstrapping; the

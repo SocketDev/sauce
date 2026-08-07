@@ -5,7 +5,7 @@ description: Use socket fix to find and update vulnerable dependencies, then fix
 
 # Dep Upgrade
 
-Use the `socket fix` command to discover vulnerable dependencies, compute safe upgrade paths, and apply version updates one at a time — then fix any breaking changes in the codebase so everything builds and passes tests.
+Use the `socket fix` command to discover vulnerable dependencies, compute safe upgrade paths, and apply version updates one at a time - then fix any breaking changes in the codebase so everything builds and passes tests.
 
 ## When to Use
 
@@ -21,7 +21,7 @@ Use the `socket fix` command to discover vulnerable dependencies, compute safe u
 
 ### Socket CLI Setup
 
-Use `pnpm dlx socket` to run the Socket CLI — this always fetches the latest version and requires no global install. Verify it works:
+Use `pnpm dlx socket` to run the Socket CLI - this always fetches the latest version and requires no global install. Verify it works:
 
 ```shell
 pnpm dlx socket --version
@@ -60,7 +60,7 @@ If authentication fails or the CLI is not installed, use the `/socket-setup` ski
 
 **Update dependencies one at a time, not in bulk.** When multiple CVEs or vulnerable packages are discovered, apply each fix individually and verify it before moving on. This makes it easy to isolate which upgrade caused a failure and minimizes risk.
 
-- **One dependency per subagent**: Each individual package update (apply, test, fix breakage, commit) **must** run in its own subagent. Updating dependencies produces large diffs, lengthy build output, and verbose test results — doing this in the main context will quickly exhaust the context window. The main agent should only loop over the list of vulnerabilities, dispatch a subagent for each one, and check the result.
+- **One dependency per subagent**: Each individual package update (apply, test, fix breakage, commit) **must** run in its own subagent. Updating dependencies produces large diffs, lengthy build output, and verbose test results - doing this in the main context will quickly exhaust the context window. The main agent should only loop over the list of vulnerabilities, dispatch a subagent for each one, and check the result.
 - **Incremental and conservative**: Prefer the smallest version bump that resolves the vulnerability. Start with `--no-major-updates`. Only escalate to a major bump for a specific package if no minor/patch fix exists.
 - **Test after every single update**: After each dependency is updated, the subagent must build the project and run the full test suite before reporting back. Never batch multiple updates without testing in between.
 - **Retry before bailing out**: If an update breaks the build or tests and the breakage cannot be easily fixed, the subagent should revert the change and retry with a different version (e.g., drop `--no-major-updates`, or pin to a specific intermediate version). If no version resolves the issue cleanly, the subagent reports failure.
@@ -79,7 +79,7 @@ Use `socket fix` to identify dependencies with known vulnerabilities and compute
 pnpm dlx socket fix --all --no-apply-fixes --json
 ```
 
-This performs a dry run: it uploads project manifests to the Socket API, discovers all fixable GHSAs via Coana analysis, computes upgrade paths, and reports what would change — without modifying any files.
+This performs a dry run: it uploads project manifests to the Socket API, discovers all fixable GHSAs via Coana analysis, computes upgrade paths, and reports what would change - without modifying any files.
 
 **Target specific vulnerabilities by ID:**
 
@@ -95,7 +95,7 @@ Review the dry-run output to understand which packages will be upgraded and to w
 
 ### 2. Apply Fixes One at a Time
 
-Once you understand what will change from the dry run, apply upgrades **one vulnerability at a time**. The main agent loops over the vulnerability list and dispatches a subagent for each one. This is critical — each update produces large diffs, build logs, and test output that would rapidly exhaust the main context window.
+Once you understand what will change from the dry run, apply upgrades **one vulnerability at a time**. The main agent loops over the vulnerability list and dispatches a subagent for each one. This is critical - each update produces large diffs, build logs, and test output that would rapidly exhaust the main context window.
 
 **For each vulnerability from the dry-run output, the main agent spawns a subagent that:**
 
@@ -132,7 +132,7 @@ After `socket fix` completes, review the changes it made to manifest and lock fi
 
 ### 3. Identify Breaking Changes (runs inside each subagent)
 
-After each subagent applies a fix, it determines what may have broken. **These steps happen inside the subagent, not in the main agent** — the main agent only dispatches and collects results.
+After each subagent applies a fix, it determines what may have broken. **These steps happen inside the subagent, not in the main agent** - the main agent only dispatches and collects results.
 
 1. **Check what changed**: Review the diff of manifest/lock files to see which packages were upgraded and by how many major/minor/patch versions
 2. **For major version bumps**: Look up the CHANGELOG or migration guide for each upgraded package
@@ -169,21 +169,21 @@ If tests fail after fixing, investigate each failure:
 Fixing all vulnerabilities in a Node.js project (success case):
 
 1. Dry run to discover issues: `pnpm dlx socket fix --all --no-apply-fixes --json`
-2. Review output — 3 GHSAs found affecting `lodash`, `express`, and `semver`
-3. **Subagent 1 — lodash**: `pnpm dlx socket fix --id GHSA-aaaa-aaaa-aaaa --no-major-updates` → minor bump applied → tests pass → commit → reports success
-4. **Subagent 2 — semver**: `pnpm dlx socket fix --id GHSA-bbbb-bbbb-bbbb --no-major-updates` → patch applied → tests pass → commit → reports success
-5. **Subagent 3 — express**: `pnpm dlx socket fix --id GHSA-cccc-cccc-cccc --no-major-updates` → no fix available without major bump
+2. Review output - 3 GHSAs found affecting `lodash`, `express`, and `semver`
+3. **Subagent 1 - lodash**: `pnpm dlx socket fix --id GHSA-aaaa-aaaa-aaaa --no-major-updates` → minor bump applied → tests pass → commit → reports success
+4. **Subagent 2 - semver**: `pnpm dlx socket fix --id GHSA-bbbb-bbbb-bbbb --no-major-updates` → patch applied → tests pass → commit → reports success
+5. **Subagent 3 - express**: `pnpm dlx socket fix --id GHSA-cccc-cccc-cccc --no-major-updates` → no fix available without major bump
    - Retry: `pnpm dlx socket fix --id GHSA-cccc-cccc-cccc` (allow major bump)
    - Major bump applied → 2 test failures in route tests
    - Fix route handler code to match new Express API
    - Tests pass → commit → reports success
 6. All subagents succeeded → run `/socket-scan` skill → no new vulnerabilities
 
-Failure case — main agent stops on first failure:
+Failure case - main agent stops on first failure:
 
 1. Dry run: 3 GHSAs found affecting `lodash`, `ws`, and `semver`
-2. **Subagent 1 — lodash**: patch applied → tests pass → commit → reports success
-3. **Subagent 2 — ws**: tried `--no-major-updates` (no fix), tried major bump (tests fail, code migration too complex), reverted → reports failure
+2. **Subagent 1 - lodash**: patch applied → tests pass → commit → reports success
+3. **Subagent 2 - ws**: tried `--no-major-updates` (no fix), tried major bump (tests fail, code migration too complex), reverted → reports failure
 4. **Main agent stops.** Reports to user: "ws (GHSA-yyyy-yyyy-yyyy) could not be updated. Tried minor/patch (no fix available) and major bump v7→v8 (broke WebSocket handshake tests, migration not straightforward). lodash was successfully updated. semver was not attempted."
 
 ## Fallback: Agents Without Subagent Support
@@ -227,10 +227,10 @@ Use `/socket-dep-upgrade` when you want full version upgrades. Use `/socket-dep-
 
 - Start with `--no-apply-fixes --json` to preview changes before modifying files
 - Use `--no-major-updates` first for each fix, then escalate to major bumps only if needed
-- **Always apply fixes one vulnerability at a time** — never batch updates without testing between them
-- **Run each update pass as a subagent** — this is mandatory to prevent context window exhaustion from build output, diffs, and test results
+- **Always apply fixes one vulnerability at a time** - never batch updates without testing between them
+- **Run each update pass as a subagent** - this is mandatory to prevent context window exhaustion from build output, diffs, and test results
 - **If an update breaks tests**, the subagent should try alternative versions (revert, try a different minor/patch, try with/without `--no-major-updates`) before reporting failure
-- **Stop on failure** — if any single update cannot be completed, halt the entire process and report to the user rather than continuing with a broken state
+- **Stop on failure** - if any single update cannot be completed, halt the entire process and report to the user rather than continuing with a broken state
 - Commit after each successful update so progress is saved and failures can be cleanly reverted
 - Use `--minimum-release-age 2d` to avoid upgrading to freshly-published versions
 - Combine with the `/socket-inspect` skill to compare security profiles before and after upgrades

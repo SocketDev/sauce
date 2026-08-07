@@ -2,7 +2,7 @@
 
 A minimal scoped npm library the release kit stands up on the `npm` +
 `github-release` channels. `socket-release.json` is the config the installer
-would seed (restricted access — private-repo default); `expected-install.json`
+would seed (restricted access - private-repo default); `expected-install.json`
 pins the exact file set the installer copies for these channels, and the
 integration suite re-derives it on every run so the mapping cannot drift.
 

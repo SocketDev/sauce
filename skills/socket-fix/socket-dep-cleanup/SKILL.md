@@ -8,7 +8,7 @@ description:
 
 # Dep Cleanup
 
-Evaluate and remove a single unused dependency from your project. This skill targets ONE specific package at a time — searching the entire codebase for all usages, reporting findings, and performing full removal with build and test verification.
+Evaluate and remove a single unused dependency from your project. This skill targets ONE specific package at a time - searching the entire codebase for all usages, reporting findings, and performing full removal with build and test verification.
 
 ## When to Use
 
@@ -24,7 +24,7 @@ If the user specifies a package name, use that. Otherwise, ask which package the
 
 If the user isn't sure which package to evaluate, help them pick one:
 
-- Check `devDependencies` first — removing unused dev dependencies is lower risk
+- Check `devDependencies` first - removing unused dev dependencies is lower risk
 - Look for packages with names that suggest narrow or outdated functionality
 - Suggest running `/socket-scan` first to get an overview of the dependency landscape
 
@@ -50,14 +50,14 @@ For npm, pnpm, and yarn: differentiate by which lock file is present (`package-l
 
 ## Step 3: Search for All Usages
 
-Search the **entire codebase** for every reference to the target package. Be thorough — check all of the following:
+Search the **entire codebase** for every reference to the target package. Be thorough - check all of the following:
 
 ### Direct Import/Require Patterns
 
 | Ecosystem     | Patterns to Search                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | npm/pnpm/yarn | `require('pkg')`, `require("pkg")`, `import ... from 'pkg'`, `import ... from "pkg"`, `import 'pkg'`, `import "pkg"`, `import('pkg')`, `import("pkg")`. Also check for subpath imports like `pkg/sub`.                                                                                                                                                                                                                                                                                                                                                          |
-| PyPI          | `import pkg`, `from pkg import ...`. **Note:** the package name on PyPI often differs from the import name (e.g. `Pillow` → `PIL`, `beautifulsoup4` → `bs4`, `python-dotenv` → `dotenv`, `scikit-learn` → `sklearn`, `PyYAML` → `yaml`). Check both the package name and common import aliases. **Tip:** run `pip show <package-name>` — the output includes a `Location` field and the actual top-level package names are the directories at that location matching the package. Alternatively, check `top_level.txt` in the package's `.dist-info` directory. |
+| PyPI          | `import pkg`, `from pkg import ...`. **Note:** the package name on PyPI often differs from the import name (e.g. `Pillow` → `PIL`, `beautifulsoup4` → `bs4`, `python-dotenv` → `dotenv`, `scikit-learn` → `sklearn`, `PyYAML` → `yaml`). Check both the package name and common import aliases. **Tip:** run `pip show <package-name>` - the output includes a `Location` field and the actual top-level package names are the directories at that location matching the package. Alternatively, check `top_level.txt` in the package's `.dist-info` directory. |
 | Cargo         | `use crate_name::`, `extern crate crate_name`, references in proc-macro attributes. **Note:** hyphens in crate names become underscores in Rust code (e.g. `serde-json` → `serde_json`).                                                                                                                                                                                                                                                                                                                                                                        |
 | Bundler       | `require 'gem_name'`, `require "gem_name"`, autoload references.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | Maven         | `import groupId.artifactId.` or subpackage patterns in `.java` and `.kt` files. Match on the groupId prefix.                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
@@ -68,16 +68,16 @@ Search the **entire codebase** for every reference to the target package. Be tho
 
 Some dependencies are used indirectly and will not appear in import statements. Check all of the following for the target package:
 
-- **`@types/*` packages** — corresponds to a base package (e.g. `@types/node` supports Node.js APIs); check if the base package is used
-- **Babel/ESLint/Jest/Prettier plugins** — referenced by short name in config files (e.g. `eslint-plugin-react` is listed as `react` in `.eslintrc`); search config files for the short name
-- **CLI tools in `scripts`** — packages that provide binaries referenced in `package.json` `scripts` (e.g. `rimraf`, `concurrently`, `cross-env`); check the `scripts` block
-- **Peer dependencies** — required by other installed packages; check if any installed package lists it as a peer dependency
-- **Build tools and bundler plugins** — `webpack`, `vite`, `rollup`, `esbuild`, `parcel`, `turbopack` and their plugins; check config files
-- **PostCSS/Tailwind plugins** — referenced in `postcss.config.*` or `tailwind.config.*`
-- **Python entry points and console scripts** — packages providing CLI commands configured in `pyproject.toml` or `setup.cfg`
-- **Bundler groups** — gems in `:development` or `:test` groups may only be used in specific contexts
-- **Cargo build dependencies** — crates in `[build-dependencies]` are used by `build.rs`
-- **Maven plugins** — `<plugin>` entries in `pom.xml` are not imported in code
+- **`@types/*` packages** - corresponds to a base package (e.g. `@types/node` supports Node.js APIs); check if the base package is used
+- **Babel/ESLint/Jest/Prettier plugins** - referenced by short name in config files (e.g. `eslint-plugin-react` is listed as `react` in `.eslintrc`); search config files for the short name
+- **CLI tools in `scripts`** - packages that provide binaries referenced in `package.json` `scripts` (e.g. `rimraf`, `concurrently`, `cross-env`); check the `scripts` block
+- **Peer dependencies** - required by other installed packages; check if any installed package lists it as a peer dependency
+- **Build tools and bundler plugins** - `webpack`, `vite`, `rollup`, `esbuild`, `parcel`, `turbopack` and their plugins; check config files
+- **PostCSS/Tailwind plugins** - referenced in `postcss.config.*` or `tailwind.config.*`
+- **Python entry points and console scripts** - packages providing CLI commands configured in `pyproject.toml` or `setup.cfg`
+- **Bundler groups** - gems in `:development` or `:test` groups may only be used in specific contexts
+- **Cargo build dependencies** - crates in `[build-dependencies]` are used by `build.rs`
+- **Maven plugins** - `<plugin>` entries in `pom.xml` are not imported in code
 
 ### Where to Search
 
@@ -155,7 +155,7 @@ Delete all import/require statements for the removed package across the codebase
 
 ### 5c. Remove Dead Code
 
-If any code blocks exist solely to use this package (e.g., a utility function that wraps the package, a middleware that depends entirely on it), remove that dead code too. Be conservative — only remove code that has no other purpose.
+If any code blocks exist solely to use this package (e.g., a utility function that wraps the package, a middleware that depends entirely on it), remove that dead code too. Be conservative - only remove code that has no other purpose.
 
 ### 5d. Clean Up Config References
 
@@ -182,13 +182,13 @@ Follow the standard build & test verification workflow:
 
 - **Build or tests fail after removal**: Identify which removed code or missing module caused the failure by checking error messages. Re-add the package with the package manager's install/add command, restore removed code, and report that the package is still needed.
 - **Package manager removal command fails**: The package may already have been removed from the lock file but still referenced in the manifest, or vice versa. Try manually editing the manifest file and re-running the package manager's install command.
-- **False positive — package appears unused but is required**: Some packages are loaded dynamically, used as peer dependencies, or referenced only in build/CI scripts. When the search in Step 3 finds no usages but removal breaks the build, re-add the package and flag it as indirectly required.
+- **False positive - package appears unused but is required**: Some packages are loaded dynamically, used as peer dependencies, or referenced only in build/CI scripts. When the search in Step 3 finds no usages but removal breaks the build, re-add the package and flag it as indirectly required.
 
 ## Tips
 
-- Start with `devDependencies` — removing unused dev dependencies is lower risk than production ones
+- Start with `devDependencies` - removing unused dev dependencies is lower risk than production ones
 - When in doubt about indirect usage, flag it as "possibly used" rather than "definitely unused"
-- Some packages are used only in CI, deployment scripts, or editor configs — the search in Step 3 covers these
+- Some packages are used only in CI, deployment scripts, or editor configs - the search in Step 3 covers these
 - For PyPI, consult the package metadata on pypi.org if the import name is unclear
 - For monorepos, check usage across all workspaces before removing a root dependency
 - After cleanup, use the `/socket-scan` skill to verify no issues remain in the dependency set

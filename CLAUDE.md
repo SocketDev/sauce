@@ -4,13 +4,13 @@
 
 This file has two parts:
 
-1. **📚 Fleet Standards** — content between the `BEGIN FLEET-CANONICAL` /
+1. **📚 Fleet Standards** - content between the `BEGIN FLEET-CANONICAL` /
    `END FLEET-CANONICAL` markers below is byte-identical across every
    `socket-*` repo (and `ultrathink`). It is the canonical source for
-   shared engineering rules. **Do not edit it in a downstream repo** —
+   shared engineering rules. **Do not edit it in a downstream repo** -
    edit the fleet scaffolding repo's `template/CLAUDE.md` and run
    `node scripts/sync-scaffolding.mts --all --fix`.
-2. **🏗️ Project-Specific** — everything _outside_ the fleet markers is
+2. **🏗️ Project-Specific** - everything _outside_ the fleet markers is
    owned by the host repo. Architecture, commands, build pipelines,
    domain rules, etc. live there.
 

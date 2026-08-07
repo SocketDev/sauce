@@ -4,7 +4,7 @@ How to detect which package ecosystems are present in a project.
 
 ## Detection
 
-List the manifest and lock files that exist in the project root — the command prints only the ones that are present:
+List the manifest and lock files that exist in the project root - the command prints only the ones that are present:
 
 ```shell
 ls -d package.json package-lock.json pnpm-lock.yaml yarn.lock bun.lock bun.lockb requirements.txt pyproject.toml setup.py setup.cfg Pipfile Cargo.toml Gemfile pom.xml packages.config go.mod 2>/dev/null || true

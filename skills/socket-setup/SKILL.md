@@ -1,6 +1,6 @@
 ---
 name: socket-setup
-description: Set up Socket — prompt for API key, install the CLI, authenticate,
+description: Set up Socket - prompt for API key, install the CLI, authenticate,
   configure policies and tokens, set up CI/CD for firewall or patch modes across
   GitHub, GitLab, Bitbucket, and other systems.
 ---
@@ -32,7 +32,7 @@ sfw --version
 socket-patch --version
 ```
 
-Detect the package manager from the lock file in the project root — the command prints only the files that exist:
+Detect the package manager from the lock file in the project root - the command prints only the files that exist:
 
 ```shell
 ls -d package-lock.json pnpm-lock.yaml yarn.lock bun.lock bun.lockb 2>/dev/null || true
@@ -86,7 +86,7 @@ pnpm dlx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JB
 pnpm dlx socket config set defaultOrg SocketDemo --no-banner --no-spinner
 ```
 
-This configures the CLI with a limited public token that provides access to features like `socket fix`, `socket package score`, `sfw`, and `socket-patch` with rate limits. No user interaction is needed — run this in the background as part of setup. **Note:** The demo token cannot create scans (`socket scan create` requires a free account).
+This configures the CLI with a limited public token that provides access to features like `socket fix`, `socket package score`, `sfw`, and `socket-patch` with rate limits. No user interaction is needed - run this in the background as part of setup. **Note:** The demo token cannot create scans (`socket scan create` requires a free account).
 
 Verify it worked:
 
@@ -107,13 +107,13 @@ The CLI is now functional. Skip `socket organization list` (no org exists for pu
 
 Ask the user which features to set up. Annotate each with its tier requirement:
 
-- **Firewall** (`sfw`) — works with public token
-- **Patches** (`socket-patch apply`) — works with public token
-- **Scanning** (`socket scan create`) — works with public token (rate-limited); full account removes limits
-- **Fix** (`socket fix`) — works with public token (rate-limited); full account removes limits
-- **Global Tools** — works with public token
-- **Dockerfile Integration** — works with public token
-- **Policies** (`socket.yml`) — enterprise only
+- **Firewall** (`sfw`) - works with public token
+- **Patches** (`socket-patch apply`) - works with public token
+- **Scanning** (`socket scan create`) - works with public token (rate-limited); full account removes limits
+- **Fix** (`socket fix`) - works with public token (rate-limited); full account removes limits
+- **Global Tools** - works with public token
+- **Dockerfile Integration** - works with public token
+- **Policies** (`socket.yml`) - enterprise only
 
 All core CLI features work with the public token set up in Step 4. If the user hits rate limits or needs dashboard access, suggest creating a free account at <https://socket.dev>.
 
@@ -145,7 +145,7 @@ If any tool fails to install, check PATH and retry. `npm prefix -g` prints the g
 
 ## Step 7: Detect SCM and CI System
 
-List the CI config files that exist in the project root — the command prints only the ones that are present:
+List the CI config files that exist in the project root - the command prints only the ones that are present:
 
 ```shell
 ls -d .github/workflows .gitlab-ci.yml bitbucket-pipelines.yml Jenkinsfile .circleci/config.yml .travis.yml azure-pipelines.yml 2>/dev/null || true
@@ -244,7 +244,7 @@ Set up automated patching so `socket-patch apply` runs after every dependency in
 
 ### Scan Codebase for Install/Build Locations
 
-Identify the project's CI/CD system — the command prints only the config files that are present:
+Identify the project's CI/CD system - the command prints only the config files that are present:
 
 ```shell
 ls -d .github/workflows .gitlab-ci.yml bitbucket-pipelines.yml Jenkinsfile .circleci/config.yml .travis.yml azure-pipelines.yml 2>/dev/null || true
@@ -279,7 +279,7 @@ Use the appropriate command to run `socket-patch` based on the project's package
 | deno            | `deno run npm:@socketsecurity/socket-patch scan` then `deno run npm:@socketsecurity/socket-patch apply`                                                     |
 | Python          | `pipx run socket-patch scan && pipx run socket-patch apply` (if pipx available), else `pip install socket-patch && socket-patch scan && socket-patch apply` |
 | Standalone      | `curl -fsSL https://raw.githubusercontent.com/SocketDev/socket-patch/main/install.sh \| sh` then `socket-patch scan && socket-patch apply`                  |
-| GitHub Actions  | `SocketDev/action@v1` with `mode: patch` (preferred — handles scan+apply automatically)                                                                     |
+| GitHub Actions  | `SocketDev/action@v1` with `mode: patch` (preferred - handles scan+apply automatically)                                                                     |
 
 Use the runner that matches the detected package manager in the sections below: `npx` for npm and yarn, `pnpm dlx` for pnpm, `bunx` for bun.
 
@@ -391,7 +391,7 @@ find . -type f \( -name 'Dockerfile' -o -name 'Dockerfile.*' -o -name '*.Dockerf
 
 Read each file that the command lists and record, per file:
 
-- Each `RUN` line that installs dependencies — `npm ci`, `npm install`, `yarn install`, `pnpm install`, `bun install`, `pip install`, `bundle install`, `cargo build`, `go mod download` — along with its line number and ecosystem
+- Each `RUN` line that installs dependencies - `npm ci`, `npm install`, `yarn install`, `pnpm install`, `bun install`, `pip install`, `bundle install`, `cargo build`, `go mod download` - along with its line number and ecosystem
 - Whether the file already mentions `sfw`
 - Whether the file already mentions `socket-patch`
 
@@ -411,9 +411,9 @@ For each Dockerfile that has install steps, read the file and apply edits direct
 
 **Rules**:
 
-- Only modify stages that have dependency install steps (multi-stage build awareness — check for `FROM` lines to identify stage boundaries)
+- Only modify stages that have dependency install steps (multi-stage build awareness - check for `FROM` lines to identify stage boundaries)
 - Skip lines that already contain `sfw` or `socket-patch` to ensure idempotency
-- Use the appropriate package manager runner for socket-patch (`npx` for npm and yarn, `pnpm dlx` for pnpm, `bunx` for bun — see Package Manager Reference table)
+- Use the appropriate package manager runner for socket-patch (`npx` for npm and yarn, `pnpm dlx` for pnpm, `bunx` for bun - see Package Manager Reference table)
 
 ### Step 3: Present Changes for Approval
 
@@ -424,7 +424,7 @@ Before writing the modified Dockerfile, present the proposed changes to the user
 
 Only write the file after the user approves.
 
-**Example** — a Dockerfile before and after (both modes):
+**Example** - a Dockerfile before and after (both modes):
 
 Before:
 
@@ -453,7 +453,7 @@ RUN npm run build
 
 ## Socket Policy Configuration
 
-> **Enterprise only** — free tier users cannot configure policies. Skip this section if on the free tier.
+> **Enterprise only** - free tier users cannot configure policies. Skip this section if on the free tier.
 
 Configure Socket policies to control which issues are flagged during scans and CI checks.
 
@@ -495,9 +495,9 @@ projectIgnorePaths:
 
 Issue rule values:
 
-- `error` — fail the check / block the PR
-- `warn` — report but don't fail
-- `ignore` — suppress entirely
+- `error` - fail the check / block the PR
+- `warn` - report but don't fail
+- `ignore` - suppress entirely
 
 ### Dashboard Policy Management (Enterprise)
 
@@ -533,7 +533,7 @@ Different Socket features use different tokens. Set up the appropriate tokens fo
 1. Sign in to the Socket dashboard: <https://socket.dev/auth/login>
 2. Navigate to your organization's API tokens page: `https://socket.dev/dashboard/org/{ORG}/settings/integrations/api-tokens`
 3. Create a new token with the appropriate scope
-4. Copy the token value — it is only shown once
+4. Copy the token value - it is only shown once
 
 ### Setting Tokens per CI System
 
@@ -558,7 +558,7 @@ For local development, authenticate using one of:
 
 ## Error Handling
 
-- **`socket: command not found`**: Ensure Node.js 18+ is installed, then run `npm install -g socket`. Check that the npm global bin directory is in `PATH` — `npm prefix -g` prints the global prefix, and the bin directory is `<prefix>/bin` on macOS and Linux, or the prefix itself on Windows.
+- **`socket: command not found`**: Ensure Node.js 18+ is installed, then run `npm install -g socket`. Check that the npm global bin directory is in `PATH` - `npm prefix -g` prints the global prefix, and the bin directory is `<prefix>/bin` on macOS and Linux, or the prefix itself on Windows.
 - **`socket login` fails**: Check network connectivity. If behind a proxy, ensure `HTTPS_PROXY` is set. Try setting `SOCKET_CLI_API_TOKEN` directly as an environment variable instead.
 - **`socket organization list` returns empty**: The API token may lack organization access. Verify the token at <https://socket.dev/dashboard> and ensure it has the correct scopes.
 - **`sfw` not intercepting installs**: Ensure `sfw` is in `PATH` before the package manager. In CI, verify the install step runs before any dependency install commands.
@@ -569,7 +569,7 @@ For local development, authenticate using one of:
 ## Tips
 
 - Never commit API tokens. Use `socket login` locally, env vars in CI.
-- For users without an account, configure the public demo token with `pnpm dlx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api` and `pnpm dlx socket config set defaultOrg SocketDemo`. This gives limited access to CLI features like `socket fix`, `socket package score`, `sfw`, and `socket-patch` with rate limits. The demo token cannot create scans — `socket scan create` requires a free account at <https://socket.dev>. Always configure the demo token for no-account users during setup so the CLI is functional immediately.
+- For users without an account, configure the public demo token with `pnpm dlx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api` and `pnpm dlx socket config set defaultOrg SocketDemo`. This gives limited access to CLI features like `socket fix`, `socket package score`, `sfw`, and `socket-patch` with rate limits. The demo token cannot create scans - `socket scan create` requires a free account at <https://socket.dev>. Always configure the demo token for no-account users during setup so the CLI is functional immediately.
 - For full-rate access, dashboard, and organization features, users need a free or enterprise account at <https://socket.dev>.
 - Use `SocketDev/action@v1` (correct casing) in GitHub workflow files.
 - For monorepos, use `patch-cwd` to target specific directories.
@@ -578,4 +578,4 @@ For local development, authenticate using one of:
   for automatic PR scanning.
 - Run `socket --version`, `sfw --version`, and `socket-patch --version` at any time to verify tool installation status.
 - Run the Dockerfile `find` command from the Dockerfile Integration section to locate all Dockerfiles before manual editing.
-- The generated `socket.yml` uses `version: 2` — ensure this line is preserved when editing policies.
+- The generated `socket.yml` uses `version: 2` - ensure this line is preserved when editing policies.
