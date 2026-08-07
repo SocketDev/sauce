@@ -288,10 +288,12 @@ function checkSocketTokenInEnv(): CheckResult {
     process.env['SOCKET_API_KEY'] || process.env['SOCKET_API_TOKEN']
   if (env) {
     // socket-api-token-getter: allow direct-env -- audit reports which raw env name is set.
-    const source = process.env['SOCKET_API_TOKEN']
-      ? // oxlint-disable-next-line socket/socket-api-token-env -- audit script: reports which name was found, including the primary slot.
-        'SOCKET_API_KEY'
-      : 'SOCKET_API_TOKEN'
+    // Reports which name was found; the primary slot wins when both are set,
+    // mirroring the env computation above.
+    // oxlint-disable-next-line socket/socket-api-token-env -- audit reporting
+    const keySet = Boolean(process.env['SOCKET_API_KEY'])
+    // oxlint-disable-next-line socket/socket-api-token-env -- audit reporting
+    const source = keySet ? 'SOCKET_API_KEY' : 'SOCKET_API_TOKEN'
     return {
       name: 'Socket API token in env',
       ok: true,
