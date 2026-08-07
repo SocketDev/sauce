@@ -30,7 +30,7 @@ node release-kit/install.mts --target <repo> --channels npm,github-release --app
 node release-kit/install.mts --target <repo> --channels npm,github-release --verify # byte-parity
 ```
 
-Consumers pin three devDependencies (the payload imports plain specifiers):
+The payload imports plain specifiers, so consumers pin three devDependencies:
 
 ```
 pnpm add -D @socketsecurity/lib@6.5.2 @socketsecurity/sdk@4.1.3 playwright-core@1.61.1
@@ -81,8 +81,8 @@ exists), and the two publishing-access steps bracket the placeholder:
    createPackage + createStagedPackage. Reads fail CLOSED: any error
    envelope is auth-death, never "(no config)".
 7. `npm-access-staged-only` - TIGHTEN AFTER: with the placeholder live and
-   trusted publishing standing, disable DIRECT publishing in the npm web UI
-   (the sanctioned browser session drives the checkbox), leaving
+   trusted publishing standing, disable DIRECT publishing in the npm web UI,
+   where the sanctioned browser session drives the checkbox, leaving
    staged/trusted publishing only. A second bootstrap run cannot re-enable
    direct publishing: the permissive shape is planned only while the
    placeholder is pending, and this step's done-predicate is the staged-only
@@ -292,23 +292,23 @@ the npm release thread in this order (each line names the real payload file):
 5. `publish-infra/npm/staged.mts` - stage orchestration (`runStaged` /
    `runDirect` / `verifyStagedEntry`), which drives in turn
    `pack-preflight.mts` (hollow-tarball gate) → `pack-manifest.mts` +
-   `_shared/{lifecycle-scripts,pack-files}.mts` (the pure pack surface) →
-   `publish-infra/shared.mts` (the process seam: spawn / PTY / git / JSON) →
+   `_shared/{lifecycle-scripts,pack-files}.mts`, the pure pack surface, →
+   `publish-infra/shared.mts`, the process seam for spawn / PTY / git / JSON, →
    `publish-infra/npm/registry.mts` (the registry read) →
    `lib/verify-release-hashes.mts` (byte-verify of the staged entry).
 6. `publish-infra/npm/approve.mts` - promote orchestration (`runApprove`),
    which drives `login.mts` / `auth-identity.mts` (auth seams: logged-out vs
    wrong-user repair) → `shared.mts` (the stage-list wire parse, the kit's
    most safety-critical parser) → `scan.mts` / `threat-scan.mts` (Socket
-   full-scan gate and local threat scan) → `lib/verify-release-hashes.mts`
-   (the three-way hash gate before promote).
+   full-scan gate and local threat scan) → `lib/verify-release-hashes.mts`,
+   the three-way hash gate before promote.
 7. `publish-infra/release.mts` - the release tail: `releaseBehindLiveGate`
    (registry-live gate) → `ensureTagAndRelease` + `extractChangelogSection`,
    driving `lib/github-git-refs.mts` (the gh seam).
 8. `publish-infra/reconcile.mts` - post-publish git alignment (fetch the
    published version, find its base sha, rebase/sync onto it).
 9. Failure tail - the healer: `_shared/release-gap-recovery.mts` →
-   `registry-liveness-gate.mjs` (the CI gate job, npm- AND crates-aware) →
+   `registry-liveness-gate.mjs`, the npm- AND crates-aware CI gate job, →
    `github-release.mts` (cuts the immutable release once the registry is live).
 
 The layers the thread crosses:
@@ -325,8 +325,8 @@ The layers the thread crosses:
 | 7 tests         | `test/repo/**` (never in the payload)                                         | mirror the payload path                                                                                                                 |
 
 The distinction between `_shared/` and `lib/` is provenance, not taste:
-`_shared/` holds ONLY files whose relative path also exists under the fleet's
-`scripts/fleet/_shared/` (fleet-mirrored); `lib/` holds kit-local cross-flow
+`_shared/` holds ONLY files mirrored byte-for-byte from the fleet's shared
+script tree; `lib/` holds kit-local cross-flow
 logic. This is the fleet's own taxonomy - it is documented, never merged.
 
 Known divergence pending removal: `create-release.mts` +
@@ -339,15 +339,15 @@ until it is deleted fleet-side.
 New payload files MUST conform. Rules 1 and 6 are enforced mechanically by
 `scripts/repo/check/release-kit-is-coherent.mts` (which also pins manifest
 freshness, the pure/effects import split, and the no-tests-in-payload rule);
-the remainder is review law. A rename that touches a file whose relative path
-exists under `scripts/fleet/` is done **fleet-first or not at all**.
+the remainder is review law. A rename that touches a file mirrored from the
+fleet's shared script tree is done **fleet-first or not at all**.
 
 1. **Entries.** The payload root holds exactly one CLI per flow, named
    `<flow>-<act>.mts`, act ∈ {`publish`, `release`}: `npm-publish`,
    `cargo-publish`, `brew-publish`, `github-release`. An entry contains only
    its usage header, `OPTIONS`, unknown-flag rejection (exit 2), mode
    dispatch, and the `isMainModule` guard. The only other permitted root
-   residents are `bootstrap.mts` (the one-time bootstrap CLI) and the
+   residents are `bootstrap.mts`, the one-time bootstrap CLI, and the
    grandfathered `npm-web-auth.mts`, `registry-liveness-gate.mjs`(+`.d.mts`),
    `paths.mts`, `kit-manifest.json` (and, until deleted, `create-release.mts`).
    **Nothing else may be added at root.** _(machine-enforced)_
@@ -375,7 +375,7 @@ gates`. Every injectable effect module is `seams.mts` exporting
    any `.mjs` imported from TypeScript carries a `.d.mts` sidecar.
    _(machine-enforced)_
 7. **Shared homes (closed list).** `_shared/` = fleet-mirrored (same relative
-   path under `scripts/fleet/_shared/`); `lib/` = kit-local cross-flow;
+   path in the fleet's shared script tree); `lib/` = kit-local cross-flow;
    `constants/` = import-free data; `util/` is frozen (no new files).
 8. **Tests mirror paths.** `test/repo/unit/release-kit/<payload-relative-path>.test.mts`
    (consumers: `tests/socket-release/<payload-relative-path>.test.mts`).

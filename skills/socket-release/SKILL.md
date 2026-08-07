@@ -82,7 +82,7 @@ actual publish.
 
 Playwright browser law (verbatim, non-negotiable):
 
-- Launch ONLY via openNpmBrowserSession (scripts/socket-release/publish-infra/npm/browser-session.mts) on the durable profile ~/.config/socket-wheelhouse/staged-browser-profile.
+- Launch ONLY via openNpmBrowserSession (scripts/socket-release/publish-infra/npm/browser-session.mts) on the durable staged-browser profile that module owns under ~/.config.
 - The launch shape is channel + chromiumSandbox: true + headless + the two sanctioned ignoreDefaultArgs entries, and nothing else - never an args array, never a sandbox-disabling flag.
 - Login is NEVER scripted: the operator signs in once in the headed window; no password, OTP, or cookie passes through the process.
 - All npm browser tools share the ONE durable profile so a single sign-in covers every tool.

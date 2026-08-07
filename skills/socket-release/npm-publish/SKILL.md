@@ -37,7 +37,7 @@ STOP AND GATE, never improvise, at these moments:
 
 - **reserve name** - publishing `<name>@0.0.0` is irreversible; only
   `node scripts/socket-release/bootstrap.mts placeholder --apply --reserve <name>`
-  performs it (the bootstrap renders the gate).
+  performs it: the bootstrap renders the gate.
 - **npm web-2FA** - the PTY prints `APPROVE HERE (expires in minutes): <url>`;
   the operator approves in their browser, the command keeps waiting.
 - **placeholder promote** - a staged 0.0.0 needs

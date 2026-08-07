@@ -31,6 +31,7 @@ export const SHIPPED_ROOT_FILES = [
  * Fleet-member machinery — cascaded from the wheelhouse, never consumable.
  */
 export const SCAFFOLDING_ENTRIES = [
+  '.cargo',
   '.claude',
   '.config',
   '.editorconfig',

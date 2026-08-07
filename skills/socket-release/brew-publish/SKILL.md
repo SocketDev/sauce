@@ -64,7 +64,7 @@ gh release download vX.Y.Z --pattern checksums.txt --output -
 ```
 
 Both grammars count: plain `<hex>  <name>` (shasum) and
-`sha256: <hex>  <name>` (the kit release tail). A duplicate filename with
+`sha256: <hex>  <name>`, the kit release tail's form. A duplicate filename with
 differing hex is a hard refusal. After a bump, spot-check one platform:
 the `url` in `Formula/<name>.rb` must name the exact `v<version>` download
 path and its `sha256` must equal the manifest line for that asset.
