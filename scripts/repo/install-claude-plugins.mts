@@ -30,7 +30,7 @@ import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 import { cpSync, existsSync, readdirSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
@@ -455,7 +455,7 @@ function main(): void {
 
 // Skip execution when imported (for tests). The CLI entry is direct
 // `node scripts/repo/install-claude-plugins.mts` invocation.
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     main()
   } catch (e) {
