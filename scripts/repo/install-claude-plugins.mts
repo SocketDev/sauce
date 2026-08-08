@@ -455,7 +455,10 @@ function main(): void {
 
 // Skip execution when imported (for tests). The CLI entry is direct
 // `node scripts/repo/install-claude-plugins.mts` invocation.
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(process.argv[1]).href
+) {
   try {
     main()
   } catch (e) {
