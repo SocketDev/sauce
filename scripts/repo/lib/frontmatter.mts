@@ -23,7 +23,7 @@ export function parseFrontmatter(
   // end of the section.
   let pendingKey: string | undefined
 
-  const lines = match[1]!.split('\n')
+  const lines = match[1]!.split(/\r?\n/)
   for (let li = 0, { length } = lines; li < length; li += 1) {
     const line = lines[li]!
     // Continuation line: starts with whitespace and follows a key.

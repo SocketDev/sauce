@@ -35,7 +35,7 @@ export function findRunExpressionViolations(
   text: string,
 ): WorkflowViolation[] {
   const violations: WorkflowViolation[] = []
-  const lines = text.split('\n')
+  const lines = text.split(/\r?\n/)
   let inRunBlock = false
   let runIndent = -1
   for (let i = 0, { length } = lines; i < length; i += 1) {
@@ -89,7 +89,7 @@ export function findUsesPinViolations(
   text: string,
 ): WorkflowViolation[] {
   const violations: WorkflowViolation[] = []
-  const lines = text.split('\n')
+  const lines = text.split(/\r?\n/)
   for (let i = 0, { length } = lines; i < length; i += 1) {
     const line = lines[i]!
     if (!/^\s*(?:-\s+)?uses:\s+/.test(line)) {

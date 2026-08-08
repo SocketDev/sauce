@@ -48,7 +48,7 @@ export function parseBundler(dir: string): Dependency[] {
   const deps: Dependency[] = []
   let currentGroup = 'default'
 
-  const lines = content.split('\n')
+  const lines = content.split(/\r?\n/)
   for (let i = 0, { length } = lines; i < length; i += 1) {
     const line = lines[i]!
     const groupMatch = line.match(/group\s+:(\w+)/)
@@ -91,7 +91,7 @@ export function parseCargo(dir: string): Dependency[] {
   const deps: Dependency[] = []
   let section = ''
 
-  const lines = content.split('\n')
+  const lines = content.split(/\r?\n/)
   for (let i = 0, { length } = lines; i < length; i += 1) {
     const line = lines[i]!
     const sectionMatch = line.match(/^\[(.+)\]/)
@@ -128,7 +128,7 @@ export function parseGo(dir: string): Dependency[] {
   const deps: Dependency[] = []
   let inRequire = false
 
-  const lines = content.split('\n')
+  const lines = content.split(/\r?\n/)
   for (let i = 0, { length } = lines; i < length; i += 1) {
     const line = lines[i]!
     if (line.trim() === 'require (') {
@@ -278,7 +278,7 @@ export function parsePypi(dir: string): Dependency[] {
   const deps: Dependency[] = []
   const reqPath = path.join(dir, 'requirements.txt')
   if (existsSync(reqPath)) {
-    const lines = readFileSync(reqPath, 'utf-8').split('\n')
+    const lines = readFileSync(reqPath, 'utf-8').split(/\r?\n/)
     for (let i = 0, { length } = lines; i < length; i += 1) {
       const line = lines[i]!
       const trimmed = line.trim()
@@ -302,7 +302,7 @@ export function parsePypi(dir: string): Dependency[] {
 
   const devReqPath = path.join(dir, 'requirements-dev.txt')
   if (existsSync(devReqPath)) {
-    const lines = readFileSync(devReqPath, 'utf-8').split('\n')
+    const lines = readFileSync(devReqPath, 'utf-8').split(/\r?\n/)
     for (let i = 0, { length } = lines; i < length; i += 1) {
       const line = lines[i]!
       const trimmed = line.trim()

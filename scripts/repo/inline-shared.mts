@@ -58,7 +58,7 @@ export function findSkillFiles(dir: string): string[] {
 
 export function inlineShared(filePath: string): Replacement[] {
   const content = readFileSync(filePath, 'utf-8')
-  const lines = content.split('\n')
+  const lines = content.split(/\r?\n/)
   const output: string[] = []
   const replacements: Replacement[] = []
   let i = 0
@@ -136,7 +136,7 @@ function embedBelowCurrentHeading(shared: string, output: string[]): string {
 
   let inFence = false
   return shared
-    .split('\n')
+    .split(/\r?\n/)
     .map(line => {
       if (/^(?:```|~~~)/u.test(line)) {
         inFence = !inFence

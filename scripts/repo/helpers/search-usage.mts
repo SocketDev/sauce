@@ -175,7 +175,7 @@ function main(): void {
         return
       }
 
-      const lines = content.split('\n')
+      const lines = content.split(/\r?\n/)
       for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
         const line = lines[lineIdx]!
         for (let pi = 0, { length } = patterns; pi < length; pi += 1) {

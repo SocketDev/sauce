@@ -40,7 +40,7 @@ export function listTrackedFiles(): string[] {
       `git ls-files failed.\n  Where: ${ROOT}\n  Saw: exit ${result.status}; wanted 0.\n  Fix: run inside the repo checkout.`,
     )
   }
-  return result.stdout.split('\n').filter(Boolean)
+  return result.stdout.split(/\r?\n/).filter(Boolean)
 }
 
 export function findUnclassifiedEntries(tracked: string[]): string[] {
@@ -84,7 +84,7 @@ export function findFleetLeaks(tracked: string[]): string[] {
       }
       const idx = content.indexOf(marker)
       if (idx !== -1) {
-        const line = content.slice(0, idx).split('\n').length
+        const line = content.slice(0, idx).split(/\r?\n/).length
         leaks.push(`${rel}:${line} mentions "${marker}"`)
       }
     }

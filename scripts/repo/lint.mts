@@ -73,7 +73,7 @@ export function gitFiles(gitArgs: string[]): string[] {
     return []
   }
   return result.stdout
-    .split('\n')
+    .split(/\r?\n/)
     .map(s => s.trim())
     .filter(s => s.length > 0)
 }

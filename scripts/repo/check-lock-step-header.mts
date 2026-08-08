@@ -132,7 +132,7 @@ function extractHeader(file: string): HeaderBlock | undefined {
   } catch {
     return undefined
   }
-  const lines = content.split('\n')
+  const lines = content.split(/\r?\n/)
   let beginIdx = -1
   let endIdx = -1
   for (let i = 0, { length } = lines; i < length; i += 1) {

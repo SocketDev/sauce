@@ -183,7 +183,7 @@ function scanFile(
   } catch {
     return findings
   }
-  const lines = content.split('\n')
+  const lines = content.split(/\r?\n/)
   for (let i = 0, len = lines.length; i < len; i += 1) {
     const line = lines[i]!
     LOCK_STEP_RE.lastIndex = 0

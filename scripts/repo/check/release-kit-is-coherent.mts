@@ -166,7 +166,7 @@ function main(): void {
       if (isMarkerAllowlisted(rel, marker)) {
         continue
       }
-      const line = text.slice(0, text.indexOf(marker)).split('\n').length
+      const line = text.slice(0, text.indexOf(marker)).split(/\r?\n/).length
       failures.push(
         [
           `What: the payload leaks the fleet-internal marker "${marker}".`,

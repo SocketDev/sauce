@@ -59,7 +59,7 @@ export async function validateStagedFileCount(): Promise<
 
     const stagedFiles = stdout
       .trim()
-      .split('\n')
+      .split(/\r?\n/)
       .filter(line => line.length > 0)
 
     if (stagedFiles.length >= MAX_FILES_PER_COMMIT) {
