@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest'
 import { parseKitConfig } from '../../../../../release-kit/payload/scripts/socket-release/bootstrap/config.mts'
 import { KitError } from '../../../../../release-kit/payload/scripts/socket-release/bootstrap/render.mts'
 
-const WHERE = '/x/.config/socket-release.json'
+const WHERE = '/home/<user>/socket-release.json'
 
 function refusal(raw: string): KitError {
   try {

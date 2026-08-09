@@ -188,7 +188,9 @@ describe('installer seam fallbacks', () => {
 describe('parseKitManifest kitVersion default', () => {
   it('defaults kitVersion when the field is absent or non-string', () => {
     const raw = JSON.stringify({
-      files: [{ channels: ['common'], path: 'a.mts', sha256: 'a'.repeat(64) }],
+      files: [
+        { channels: ['common'], path: 'example.mts', sha256: 'a'.repeat(64) },
+      ],
       schemaVersion: 1,
     })
     expect(parseKitManifest(raw, 'test').kitVersion).toBeTruthy()

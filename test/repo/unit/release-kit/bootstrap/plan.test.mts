@@ -131,11 +131,13 @@ describe('isReceiptCurrent / nextPendingStep / nextCommandFor', () => {
   })
 
   it('nextCommandFor carries --reserve only for placeholder', () => {
-    expect(nextCommandFor('placeholder', { packageName: '@x/y' })).toBe(
-      'node scripts/socket-release/bootstrap.mts placeholder --apply --reserve @x/y',
+    expect(
+      nextCommandFor('placeholder', { packageName: '@example/other' }),
+    ).toBe(
+      'node scripts/socket-release/bootstrap.mts placeholder --apply --reserve @example/other',
     )
-    expect(nextCommandFor('github-env', { packageName: '@x/y' })).toBe(
-      'node scripts/socket-release/bootstrap.mts github-env --apply',
-    )
+    expect(
+      nextCommandFor('github-env', { packageName: '@example/other' }),
+    ).toBe('node scripts/socket-release/bootstrap.mts github-env --apply')
   })
 })

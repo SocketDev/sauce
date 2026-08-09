@@ -27,24 +27,26 @@ const OUR = 'socket-wheelhouse'
 
 it('extractInstalledSha returns 12-char prefix for SHA-pinned cache path', () => {
   const got = extractInstalledSha(
-    '/Users/x/.claude/plugins/cache/socket-wheelhouse/codex/9cb4fe409919-deadbeef',
+    '/Users/<user>/.claude/plugins/cache/socket-wheelhouse/codex/9cb4fe409919-deadbeef',
   )
   expect(got).toBe('9cb4fe409919')
 })
 
 it('extractInstalledSha handles content-hash of various lengths', () => {
-  const got = extractInstalledSha('/x/cache/m/p/abcdef012345-fedcba98')
+  const got = extractInstalledSha(
+    '/cache/marketplace/plugins/abcdef012345-fedcba98',
+  )
   expect(got).toBe('abcdef012345')
 })
 
 it('extractInstalledSha returns undefined for directory-source install (version-tagged)', () => {
-  const got = extractInstalledSha('/Users/x/projects/codex-plugin-cc')
+  const got = extractInstalledSha('/Users/<user>/projects/codex-plugin-cc')
   expect(got).toBe(undefined)
 })
 
 it('extractInstalledSha returns undefined for version-tagged install', () => {
   const got = extractInstalledSha(
-    '/Users/x/.claude/plugins/cache/openai-codex/codex/1.0.1',
+    '/Users/<user>/.claude/plugins/cache/openai-codex/codex/1.0.1',
   )
   expect(got).toBe(undefined)
 })
@@ -59,15 +61,17 @@ it('extractInstalledSha returns undefined for empty string', () => {
 
 it('extractInstalledSha rejects shapes that almost-match but are not 12 + 8+', () => {
   // 11 chars instead of 12.
-  expect(extractInstalledSha('/x/cache/m/p/9cb4fe40991-deadbeef')).toBe(
-    undefined,
-  )
+  expect(
+    extractInstalledSha('/cache/marketplace/plugins/9cb4fe40991-deadbeef'),
+  ).toBe(undefined)
   // No content-hash suffix.
-  expect(extractInstalledSha('/x/cache/m/p/9cb4fe409919')).toBe(undefined)
-  // Non-hex chars.
-  expect(extractInstalledSha('/x/cache/m/p/zzzzzzzzzzzz-deadbeef')).toBe(
+  expect(extractInstalledSha('/cache/marketplace/plugins/9cb4fe409919')).toBe(
     undefined,
   )
+  // Non-hex chars.
+  expect(
+    extractInstalledSha('/cache/marketplace/plugins/zzzzzzzzzzzz-deadbeef'),
+  ).toBe(undefined)
 })
 
 const fakePlugin = (
@@ -82,7 +86,7 @@ const fakePlugin = (
 
 it('findForeignInstall finds plugin under non-canonical marketplace', () => {
   const plugins = [
-    fakePlugin('codex@openai-codex', '/Users/x/projects/codex-plugin-cc'),
+    fakePlugin('codex@openai-codex', '/Users/<user>/projects/codex-plugin-cc'),
     fakePlugin('clangd-lsp@claude-plugins-official'),
   ]
   const got = findForeignInstall('codex', plugins, OUR)
@@ -94,7 +98,7 @@ it('findForeignInstall returns undefined when plugin is under our marketplace', 
   const plugins = [
     fakePlugin(
       'codex@socket-wheelhouse',
-      '/x/cache/socket-wheelhouse/codex/9cb4fe409919-aa',
+      '/cache/example/socket-wheelhouse/codex/9cb4fe409919-aa',
     ),
   ]
   const got = findForeignInstall('codex', plugins, OUR)
@@ -190,7 +194,7 @@ it('lookupInstalledSha extracts gitCommitSha from installed_plugins.json shape',
       'codex@socket-wheelhouse': [
         {
           scope: 'user',
-          installPath: '/x/y/z',
+          installPath: '/home/<user>/install',
           version: '1.0.1',
           gitCommitSha: FULL_SHA,
         },
@@ -323,14 +327,14 @@ it('stripPatchHeader only matches --- at line start (not mid-line)', () => {
 })
 
 it('patchSidecarDir maps <x>.patch → <x>.files', () => {
-  expect(patchSidecarDir('/a/b/codex-1.0.1-stdin-eagain.patch')).toBe(
-    '/a/b/codex-1.0.1-stdin-eagain.files',
-  )
+  expect(
+    patchSidecarDir('/home/<user>/build/codex-1.0.1-stdin-eagain.patch'),
+  ).toBe('/home/<user>/build/codex-1.0.1-stdin-eagain.files')
 })
 
 it('patchSidecarDir only rewrites a trailing .patch extension', () => {
   // A `.patch` mid-path must not be rewritten — only the final extension.
-  expect(patchSidecarDir('/a/.patch-stuff/codex-1.0.1-x.patch')).toBe(
-    '/a/.patch-stuff/codex-1.0.1-x.files',
+  expect(patchSidecarDir('/home/<user>/.patch-stuff/codex-1.0.1-x.patch')).toBe(
+    '/home/<user>/.patch-stuff/codex-1.0.1-x.files',
   )
 })

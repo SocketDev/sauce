@@ -59,7 +59,7 @@ describe('crateIndexPath', () => {
   it('shards by name length like the crates.io sparse index', () => {
     expect(crateIndexPath('a')).toBe('1/a')
     expect(crateIndexPath('ab')).toBe('2/ab')
-    expect(crateIndexPath('abc')).toBe('3/a/abc')
+    expect(crateIndexPath('abc')).toBe('3/a/abc') // fixture-name: allow
     expect(crateIndexPath('serde')).toBe('se/rd/serde')
   })
 })

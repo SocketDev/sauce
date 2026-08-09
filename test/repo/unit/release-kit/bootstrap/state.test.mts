@@ -34,7 +34,11 @@ describe('state round-trip', () => {
       dryRun: false,
       status: 'passed',
     })
-    const back = parseState(serializeState(state), KEY, '/x/state.json')
+    const back = parseState(
+      serializeState(state),
+      KEY,
+      '/home/<user>/state.json',
+    )
     expect(back).toEqual(state)
   })
 
@@ -58,7 +62,7 @@ describe('state refusals', () => {
   it('foreign schemaVersion refuses with usage exit code', () => {
     const doc = { ...fresh(), schemaVersion: 2 }
     try {
-      parseState(JSON.stringify(doc), KEY, '/x/state.json')
+      parseState(JSON.stringify(doc), KEY, '/home/<user>/state.json')
       expect.unreachable()
     } catch (e) {
       expect(e).toBeInstanceOf(KitError)
@@ -70,7 +74,7 @@ describe('state refusals', () => {
   it('a changed context invalidates every receipt with Fix: --reset', () => {
     const otherKey = contextKey('SocketDev/other', '@socketsecurity/example')
     try {
-      parseState(serializeState(fresh()), otherKey, '/x/state.json')
+      parseState(serializeState(fresh()), otherKey, '/home/<user>/state.json')
       expect.unreachable()
     } catch (e) {
       expect(e).toBeInstanceOf(KitError)
@@ -81,7 +85,7 @@ describe('state refusals', () => {
 
   it('corrupted JSON refuses — never silently reads as fresh state', () => {
     try {
-      parseState('{ definitely not json', KEY, '/x/state.json')
+      parseState('{ definitely not json', KEY, '/home/<user>/state.json')
       expect.unreachable()
     } catch (e) {
       expect(e).toBeInstanceOf(KitError)

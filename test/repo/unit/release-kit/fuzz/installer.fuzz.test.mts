@@ -67,7 +67,7 @@ describe('isSafePayloadPath', () => {
       'bootstrap.mts',
       'publish-infra/npm/staged.mts',
       'templates/workflows/npm-publish.yml',
-      'a/b/c/d.mts',
+      'foo/bar/baz/example.mts',
     ]) {
       expect(isSafePayloadPath(ok)).toBe(true)
     }
@@ -116,7 +116,7 @@ describe('parseKitManifest path safety', () => {
 
   it('refuses classic traversal payloads with a loud error', () => {
     for (const bad of [
-      '../../../etc/cron.d/x',
+      '../../../etc/cron.d/example',
       '/etc/passwd',
       '..\\..\\win.ini',
     ]) {
@@ -149,9 +149,13 @@ describe('drift / byte-parity checker', () => {
 
           const plan = planInstall({
             entries: [
-              { channels: ['common'], path: 'f.mts', sha256: originalSha },
+              {
+                channels: ['common'],
+                path: 'example.mts',
+                sha256: originalSha,
+              },
             ],
-            targetReads: new Map([['f.mts', mutatedSha]]),
+            targetReads: new Map([['example.mts', mutatedSha]]),
           })
           expect(plan.conflicts).toHaveLength(1)
           expect(plan.identical).toHaveLength(0)
@@ -166,13 +170,13 @@ describe('drift / byte-parity checker', () => {
       fc.property(fc.uint8Array({ maxLength: 256 }), bytes => {
         const sha = sha256Hex(Buffer.from(bytes))
         const identical = planInstall({
-          entries: [{ channels: ['common'], path: 'f.mts', sha256: sha }],
-          targetReads: new Map([['f.mts', sha]]),
+          entries: [{ channels: ['common'], path: 'example.mts', sha256: sha }],
+          targetReads: new Map([['example.mts', sha]]),
         })
         expect(identical.identical).toHaveLength(1)
         const absent = planInstall({
-          entries: [{ channels: ['common'], path: 'f.mts', sha256: sha }],
-          targetReads: new Map([['f.mts', undefined]]),
+          entries: [{ channels: ['common'], path: 'example.mts', sha256: sha }],
+          targetReads: new Map([['example.mts', undefined]]),
         })
         expect(absent.copies).toHaveLength(1)
       }),
