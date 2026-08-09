@@ -1,5 +1,5 @@
 {
-  "name": "sauce-release-kit-examples-rust-crate",
+  "name": "local-rust-crate",
   "version": "0.0.0",
   "private": true,
   "description": "Node-side scripts host for the example crate (the kit CLIs run on node).",
