@@ -1146,6 +1146,7 @@ pnpm-debug.log
 .claude/hooks/fleet/private-name-nudge/index.mts
 .claude/hooks/fleet/private-name-nudge/package.json
 .claude/hooks/fleet/private-name-nudge/tsconfig.json
+.claude/hooks/fleet/private-package-name-guard/index.mts
 .claude/hooks/fleet/proc-environ-exfil-guard/README.md
 .claude/hooks/fleet/proc-environ-exfil-guard/index.mts
 .claude/hooks/fleet/proc-environ-exfil-guard/package.json
@@ -2568,6 +2569,7 @@ scripts/fleet/gen/llms-txt.mts
 scripts/fleet/gen/package-exports.mts
 scripts/fleet/gen/repo-map.mts
 scripts/fleet/get-green.mts
+scripts/fleet/gh-auth.mts
 scripts/fleet/gh-heartbeat.mts
 scripts/fleet/git-partial-submodule.mts
 scripts/fleet/git-partial-submodule/commands.mts
