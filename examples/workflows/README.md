@@ -8,9 +8,21 @@ workflow.
 
 | File | Shows |
 | --- | --- |
-| [ci.yml](ci.yml) | The full practices CI: SocketDev/action, sfw-wrapped install, `socket doctor`, test |
-| [socket-optimize.yml](socket-optimize.yml) | Weekly `socket optimize --pin` on a cron, with the result reviewed as a PR |
-| [doctor-gate.yml](doctor-gate.yml) | `socket doctor` as a pull-request gate that fails on any practice violation |
+| [ci.yml](ci.yml) | The fleet-shaped CI: the setup-and-install block up front (the fleet's one-composite leg), SocketDev/action, sfw-wrapped install, `socket doctor`, test |
+| [weekly-update.yml](weekly-update.yml) | Fleet cadence naming: weekly `socket optimize --pin` on a Monday cron, result reviewed as a PR |
+| [doctor-gate.yml](doctor-gate.yml) | `socket doctor` as the pull-request gate: exit 1 on any practice violation |
+
+The fleet conventions on display:
+
+- **Thin shells over composites.** Every job opens with the same
+  setup-and-install leg (checkout + setup + cache + install). Fleet members
+  write it as one call, `uses: ./.github/actions/fleet/setup-and-install`;
+  the examples inline the parts and mark the composite's name so the shape
+  stays visible.
+- **Workflow names say the cadence or destination** (`weekly-update.yml`,
+  `npm-publish.yml`), never the tool.
+- **External actions pin the SHA with a label comment**; fleet composites
+  are referenced by local `./` path, never a cross-repo `uses:@sha`.
 
 Notes:
 

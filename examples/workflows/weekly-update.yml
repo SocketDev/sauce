@@ -1,0 +1,46 @@
+# Example: the weekly-update workflow (fleet naming convention).
+#
+# Fleet workflows name the cadence or the destination, never the tool:
+# weekly-update.yml, npm-publish.yml, fuzz.yml. This one keeps the
+# dependency tree current on a Monday cron instead of waiting for a human
+# to notice drift. socket optimize runs its flows in order: origin
+# fast-forward, pastoralist override audit, @socketregistry overrides,
+# dependency update, bundle-stub offer when the repo bundles.
+name: weekly-update
+
+on:
+  schedule:
+    # Off the hour-mark so the fleet does not land on the API at once.
+    - cron: '37 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    steps:
+      # ── setup-and-install (the fleet block) ──────────────────────────
+      # Fleet form: uses: ./.github/actions/fleet/setup-and-install
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2 (2026-05-15)
+        with:
+          # optimize's origin sync fast-forwards from the fetched default
+          # branch, so it needs history, not a shallow clone.
+          fetch-depth: 0
+
+      - name: Install
+        run: sfw pnpm install --frozen-lockfile
+      # ── end setup-and-install ─────────────────────────────────────────
+
+      # The full optimize flow. --pin tightens overrides to exact versions.
+      - name: Optimize
+        run: socket optimize --pin
+
+      # Review as a PR, never a silent self-commit: the override changes
+      # carry a human read before they land on main.
+      - name: Open the update PR
+        run: gh pr create --fill --title "chore(deps): weekly optimize" --label dependencies
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

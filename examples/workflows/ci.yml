@@ -1,9 +1,10 @@
-# Example: the practices-carrying CI workflow.
+# Example: the fleet-shaped CI workflow.
 #
-# Shows every practice from docs/best-practices.md in one file:
-# soak-time (socket doctor), sfw-wrapped installs, and socket optimize.
-# It passes the doctor practice gate itself: installs are sfw-wrapped and
-# Socket runs in the workflow.
+# The fleet way: a minimal shell that defers real work to composites, with
+# every job opening on the same setup-and-install leg so the environment is
+# identical before any step that needs it. Fleet members get that leg as ONE
+# composite call (./.github/actions/fleet/setup-and-install); the public
+# equivalent below inlines its three parts so the shape stays visible.
 name: ci
 
 on:
@@ -18,23 +19,31 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      # ── setup-and-install (the fleet block) ──────────────────────────
+      # Fleet form: uses: ./.github/actions/fleet/setup-and-install
+      # It chains checkout + setup + cache + install in one call, so the
+      # workflow file stays a thin shell over the shared composite.
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2 (2026-05-15)
 
-      # Socket in the workflow: the action's CLI mode scans the dependency
-      # tree on every push. Firewall mode blocks installs on policy instead.
+      # Socket runs in the workflow (the doctor practice gate requires it).
+      # The action's CLI mode scans the dependency tree on every push;
+      # Firewall mode blocks installs on policy instead.
       - uses: SocketDev/action@v1
         with:
           mode: cli
 
-      # sfw: every package-manager install is wrapped, so a malicious
-      # package cannot land through the install itself.
+      # sfw wraps every install: a malicious package cannot land through
+      # the install itself. The wrap is the habit, not the exception.
       - name: Install
         run: sfw pnpm install --frozen-lockfile
+      # ── end setup-and-install ─────────────────────────────────────────
 
-      # soak-time + practice gate: enforces the 7-day minimum release age
-      # and the workflow/sfw practices on every run.
+      # Policy before product work: soak-time (7-day minimum release age)
+      # plus the workflow/sfw practice gate. doctor exits 1 on a violation.
       - name: Doctor
         run: socket doctor
 
+      # Fleet form: uses: ./.github/actions/fleet/run-script
+      # (the shared script runner, one wrapper for every repo's scripts)
       - name: Test
         run: pnpm test
