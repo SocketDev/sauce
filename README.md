@@ -179,6 +179,16 @@ Holistic dependency repair - orchestrate cleanup, replacement, patching, and upg
 
 </details>
 
+### Best practices in practice
+
+The skills pair with the enforcement layer around them: workflows, hooks, and the CLI commands that hold the same rules without an agent present.
+
+- **Soak time** - no dependency younger than 7 days installs. `minimumReleaseAge: 10080` in `pnpm-workspace.yaml`, and `socket doctor` adds or raises it on every run.
+- **sfw** - [`sfw`](https://github.com/SocketDev/sfw-free) wraps the package manager so an install cannot pull a malicious package: `sfw npm install`, `sfw pip install requests`.
+- **socket optimize** - the dependency-tree flows in order: origin fast-forward, pastoralist override audit, `@socketregistry` hardened overrides, dependency update, and the bundle-stub offer when the repo bundles with rolldown, esbuild, or rollup.
+
+The full writeup with config and command examples is in [docs/best-practices.md](docs/best-practices.md). Related projects: [SocketDev/action](https://github.com/SocketDev/action) (Socket in CLI or Firewall mode in CI) and [SocketDev/workflows](https://github.com/SocketDev/workflows) (reusable org workflows carrying these practices).
+
 ## Development
 
 1. Create a new directory under `skills/` with a descriptive name
