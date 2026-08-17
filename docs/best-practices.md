@@ -12,13 +12,14 @@ same rules without one.
 - **[SocketDev/action](https://github.com/SocketDev/action)** - the GitHub
   Action. Runs Socket in CLI mode (scan, report) or Firewall mode (block on
   policy) inside a workflow.
-- **[SocketDev/workflows](https://github.com/SocketDev/workflows)** - reusable
-  workflows for the SocketDev organization. CI that already carries the
-  practices below.
 - **Hooks** - the guard layer that runs beside skills: git hooks and agent
   hooks that block wrong-tooling runs (wrong test runner, wrong package
   manager, unsoaked dependency) before they cost a cycle. Where skills are
   advisory, hooks are the gate.
+
+([SocketDev/workflows](https://github.com/SocketDev/workflows) is the Socket
+Enterprise workflow set, a separate product surface - not part of this
+practices path.)
 
 ## Soak time: the 7-day minimum release age
 
