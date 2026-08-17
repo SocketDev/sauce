@@ -1,0 +1,26 @@
+# Example: socket doctor as a pull-request gate.
+#
+# The smallest useful workflow: doctor exits 1 when a policy breaks
+# (soak-time missing, a bare install anywhere, or no Socket in CI), so the
+# check fails the PR before the practices drift.
+name: doctor-gate
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  doctor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2 (2026-05-15)
+
+      # Doctor itself needs no install to enforce soak-time, but the sfw
+      # wrap is the habit to keep even here.
+      - name: Install
+        run: sfw pnpm install --frozen-lockfile
+
+      - name: Enforce the practices
+        run: socket doctor

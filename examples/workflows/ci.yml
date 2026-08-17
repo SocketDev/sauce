@@ -1,0 +1,40 @@
+# Example: the practices-carrying CI workflow.
+#
+# Shows every practice from docs/best-practices.md in one file:
+# soak-time (socket doctor), sfw-wrapped installs, and socket optimize.
+# It passes the doctor practice gate itself: installs are sfw-wrapped and
+# Socket runs in the workflow.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2 (2026-05-15)
+
+      # Socket in the workflow: the action's CLI mode scans the dependency
+      # tree on every push. Firewall mode blocks installs on policy instead.
+      - uses: SocketDev/action@v1
+        with:
+          mode: cli
+
+      # sfw: every package-manager install is wrapped, so a malicious
+      # package cannot land through the install itself.
+      - name: Install
+        run: sfw pnpm install --frozen-lockfile
+
+      # soak-time + practice gate: enforces the 7-day minimum release age
+      # and the workflow/sfw practices on every run.
+      - name: Doctor
+        run: socket doctor
+
+      - name: Test
+        run: pnpm test

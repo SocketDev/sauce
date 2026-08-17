@@ -91,3 +91,10 @@ $ socket optimize
 The one rule that rides every flow: a version, an override, or a stub is
 applied only after the proof - the lockfile resolves, the suite passes, the
 path is unreachable. Anything else is reported, never written.
+
+## Example workflows
+
+Annotated, drop-in workflows carrying these practices live in
+[examples/workflows/](examples/workflows/README.md): the full practices CI,
+a weekly `socket optimize --pin` cron, and `socket doctor` as a PR gate. Each
+one passes the doctor practice gate itself.

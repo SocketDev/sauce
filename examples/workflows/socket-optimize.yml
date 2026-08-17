@@ -1,0 +1,40 @@
+# Example: weekly socket optimize.
+#
+# A cron cadence keeps the dependency tree current without waiting for a
+# human to notice drift. The flows run in order: origin fast-forward,
+# pastoralist override audit, @socketregistry overrides, dependency update,
+# and the bundle-stub offer when the repo bundles.
+name: socket-optimize
+
+on:
+  schedule:
+    # Weekly, off the hour-mark so the fleet does not land on the API at once.
+    - cron: '37 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2 (2026-05-15)
+        with:
+          # The origin sync fast-forwards from the fetched default branch.
+          fetch-depth: 0
+
+      - name: Install
+        run: sfw pnpm install --frozen-lockfile
+
+      # The full optimize flow. --pin tightens overrides to exact versions.
+      - name: Optimize
+        run: socket optimize --pin
+
+      # Review the result as a PR instead of a silent self-commit, so the
+      # override changes carry a human read before they land.
+      - name: Open the update PR
+        run: gh pr create --fill --title "chore(deps): weekly optimize" --label dependencies
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
