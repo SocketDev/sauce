@@ -61,7 +61,8 @@ sfw uv pip install flask
 In CI, [SocketDev/action](https://github.com/SocketDev/action) runs the same
 firewall in Firewall mode, so the wrap holds for unattended installs too.
 
-## socket optimize: the dependency-tree flows
+<details>
+<summary><b>socket optimize: the dependency-tree flows</b></summary>
 
 `socket optimize` runs the tree-improving flows in order. Each stage is safe
 to skip on its own rules and never blocks the next:
@@ -91,6 +92,8 @@ $ socket optimize
 The one rule that rides every flow: a version, an override, or a stub is
 applied only after the proof - the lockfile resolves, the suite passes, the
 path is unreachable. Anything else is reported, never written.
+
+</details>
 
 ## Example workflows
 

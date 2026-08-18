@@ -6,11 +6,11 @@ annotated with the practice it shows, and each one passes the doctor
 practice gate itself: installs are sfw-wrapped and Socket runs in the
 workflow.
 
-| File | Shows |
-| --- | --- |
-| [ci.yml](ci.yml) | The fleet-shaped CI: the setup-and-install block up front (the fleet's one-composite leg), SocketDev/action, sfw-wrapped install, `socket doctor`, test |
-| [weekly-update.yml](weekly-update.yml) | Fleet cadence naming: weekly `socket optimize --pin` on a Monday cron, result reviewed as a PR |
-| [doctor-gate.yml](doctor-gate.yml) | `socket doctor` as the pull-request gate: exit 1 on any practice violation |
+| File                                   | Shows                                                                                                                                                               |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [ci.yml](ci.yml)                       | The fleet-shaped CI: the setup-and-install block up front, which the fleet ships as one composite leg, SocketDev/action, sfw-wrapped install, `socket doctor`, test |
+| [weekly-update.yml](weekly-update.yml) | Fleet cadence naming: weekly `socket optimize --pin` on a Monday cron, result reviewed as a PR                                                                      |
+| [doctor-gate.yml](doctor-gate.yml)     | `socket doctor` as the pull-request gate: exit 1 on any practice violation                                                                                          |
 
 The fleet conventions on display:
 

@@ -41,6 +41,6 @@ jobs:
       # Review as a PR, never a silent self-commit: the override changes
       # carry a human read before they land on main.
       - name: Open the update PR
-        run: gh pr create --fill --title "chore(deps): weekly optimize" --label dependencies
+        run: 'gh pr create --fill --title "chore(deps): optimize"'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
