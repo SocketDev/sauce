@@ -59,8 +59,8 @@
     "trustPolicy": "no-downgrade"
   },
   "bundle": {
-    "ref": "fleet-pack-d5cde64324ccf3fc85bb41176ec24033b84c43c3",
-    "cascadeSha": "d5cde64324ccf3fc85bb41176ec24033b84c43c3"
+    "ref": "fleet-pack-290569a75ea039daaea31504b944a7fb7a6c9767",
+    "cascadeSha": "290569a75ea039daaea31504b944a7fb7a6c9767"
   },
   "coverage": {
     "include": ["release-kit/**/*.mts", "release-kit/**/*.mjs"],
