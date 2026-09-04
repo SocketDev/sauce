@@ -216,6 +216,7 @@ catalog:
   'ecc-agentshield': 1.4.0
   'npm-run-all2': 9.0.2
 
+  'yaml': 2.9.0
 # Soak time for external-tools updates: minutes a release must have
 # existed before scripts/fleet/external-tools/update.mts will consider it
 # (mirrors pnpm's `minimumReleaseAge` for npm catalog entries). 10080
