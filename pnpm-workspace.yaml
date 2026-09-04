@@ -11,12 +11,11 @@ packages:
 # literal pins.
 catalog:
   '@mdn/browser-compat-data': 8.0.11
-  # agent-ci runs a repo's GitHub Actions workflows locally in Docker so a
-  # change can be validated before it's pushed (see the `agent-ci` skill).
-  # The published package is a self-contained Node CLI (`dist/cli.js`) — no
-  # platform-binary optionalDependencies, despite the monorepo's internal
-  # workspace layout. dtu-github-actions is its GitHub-Actions parser, pinned
-  # explicitly (not left transitive) so its version is uniform fleet-wide.
+  # run-local-ci (bin: local-ci, formerly published as @redwoodjs/agent-ci)
+  # runs a repo's GitHub Actions workflows locally in Docker so a change can
+  # be validated before it's pushed (see the `agent-ci` skill). dtu-github-
+  # actions is its GitHub-Actions parser, pinned explicitly (not left
+  # transitive) so its version is uniform fleet-wide.
   '@ultrathink/acorn.rs.wasm': 0.1.1
   'brace-expansion': 5.0.9
   'dtu-github-actions': 0.18.1
@@ -25,6 +24,7 @@ catalog:
   # the soak window, so it carries a minimumReleaseAgeExclude entry below.
   '@shadscan/cli': 0.16.0
   '@sinclair/typebox': 0.34.52
+  'ecc-agentshield': 1.4.0
   'run-local-ci': 0.18.1
   # typebox 1.x — the unscoped rewrite of @sinclair/typebox. Both names are
   # pinned while the fleet migrates; the 0.x entry is deleted once no member
@@ -108,6 +108,7 @@ catalog:
   # @rolldown/binding-* + @oxc-project/types stay as soak-excluded
   # transitives (consumers depend on `rolldown` only).
   'regjsparser': 0.13.2
+  'rolldown': 1.2.4
   'semver': 7.8.5
   'shell-quote': 1.10.0
   'taze': 21.1.0
@@ -138,7 +139,6 @@ catalog:
   # Use in rolldown.config.mts for any repo with a Rolldown build.
   # published: 2026-05-07 (26 days, past 7-day soak)
   'comptime': 0.1.0
-  'rolldown': 1.2.4
   'rolldown-plugin-dts': 0.28.0
   'svgo': 4.0.2
   'vite': 8.2.0
@@ -213,10 +213,10 @@ catalog:
   #    `"@socketsecurity/lib": "workspace:*"`, pnpm rewrites it to the
   #    pinned npm version instead of a sibling working tree.
   '@typescript/native-preview': 7.0.0-dev.20260415.1
-  'ecc-agentshield': 1.4.0
   'npm-run-all2': 9.0.2
 
   'yaml': 2.9.0
+
 # Soak time for external-tools updates: minutes a release must have
 # existed before scripts/fleet/external-tools/update.mts will consider it
 # (mirrors pnpm's `minimumReleaseAge` for npm catalog entries). 10080
@@ -271,30 +271,14 @@ minimumReleaseAgeExclude:
   # npm freshpub typosquats, not a first-party oxc release.
   - '@sdxgen/*'
   - 'sdxgen'
-  # vite 8.1.0 — dev dep (vitest's bundler). 8.1 adds experimental.bundledDev
-  # (NOT adopted — experimental, and the fleet runs stable-only). Published
-  # within the 7-day soak; exact-pinned so a future 8.1.1 still soaks.
-  # taze 19.16.0 — the dep updater itself; forced ahead of the soak by owner
-  # directive so the regenerated single-registry patch (patchedDependencies)
-  # tracks the current release. Exact-pinned so a future version re-soaks.
-  # shadscan 0.2.0 — deterministic UI audits for shadcn apps, used by the
-  # design skills; forced ahead of the soak by owner directive. Exact-pinned
-  # so a future version re-soaks.
-  # verkit — new dev-only transitive of taze 19.16.0 (same owner directive);
-  # exact-pinned so future versions re-soak.
-  # js-yaml 5.2.2 — HIGH security fix, GHSA-pm4m-ph32-ghv5: exponential parse
-  # time in flow collections. The canonical overrides entry forces it past
-  # markdownlint-cli2 0.23.1's vulnerable 5.2.1 exact-pin. Soak bypassed per
-  # the high-severity security exception; exact-pinned so a future version
-  # re-soaks.
-  - '@abitious/*'
-  - '@decmpfs/*'
-  - '@node-smol/*'
-  - 'sockeye'
   # published: 2026-08-21 | removable: 2026-08-28
   - 'dtu-github-actions@0.18.1'
   # published: 2026-08-21 | removable: 2026-08-28
   - 'run-local-ci@0.18.1'
+  - '@abitious/*'
+  - '@decmpfs/*'
+  - '@node-smol/*'
+  - 'sockeye'
 
 # Refuse transitive (sub-) deps declared via git/tarball/local-tarball
 # specs. Direct git deps in this repo are still allowed; this only
@@ -535,3 +519,20 @@ patchedDependencies:
   # the relative path inside lib itself. Rides the @socketsecurity/lib catalog
   # pin: on a bump, regenerate via `pnpm patch @socketsecurity/lib` + `pnpm patch-commit`.
   '@socketsecurity/lib@6.7.0': patches/@socketsecurity__lib@6.7.0.patch
+
+# Proceed with a node_modules purge WITHOUT an interactive confirm. The fleet
+# runs pnpm non-interactively everywhere (skills, scripts, hooks, agents, CI) —
+# no TTY. pnpm's default ABORTS a purge for lack of a TTY
+# (ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY), wedging any commit whose
+# pre-commit re-checks deps after a workspace/.npmrc change. Purging
+# node_modules is safe (gitignored + regenerable). Unlike CI=true this does NOT
+# force a frozen lockfile; CI keeps owning frozen-vs-update policy.
+confirmModulesPurge: false
+
+# Opt out of pnpm's packageManager-version self-check. CI installs pnpm from
+# its native bin via the shared setup workflow, not corepack, so the runner's
+# pnpm legitimately differs from the `packageManager` pin (which is
+# informational, not a version to enforce). Without this, pnpm hard-fails
+# ("This project is configured to use <pin> ... your current pnpm is <run>")
+# the moment the runner's pnpm differs from the pin.
+managePackageManagerVersions: false
