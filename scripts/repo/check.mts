@@ -15,7 +15,7 @@
 
 import process from 'node:process'
 
-import { spawnSync } from '@socketsecurity/lib/process/spawn/child'
+import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 
 const args = process.argv.slice(2)
 const forwardedArgs = args.filter(

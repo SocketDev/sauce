@@ -7,7 +7,7 @@
  *   and `error` (manifest is broken). Exit codes map 0 / 2 / 1 respectively.
  */
 
-import type { LockstepManifest, PortStatus } from './schema.mts'
+import type { LangParityRow, LockstepManifest } from './schema.mts'
 
 export type Manifest = LockstepManifest
 
@@ -70,7 +70,7 @@ export interface SpecConformanceReport extends ReportBase {
 export interface LangParityReport extends ReportBase {
   kind: 'lang-parity'
   category: string
-  ports: Record<string, PortStatus>
+  ports: LangParityRow['ports']
 }
 
 export type Report =

@@ -14,7 +14,7 @@ import { readFileSync } from 'node:fs'
 import * as path from 'node:path'
 import process from 'node:process'
 
-import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import {
   lawfulLaunchOptions,

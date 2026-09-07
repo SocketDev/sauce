@@ -14,7 +14,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import * as path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import {
   collectSkills,
   validateMarketplace,

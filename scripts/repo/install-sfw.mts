@@ -86,7 +86,7 @@ interface ToolEntry {
 }
 
 interface ExternalToolsFile {
-  tools: Record<string, ToolEntry>
+  tools: Partial<Record<'sfw-free' | 'sfw-enterprise', ToolEntry>>
 }
 
 export function detectPlatform(): string {

@@ -13,7 +13,7 @@ import { readdirSync, readFileSync } from 'node:fs'
 import * as path from 'node:path'
 import process from 'node:process'
 
-import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import { PAYLOAD_ROOT } from '../../../release-kit/install/seams.mts'
 import { isMainModule } from '../../fleet/_shared/is-main-module.mts'

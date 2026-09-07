@@ -77,33 +77,26 @@ export function loadManifestTree(rootManifestPath: string): {
     areas.push({ area, manifest: sub })
   }
 
-  // Null-prototype maps guard against prototype pollution via untrusted
-  // manifest keys. Double-cast through `unknown` so the
-  // `exactOptionalPropertyTypes + noUncheckedIndexedAccess` strict
-  // tsconfig in some repos accepts the `__proto__` sigil.
-  /* eslint-disable typescript/no-unsafe-type-assertion -- `__proto__: null`
-     sigil needs the double cast under strict tsconfig; see file header. */
-  const mergedUpstreams: Record<string, Upstream> = {
-    __proto__: null,
-  } as unknown as Record<string, Upstream>
-  const mergedSites: Record<string, Site> = {
-    __proto__: null,
-  } as unknown as Record<string, Site>
-  /* eslint-enable typescript/no-unsafe-type-assertion */
+  const upstreamEntries = new Map<string, Upstream>()
+  const siteEntries = new Map<string, Site>()
 
   const mergedRows: Row[] = []
   // Include order, root last so it wins on duplicate keys.
   for (const { manifest } of [...areas.slice(1), ...areas.slice(0, 1)]) {
     for (const [k, v] of Object.entries(manifest.upstreams ?? {})) {
-      mergedUpstreams[k] = v
+      upstreamEntries.set(k, v)
     }
     for (const [k, v] of Object.entries(manifest.sites ?? {})) {
-      mergedSites[k] = v
+      siteEntries.set(k, v)
     }
   }
   for (const { manifest } of areas) {
     mergedRows.push(...manifest.rows)
   }
+  const mergedUpstreams = Object.fromEntries(upstreamEntries)
+  const mergedSites = Object.fromEntries(siteEntries)
+  Object.setPrototypeOf(mergedUpstreams, null)
+  Object.setPrototypeOf(mergedSites, null)
   return {
     areas,
     merged: {

@@ -56,7 +56,7 @@ function readJanusEntry(): ToolEntry {
   // the janus entry is validated right below.
   // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
   const raw = JSON.parse(readFileSync(configPath, 'utf8')) as {
-    tools?: Record<string, ToolEntry> | undefined
+    tools?: { janus?: ToolEntry | undefined } | undefined
   }
   const entry = raw.tools?.['janus']
   if (!entry) {
@@ -109,7 +109,7 @@ async function main(): Promise<void> {
     })
     process.exitCode = result.code ?? 1
   } catch (e) {
-    if (e && typeof e === 'object' && 'code' in e) {
+    if (e !== null && typeof e === 'object' && 'code' in e) {
       const code = e.code
       process.exitCode = typeof code === 'number' ? code : 1
       return

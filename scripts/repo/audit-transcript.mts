@@ -115,7 +115,7 @@ function findInvocations(
   const segments: string[][] = [[]]
   for (let i = 0, { length } = entries; i < length; i += 1) {
     const entry = entries[i]
-    if (entry && typeof entry === 'object' && 'op' in entry) {
+    if (entry !== null && typeof entry === 'object' && 'op' in entry) {
       segments.push([])
       continue
     }

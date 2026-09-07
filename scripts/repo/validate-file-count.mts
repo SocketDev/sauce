@@ -13,9 +13,9 @@ import path from 'node:path'
 import process from 'node:process'
 import { promisify } from 'node:util'
 
-import { errorMessage } from '@socketsecurity/lib/errors/message'
-import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
-import { findUpPackageJson } from '@socketsecurity/lib/packages/find'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { findUpPackageJson } from '@socketsecurity/lib-stable/packages/find'
 import { isMainModule } from '../fleet/_shared/is-main-module.mts'
 
 const logger = getDefaultLogger()

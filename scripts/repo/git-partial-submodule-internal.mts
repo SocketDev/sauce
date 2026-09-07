@@ -2,7 +2,7 @@
  * @file Git + `.gitmodules` primitives backing `git-partial-submodule.mts`'s
  *   4 subcommands. Split out of the CLI entry to keep each file under the
  *   500-line soft cap — the CLI dispatch, the parsing, and these primitives
- *   are natural seams with no other consumer.
+ *   are natural interfaces with no other consumer.
  */
 
 import { existsSync, promises as fs } from 'node:fs'
