@@ -38,7 +38,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { parseArgs } from 'node:util'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
-import { isMainModule } from '../fleet/_shared/is-main-module.mts'
+import { isMainModule } from '../fleet/process/is-main-module.mts'
 
 const CONFIG_PATH = '.config/lock-step-refs.json'
 const SKIP_DIRS = new Set([

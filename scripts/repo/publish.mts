@@ -16,7 +16,7 @@ import { fileURLToPath } from 'node:url'
 
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
-import { isMainModule } from '../fleet/_shared/is-main-module.mts'
+import { isMainModule } from '../fleet/process/is-main-module.mts'
 
 const rootPath = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),

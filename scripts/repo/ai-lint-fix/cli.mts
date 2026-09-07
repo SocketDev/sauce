@@ -50,7 +50,7 @@ import {
   TIER_EFFORT,
   TIER_MODEL,
 } from './rule-guidance.mts'
-import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
+import { isMainModule } from '../../fleet/process/is-main-module.mts'
 
 const logger = getDefaultLogger()
 

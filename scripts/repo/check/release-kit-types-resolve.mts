@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
-import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
+import { isMainModule } from '../../fleet/process/is-main-module.mts'
 
 const logger = getDefaultLogger()
 const REPO_ROOT = path.resolve(

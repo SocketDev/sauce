@@ -20,7 +20,7 @@ import {
   validateMarketplace,
 } from './lib/validate-marketplace.mts'
 import type { Skill } from './lib/validate-marketplace.mts'
-import { isMainModule } from '../fleet/_shared/is-main-module.mts'
+import { isMainModule } from '../fleet/process/is-main-module.mts'
 
 const logger = getDefaultLogger()
 

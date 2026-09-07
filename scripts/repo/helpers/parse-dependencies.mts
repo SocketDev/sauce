@@ -12,7 +12,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import * as path from 'node:path'
 
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
-import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
+import { isMainModule } from '../../fleet/process/is-main-module.mts'
 
 interface Dependency {
   name: string

@@ -17,7 +17,7 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
-import { isMainModule } from '../fleet/_shared/is-main-module.mts'
+import { isMainModule } from '../fleet/process/is-main-module.mts'
 
 const rootPath = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),

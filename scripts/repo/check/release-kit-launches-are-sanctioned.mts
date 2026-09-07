@@ -24,7 +24,7 @@ import {
   PAYLOAD_ROOT,
   walkPayload,
 } from '../../../release-kit/install/seams.mts'
-import { isMainModule } from '../../fleet/_shared/is-main-module.mts'
+import { isMainModule } from '../../fleet/process/is-main-module.mts'
 
 const logger = getDefaultLogger()
 

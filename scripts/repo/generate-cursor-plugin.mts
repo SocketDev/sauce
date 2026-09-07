@@ -20,7 +20,7 @@ import {
 import * as path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
-import { isMainModule } from '../fleet/_shared/is-main-module.mts'
+import { isMainModule } from '../fleet/process/is-main-module.mts'
 import { parseFrontmatter } from './lib/frontmatter.mts'
 
 const logger = getDefaultLogger()

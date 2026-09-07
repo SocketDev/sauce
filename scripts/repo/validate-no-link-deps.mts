@@ -10,7 +10,7 @@ import process from 'node:process'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { findUpPackageJson } from '@socketsecurity/lib-stable/packages/find'
-import { isMainModule } from '../fleet/_shared/is-main-module.mts'
+import { isMainModule } from '../fleet/process/is-main-module.mts'
 
 const logger = getDefaultLogger()
 
