@@ -1,3 +1,4 @@
+import assert from 'node:assert/strict'
 // Specs for scripts/repo/check-lock-step-refs.mts.
 //
 // The script is the CI-gate side of the Lock-step convention. It walks
@@ -200,10 +201,10 @@ it('--json emits machine-readable findings', () => {
   const { exitCode, stdout } = runGate(repo, ['--json'])
   expect(exitCode).toBe(1)
   const parsed: unknown = JSON.parse(stdout)
-  expect(Array.isArray(parsed)).toBeTruthy()
+  assert.ok(Array.isArray(parsed))
   expect(parsed.length).toBe(1)
   const first: unknown = parsed[0]
-  expect(isObject(first)).toBeTruthy()
+  assert.ok(isObject(first))
   expect(first['lang']).toBe('Rust')
   expect(first['reason']).toBe('path-not-found')
   safeDeleteSync(repo)

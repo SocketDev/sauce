@@ -91,7 +91,7 @@ it('findForeignInstall finds plugin under non-canonical marketplace', () => {
   ]
   const got = findForeignInstall('codex', plugins, OUR)
   expect(got).toBeTruthy()
-  expect(got.id).toBe('codex@openai-codex')
+  expect(got?.id).toBe('codex@openai-codex')
 })
 
 it('findForeignInstall returns undefined when plugin is under our marketplace', () => {

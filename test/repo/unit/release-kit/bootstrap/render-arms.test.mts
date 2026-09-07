@@ -74,6 +74,7 @@ describe('renderStepHuman rich output', () => {
   it('renders the failed mark, failing check with fix, effects, and gate lines', () => {
     const outcome: StepOutcomeJson = {
       already: true,
+      durationMs: 0,
       checks: [
         { fix: 'do z', id: 'c1', ok: false, saw: 'x', wanted: 'y' },
         { fix: null, id: 'c2', ok: true, saw: '', wanted: '' },
@@ -81,7 +82,7 @@ describe('renderStepHuman rich output', () => {
       detail: 'boom',
       effects: [
         { applied: true, description: 'published', kind: 'registry-publish' },
-        { applied: false, description: 'would tag', kind: 'git-tag' },
+        { applied: false, description: 'would tag', kind: 'exec' },
       ],
       gate: { lines: ['GATE line 1', 'GATE line 2'], name: 'human-gate' },
       status: 'failed',
@@ -94,7 +95,7 @@ describe('renderStepHuman rich output', () => {
     expect(
       lines.some(l => l.includes('did [registry-publish] published')),
     ).toBe(true)
-    expect(lines.some(l => l.includes('would [git-tag] would tag'))).toBe(true)
+    expect(lines.some(l => l.includes('would [exec] would tag'))).toBe(true)
     expect(lines).toContain('GATE line 1')
     expect(lines.some(l => l.includes('c2'))).toBe(false)
   })
@@ -102,6 +103,7 @@ describe('renderStepHuman rich output', () => {
   it('renders the neutral mark for a skipped step', () => {
     const outcome: StepOutcomeJson = {
       already: false,
+      durationMs: 0,
       checks: [],
       detail: 'nothing to do',
       effects: [],

@@ -1,3 +1,4 @@
+import assert from 'node:assert/strict'
 // Specs for scripts/repo/check-lock-step-header.mts.
 //
 // The header gate is the §7 companion to §5–6 path-refs gate. Where
@@ -190,10 +191,10 @@ it('--json emits machine-readable diffs', () => {
   const { exitCode, stdout } = runGate(repo, ['--json'])
   expect(exitCode).toBe(1)
   const parsed: unknown = JSON.parse(stdout)
-  expect(Array.isArray(parsed)).toBeTruthy()
+  assert.ok(Array.isArray(parsed))
   expect(parsed.length).toBe(1)
   const first: unknown = parsed[0]
-  expect(isObject(first)).toBeTruthy()
+  assert.ok(isObject(first))
   expect(first['lang']).toBe('Go')
   expect(first['reason']).toBe('body-mismatch')
   safeDeleteSync(repo)
