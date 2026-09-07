@@ -12,7 +12,7 @@ name: 📦 Publish to Claude Code marketplace
 #   2. Verifies the regen produced no drift. If anything changed, the
 #      workflow fails — the dispatcher's job is to merge a PR that
 #      runs `pnpm run generate` first, *then* dispatch this workflow.
-#   3. Reads the version from package.json + .claude-plugin/marketplace.json.
+#   3. Reads the version from the plugin manifest and marketplace metadata.
 #   4. Creates a git tag (`v<version>`) on the current main commit.
 #   5. Creates a GitHub release with the tag, marketplace.json's
 #      description as the body, and the .claude-plugin/ tree attached
@@ -91,22 +91,22 @@ jobs:
       - name: Read version
         id: version
         run: |
-          PKG_VERSION=$(node -p "require('./package.json').version")
+          PLUGIN_VERSION=$(node -p "require('./.claude-plugin/plugin.json').version")
           MKT_VERSION=$(node -p "require('./.claude-plugin/marketplace.json').metadata.version")
-          if [ "$PKG_VERSION" != "$MKT_VERSION" ]; then
-            echo "::error::package.json version ($PKG_VERSION) != marketplace.json version ($MKT_VERSION). Run pnpm run generate."
+          if [ "$PLUGIN_VERSION" != "$MKT_VERSION" ]; then
+            echo "::error::plugin.json version ($PLUGIN_VERSION) != marketplace.json version ($MKT_VERSION). Run pnpm run generate."
             exit 1
           fi
-          echo "version=$PKG_VERSION" >> "$GITHUB_OUTPUT"
-          echo "tag=v$PKG_VERSION" >> "$GITHUB_OUTPUT"
-          echo "Resolved version: $PKG_VERSION"
+          echo "version=$PLUGIN_VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$PLUGIN_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Resolved version: $PLUGIN_VERSION"
 
       - name: Check tag is unused
         env:
           TAG: ${{ steps.version.outputs.tag }}
         run: |
           if git rev-parse --verify "refs/tags/${TAG}" >/dev/null 2>&1; then
-            echo "::error::Tag ${TAG} already exists. Bump the version in package.json + marketplace.json before publishing."
+            echo "::error::Tag ${TAG} already exists. Set the requested version in .claude-plugin/plugin.json and run pnpm run generate before publishing."
             exit 1
           fi
 

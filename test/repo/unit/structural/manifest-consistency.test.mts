@@ -44,6 +44,10 @@ describe('Manifest Consistency', () => {
      missing field, which is exactly this suite's job. */
   const marketplace = loadJSON('.claude-plugin/marketplace.json') as Marketplace
   const packageJson = loadJSON('package.json') as {
+    private: boolean
+    version: string
+  }
+  const pluginJson = loadJSON('.claude-plugin/plugin.json') as {
     version: string
   }
   const geminiJson = loadJSON('gemini-extension.json') as {
@@ -105,27 +109,28 @@ describe('Manifest Consistency', () => {
   })
 
   describe('Version consistency', () => {
-    it('marketplace.json version matches package.json', () => {
-      expect(marketplace.metadata.version).toBe(packageJson.version)
+    it('keeps the tooling package private and unversioned', () => {
+      expect(packageJson.private).toBe(true)
+      expect(packageJson.version).toBe('0.0.0')
     })
 
-    it('gemini-extension.json version matches package.json', () => {
-      expect(geminiJson.version).toBe(packageJson.version)
+    it('marketplace.json version matches the plugin manifest', () => {
+      expect(marketplace.metadata.version).toBe(pluginJson.version)
+    })
+
+    it('gemini-extension.json version matches the plugin manifest', () => {
+      expect(geminiJson.version).toBe(pluginJson.version)
     })
 
     it('all manifest versions are in sync', () => {
       /* eslint-disable typescript/no-unsafe-type-assertion -- same rationale
          as the suite-level manifests above. */
-      const pluginJson = loadJSON('.claude-plugin/plugin.json') as {
-        version: string
-      }
       const cursorJson = loadJSON('.cursor-plugin/plugin.json') as {
         version: string
       }
       /* eslint-enable typescript/no-unsafe-type-assertion */
 
       const versions = {
-        'package.json': packageJson.version,
         'marketplace.json': marketplace.metadata.version,
         'gemini-extension.json': geminiJson.version,
         'plugin.json': pluginJson.version,
