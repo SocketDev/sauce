@@ -157,7 +157,7 @@ export function parseKitManifest(raw: string, where: string): KitManifest {
     )
   }
   const doc =
-    parsed && typeof parsed === 'object'
+    parsed !== null && typeof parsed === 'object'
       ? (parsed as {
           files?: unknown | undefined
           kitVersion?: unknown | undefined
@@ -190,7 +190,7 @@ export function parseKitManifest(raw: string, where: string): KitManifest {
   for (let i = 0, { length } = doc.files; i < length; i += 1) {
     const entry: unknown = doc.files[i]
     const f =
-      entry && typeof entry === 'object'
+      entry !== null && typeof entry === 'object'
         ? (entry as {
             channels?: unknown | undefined
             path?: unknown | undefined

@@ -56,9 +56,6 @@ export function readTargetShas(
   return map
 }
 
-/**
- * The real installer seams against a payload root.
- */
 export function resolveInstallSeams(
   payloadRoot: string = PAYLOAD_ROOT,
 ): InstallSeams {
