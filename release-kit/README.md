@@ -24,7 +24,7 @@ prompt.
 
 ## Install
 
-```
+```bash
 node release-kit/install.mts --target <repo> --channels npm,github-release          # plan
 node release-kit/install.mts --target <repo> --channels npm,github-release --apply  # copy
 node release-kit/install.mts --target <repo> --channels npm,github-release --verify # byte-parity
@@ -32,7 +32,7 @@ node release-kit/install.mts --target <repo> --channels npm,github-release --ver
 
 The payload imports plain specifiers, so consumers pin three devDependencies:
 
-```
+```bash
 pnpm add -D @socketsecurity/lib@6.5.2 @socketsecurity/sdk@4.1.3 playwright-core@1.61.1
 ```
 
@@ -45,7 +45,7 @@ pins the post-format bytes).
 
 ## Bootstrap
 
-```
+```bash
 node scripts/socket-release/bootstrap.mts            # plan everything (dry-run default)
 node scripts/socket-release/bootstrap.mts --apply    # stand it up
 node scripts/socket-release/bootstrap.mts --status   # receipts table
@@ -114,37 +114,37 @@ The seven steps below include every human gate the flow renders.
 3. `node scripts/socket-release/bootstrap.mts --apply` - it stops at the
    reserve gate:
 
-```
-🖐  HUMAN GATE — reserve name [1/1]
-  Need: @example/pkg is unclaimed on npm; reserving it publishes a real 0.0.0 placeholder (access restricted).
-  Mind: publishing @example/pkg@0.0.0 is irreversible — the version is burned forever and unpublish closes after 72h — so no default run performs it; --reserve must name the exact package.
-  A) You: run `node scripts/socket-release/bootstrap.mts placeholder --apply --reserve @example/pkg` yourself.
-  B) Me: say "reserve the name" and I run `node scripts/socket-release/bootstrap.mts placeholder --apply --reserve @example/pkg` through its PTY — npm's web-2FA opens in your browser, I wait.
-  Then: the bootstrap resumes at placeholder.
-```
+   ```text
+   🖐  HUMAN GATE — reserve name [1/1]
+     Need: @example/pkg is unclaimed on npm; reserving it publishes a real 0.0.0 placeholder (access restricted).
+     Mind: publishing @example/pkg@0.0.0 is irreversible — the version is burned forever and unpublish closes after 72h — so no default run performs it; --reserve must name the exact package.
+     A) You: run `node scripts/socket-release/bootstrap.mts placeholder --apply --reserve @example/pkg` yourself.
+     B) Me: say "reserve the name" and I run `node scripts/socket-release/bootstrap.mts placeholder --apply --reserve @example/pkg` through its PTY — npm's web-2FA opens in your browser, I wait.
+     Then: the bootstrap resumes at placeholder.
+   ```
 
 4. During the publish the PTY surfaces npm's web-2FA:
 
-```
-🖐  HUMAN GATE — web-auth approve [1/1]
-  Need: the placeholder publish is waiting on npm's web-2FA approval in your browser.
-  Mind: npm's web-2FA URLs are single-use and short-lived; the waiting command must stay alive through the approval — killing it voids the URL.
-  A) You: open the APPROVE HERE url printed above in your browser and approve (expires in minutes) — tick the cooldown box so follow-up writes ride the same window.
-  B) Me: nothing extra to run — the PTY already holds the flow; tell me when the browser approval is done and I keep waiting for the exit.
-  Then: the publish completes and the bootstrap continues.
-```
+   ```text
+   🖐  HUMAN GATE — web-auth approve [1/1]
+     Need: the placeholder publish is waiting on npm's web-2FA approval in your browser.
+     Mind: npm's web-2FA URLs are single-use and short-lived; the waiting command must stay alive through the approval — killing it voids the URL.
+     A) You: open the APPROVE HERE url printed above in your browser and approve (expires in minutes) — tick the cooldown box so follow-up writes ride the same window.
+     B) Me: nothing extra to run — the PTY already holds the flow; tell me when the browser approval is done and I keep waiting for the exit.
+     Then: the publish completes and the bootstrap continues.
+   ```
 
 5. On a staging-enabled account the placeholder lands STAGED and the run
    blocks on the promote gate:
 
-```
-🖐  HUMAN GATE — placeholder promote [1/1]
-  Need: @example/pkg@0.0.0 is staged (stage-0001) and waiting on promotion before the name resolves as live.
-  Mind: staged entries are maintainer-visible only — an unauthenticated or wrong-account stage list reads as EMPTY, not as an error; the approve pipeline identity-checks first.
-  A) You: run `node scripts/socket-release/npm-publish.mts --approve` — it promotes staged entry stage-0001 and prompts your 2FA.
-  B) Me: say "promote the placeholder" and I run `node scripts/socket-release/npm-publish.mts --approve` through its PTY — the 2FA challenge opens in your browser, I wait.
-  Then: the bootstrap resumes at placeholder.
-```
+   ```text
+   🖐  HUMAN GATE — placeholder promote [1/1]
+     Need: @example/pkg@0.0.0 is staged (stage-0001) and waiting on promotion before the name resolves as live.
+     Mind: staged entries are maintainer-visible only — an unauthenticated or wrong-account stage list reads as EMPTY, not as an error; the approve pipeline identity-checks first.
+     A) You: run `node scripts/socket-release/npm-publish.mts --approve` — it promotes staged entry stage-0001 and prompts your 2FA.
+     B) Me: say "promote the placeholder" and I run `node scripts/socket-release/npm-publish.mts --approve` through its PTY — the 2FA challenge opens in your browser, I wait.
+     Then: the bootstrap resumes at placeholder.
+   ```
 
 6. Re-run `bootstrap.mts --apply` until `verify` reports stood-up. Commit
    the staged-config writes and push.
@@ -158,7 +158,7 @@ The seven steps below include every human gate the flow renders.
 
 If npm auth ever dies mid-flow, the gate is always the same:
 
-```
+```text
 🖐  HUMAN GATE — npm auth [1/1]
   Need: the local npm token is missing or expired (`npm whoami` → 401).
   Mind: raw `npm login` dies without a TTY (legacy Username prompt EOFs) and bare `npm` fails in-repo (devEngines pins pnpm); the router carries both limitations so neither lane can hit them.
@@ -266,7 +266,7 @@ push, then dispatch the publish workflow.
 
 ## Layout
 
-```
+```text
 release-kit/
 ├── README.md                 this file
 ├── gen-manifest.mts          (re)generate kit-manifest.json; --check

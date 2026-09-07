@@ -8,7 +8,7 @@ integration suite re-derives it on every run so the mapping cannot drift.
 
 Try it against a scratch copy:
 
-```
+```bash
 cp -R release-kit/examples/npm-lib /tmp/npm-lib
 node release-kit/install.mts --target /tmp/npm-lib --channels npm,github-release --apply
 node release-kit/install.mts --target /tmp/npm-lib --channels npm,github-release --verify

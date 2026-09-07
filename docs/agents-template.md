@@ -6,9 +6,9 @@ You have additional SKILLs documented in directories containing a "SKILL.md" fil
 
 | Skill       | Description     |
 | ----------- | --------------- |
-| {{#skills}} |
+| {{#skills}} |                 |
 | {{name}}    | {{description}} |
-| {{/skills}} |
+| {{/skills}} |                 |
 
 ## Usage
 

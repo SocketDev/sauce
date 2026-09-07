@@ -17,7 +17,7 @@ is the only path. Dry-run is every command's default.
 
 ## One-time bootstrap
 
-```
+```bash
 node scripts/socket-release/bootstrap.mts            # plan
 node scripts/socket-release/bootstrap.mts --apply    # stand up, stops at gates
 node scripts/socket-release/bootstrap.mts --status   # receipts
@@ -76,7 +76,7 @@ An already-tagged version that never published: a backfill never moves the
 Dispatch the workflow with `backfill-version: X.Y.Z` + `checkout-ref: vX.Y.Z`
 \+ `dist-tag: backfill` (any non-`latest` tag), or locally
 
-```
+```bash
 node scripts/socket-release/npm-publish.mts --staged --backfill X.Y.Z --checkout-ref vX.Y.Z --tag backfill --dry-run
 ```
 
@@ -88,7 +88,7 @@ Drop `--dry-run` only after the plan reads clean; promotion is the same
 npm publishes are permanent (unpublish closes at 72h and burns nothing
 back). Roll back by deprecating the bad version and shipping a fixed one:
 
-```
+```bash
 npm deprecate <name>@<bad-version> "broken — use <fixed-version>"
 ```
 

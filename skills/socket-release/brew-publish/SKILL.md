@@ -19,7 +19,7 @@ hashes an asset itself; the manifest is the authority.
 The tap repo (`SocketDev/homebrew-socket`) carries an unsharded `Formula/`
 dir plus a README documenting tap trust:
 
-```
+```bash
 export HOMEBREW_REQUIRE_TAP_TRUST=1
 brew trust SocketDev/socket
 ```
@@ -34,7 +34,7 @@ Prerequisite: the release is CUT - tag on origin, release published (not
 draft), all four platform assets uploaded, `checksums.txt` attached (the
 github-release flow produces all of this).
 
-```
+```bash
 node scripts/socket-release/brew-publish.mts --tag vX.Y.Z            # dry-run plan
 node scripts/socket-release/brew-publish.mts --tag vX.Y.Z --apply    # commit the bump
 ```
@@ -42,7 +42,7 @@ node scripts/socket-release/brew-publish.mts --tag vX.Y.Z --apply    # commit th
 The tool refuses, in order, with exit 1 and zero writes: a tag not on
 origin (it never creates tags), a draft/missing release, a missing
 templated asset, a missing/incomplete `checksums.txt`. An identical formula
-is a no-op ("already reads <version>", exit 0). `--apply` commits the
+is a no-op (`already reads <version>`, exit 0). `--apply` commits the
 formula DIRECT to the tap default branch with a GitHub-signed API commit
 (never a PR - the version-bump-PR shape is guard-blocked), then re-reads
 the tap: the committed bytes must parse back to the desired formula, or it
@@ -59,7 +59,7 @@ them as missing setup or a human task.
 The formula's four sha256s come from `checksums.txt` - verify the chain,
 never re-hash locally as authority:
 
-```
+```bash
 gh release download vX.Y.Z --pattern checksums.txt --output -
 ```
 

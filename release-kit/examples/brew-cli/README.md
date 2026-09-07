@@ -10,7 +10,7 @@ come from this manifest - brew-publish never re-hashes an asset.
 
 Tap consumers run once:
 
-```
+```bash
 export HOMEBREW_REQUIRE_TAP_TRUST=1
 brew trust SocketDev/socket
 ```

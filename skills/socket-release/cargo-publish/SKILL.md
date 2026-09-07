@@ -18,7 +18,7 @@ Publishing (OIDC - no long-lived token anywhere).
 The same bootstrap stands up the `cargo-publish` environment
 (branch-restricted) and installs `cargo-publish.yml`:
 
-```
+```bash
 node scripts/socket-release/bootstrap.mts github-env staged-config --apply
 ```
 
@@ -33,7 +33,7 @@ improvise a browser drive.
    `chore: bump version to <version>`, push.
 2. Dry-run locally:
 
-   ```
+   ```bash
    node scripts/socket-release/cargo-publish.mts --staged --dry-run
    ```
 
@@ -61,7 +61,7 @@ rather than guessing).
 
 ## Rollback = yank
 
-```
+```bash
 cargo yank --version X.Y.Z            # from the crate root, operator auth
 cargo yank --version X.Y.Z --undo
 ```

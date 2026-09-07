@@ -31,7 +31,7 @@ edit --draft=false` — and writes a `checksums.txt` manifest (sha1 + sha256 +
 sha512) alongside the tarball, so the GitHub-release digest stays directly
 comparable to the npm published shasum:
 
-```
+```bash
 node scripts/socket-release/github-release.mts --tag vX.Y.Z --release
 ```
 
@@ -46,7 +46,7 @@ or GitHub release missing. Re-running `--approve` does NOT heal it (the
 approve leg drops already-published versions before the tag step). The
 healer is:
 
-```
+```bash
 node scripts/socket-release/github-release.mts --tag vX.Y.Z             # dry-run: confirms liveness
 node scripts/socket-release/github-release.mts --tag vX.Y.Z --release   # cuts tag + release
 ```

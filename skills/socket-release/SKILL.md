@@ -41,7 +41,7 @@ actual publish.
 
 1. **Get the kit source.** Shallow-clone sauce to the canonical clone home:
 
-   ```
+   ```bash
    git clone --depth=1 --single-branch https://github.com/SocketDev/sauce.git ~/.socket/_wheelhouse/repo-clones/SocketDev-sauce
    ```
 
@@ -50,7 +50,7 @@ actual publish.
 2. **Install the kit.** Plan first, then apply with the channels this repo
    publishes on (`npm`, `crates`, `github-release`, `brew`):
 
-   ```
+   ```bash
    node ~/.socket/_wheelhouse/repo-clones/SocketDev-sauce/release-kit/install.mts --target . --channels npm,github-release
    node ~/.socket/_wheelhouse/repo-clones/SocketDev-sauce/release-kit/install.mts --target . --channels npm,github-release --apply
    ```
@@ -60,7 +60,7 @@ actual publish.
 3. **Pin the kit dependencies.** The payload imports plain specifiers; add
    the exact pins:
 
-   ```
+   ```bash
    pnpm add -D @socketsecurity/lib@6.5.2 @socketsecurity/sdk@4.1.3 playwright-core@1.61.1
    ```
 
@@ -69,7 +69,7 @@ actual publish.
 
 4. **Bootstrap.** Run the plan, then follow `nextCommand` and the gates:
 
-   ```
+   ```bash
    node scripts/socket-release/bootstrap.mts
    node scripts/socket-release/bootstrap.mts --apply
    ```
