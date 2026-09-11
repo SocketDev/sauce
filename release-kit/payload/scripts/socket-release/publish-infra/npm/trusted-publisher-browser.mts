@@ -43,8 +43,6 @@
  *     [--profile-dir <dir>]
  */
 
-import { promises as fs } from 'node:fs'
-import path from 'node:path'
 import process from 'node:process'
 
 import type { Page } from 'playwright-core'
@@ -145,39 +143,22 @@ export async function applyOne(
 }
 
 /**
- * Expand `--socket-registry` into every published @socketregistry/* package:
- * socket-registry's own `registry/manifest.json`, read from a sibling
- * checkout when one exists, else through `gh api`. Throws LOUD when neither
- * source yields a manifest — a silent empty expansion would no-op the sweep.
+ * Read the published registry manifest through the authenticated GitHub CLI.
  */
 export async function expandSocketRegistryWorklist(): Promise<string[]> {
-  const localDir =
-    process.env['SOCKET_REGISTRY_DIR'] ||
-    path.resolve(rootPath, '..', 'socket-registry')
-  const localManifest = path.join(localDir, 'registry', 'manifest.json')
-  let body: string | undefined
-  try {
-    body = await fs.readFile(localManifest, 'utf8')
-  } catch {
-    const { code, stdout } = await runCapture(
-      'gh',
-      [
-        'api',
-        'repos/SocketDev/socket-registry/contents/registry/manifest.json',
-        '-H',
-        'Accept: application/vnd.github.raw',
-      ],
-      rootPath,
-    )
-    if (code === 0 && stdout.trim()) {
-      body = stdout
-    }
-  }
-  if (!body) {
+  const { code, stdout: body } = await runCapture(
+    'gh',
+    [
+      'api',
+      'repos/SocketDev/socket-registry/contents/registry/manifest.json',
+      '-H',
+      'Accept: application/vnd.github.raw',
+    ],
+    rootPath,
+  )
+  if (code !== 0 || !body.trim()) {
     throw new Error(
-      '--socket-registry expansion failed. Where: ' +
-        `${localManifest}, then gh api SocketDev/socket-registry. ` +
-        'Fix: check out socket-registry as a sibling, or authenticate gh.',
+      'Registry expansion failed. Where: SocketDev/socket-registry registry/manifest.json. Saw no published manifest, wanted a readable manifest. Fix: check GitHub authentication and repository access.',
     )
   }
   const entries = parseSocketRegistryManifest(body)
