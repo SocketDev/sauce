@@ -19,6 +19,7 @@ const manifest = JSON.stringify({
     ['pkg:npm/example-unscoped@1.0.0', { name: 'example-unscoped' }],
   ],
 })
+const revision = '1234567890abcdef1234567890abcdef12345678'
 
 afterEach(() => {
   vi.unstubAllEnvs()
@@ -27,15 +28,31 @@ afterEach(() => {
 
 test('reads the published registry manifest and ignores external directory overrides', async () => {
   vi.stubEnv('SOCKET_REGISTRY_DIR', '/outside/example-registry')
-  capture.mockResolvedValue({ code: 0, stdout: manifest })
+  capture
+    .mockResolvedValueOnce({ code: 0, stdout: 'main\n' })
+    .mockResolvedValueOnce({ code: 0, stdout: `${revision}\n` })
+    .mockResolvedValueOnce({ code: 0, stdout: manifest })
   await expect(expandSocketRegistryWorklist()).resolves.toEqual([
     '@socketregistry/example-module',
   ])
-  expect(capture).toHaveBeenCalledWith(
+  expect(capture).toHaveBeenNthCalledWith(
+    1,
+    'gh',
+    ['api', 'repos/SocketDev/socket-registry', '--jq', '.default_branch'],
+    expect.any(String),
+  )
+  expect(capture).toHaveBeenNthCalledWith(
+    2,
+    'gh',
+    ['api', 'repos/SocketDev/socket-registry/commits/main', '--jq', '.sha'],
+    expect.any(String),
+  )
+  expect(capture).toHaveBeenNthCalledWith(
+    3,
     'gh',
     [
       'api',
-      'repos/SocketDev/socket-registry/contents/registry/manifest.json',
+      `repos/SocketDev/socket-registry/contents/registry/manifest.json?ref=${revision}`,
       '-H',
       'Accept: application/vnd.github.raw',
     ],
@@ -45,9 +62,34 @@ test('reads the published registry manifest and ignores external directory overr
 })
 
 test.each([
-  { code: 1, stdout: manifest },
-  { code: 0, stdout: '' },
-])('refuses an unreadable published manifest %#', async result => {
-  capture.mockResolvedValue(result)
-  await expect(expandSocketRegistryWorklist()).rejects.toBeInstanceOf(Error)
-})
+  { results: [{ code: 1, stdout: '' }] },
+  { results: [{ code: 0, stdout: '' }] },
+  {
+    results: [
+      { code: 0, stdout: 'main' },
+      { code: 0, stdout: 'not-a-revision' },
+    ],
+  },
+  {
+    results: [
+      { code: 0, stdout: 'main' },
+      { code: 0, stdout: revision },
+      { code: 1, stdout: manifest },
+    ],
+  },
+  {
+    results: [
+      { code: 0, stdout: 'main' },
+      { code: 0, stdout: revision },
+      { code: 0, stdout: '' },
+    ],
+  },
+])(
+  'refuses unversioned or unreadable registry evidence %#',
+  async ({ results }) => {
+    for (const result of results) {
+      capture.mockResolvedValueOnce(result)
+    }
+    await expect(expandSocketRegistryWorklist()).rejects.toBeInstanceOf(Error)
+  },
+)

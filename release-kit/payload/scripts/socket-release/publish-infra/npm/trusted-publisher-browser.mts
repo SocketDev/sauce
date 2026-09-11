@@ -12,8 +12,8 @@
  *   checkboxes) and clicks Save, then RE-READS the form and only counts the
  *   package done when the saved state matches desired: success is the page's
  *   answer, never the click. `--socket-registry` expands the worklist to
- *   every published @socketregistry/* package from socket-registry's own
- *   `registry/manifest.json` (local sibling checkout, else `gh api`).
+ *   every published @socketregistry/* package from a revision-pinned
+ *   `registry/manifest.json` fetched through `gh api`.
  *   Fail-soft per package: one failure never aborts the batch; a summary
  *   prints at the end. The pure planners live in
  *   `trusted-publisher-parse.mts` + `trusted-publisher-plan.mts`; the
@@ -146,11 +146,38 @@ export async function applyOne(
  * Read the published registry manifest through the authenticated GitHub CLI.
  */
 export async function expandSocketRegistryWorklist(): Promise<string[]> {
+  const { code: branchCode, stdout: defaultBranchOutput } = await runCapture(
+    'gh',
+    ['api', 'repos/SocketDev/socket-registry', '--jq', '.default_branch'],
+    rootPath,
+  )
+  const defaultBranch = defaultBranchOutput.trim()
+  if (branchCode !== 0 || !defaultBranch) {
+    throw new Error(
+      'Registry revision resolution failed. Where: SocketDev/socket-registry repository metadata. Saw no default branch, wanted a branch name. Fix: check GitHub authentication and repository access.',
+    )
+  }
+  const { code: revisionCode, stdout: revisionOutput } = await runCapture(
+    'gh',
+    [
+      'api',
+      `repos/SocketDev/socket-registry/commits/${encodeURIComponent(defaultBranch)}`,
+      '--jq',
+      '.sha',
+    ],
+    rootPath,
+  )
+  const revision = revisionOutput.trim()
+  if (revisionCode !== 0 || !/^[0-9a-f]{40}$/u.test(revision)) {
+    throw new Error(
+      'Registry revision resolution failed. Where: SocketDev/socket-registry default branch. Saw no immutable commit, wanted a 40-character commit SHA. Fix: check GitHub authentication and repository access.',
+    )
+  }
   const { code, stdout: body } = await runCapture(
     'gh',
     [
       'api',
-      'repos/SocketDev/socket-registry/contents/registry/manifest.json',
+      `repos/SocketDev/socket-registry/contents/registry/manifest.json?ref=${revision}`,
       '-H',
       'Accept: application/vnd.github.raw',
     ],
@@ -158,7 +185,7 @@ export async function expandSocketRegistryWorklist(): Promise<string[]> {
   )
   if (code !== 0 || !body.trim()) {
     throw new Error(
-      'Registry expansion failed. Where: SocketDev/socket-registry registry/manifest.json. Saw no published manifest, wanted a readable manifest. Fix: check GitHub authentication and repository access.',
+      `Registry expansion failed. Where: SocketDev/socket-registry registry/manifest.json at ${revision}. Saw no published manifest, wanted a readable manifest. Fix: check GitHub authentication and repository access.`,
     )
   }
   const entries = parseSocketRegistryManifest(body)
