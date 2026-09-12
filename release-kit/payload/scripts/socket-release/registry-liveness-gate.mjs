@@ -53,7 +53,7 @@ function loadGlobSync() {
 
 const defaultFsLike = {
   existsSync,
-  globSync: (pattern, options) => loadGlobSync()(pattern, options),
+  globSync: (pattern, config) => loadGlobSync()(pattern, config),
   readFileSync,
 }
 
@@ -163,7 +163,9 @@ async function fetchOk(url, fetchImpl, logError, init) {
   } catch (error) {
     // The old `curl -fsS` printed its transport error and failed the gate;
     // map a thrown fetch the same way.
-    logError(`× ${url} — ${error}`)
+    logError(
+      `× ${url} — ${error instanceof Error ? error.message : String(error)}`,
+    )
     return undefined
   }
 }

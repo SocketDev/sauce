@@ -153,12 +153,12 @@
     {
       "channels": ["github-release"],
       "path": "create-release.mts",
-      "sha256": "0b736ab6be752063215329f32c6ef2ef72ef6cdb254c1008ca1fb91bce478f94"
+      "sha256": "a841b95bfa3df4000b1ccda352c45554b47f41cec7a1c6f0a0215c4ce2849a27"
     },
     {
       "channels": ["github-release"],
       "path": "github-release.mts",
-      "sha256": "b50ead899515e69600af0c67cf9782a6ef6f02f800e961bc81bf5d9568911ad1"
+      "sha256": "681f57e597750d6df3679b051e8a3c5e999e28a57747d32c9f09e2d41b6116ae"
     },
     {
       "channels": ["brew"],
@@ -193,7 +193,7 @@
     {
       "channels": ["common"],
       "path": "lib/workspace-yaml.mts",
-      "sha256": "93c629e12d2889a6c8bd821b153efe01df2764b47ffebdd471d7da14553aae6c"
+      "sha256": "11bd96c62c6b7b3eee683ef1143d77e4cc55c8dd762902d478a0253c2beb7eb7"
     },
     {
       "channels": ["npm"],
@@ -203,7 +203,7 @@
     {
       "channels": ["npm"],
       "path": "npm-web-auth.mts",
-      "sha256": "d52e99d739d0022cb2d9186d2c2a44a052db1a8890de1d5bf0558bb141806410"
+      "sha256": "ca8e06fea15bd9ef261932f3f5e798bd123fc3cd673418ebe348e0c5851bbd42"
     },
     {
       "channels": ["common"],
@@ -253,7 +253,7 @@
     {
       "channels": ["crates"],
       "path": "publish-infra/cargo/trusted-publisher.mts",
-      "sha256": "0ae2aa7521dca472952968fcc9817c9bf4bd2e7b1e81b114c100369c8fb47a8d"
+      "sha256": "44cf9d802eae658983a92465dc9e6ff3828ee09ab548cbfc32c699851bf03bdc"
     },
     {
       "channels": ["npm"],
@@ -318,7 +318,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/placeholder.mts",
-      "sha256": "952e3eaaa3a8d28f2211627c56cd46c97820b14d43842d4e8fc16aba24a8b4b0"
+      "sha256": "800082782263b72a54c9037dac89d9a2665a019c29db133cf114ed4a7e68f044"
     },
     {
       "channels": ["npm"],
@@ -333,7 +333,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/scan.mts",
-      "sha256": "bbf1804164c1b68f61e3549526616052dbaa1d02e83e1806098ec4df2cf7ab96"
+      "sha256": "1fb2d383f032093afb976c2cb5f03d81b7f0bc1884fafd1d6056ebd226b1e69f"
     },
     {
       "channels": ["npm"],
@@ -393,7 +393,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/workspace-plan.mts",
-      "sha256": "7719525acda09af97982a3913efdc47269968ff8140a9b60a78c49640c0be570"
+      "sha256": "09a9db1c7a22fbc7550f4be4483a90dd69540ad2e86e74f425b097ad27be5970"
     },
     {
       "channels": ["npm"],
@@ -418,7 +418,7 @@
     {
       "channels": ["common"],
       "path": "publish-infra/shared.mts",
-      "sha256": "82f0fd78abce0217ae6a359e24b12671db9b202ea2af32675a4c3c9e197e3d20"
+      "sha256": "14d96d90f93d2e7dc6c12c89c2312049f5cb443ae142f8c430349e615b970317"
     },
     {
       "channels": ["npm"],
@@ -433,7 +433,7 @@
     {
       "channels": ["github-release"],
       "path": "registry-liveness-gate.mjs",
-      "sha256": "b947fded361d40a5f7c7749a9dea09aaad15416950bb9084ca06beff156533bc"
+      "sha256": "e4ad308ae61434a8bec256b8ad295d9b172164ea64fe65ad61f222daffe24290"
     },
     {
       "channels": ["brew"],

@@ -66,6 +66,7 @@ async function main(): Promise<void> {
   const subject = resolveReleaseSubject(REPO_ROOT)
   let version = subject.version
   if (values.tag) {
+    // Capture a semantic version after an optional v prefix and suffix.
     const m = /^v?(\d+\.\d+\.\d+(?:[-+].*)?)$/.exec(values.tag)
     if (!m) {
       logger.fail(

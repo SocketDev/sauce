@@ -168,7 +168,7 @@ async function defaultPublishExec(
     argv: ['publish', '--access', access],
     cwd: dir,
     env: process.env,
-    isTty: Boolean(process.stdin.isTTY && process.stdout.isTTY),
+    isTty: process.stdin.isTTY && process.stdout.isTTY,
     platform: process.platform,
   })
 }
@@ -323,13 +323,13 @@ export function parseArgs(argv: readonly string[]): PlaceholderArgs {
       const v = argv[++i]
       if (v !== 'public' && v !== 'restricted') {
         logger.fail(
-          `--access must be 'public' or 'restricted' (saw ${String(v)}).`,
+          `--access must be 'public' or 'restricted' (saw ${v ?? 'undefined'}).`,
         )
         process.exit(1)
       }
       access = v
     } else if (arg === '--access=public' || arg === '--access=restricted') {
-      access = arg.slice('--access='.length) as Access
+      access = arg.endsWith('public') ? 'public' : 'restricted'
     } else if (arg.startsWith('-')) {
       logger.fail(`Unknown flag: ${arg}`)
       process.exit(1)

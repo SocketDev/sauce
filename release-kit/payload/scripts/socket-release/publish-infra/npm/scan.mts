@@ -105,7 +105,7 @@ export async function preflightSocketScanAuth(
 ): Promise<SocketScanContext | undefined> {
   const {
     env = process.env,
-    interactive = Boolean(process.stdout.isTTY),
+    interactive = process.stdout.isTTY,
     openUrl = openInBrowser,
     promptForToken,
     sdkFactory = token => new SocketSdk(token),
@@ -131,9 +131,7 @@ export async function preflightSocketScanAuth(
     const prompt =
       promptForToken ??
       (async () =>
-        String(
-          (await password({ message: 'Paste the Socket API token:' })) ?? '',
-        ))
+        (await password({ message: 'Paste the Socket API token:' })) ?? '')
     const pasted = (await prompt()).trim()
     if (pasted) {
       token = pasted
@@ -389,7 +387,7 @@ export async function scanStagedEntry(
       } else {
         logger.fail(
           `Scan gate: archive full-scan create failed for ${name}@${version} ` +
-            `(status ${created.status}${created.error ? `: ${String(created.error)}` : ''}).`,
+            `(status ${created.status}${created.error ? `: ${created.error}` : ''}).`,
         )
         return false
       }

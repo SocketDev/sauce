@@ -401,7 +401,7 @@ function bridgePnpmTokenToNpm(env: NodeJS.ProcessEnv | undefined): boolean {
       cwd: npmScratchCwd(),
       env,
     })
-    const token = String(read.stdout ?? '').trim()
+    const token = (read.stdout ?? '').trim()
     if (read.status !== 0 || !token || token === 'undefined') {
       return false
     }
@@ -469,7 +469,7 @@ async function main(): Promise<number> {
   return runNpmWebAuth({
     argv,
     platform: process.platform,
-    isTty: Boolean(process.stdin.isTTY && process.stdout.isTTY),
+    isTty: process.stdin.isTTY && process.stdout.isTTY,
     env: process.env,
   })
 }

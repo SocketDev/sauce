@@ -358,7 +358,7 @@ async function collectAssetPaths(
   for (const pattern of patterns) {
     // eslint-disable-next-line no-await-in-loop
     for await (const match of glob(pattern, { cwd: buildDir })) {
-      const abs = path.resolve(buildDir, String(match))
+      const abs = path.resolve(buildDir, match)
       // Skip directories — gh release create wants files only.
       if (statSync(abs).isFile()) {
         result.push(abs)

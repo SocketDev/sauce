@@ -186,7 +186,10 @@ export function spliceCatalogEntry(
   const existingIdx = blockLines.findIndex(line => dupRe.test(line))
   if (existingIdx !== -1) {
     const existing = blockLines[existingIdx]!
-    const rewritten = existing.replace(/(:\s*).*$/, `$1${version}`)
+    const rewritten = existing.replace(
+      /(:\s*).*$/,
+      (_match, prefix: string) => `${prefix}${version}`,
+    )
     if (rewritten === existing) {
       return content
     }

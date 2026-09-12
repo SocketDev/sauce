@@ -849,7 +849,7 @@ export async function main(): Promise<void> {
   // The caller's cwd is the anchor ON PURPOSE here: a relative `--path` means
   // what the operator typed it from, and `resolveInspectedRoot` falls back to
   // this script's own root whenever `--path` is absent.
-  // oxlint-disable-next-line socket/no-process-cwd-in-scripts-hooks -- resolves the operator-typed relative --path argument from the directory the CLI was invoked in
+  // oxlint-disable-next-line socket/no-process-cwd-in-scripts-hooks -- operator path base
   const root = resolveInspectedRoot(args.path, process.cwd())
   const slug = args.repo ?? (await resolveRepoSlug(root))
   const surface = args.workflow
@@ -875,15 +875,13 @@ export async function main(): Promise<void> {
   }
 
   logger.log(
-    `crates.io trusted publishing — ${crates.length} crate(s)` + args.apply
-      ? ' [apply]'
-      : ' [dry-run]',
+    `crates.io trusted publishing — ${crates.length} crate(s)` +
+      (args.apply ? ' [apply]' : ' [dry-run]'),
   )
   logger.substep(`path: ${root}`)
   logger.substep(
     `target: ${target.repositoryOwner}/${target.repositoryName} · ` +
-      `${target.workflowFilename} · environment ` +
-      target.environment ?? '(none)',
+      `${target.workflowFilename} · environment ${target.environment ?? '(none)'}`,
   )
   const results = await runTrustedPublisher(crates, target, {
     apply: args.apply,
