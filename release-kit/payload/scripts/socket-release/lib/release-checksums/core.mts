@@ -28,10 +28,10 @@ import crypto from 'node:crypto'
 import { createReadStream, readFileSync } from 'node:fs'
 import path from 'node:path'
 
-import type { Hash, HashAlgorithm } from '@socketsecurity/lib-stable/integrity'
-import { equalHashes, parseHash } from '@socketsecurity/lib-stable/integrity'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
-import { findUpPackageJson } from '@socketsecurity/lib-stable/packages/find'
+import type { Hash, HashAlgorithm } from '@socketsecurity/lib/integrity'
+import { equalHashes, parseHash } from '@socketsecurity/lib/integrity'
+import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
+import { findUpPackageJson } from '@socketsecurity/lib/packages/find'
 
 const logger = getDefaultLogger()
 

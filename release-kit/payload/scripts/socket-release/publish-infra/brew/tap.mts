@@ -14,10 +14,7 @@ import { commitViaGithubApi } from '../../lib/commit-via-github-api.mts'
 import { runCapture } from '../shared.mts'
 import { parseFormula } from './formula.mts'
 import type { ParsedFormula } from './formula.mts'
-import {
-  getGhToken,
-  getGithubToken,
-} from '@socketsecurity/lib-stable/env/github'
+import { getGhToken, getGithubToken } from '@socketsecurity/lib/env/github'
 
 export interface BrewReleaseView {
   assets: string[]

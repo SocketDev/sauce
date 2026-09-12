@@ -28,12 +28,12 @@
     {
       "channels": ["common"],
       "path": "_shared/pack-files.mts",
-      "sha256": "1851e2930b1c91c0d83ef89d0816bdcf40987b083c90e3a118940df7c6f353d9"
+      "sha256": "eb028efa7c65922e4b183db5fcf6503d86ce2f46116d1613ad7881d7853f4347"
     },
     {
       "channels": ["common"],
       "path": "_shared/playwright-law.mts",
-      "sha256": "34555827e8a823b824d74fd4de96404f60281684475802d1c77d77e7b64e925c"
+      "sha256": "d14f75bc6842a05850f8c02e7cd473208f8c747df624452d54dc2367d5237fa8"
     },
     {
       "channels": ["common"],
@@ -48,12 +48,12 @@
     {
       "channels": ["common"],
       "path": "_shared/run-main.mts",
-      "sha256": "0d38954c4b522bd85f871779944145d7d00cef453107fbeff45a301c9e87f8e8"
+      "sha256": "fc23aec8a709ba6143738cf656401a25de30321e0c2429e92a3cb76721d99ca9"
     },
     {
       "channels": ["common"],
       "path": "_shared/tar-executable.mts",
-      "sha256": "9a60259d0ec7f469ec1031d5528dcb5c7d58068537d31abe48c424c561e246d2"
+      "sha256": "662a382eecb6652af9965467055db18ede47cdd2a958d1a8f84bbcedec70c4e1"
     },
     {
       "channels": ["common"],
@@ -63,7 +63,7 @@
     {
       "channels": ["common"],
       "path": "bootstrap.mts",
-      "sha256": "eb6340cf29626f08472ceb9cfebb28338fcf04f19017786430269444b11347f9"
+      "sha256": "dd7123ee14b6d1ca953c17d2f932c4bae8be1cd5f192f9d3f9475a029ddbe692"
     },
     {
       "channels": ["common"],
@@ -88,7 +88,7 @@
     {
       "channels": ["common"],
       "path": "bootstrap/run-step.mts",
-      "sha256": "fc03c594e6b73f56f45804f4ac0d033cc2a300c52e30389024b928cac853af39"
+      "sha256": "46c74d263fc136f21677e3a13633402542b341fd22e96c39d917b0181cd27d63"
     },
     {
       "channels": ["common"],
@@ -148,7 +148,7 @@
     {
       "channels": ["brew"],
       "path": "brew-publish.mts",
-      "sha256": "e9f42c52c46e9c3cacb643808a50e6e4be7c0efe1dd442174daad34bea84d419"
+      "sha256": "5712e354d01ef48761b693733915a8f91f6cb761b1d89444cbfe4e7c2a4dadfb"
     },
     {
       "channels": ["crates"],
@@ -163,22 +163,22 @@
     {
       "channels": ["github-release"],
       "path": "create-release.mts",
-      "sha256": "5b48a81136b6426068abb26b9874a32e9d045311400dab8352155620367d6ff0"
+      "sha256": "8e905b52d7bfbac45660b1496c619e9dae0e9dd264222f37e2e3c85b0038ef28"
     },
     {
       "channels": ["github-release"],
       "path": "github-release.mts",
-      "sha256": "681f57e597750d6df3679b051e8a3c5e999e28a57747d32c9f09e2d41b6116ae"
+      "sha256": "c2c7c7c73e5d2eb8ade05fa1735c31bc39fe1e05972b7697f8157f5eaec20143"
     },
     {
       "channels": ["brew"],
       "path": "lib/commit-via-github-api.mts",
-      "sha256": "bcd41688d998811c71fad07f5d5ee1b23d5684bdb317e08a7b85a63db6f21991"
+      "sha256": "8ada13e4a78345b3a4b259aed06becfc3c1830c21f1c8f985ea0c923328ab24d"
     },
     {
       "channels": ["common"],
       "path": "lib/github-git-refs.mts",
-      "sha256": "ab496de5d3766c49e1d6993dea892f672667d8581975b52a596d690a1d48f6df"
+      "sha256": "bfa1db1c50ca08a36671d8d019324e95c111e53792f3e2f82d3eba0d378ff8ed"
     },
     {
       "channels": ["common"],
@@ -188,17 +188,17 @@
     {
       "channels": ["github-release"],
       "path": "lib/release-checksums/core.mts",
-      "sha256": "2c9c721ef640089d0e5b0a33431a11798d42b04995b221db298a6eda51882e2a"
+      "sha256": "ce1e5a291a12abcdf0cc3e2f569c2b0cd05738384b29d0bffcab235e685231c8"
     },
     {
       "channels": ["github-release"],
       "path": "lib/release-checksums/producer.mts",
-      "sha256": "b99e2b08129f5259be1eeae89489d4aab792135a241ffa48f028458a5f9d0adb"
+      "sha256": "c768868814b0dae708f5b8cc3e96237ba5eddb7270849bdb695c52f4e9badd42"
     },
     {
       "channels": ["common"],
       "path": "lib/verify-release-hashes.mts",
-      "sha256": "c2265eee74ac7c2086fb206591a2c490027931cedfbf9a6b4444afd68c4e2665"
+      "sha256": "d87cd1a0f89ec02cdd1162a32c33e8b549b05fed3372f8dfe1f669ce84155d3b"
     },
     {
       "channels": ["common"],
@@ -208,12 +208,12 @@
     {
       "channels": ["npm"],
       "path": "npm-publish.mts",
-      "sha256": "4e61eb9925355252f36f8c1fc91c6c8a3c59ad587e84ca6d73512ef97c993097"
+      "sha256": "71e3867421988834e3f374b05f600fdd53afe757e934372587020fc94c28e60a"
     },
     {
       "channels": ["npm"],
       "path": "npm-web-auth.mts",
-      "sha256": "ca8e06fea15bd9ef261932f3f5e798bd123fc3cd673418ebe348e0c5851bbd42"
+      "sha256": "12c2f81703ea21ac99ddfc24742cd32add27b1a66cb6fef32a1a19472034bb70"
     },
     {
       "channels": ["common"],
@@ -233,17 +233,17 @@
     {
       "channels": ["brew"],
       "path": "publish-infra/brew/tap.mts",
-      "sha256": "2eef77577c4e97384eabb0745374889d1d6ca6680d87ad2fa618f541b73cf168"
+      "sha256": "ea9f8df58324a1ca3c9d73a00957d527750d19dc83725335b70177213eaefced"
     },
     {
       "channels": ["crates"],
       "path": "publish-infra/cargo/approve.mts",
-      "sha256": "d39b493aa31afc5f94af550a4b766d3eaa69a79b86e20aa832c800983b5d12b8"
+      "sha256": "6782977f78977669e3a4e50af2763eef7c2b5026830bd12ce5c2bb7720b7f2ee"
     },
     {
       "channels": ["crates"],
       "path": "publish-infra/cargo/placeholder.mts",
-      "sha256": "ff0d53d3ab19c114425a5dca631ef9a0e48caf3c389f0451278baa233bf40ffb"
+      "sha256": "3acd03da7f35e7baa9d6ec41e2f60be92a81df80a1cc98c476f88a9dc4114f66"
     },
     {
       "channels": ["crates"],
@@ -258,12 +258,12 @@
     {
       "channels": ["crates"],
       "path": "publish-infra/cargo/staged.mts",
-      "sha256": "79e4ad2d0d8fdcbaefa6c018e8f1c05d12613400b8cb2a284c2232422faf1d90"
+      "sha256": "94a8cd9beefb10d5bb46299d73f119cf924407bebe539ed4c1aba993c86ed75b"
     },
     {
       "channels": ["crates"],
       "path": "publish-infra/cargo/trusted-publisher-runtime.mts",
-      "sha256": "7aa5166a66b74acbfd9c10b99c27ec2fc766404a6349eb849f94a2016bbadb63"
+      "sha256": "154034b022c3983610ca98ba7e274466336a411abbe3fd80e4cb04c3c36bba3d"
     },
     {
       "channels": ["crates"],
@@ -273,7 +273,7 @@
     {
       "channels": ["crates"],
       "path": "publish-infra/cargo/trusted-publisher.mts",
-      "sha256": "10046e684dd6cc33e11e35f0e803929c5fd9f4604301804319e472bedb1d3597"
+      "sha256": "ebfc4ed526946c5b6d6e8343adea38a7076a68e03cb73c27b1d832f34d4e60ef"
     },
     {
       "channels": ["npm"],
@@ -298,32 +298,32 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/approve.mts",
-      "sha256": "adde47163354d9487b151bd511fa02f2ae22901b146f336e35a2a967a98f77f0"
+      "sha256": "84583f4507e184469641dee69f0a6f3abafd5a4bd34367aa31c70964ec384e3c"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/auth-identity.mts",
-      "sha256": "b1f642ca903d74c7aba0a399bdb36681017bc9ce10a1b1309d96559e6ad3d6c1"
+      "sha256": "c230647c9a38bb425a2e3e0b72cb76b288a9f07ca24bc2a157b9c4e768d769c6"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/backfill.mts",
-      "sha256": "8ef8732b3a70d0ee3d1c7dd9d27e25abae31092c1a13fedc3def4bddc4d47e7b"
+      "sha256": "90fdd2e0a20a44fd28b9f30f9aed3efdc2635d7cd982ed496ab6c3b42440d545"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/browser-session.mts",
-      "sha256": "9f642fae4a5fcc895ad332c8c831fd6f7f0c8f44b7602da7ade4acc68de96d42"
+      "sha256": "5f9a3ccdb32c656c7dc0e7a96b84bae8bfe7c8ab43e40c302915c00189332e4d"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/browser-sign-in.mts",
-      "sha256": "814e3d07b044f030b3696ba6a555af9c94763ad4698fd96aecc5845e6fb4e3bf"
+      "sha256": "cf93c7da823a5f6b469d92e06f6a6a27c54ca257668b1693112dab82a1559c4d"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/login.mts",
-      "sha256": "a7136852bf9d58f07eeccb1f87433c1d73581ae0da1e3296ba280a6996dedbe2"
+      "sha256": "6f7bf742e6093b305daf35bf35aa5062e83bb78035844654f331e19349b5cf85"
     },
     {
       "channels": ["npm"],
@@ -333,7 +333,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/pack-preflight.mts",
-      "sha256": "57d5a9715d3bb1afa3477306b6a3dfdb2393083547b15a5ae28eef5d0e56daad"
+      "sha256": "cc33075af4dd7d18076366261dfcb1925f84da7cb9fa0fdf9dee8d992d8f69aa"
     },
     {
       "channels": ["npm"],
@@ -343,27 +343,27 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/placeholder.mts",
-      "sha256": "4850d2ce4fe3debd71a3888a6d5f9a65e4b5a6f269e25b6476a3af080fc3877c"
+      "sha256": "700ae4a6c4d77c829274bd92dc1ecd77dea3f84f8fee14a80f511c356c23f395"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/provenance.mts",
-      "sha256": "4412a0c27f09557a5a82ca43b563b2f8bee2987cb8072707dcbe9b6b332e5e76"
+      "sha256": "b77b8e56b3470df89e512b0e9015ac28d3bfa8dde0bf8984e22af5efd477eb09"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/registry.mts",
-      "sha256": "6d322575c332055d172acc8717ae46a86252983696bac0d77f9119dad7bf83a6"
+      "sha256": "fd2488be25ebdf8cf20ddf71c1d5514847ed442bdc793d2f33d00273f54e3507"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/scan-threat.mts",
-      "sha256": "294c1e809d5e90d8eeef754716920b5afb35ff20fa27df38f0508d0f3e8ece02"
+      "sha256": "55cc49ad836bdb715b5999ffa51a3effb684e5cdaefdf54a101ec8f6bc30c284"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/scan.mts",
-      "sha256": "7b4bb52b2f3cf6215383bae3c4689b7995df5bc6fca26e45718dbfe2ad99b832"
+      "sha256": "088206d209f75f58c7ce5cac83d9eaab194d4047ab94d2a395d4bdc0812e7847"
     },
     {
       "channels": ["npm"],
@@ -378,42 +378,42 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/staged-browser-read.mts",
-      "sha256": "b914daee7cf8ff7e62b3860fd4e28c66e7cf0d66dbbade4c03690b5818d306ed"
+      "sha256": "c8ffc9c9c7763f3f50a2eeed9bb2293505401765dc9b2a493b6ab4f69f11a74f"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/staged-verify.mts",
-      "sha256": "0a8d683fa3a9e870de469ade69ca327f4492302f00599364b3f945605c218388"
+      "sha256": "c452ae9631065d1e9447ff08a3b7d803c9ff3b3410e5b964985e24d6870bc0b4"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/staged-workspace-verify.mts",
-      "sha256": "08128218091b7d46e845687e9b788ecf51c1390eed41cd35a75a11f2c672719b"
+      "sha256": "dcb9f0a666164b1e24743bc34e60a9cc81b9aaa222ed2be1e9ff1dedd0b97deb"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/staged-workspace.mts",
-      "sha256": "31f0fce264dcb0e598d290ac95380e4429aea155e3e0addb957be8797922aad2"
+      "sha256": "d895186e81d0b6fc5df1368bd486f6913424fbc4bb5f8c22bb95a2dea7406ecd"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/staged.mts",
-      "sha256": "1dd14c924fd9a9cdcbef2dd1299c23021a149c6b3e990bc5a1be27ff308bb09e"
+      "sha256": "49dd9f7082b68225ebb7819c8adbe0ab22d33f9f8223abd2316a8057b4b69fd6"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/threat-scan.mts",
-      "sha256": "624e041937d5dcb2330a57a7ce3727e251dde057022e041c346444ce4460a216"
+      "sha256": "9428fcdc920a700ccd545651d0fdc21770b7cd5206d9d704875fe04d95d07207"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/trust-sweep.mts",
-      "sha256": "f677ce37ce4fddc2fd9437a73b792bd59be27a1b7b89f4eca7537f979cccf8ea"
+      "sha256": "cbc6e95788dc97d82f1c5882d73d93912b89cbb07e10a3e1ef495d937d25ed7a"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/trusted-publisher-browser.mts",
-      "sha256": "a9ceaa5d7addd8a6d94b05a4305bcb8fc7bf61fd32b2e5285fcb4bf2ad1a082a"
+      "sha256": "65d1e54a4a2827e644ffa93f0a57bcb117cd2712b458ba4d73c75695b91b60a2"
     },
     {
       "channels": ["npm"],
@@ -453,17 +453,17 @@
     {
       "channels": ["common"],
       "path": "publish-infra/release.mts",
-      "sha256": "aca140d2f62156196c2e84da25d7942313e7c024879073af8fe5fe43c35161c9"
+      "sha256": "4af4af0b9638e1cd2f56d93918c0233a835312cf41c4b2c935f2f553478af0e4"
     },
     {
       "channels": ["common"],
       "path": "publish-infra/shared.mts",
-      "sha256": "4b4590a67df10ff06a08c10f654448d940dffe2c665b2e24c877faac24abb18d"
+      "sha256": "037925a11cfaa92ea6dbcbcefaeece793cbbd499512ed693b608a75f1bc42c50"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/socket-oauth.mts",
-      "sha256": "b2da2b92f801a3e5795d98f3b211581bdd52d9e6a9020eb9880aa51449b9031d"
+      "sha256": "9b7b2ceb8bd4adb885285586f50bd7f0d21c317d919828c9179be28975e3c008"
     },
     {
       "channels": ["github-release"],

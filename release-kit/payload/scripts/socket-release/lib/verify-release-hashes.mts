@@ -16,8 +16,8 @@ import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 
-import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
-import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
+import { errorMessage } from '@socketsecurity/lib/errors/message'
+import { spawn } from '@socketsecurity/lib/process/spawn/child'
 
 import { fetchVersionTrustInfo } from '../publish-infra/npm/registry.mts'
 

@@ -24,10 +24,7 @@
  */
 /* eslint-disable typescript/no-unsafe-type-assertion -- validated boundaries */
 
-import {
-  httpJson,
-  HttpResponseError,
-} from '@socketsecurity/lib-stable/http-request'
+import { httpJson, HttpResponseError } from '@socketsecurity/lib/http-request'
 
 import { NPM_REGISTRY_URL } from '../../constants/npm-registry.mts'
 

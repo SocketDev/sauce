@@ -25,7 +25,7 @@ import { createServer } from 'node:http'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import process from 'node:process'
 
-import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
+import { spawn } from '@socketsecurity/lib/process/spawn/child'
 
 import { logger } from './shared.mts'
 

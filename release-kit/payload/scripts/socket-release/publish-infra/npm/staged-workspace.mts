@@ -49,7 +49,7 @@ import {
 import { writeThroughMirrorLock } from '../../_shared/mirror-lock.mts'
 
 import type { NpmWorkspaceLayout, WorkspacePackage } from './workspace.mts'
-import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
+import { getEnvValue } from '@socketsecurity/lib/env/rewire'
 
 export { verifyStagedPlatformEntry } from './staged-workspace-verify.mts'
 

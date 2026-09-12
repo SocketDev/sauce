@@ -19,7 +19,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { parseArgs } from 'node:util'
 
-import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+import { errorMessage } from '@socketsecurity/lib/errors/message'
 
 import { isMainModule } from './_shared/is-main-module.mts'
 import { formatHumanGate } from './_shared/human-gate.mts'

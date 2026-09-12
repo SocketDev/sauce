@@ -48,7 +48,7 @@
 import process from 'node:process'
 import { parseArgs } from 'node:util'
 
-import { isCI } from '@socketsecurity/lib-stable/env/ci'
+import { isCI } from '@socketsecurity/lib/env/ci'
 
 import { runApprove } from './publish-infra/npm/approve.mts'
 import {

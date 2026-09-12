@@ -2,7 +2,7 @@ import { promises as fs, readFileSync, statSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
-import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
+import { safeDelete } from '@socketsecurity/lib/fs/safe'
 
 import { tarExecutable } from '../../_shared/tar-executable.mts'
 import { logger, runCapture } from '../shared.mts'

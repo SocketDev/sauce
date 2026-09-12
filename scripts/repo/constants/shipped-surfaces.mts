@@ -11,7 +11,12 @@
 /**
  * Trees consumers install or copy — Socket-integration content only.
  */
-export const SHIPPED_DIRS = ['agents', 'release-kit', 'skills'] as const
+export const SHIPPED_DIRS = [
+  'agents',
+  'examples',
+  'release-kit',
+  'skills',
+] as const
 
 /**
  * Consumer-facing manifests and adapters at the root: generated for the
@@ -67,6 +72,7 @@ export const SHIPPED_MARKER_ALLOWLIST = [
     marker: 'socket-wheelhouse',
     paths: [
       'release-kit/payload/scripts/socket-release/_shared/playwright-law.mts',
+      'release-kit/payload/scripts/socket-release/paths.mts',
       'release-kit/payload/scripts/socket-release/publish-infra/npm/browser-session.mts',
       'release-kit/payload/scripts/socket-release/publish-infra/npm/trusted-publisher-browser.mts',
     ],

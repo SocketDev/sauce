@@ -13,12 +13,12 @@ import process from 'node:process'
 // `gh release create` upload progress. lib/spawn returns a Promise
 // that resolves only on exit; here we need the live ChildProcess
 // stream.
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 // oxlint-disable-next-line socket/prefer-async-spawn -- streaming
-import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
+import { spawn } from '@socketsecurity/lib/process/spawn/child'
 
 import { REPO_ROOT } from '../paths.mts'
-import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
+import { getEnvValue } from '@socketsecurity/lib/env/rewire'
 
 export const logger = getDefaultLogger()
 export const rootPath = REPO_ROOT

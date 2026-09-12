@@ -19,7 +19,7 @@ import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 
-import { SocketSdk } from '@socketsecurity/sdk-stable'
+import { SocketSdk } from '@socketsecurity/sdk'
 
 import { logger } from '../shared.mts'
 import {
@@ -29,10 +29,10 @@ import {
 import { defaultPackTarball } from './staged.mts'
 import { runThreatScanLeg } from './scan-threat.mts'
 import { runLocalThreatScan } from './threat-scan.mts'
-import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
-import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
-import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
-import { password } from '@socketsecurity/lib-stable/stdio/prompts'
+import { errorMessage } from '@socketsecurity/lib/errors/message'
+import { safeDelete } from '@socketsecurity/lib/fs/safe'
+import { spawn } from '@socketsecurity/lib/process/spawn/child'
+import { password } from '@socketsecurity/lib/stdio/prompts'
 
 // The canonical fleet env name for the Socket API token — bootstrap hooks
 // normalize the legacy aliases into it, so only this one is read.

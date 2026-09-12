@@ -19,12 +19,9 @@
 
 import process from 'node:process'
 
-import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
-import {
-  httpJson,
-  HttpResponseError,
-} from '@socketsecurity/lib-stable/http-request'
-import { confirm } from '@socketsecurity/lib-stable/stdio/prompts'
+import { errorMessage } from '@socketsecurity/lib/errors/message'
+import { httpJson, HttpResponseError } from '@socketsecurity/lib/http-request'
+import { confirm } from '@socketsecurity/lib/stdio/prompts'
 
 import { packumentUrl } from '../../constants/npm-registry.mts'
 import { ensureNpmLogin } from './login.mts'

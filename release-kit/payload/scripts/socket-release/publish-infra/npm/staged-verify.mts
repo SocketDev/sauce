@@ -7,8 +7,8 @@ import { existsSync, promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
-import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
-import { normalizePath } from '@socketsecurity/lib-stable/paths/normalize'
+import { safeDelete } from '@socketsecurity/lib/fs/safe'
+import { normalizePath } from '@socketsecurity/lib/paths/normalize'
 
 import { resolveReleaseSubject } from '../../_shared/release-subject.mts'
 import type { ReleaseSubject } from '../../_shared/release-subject.mts'

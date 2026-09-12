@@ -47,7 +47,7 @@ import process from 'node:process'
 
 import type { Page } from 'playwright-core'
 
-import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+import { errorMessage } from '@socketsecurity/lib/errors/message'
 
 import { isMainModule } from '../../_shared/is-main-module.mts'
 import { logger, rootPath, runCapture } from '../shared.mts'

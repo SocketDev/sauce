@@ -36,7 +36,7 @@ import {
   parseStagedPayload,
 } from './staged-browser-parse.mts'
 import type { StagedPayload, StagedTarball } from './staged-browser-parse.mts'
-import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+import { errorMessage } from '@socketsecurity/lib/errors/message'
 
 // Browser-read tarball size ceiling: the in-page base64 round-trip peaks at
 // several times the tarball size and would OOM the renderer or exceed V8's max

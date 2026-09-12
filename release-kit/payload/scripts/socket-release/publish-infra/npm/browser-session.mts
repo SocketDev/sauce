@@ -51,7 +51,7 @@
  *     new tool cannot re-derive its own.
  */
 
-import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
+import { safeDelete } from '@socketsecurity/lib/fs/safe'
 import { existsSync } from 'node:fs'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
@@ -62,7 +62,7 @@ import type { BrowserContext, Page } from 'playwright-core'
 
 import { logger } from '../shared.mts'
 import { SOCKET_RELEASE_BROWSER_PROFILE_DIR } from '../../paths.mts'
-import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
+import { getEnvValue } from '@socketsecurity/lib/env/rewire'
 
 export const NPM_ORIGIN = 'https://www.npmjs.com'
 

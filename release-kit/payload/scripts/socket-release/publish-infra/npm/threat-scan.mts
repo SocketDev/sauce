@@ -20,10 +20,10 @@ import process from 'node:process'
 import {
   builtinLocalProvider,
   spawnLocalAgent,
-} from '@socketsecurity/lib-stable/ai/spawn-local'
-import type { LocalAgentProvider } from '@socketsecurity/lib-stable/ai/spawn-local'
-import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
-import { normalizePath } from '@socketsecurity/lib-stable/paths/normalize'
+} from '@socketsecurity/lib/ai/spawn-local'
+import type { LocalAgentProvider } from '@socketsecurity/lib/ai/spawn-local'
+import { errorMessage } from '@socketsecurity/lib/errors/message'
+import { normalizePath } from '@socketsecurity/lib/paths/normalize'
 
 import { logger } from '../shared.mts'
 

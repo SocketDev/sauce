@@ -39,7 +39,7 @@
 import { statSync } from 'node:fs'
 import process from 'node:process'
 
-import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+import { errorMessage } from '@socketsecurity/lib/errors/message'
 
 import { isMainModule } from '../../_shared/is-main-module.mts'
 import { socketReleaseWorkflowsPath } from '../../paths.mts'

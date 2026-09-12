@@ -27,7 +27,7 @@
  *      version — the content commit declares itself.
  */
 
-import { lt } from '@socketsecurity/lib-stable/versions/compare'
+import { lt } from '@socketsecurity/lib/versions/compare'
 
 import { logger, rootPath } from '../shared.mts'
 import { fetchRegistryReleaseState } from './registry.mts'

@@ -7,15 +7,12 @@
 
 import crypto from 'node:crypto'
 
-import {
-  httpJson,
-  HttpResponseError,
-} from '@socketsecurity/lib-stable/http-request'
+import { httpJson, HttpResponseError } from '@socketsecurity/lib/http-request'
 
 import { packumentUrl } from '../../constants/npm-registry.mts'
 
 import type { RegistryLatestRead } from '../../lib/release-anchor.mts'
-import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
+import { getEnvValue } from '@socketsecurity/lib/env/rewire'
 
 /**
  * A cache-busting registry read: the packument URL with a unique `_cb` nonce

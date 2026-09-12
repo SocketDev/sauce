@@ -15,7 +15,7 @@
  *   fetch` + `git reset --hard`).
  */
 
-import { httpJson } from '@socketsecurity/lib-stable/http-request'
+import { httpJson } from '@socketsecurity/lib/http-request'
 
 import { updateBranchRef } from './github-git-refs.mts'
 

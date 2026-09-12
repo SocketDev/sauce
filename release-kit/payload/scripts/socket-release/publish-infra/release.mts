@@ -11,9 +11,9 @@ import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 
-import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
-import { safeDeleteSync } from '@socketsecurity/lib-stable/fs/safe'
-import { sleep } from '@socketsecurity/lib-stable/promises/timers'
+import { errorMessage } from '@socketsecurity/lib/errors/message'
+import { safeDeleteSync } from '@socketsecurity/lib/fs/safe'
+import { sleep } from '@socketsecurity/lib/promises/timers'
 
 import { createTagRef } from '../lib/github-git-refs.mts'
 import { formatReleaseGapFailure } from '../_shared/release-gap-recovery.mts'
@@ -21,8 +21,8 @@ import { resolveReleaseSubject } from '../_shared/release-subject.mts'
 import { writeThroughMirrorLock } from '../_shared/mirror-lock.mts'
 import { withPrunedPackManifest } from './npm/pack-manifest.mts'
 import { logger, rootPath, runCapture } from './shared.mts'
-import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
-import { getGhToken } from '@socketsecurity/lib-stable/env/github'
+import { getEnvValue } from '@socketsecurity/lib/env/rewire'
+import { getGhToken } from '@socketsecurity/lib/env/github'
 
 /**
  * Extract the CHANGELOG.md section for `version` (from its `## <version>`

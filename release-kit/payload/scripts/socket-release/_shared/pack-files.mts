@@ -6,7 +6,7 @@
  *   plus the path normalizer only.
  */
 
-import { normalizePath } from '@socketsecurity/lib-stable/paths/normalize'
+import { normalizePath } from '@socketsecurity/lib/paths/normalize'
 
 /**
  * True when a tarball-relative path is covered by a package.json `files`

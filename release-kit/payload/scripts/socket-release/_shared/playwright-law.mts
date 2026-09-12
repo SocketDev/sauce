@@ -31,7 +31,7 @@
  */
 
 import { SOCKET_RELEASE_BROWSER_PROFILE_DIR } from '../paths.mts'
-import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
+import { getEnvValue } from '@socketsecurity/lib/env/rewire'
 
 /**
  * The ONE durable Chrome profile every npm browser tool shares. Mirrors the

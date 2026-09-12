@@ -1,6 +1,6 @@
 /* eslint-disable socket/prefer-undefined-over-null -- JSON null sentinel */
 
-import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+import { errorMessage } from '@socketsecurity/lib/errors/message'
 
 import { npmAuthGate } from '../_shared/human-gate.mts'
 import type { StepContext, StepDetection } from './plan.mts'

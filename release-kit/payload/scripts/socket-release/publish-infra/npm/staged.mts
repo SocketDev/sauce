@@ -31,7 +31,7 @@ import { resolveReleaseSubject } from '../../_shared/release-subject.mts'
 
 import type { WorkspaceManifestShape } from './workspace.mts'
 import type { ReleaseSubject } from '../../_shared/release-subject.mts'
-import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
+import { getEnvValue } from '@socketsecurity/lib/env/rewire'
 
 // The README-pin bracket target for a publish subject: the pinned README is
 // the one that PACKS — the subject's, not the repo root's when

@@ -35,7 +35,7 @@ import process from 'node:process'
 import url from 'node:url'
 import { parseArgs } from 'node:util'
 
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 
 // The release-checksums producer (writeChecksumsFile + updateReleaseAssets)
 // lives at a repo-shape-specific location — `scripts/socket-release/build-infra/lib/

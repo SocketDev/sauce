@@ -51,8 +51,8 @@
 import { spawn as nodeSpawn } from 'node:child_process'
 import process from 'node:process'
 
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
-import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
+import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
+import { spawnSync } from '@socketsecurity/lib/process/spawn/child'
 
 import { NPM_AUTH_TOKEN_KEY } from './constants/npm-registry.mts'
 import { isMainModule } from './_shared/is-main-module.mts'

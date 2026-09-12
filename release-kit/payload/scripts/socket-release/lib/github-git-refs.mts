@@ -14,7 +14,7 @@ import {
   httpJson,
   HttpResponseError,
   httpText,
-} from '@socketsecurity/lib-stable/http-request'
+} from '@socketsecurity/lib/http-request'
 
 const DEFAULT_API_URL = 'https://api.github.com'
 

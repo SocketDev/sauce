@@ -27,8 +27,8 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
-import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
-import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
+import { errorMessage } from '@socketsecurity/lib/errors/message'
+import { spawn } from '@socketsecurity/lib/process/spawn/child'
 
 import { isMainModule } from '../../_shared/is-main-module.mts'
 import { extractNpmAuthUrl } from '../../npm-web-auth.mts'

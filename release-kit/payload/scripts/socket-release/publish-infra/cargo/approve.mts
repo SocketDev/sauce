@@ -12,7 +12,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import process from 'node:process'
 
-import { confirm } from '@socketsecurity/lib-stable/stdio/prompts'
+import { confirm } from '@socketsecurity/lib/stdio/prompts'
 
 import { withPinnedReadme } from '../pin-readme.mts'
 import { releaseBehindLiveGate } from '../release.mts'
@@ -20,7 +20,7 @@ import { logger, rootPath, runInherit } from '../shared.mts'
 import { isAlreadyPublished } from './registry.mts'
 import { cratePath, crateSha256, readCargoPackage } from './shared.mts'
 import { packCrate, packCrateAssets } from './staged.mts'
-import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
+import { getEnvValue } from '@socketsecurity/lib/env/rewire'
 
 /**
  * Resolve the staged `.crate` sha256 recorded at stage time, if discoverable:

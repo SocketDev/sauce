@@ -10,8 +10,8 @@
 
 import process from 'node:process'
 
-import { httpRequest } from '@socketsecurity/lib-stable/http-request'
-import { sleep } from '@socketsecurity/lib-stable/promises/timers'
+import { httpRequest } from '@socketsecurity/lib/http-request'
+import { sleep } from '@socketsecurity/lib/promises/timers'
 
 import {
   NPM_AUTH_TOKEN_KEY,

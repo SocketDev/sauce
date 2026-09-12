@@ -1,12 +1,9 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 
-import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
-import {
-  httpJson,
-  HttpResponseError,
-} from '@socketsecurity/lib-stable/http-request'
-import { normalizePath } from '@socketsecurity/lib-stable/paths/normalize'
+import { errorMessage } from '@socketsecurity/lib/errors/message'
+import { httpJson, HttpResponseError } from '@socketsecurity/lib/http-request'
+import { normalizePath } from '@socketsecurity/lib/paths/normalize'
 
 import { parseGitHubSlug } from '../pin-readme.mts'
 import { logger, rootPath, runCapture } from '../shared.mts'

@@ -30,8 +30,8 @@ import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 
-import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
-import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
+import { errorMessage } from '@socketsecurity/lib/errors/message'
+import { safeDelete } from '@socketsecurity/lib/fs/safe'
 
 import { isMainModule } from '../../_shared/is-main-module.mts'
 import { logger, runInherit } from '../shared.mts'

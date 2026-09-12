@@ -2,7 +2,7 @@ import { promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
-import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
+import { safeDelete } from '@socketsecurity/lib/fs/safe'
 
 import { logger, rootPath, runCapture } from '../shared.mts'
 import { collectThreatFailures } from './threat-scan.mts'

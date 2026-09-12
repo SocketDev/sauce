@@ -25,7 +25,7 @@ import {
   logCargoApproveHandoff,
   readCargoPackage,
 } from './shared.mts'
-import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
+import { getEnvValue } from '@socketsecurity/lib/env/rewire'
 
 /**
  * Run `cargo package` (with `--locked` unless `locked` is false) and return the

@@ -15,7 +15,7 @@
 import process from 'node:process'
 import { parseArgs } from 'node:util'
 
-import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+import { errorMessage } from '@socketsecurity/lib/errors/message'
 
 import { isMainModule } from './_shared/is-main-module.mts'
 import { resolveReleaseSubject } from './_shared/release-subject.mts'

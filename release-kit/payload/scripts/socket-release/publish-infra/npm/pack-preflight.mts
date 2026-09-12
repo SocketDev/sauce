@@ -15,8 +15,8 @@
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 
-import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
-import { normalizePath } from '@socketsecurity/lib-stable/paths/normalize'
+import { safeDelete } from '@socketsecurity/lib/fs/safe'
+import { normalizePath } from '@socketsecurity/lib/paths/normalize'
 
 import { logger, runCapture } from '../shared.mts'
 import { requiredPayloadFiles } from './workspace-plan.mts'

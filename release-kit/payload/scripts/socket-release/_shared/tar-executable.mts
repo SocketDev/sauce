@@ -1,6 +1,6 @@
 import process from 'node:process'
 
-import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
+import { getEnvValue } from '@socketsecurity/lib/env/rewire'
 
 import { socketReleaseSystemTarPath } from '../paths.mts'
 

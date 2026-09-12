@@ -23,9 +23,9 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 
-import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
-import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
-import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
+import { errorMessage } from '@socketsecurity/lib/errors/message'
+import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
+import { spawn } from '@socketsecurity/lib/process/spawn/child'
 
 import {
   DEFAULT_PROFILE_DIR,
@@ -34,7 +34,7 @@ import {
   sleep,
 } from './browser-session.mts'
 import { isMainModule } from '../../_shared/is-main-module.mts'
-import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
+import { getEnvValue } from '@socketsecurity/lib/env/rewire'
 
 const logger = getDefaultLogger()
 
