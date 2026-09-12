@@ -254,6 +254,7 @@ function formatDiff(d: Diff, repoRoot: string): string {
   return out.join('\n')
 }
 
+// oxlint-disable-next-line eslint/complexity -- independent lock-step checks
 function main(): void {
   const { values } = parseArgs({
     args: process.argv.slice(2),
@@ -344,6 +345,7 @@ function main(): void {
     process.stdout.write(
       JSON.stringify(
         diffs.map(d => ({
+          __proto__: null,
           canonical: path.relative(repoRoot, d.canonical),
           peer: path.relative(repoRoot, d.peer),
           lang: d.lang,

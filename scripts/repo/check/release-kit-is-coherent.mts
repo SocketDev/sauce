@@ -125,6 +125,7 @@ function isMarkerAllowlisted(rel: string, marker: string): boolean {
   )
 }
 
+// oxlint-disable-next-line eslint/complexity -- independent coherence checks
 function main(): void {
   const failures: string[] = []
 
@@ -198,10 +199,12 @@ function main(): void {
   // 4. Pure-module import discipline.
   const pureTargets = [
     ...PURE_MODULES.map(rel => ({
+      __proto__: null,
       abs: path.join(PAYLOAD_ROOT, rel),
       label: `release-kit/payload/scripts/socket-release/${rel}`,
     })),
     ...SAUCE_PURE_MODULES.map(rel => ({
+      __proto__: null,
       abs: path.join(REPO_ROOT, rel),
       label: rel,
     })),
