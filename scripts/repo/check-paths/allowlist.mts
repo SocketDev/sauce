@@ -31,6 +31,7 @@ import type { AllowlistEntry, Finding } from './types.mts'
  * bad shapes get dropped with a stderr note rather than blowing up the whole
  * gate.
  */
+// oxlint-disable-next-line eslint/complexity -- config validation branches
 const loadAllowlistFromJson = (
   repoRoot: string,
 ): AllowlistEntry[] | undefined => {
@@ -122,6 +123,7 @@ export const unquote = (s: string): string => {
   return t
 }
 
+// oxlint-disable-next-line eslint/complexity -- format validation branches
 export const loadAllowlist = (repoRoot: string): AllowlistEntry[] => {
   // Primary source: `.config/socket-wheelhouse.json` → `pathsAllowlist`
   // array. Fleet convention is "JSON not YAML for our own configs"
@@ -268,7 +270,7 @@ export const snippetHash = (snippet: string): string => {
  * Allowlist matching trades off two failure modes:
  *
  * - Drift via reformatting (a line shift breaks an entry, the finding
- *   re-surfaces, devs paper over with a new entry).
+ *   re-surfaces, devs hide with a new entry).
  * - Stealth allowlisting (an entry pinned to "anywhere in this file" silently
  *   exempts unrelated future violations).
  *
