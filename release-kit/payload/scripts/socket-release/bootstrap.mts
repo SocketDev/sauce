@@ -59,19 +59,68 @@ import type { BootstrapState } from './bootstrap/state.mts'
 import { REPO_ROOT, resolveSeams } from './bootstrap/seams.mts'
 import type { BootstrapSeams } from './bootstrap/seams.mts'
 import { npmAuthGate } from './_shared/human-gate.mts'
-import * as githubEnv from './bootstrap/steps/github-env.mts'
-import * as npmAccessPermissive from './bootstrap/steps/npm-access-permissive.mts'
-import * as npmAccessStagedOnly from './bootstrap/steps/npm-access-staged-only.mts'
-import * as placeholder from './bootstrap/steps/placeholder.mts'
-import * as preflight from './bootstrap/steps/preflight.mts'
-import * as stagedConfig from './bootstrap/steps/staged-config.mts'
-import * as trustedPublisher from './bootstrap/steps/trusted-publisher.mts'
-import * as verify from './bootstrap/steps/verify.mts'
+import {
+  apply as applyGithubEnv,
+  classify as classifyGithubEnv,
+  id as idGithubEnv,
+  plan as planGithubEnv,
+  read as readGithubEnv,
+} from './bootstrap/steps/github-env.mts'
+import {
+  apply as applyNpmAccessPermissive,
+  classify as classifyNpmAccessPermissive,
+  id as idNpmAccessPermissive,
+  plan as planNpmAccessPermissive,
+  read as readNpmAccessPermissive,
+} from './bootstrap/steps/npm-access-permissive.mts'
+import {
+  apply as applyNpmAccessStagedOnly,
+  classify as classifyNpmAccessStagedOnly,
+  id as idNpmAccessStagedOnly,
+  plan as planNpmAccessStagedOnly,
+  read as readNpmAccessStagedOnly,
+} from './bootstrap/steps/npm-access-staged-only.mts'
+import {
+  apply as applyPlaceholder,
+  classify as classifyPlaceholder,
+  id as idPlaceholder,
+  plan as planPlaceholder,
+  read as readPlaceholder,
+} from './bootstrap/steps/placeholder.mts'
+import {
+  apply as applyPreflight,
+  classify as classifyPreflight,
+  id as idPreflight,
+  plan as planPreflight,
+  read as readPreflight,
+} from './bootstrap/steps/preflight.mts'
+import {
+  apply as applyStagedConfig,
+  classify as classifyStagedConfig,
+  id as idStagedConfig,
+  plan as planStagedConfig,
+  read as readStagedConfig,
+} from './bootstrap/steps/staged-config.mts'
+import {
+  apply as applyTrustedPublisher,
+  classify as classifyTrustedPublisher,
+  id as idTrustedPublisher,
+  plan as planTrustedPublisher,
+  read as readTrustedPublisher,
+} from './bootstrap/steps/trusted-publisher.mts'
+import {
+  apply as applyVerify,
+  classify as classifyVerify,
+  id as idVerify,
+  plan as planVerify,
+  read as readVerify,
+} from './bootstrap/steps/verify.mts'
 
 export const KIT_NAME = 'socket-release-kit'
 export const KIT_VERSION = '0.1.0'
 
 interface StepShape {
+  readonly __proto__: null
   apply(
     plan: StepPlan,
     ctx: StepContext,
@@ -87,14 +136,70 @@ interface StepShape {
 }
 
 const STEP_MODULES: Record<StepId, StepShape> = {
-  'github-env': githubEnv as unknown as StepShape,
-  'npm-access-permissive': npmAccessPermissive as unknown as StepShape,
-  'npm-access-staged-only': npmAccessStagedOnly as unknown as StepShape,
-  placeholder: placeholder as unknown as StepShape,
-  preflight: preflight as unknown as StepShape,
-  'staged-config': stagedConfig as unknown as StepShape,
-  'trusted-publisher': trustedPublisher as unknown as StepShape,
-  verify: verify as unknown as StepShape,
+  'github-env': {
+    __proto__: null,
+    apply: applyGithubEnv,
+    classify: classifyGithubEnv,
+    id: idGithubEnv,
+    plan: planGithubEnv,
+    read: readGithubEnv,
+  },
+  'npm-access-permissive': {
+    __proto__: null,
+    apply: applyNpmAccessPermissive,
+    classify: classifyNpmAccessPermissive,
+    id: idNpmAccessPermissive,
+    plan: planNpmAccessPermissive,
+    read: readNpmAccessPermissive,
+  },
+  'npm-access-staged-only': {
+    __proto__: null,
+    apply: applyNpmAccessStagedOnly,
+    classify: classifyNpmAccessStagedOnly,
+    id: idNpmAccessStagedOnly,
+    plan: planNpmAccessStagedOnly,
+    read: readNpmAccessStagedOnly,
+  },
+  placeholder: {
+    __proto__: null,
+    apply: applyPlaceholder,
+    classify: classifyPlaceholder,
+    id: idPlaceholder,
+    plan: planPlaceholder,
+    read: readPlaceholder,
+  },
+  preflight: {
+    __proto__: null,
+    apply: applyPreflight,
+    classify: classifyPreflight,
+    id: idPreflight,
+    plan: planPreflight,
+    read: readPreflight,
+  },
+  'staged-config': {
+    __proto__: null,
+    apply: applyStagedConfig,
+    classify: classifyStagedConfig,
+    id: idStagedConfig,
+    plan: planStagedConfig,
+    read: readStagedConfig,
+  },
+  'trusted-publisher': {
+    __proto__: null,
+    apply: applyTrustedPublisher,
+    classify: classifyTrustedPublisher,
+    id: idTrustedPublisher,
+    plan: planTrustedPublisher,
+    read: readTrustedPublisher,
+  },
+  verify: {
+    __proto__: null,
+    apply: applyVerify,
+    classify: classifyVerify,
+    id: idVerify,
+    plan: planVerify,
+    read: readVerify,
+  },
 }
 
 const USAGE = `Usage: node scripts/socket-release/bootstrap.mts [step ...] [options]

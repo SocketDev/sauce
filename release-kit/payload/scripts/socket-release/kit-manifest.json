@@ -63,7 +63,7 @@
     {
       "channels": ["common"],
       "path": "bootstrap.mts",
-      "sha256": "1be6597959148de7da2227776c48bddfa903fff2ac5a089ec320d4b6cf651c0a"
+      "sha256": "8a1c5729b1bed1998de92619c188909f3aeafd51a3da7cce97ed28842f4ed3c4"
     },
     {
       "channels": ["common"],
