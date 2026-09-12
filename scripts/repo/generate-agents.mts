@@ -1,4 +1,4 @@
-#!/usr/bin/env pnpm dlx tsx
+#!/usr/bin/env node
 // Nested cached-length for-loops intentionally reuse `i`/`length` names for
 // the fleet-wide cached-loop idiom; renaming would diverge from the codebase
 // pattern.
@@ -21,6 +21,7 @@ import {
 } from './lib/validate-marketplace.mts'
 import type { Skill } from './lib/validate-marketplace.mts'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { repoClaudeMarketplacePath } from './_shared/paths.mts'
 
 const logger = getDefaultLogger()
 
@@ -32,7 +33,7 @@ const ROOT = path.resolve(
 const TEMPLATE_PATH = path.join(ROOT, 'docs', 'agents-template.md')
 const OUTPUT_PATH = path.join(ROOT, 'agents', 'README.md')
 const SKILLS_DIR = path.join(ROOT, 'skills')
-const MARKETPLACE_PATH = path.join(ROOT, '.claude-plugin', 'marketplace.json')
+const MARKETPLACE_PATH = repoClaudeMarketplacePath(ROOT)
 const README_PATH = path.join(ROOT, 'README.md')
 
 const README_TABLE_START = '<!-- BEGIN_SKILLS_TABLE -->'
@@ -107,7 +108,7 @@ export function generateReadmeTable(skills: Skill[]): string {
   const lines: string[] = []
 
   for (let i = 0, { length } = CATEGORIES; i < length; i += 1) {
-    const [key, def] = CATEGORIES[i]!
+    const { 0: key, 1: def } = CATEGORIES[i]!
     const catSkills = grouped.get(key)
     if (!catSkills || catSkills.length === 0) {
       continue

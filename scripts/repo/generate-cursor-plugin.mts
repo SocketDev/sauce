@@ -1,4 +1,4 @@
-#!/usr/bin/env pnpm dlx tsx
+#!/usr/bin/env node
 /**
  * Generate Cursor plugin artifacts — .cursor-plugin/plugin.json and
  * .cursor-plugin/mcp.json — from .claude-plugin/plugin.json.
@@ -22,6 +22,7 @@ import { fileURLToPath } from 'node:url'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
 import { parseFrontmatter } from './lib/frontmatter.mts'
+import { repoClaudePluginPath } from './_shared/paths.mts'
 
 const logger = getDefaultLogger()
 
@@ -45,7 +46,7 @@ export interface GenerateResult {
 export function buildCursorPluginManifest(
   root: string = ROOT,
 ): Record<string, unknown> {
-  const src = loadJson(path.join(root, '.claude-plugin', 'plugin.json'))
+  const src = loadJson(repoClaudePluginPath(root))
 
   const name = src['name']
   if (typeof name !== 'string' || !name) {

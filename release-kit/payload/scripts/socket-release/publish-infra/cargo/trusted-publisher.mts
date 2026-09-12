@@ -45,6 +45,7 @@ import { httpJson, HttpResponseError } from '@socketsecurity/lib/http-request'
 import { normalizePath } from '@socketsecurity/lib/paths/normalize'
 
 import { isMainModule } from '../../_shared/is-main-module.mts'
+import { socketReleaseWorkflowsPath } from '../../paths.mts'
 import { parseGitHubSlug } from '../pin-readme.mts'
 import { logger, rootPath, runCapture } from '../shared.mts'
 import { cargoTokenProblem, resolveCratesToken } from './placeholder.mts'
@@ -850,7 +851,7 @@ export async function main(): Promise<void> {
   const slug = args.repo ?? (await resolveRepoSlug(root))
   const surface = args.workflow
     ? { environment: args.environment, workflowFilename: args.workflow }
-    : await readCargoPublishSurface(path.join(root, '.github', 'workflows'))
+    : await readCargoPublishSurface(socketReleaseWorkflowsPath(root))
   const target = buildTrustedPublisherTarget(slug, surface, {
     environment: args.environment,
     workflow: args.workflow,

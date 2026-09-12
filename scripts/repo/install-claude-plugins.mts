@@ -54,6 +54,7 @@ import type {
   MarketplacePlugin,
   PluginListEntry,
 } from './install-claude-plugins-internal.mts'
+import { repoClaudeMarketplacePath } from './_shared/paths.mts'
 
 // Re-exported so `scripts/repo/test/install-claude-plugins.test.mts` keeps a
 // single stable import path across the split — the pure helpers + types
@@ -134,7 +135,7 @@ function ensureMarketplace(): MarketplaceListEntry {
     // relative to upstream. Pull a fresh copy so we read today's pinned
     // set, not whatever was committed when this machine first added the
     // marketplace. Cheap (Claude Code downloads a tarball snapshot, no
-    // git clone) and idempotent.
+    // `git clone`) and idempotent.
     logger.log(
       `Marketplace "${MARKETPLACE_NAME}" already added; refreshing snapshot…`,
     )
@@ -193,11 +194,7 @@ function loadMarketplaceManifest(
         'cannot read its marketplace.json.',
     )
   }
-  const manifestPath = path.join(
-    marketplace.installLocation,
-    '.claude-plugin',
-    'marketplace.json',
-  )
+  const manifestPath = repoClaudeMarketplacePath(marketplace.installLocation)
   if (!existsSync(manifestPath)) {
     throw new Error(
       `marketplace.json not found at ${manifestPath} ` +

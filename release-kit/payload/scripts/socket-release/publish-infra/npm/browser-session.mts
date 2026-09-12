@@ -54,7 +54,6 @@
 import { safeDelete } from '@socketsecurity/lib/fs/safe'
 import { existsSync } from 'node:fs'
 import { promises as fs } from 'node:fs'
-import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 
@@ -62,6 +61,7 @@ import { chromium } from 'playwright-core'
 import type { BrowserContext, Page } from 'playwright-core'
 
 import { logger } from '../shared.mts'
+import { SOCKET_RELEASE_BROWSER_PROFILE_DIR } from '../../paths.mts'
 
 export const NPM_ORIGIN = 'https://www.npmjs.com'
 
@@ -70,12 +70,7 @@ export const NPM_ORIGIN = 'https://www.npmjs.com'
  * the OS config dir, never in the repo tree. Historical directory name kept
  * so profiles already signed in keep working.
  */
-export const DEFAULT_PROFILE_DIR = path.join(
-  os.homedir(),
-  '.config',
-  'socket-wheelhouse',
-  'staged-browser-profile',
-)
+export const DEFAULT_PROFILE_DIR = SOCKET_RELEASE_BROWSER_PROFILE_DIR
 
 // npm OAuth / 2FA is human-paced.
 const SIGN_IN_TIMEOUT_MS = 5 * 60_000

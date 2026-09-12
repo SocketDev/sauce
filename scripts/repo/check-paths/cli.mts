@@ -38,8 +38,13 @@ import path from 'node:path'
 import process from 'node:process'
 import { parseArgs } from 'node:util'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+import {
+  getDefaultFormatting,
+  stringifyWithFormatting,
+} from '@socketsecurity/lib-stable/json/format'
 
 import { REPO_ROOT } from '../../fleet/paths.mts'
+import { sharedGithubWorkflowsPath } from '../../fleet/paths/util.mts'
 import { isAllowlisted, loadAllowlist, snippetHash } from './allowlist.mts'
 import { isExempt } from './exempt.mts'
 import { checkRuleF } from './rules.mts'
@@ -75,8 +80,7 @@ const args = parseArgs({
 
 const ALLOWLIST = loadAllowlist(REPO_ROOT)
 
-const main = (): number => {
-  // Scan code files (Rule A + B).
+export function scanCodePaths(): void {
   for (const rel of walk(
     REPO_ROOT,
     REPO_ROOT,
@@ -87,17 +91,9 @@ const main = (): number => {
     }
     scanCodeFile(REPO_ROOT, rel)
   }
-  // Scan workflows (Rule C + D).
-  const workflowDir = path.join(REPO_ROOT, '.github', 'workflows')
-  if (existsSync(workflowDir)) {
-    for (const rel of walk(REPO_ROOT, workflowDir, p => p.endsWith('.yml'))) {
-      if (isExempt(rel)) {
-        continue
-      }
-      scanWorkflowFile(REPO_ROOT, rel)
-    }
-  }
-  // Scan scripts/Makefiles/Dockerfiles (Rule G).
+}
+
+export function scanScriptPaths(): void {
   for (const rel of walk(REPO_ROOT, REPO_ROOT, p => {
     const base = path.basename(p)
     return (
@@ -115,6 +111,24 @@ const main = (): number => {
     }
     scanScriptFile(REPO_ROOT, rel)
   }
+}
+
+export function scanWorkflowPaths(): void {
+  const workflowDir = sharedGithubWorkflowsPath(REPO_ROOT)
+  if (existsSync(workflowDir)) {
+    for (const rel of walk(REPO_ROOT, workflowDir, p => p.endsWith('.yml'))) {
+      if (isExempt(rel)) {
+        continue
+      }
+      scanWorkflowFile(REPO_ROOT, rel)
+    }
+  }
+}
+
+export function main(): number {
+  scanCodePaths()
+  scanWorkflowPaths()
+  scanScriptPaths()
   // Promote cross-file Rule-A repeats to Rule F.
   checkRuleF()
 
@@ -124,11 +138,10 @@ const main = (): number => {
 
   if (args.values.json) {
     process.stdout.write(
-      JSON.stringify(
+      stringifyWithFormatting(
         { findings: blocking, allowlisted: findings.length - blocking.length },
-        null,
-        2,
-      ) + '\n',
+        getDefaultFormatting(),
+      ),
     )
     return blocking.length === 0 ? 0 : 1
   }

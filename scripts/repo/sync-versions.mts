@@ -10,6 +10,10 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
 import { runMain } from '../fleet/process/run-main.mts'
 import type { ScriptMeta } from '../fleet/process/run-main.mts'
+import {
+  repoClaudeMarketplacePath,
+  repoClaudePluginPath,
+} from './_shared/paths.mts'
 
 const logger = getDefaultLogger()
 
@@ -36,7 +40,7 @@ export function writeJSON(filePath: string, data: unknown): void {
 }
 
 export function syncPluginVersions(root: string = ROOT): void {
-  const source = path.join(root, '.claude-plugin', 'plugin.json')
+  const source = repoClaudePluginPath(root)
   const version = readJSON(source).version
   if (typeof version !== 'string' || !version) {
     throw new Error(
@@ -45,7 +49,7 @@ export function syncPluginVersions(root: string = ROOT): void {
   }
 
   const targets = [
-    path.join(root, '.claude-plugin', 'marketplace.json'),
+    repoClaudeMarketplacePath(root),
     path.join(root, 'gemini-extension.json'),
   ]
 

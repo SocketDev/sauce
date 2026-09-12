@@ -26,6 +26,7 @@ import {
   SHIPPED_MARKER_ALLOWLIST,
   SHIPPED_ROOT_FILES,
 } from '../constants/shipped-surfaces.mts'
+import { repoClaudeMarketplacePath } from '../_shared/paths.mts'
 
 const logger = getDefaultLogger()
 const ROOT = path.resolve(
@@ -93,7 +94,7 @@ export function findFleetLeaks(tracked: string[]): string[] {
 }
 
 export function findUnshippedManifestSources(): string[] {
-  const manifestPath = path.join(ROOT, '.claude-plugin', 'marketplace.json')
+  const manifestPath = repoClaudeMarketplacePath(ROOT)
   const manifest: {
     plugins?:
       | Array<{

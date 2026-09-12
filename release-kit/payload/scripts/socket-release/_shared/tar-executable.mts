@@ -1,5 +1,6 @@
-import path from 'node:path'
 import process from 'node:process'
+
+import { socketReleaseSystemTarPath } from '../paths.mts'
 
 /**
  * Select Windows' native bsdtar; use the PATH-provided tar on POSIX.
@@ -9,6 +10,6 @@ export function tarExecutable(
   systemRoot: string | undefined = process.env['SystemRoot'],
 ): string {
   return platform === 'win32'
-    ? path.join(systemRoot ?? 'C:\\Windows', 'System32', 'tar.exe')
+    ? socketReleaseSystemTarPath(systemRoot ?? 'C:\\Windows')
     : 'tar'
 }

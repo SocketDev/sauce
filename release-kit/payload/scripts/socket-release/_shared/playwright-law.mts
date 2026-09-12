@@ -30,19 +30,13 @@
  *     limit that then masquerades as a broken session.
  */
 
-import os from 'node:os'
-import path from 'node:path'
+import { SOCKET_RELEASE_BROWSER_PROFILE_DIR } from '../paths.mts'
 
 /**
  * The ONE durable Chrome profile every npm browser tool shares. Mirrors the
  * sanctioned session module so profiles already signed in keep working.
  */
-export const LAWFUL_PROFILE_DIR = path.join(
-  os.homedir(),
-  '.config',
-  'socket-wheelhouse',
-  'staged-browser-profile',
-)
+export const LAWFUL_PROFILE_DIR = SOCKET_RELEASE_BROWSER_PROFILE_DIR
 
 /**
  * The only sanctioned `ignoreDefaultArgs` value — see the file header for
