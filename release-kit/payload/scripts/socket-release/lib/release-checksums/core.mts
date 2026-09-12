@@ -39,8 +39,10 @@ export interface Hash {
   readonly sri: string
 }
 
+// Capture a supported SHA algorithm followed by one base64 digest.
 const SRI_RE = /^(sha(?:256|384|512))-([A-Za-z0-9+/]+=*)$/u
 const HEX_RE = /^[a-f0-9]+$/iu
+const HASH_ALGORITHMS: readonly HashAlgorithm[] = ['sha256', 'sha384', 'sha512']
 const HEX_LENGTHS: Readonly<Record<HashAlgorithm, number>> = {
   sha256: 64,
   sha384: 96,
@@ -53,20 +55,27 @@ export function parseHash(input: string | Hash): Hash {
   }
   const sriMatch = SRI_RE.exec(input)
   if (sriMatch) {
-    const algorithm = sriMatch[1] as HashAlgorithm
+    const algorithm = sriMatch[1]
+    if (!isHashAlgorithm(algorithm)) {
+      throw new TypeError('Expected a sha256, sha384, or sha512 digest.')
+    }
     const hex = Buffer.from(sriMatch[2]!, 'base64').toString('hex')
     if (hex.length !== HEX_LENGTHS[algorithm]) {
       throw new TypeError(`Invalid ${algorithm} digest length.`)
     }
     return makeHash(algorithm, hex)
   }
-  const algorithm = Object.entries(HEX_LENGTHS).find(
-    ([, length]) => length === input.length,
-  )?.[0] as HashAlgorithm | undefined
+  const algorithm = HASH_ALGORITHMS.find(
+    candidate => HEX_LENGTHS[candidate] === input.length,
+  )
   if (!algorithm || !HEX_RE.test(input)) {
     throw new TypeError('Expected a sha256, sha384, or sha512 digest.')
   }
   return makeHash(algorithm, input)
+}
+
+function isHashAlgorithm(value: string | undefined): value is HashAlgorithm {
+  return HASH_ALGORITHMS.some(algorithm => algorithm === value)
 }
 
 export function equalHashes(

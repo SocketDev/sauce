@@ -188,12 +188,12 @@
     {
       "channels": ["github-release"],
       "path": "lib/release-checksums/core.mts",
-      "sha256": "ce1e5a291a12abcdf0cc3e2f569c2b0cd05738384b29d0bffcab235e685231c8"
+      "sha256": "b40591789a07687c68e25beeac6eb8c0e1c6417df25b96df0cd2507add89f355"
     },
     {
       "channels": ["github-release"],
       "path": "lib/release-checksums/producer.mts",
-      "sha256": "c768868814b0dae708f5b8cc3e96237ba5eddb7270849bdb695c52f4e9badd42"
+      "sha256": "7ed2e77c70f2be8a55e37de0ec7ddce3a51fe70e85529944eed88eb204b0273a"
     },
     {
       "channels": ["common"],
@@ -263,7 +263,7 @@
     {
       "channels": ["crates"],
       "path": "publish-infra/cargo/trusted-publisher-runtime.mts",
-      "sha256": "154034b022c3983610ca98ba7e274466336a411abbe3fd80e4cb04c3c36bba3d"
+      "sha256": "cbd601be8abe309f3293c7d8195d8470970d8789920fa0fb011bc5f5a252c9dc"
     },
     {
       "channels": ["crates"],
@@ -273,7 +273,7 @@
     {
       "channels": ["crates"],
       "path": "publish-infra/cargo/trusted-publisher.mts",
-      "sha256": "ebfc4ed526946c5b6d6e8343adea38a7076a68e03cb73c27b1d832f34d4e60ef"
+      "sha256": "618c366cddf183863bd37e91c19c9d4cb27a25fb6dfce94c8c675859538af480"
     },
     {
       "channels": ["npm"],
