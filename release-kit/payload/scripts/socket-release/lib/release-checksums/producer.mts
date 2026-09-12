@@ -45,6 +45,7 @@ export async function hashDirectory(
   dir: string,
 ): Promise<Record<string, string>> {
   const entries = await fs.readdir(dir, { withFileTypes: true })
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   const out: Record<string, string> = { __proto__: null as never }
   for (let i = 0, { length } = entries; i < length; i += 1) {
     const entry = entries[i]!
@@ -100,6 +101,7 @@ export function updateReleaseAssets(config: UpdateAssetsConfig): void {
   let manifest: EmbeddedChecksums & {
     $schema?: string | undefined
     $comment?: string | undefined
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   } = { __proto__: null as never } as never
   try {
     manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
@@ -107,6 +109,7 @@ export function updateReleaseAssets(config: UpdateAssetsConfig): void {
     // New file — start fresh.
   }
 
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   const sriChecksums: Record<string, string> = { __proto__: null as never }
   const assetNames = Object.keys(checksums)
   for (let i = 0, { length } = assetNames; i < length; i += 1) {

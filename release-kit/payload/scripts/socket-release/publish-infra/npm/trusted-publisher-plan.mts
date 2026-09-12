@@ -214,6 +214,7 @@ export interface RegistryManifestEntry {
 export function parseSocketRegistryManifest(
   manifestJson: string,
 ): RegistryManifestEntry[] {
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   const parsed = JSON.parse(manifestJson) as { npm?: unknown | undefined }
   if (!Array.isArray(parsed.npm)) {
     throw new Error(
@@ -223,6 +224,7 @@ export function parseSocketRegistryManifest(
   }
   const byName = new Map<string, RegistryManifestEntry>()
   for (let i = 0, { length } = parsed.npm; i < length; i += 1) {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
     const entry = parsed.npm[i] as unknown[]
     if (!Array.isArray(entry)) {
       continue
@@ -230,7 +232,8 @@ export function parseSocketRegistryManifest(
     const purl = typeof entry[0] === 'string' ? entry[0] : ''
     const data =
       entry[1] && typeof entry[1] === 'object'
-        ? (entry[1] as Record<string, unknown>)
+        ? // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
+          (entry[1] as Record<string, unknown>)
         : {}
     let name = typeof data['name'] === 'string' ? data['name'] : ''
     if (!name) {

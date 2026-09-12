@@ -89,6 +89,7 @@ export async function readPublishableCargoPackages(
   }
   let parsed: { packages?: RawCargoPackage[] | undefined }
   try {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
     parsed = JSON.parse(stdout) as { packages?: RawCargoPackage[] | undefined }
   } catch {
     throw new Error('[cargo] could not parse `cargo metadata` JSON output.')

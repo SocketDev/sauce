@@ -127,28 +127,33 @@ export function resolveBrewSeams(cwd: string): BrewSeams {
         ),
       ])
       const defaultBranch =
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
         (repoRead.body as { default_branch?: string | undefined } | undefined)
           ?.default_branch ?? 'main'
       const ref =
         refRead.code === 0
           ? refRead
           : await ghJson(`repos/${cfg.repo}/git/ref/heads/${defaultBranch}`)
-      const parentSha = (
-        ref.body as
-          | { object?: { sha?: string | undefined } | undefined }
-          | undefined
-      )?.object?.sha
+      const parentSha =
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
+        (
+          ref.body as
+            | { object?: { sha?: string | undefined } | undefined }
+            | undefined
+        )?.object?.sha
       if (!parentSha) {
         throw new Error(`could not resolve ${cfg.repo}'s default branch head.`)
       }
       const commitRead = await ghJson(
         `repos/${cfg.repo}/git/commits/${parentSha}`,
       )
-      const baseTreeSha = (
-        commitRead.body as
-          | { tree?: { sha?: string | undefined } | undefined }
-          | undefined
-      )?.tree?.sha
+      const baseTreeSha =
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
+        (
+          commitRead.body as
+            | { tree?: { sha?: string | undefined } | undefined }
+            | undefined
+        )?.tree?.sha
       if (!baseTreeSha) {
         throw new Error(`could not resolve ${cfg.repo}'s HEAD tree.`)
       }
@@ -191,6 +196,7 @@ export function resolveBrewSeams(cwd: string): BrewSeams {
         return { __proto__: null, assets: [], exists: false, isDraft: false }
       }
       try {
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
         const parsed = JSON.parse(stdout) as {
           assets?: Array<{ name?: string | undefined }> | undefined
           isDraft?: boolean | undefined
@@ -212,6 +218,7 @@ export function resolveBrewSeams(cwd: string): BrewSeams {
       if (code !== 0) {
         return undefined
       }
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
       const doc = body as
         | { content?: string | undefined; sha?: string | undefined }
         | undefined

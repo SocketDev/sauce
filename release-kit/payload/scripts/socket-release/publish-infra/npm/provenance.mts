@@ -77,6 +77,7 @@ export function selectSlsaAttestation(
   | { bundle?: unknown | undefined; predicateType?: unknown | undefined }
   | undefined {
   for (let i = 0, { length } = attestations; i < length; i += 1) {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
     const entry = attestations[i] as
       | { bundle?: unknown | undefined; predicateType?: unknown | undefined }
       | undefined
@@ -98,11 +99,13 @@ export function selectSlsaAttestation(
  * pass. Pure.
  */
 export function decodeDsseStatement(bundle: unknown): unknown {
-  const payload = (
-    bundle as
-      | { dsseEnvelope?: { payload?: unknown | undefined } | undefined }
-      | undefined
-  )?.dsseEnvelope?.payload
+  const payload =
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
+    (
+      bundle as
+        | { dsseEnvelope?: { payload?: unknown | undefined } | undefined }
+        | undefined
+    )?.dsseEnvelope?.payload
   if (typeof payload !== 'string' || payload.length === 0) {
     return undefined
   }
@@ -120,22 +123,25 @@ export function decodeDsseStatement(bundle: unknown): unknown {
 export function readStatementGitSource(
   statement: unknown,
 ): AttestedGitSource | undefined {
-  const resolved = (
-    statement as
-      | {
-          predicate?:
-            | {
-                buildDefinition?:
-                  | { resolvedDependencies?: unknown | undefined }
-                  | undefined
-              }
-            | undefined
-        }
-      | undefined
-  )?.predicate?.buildDefinition?.resolvedDependencies
+  const resolved =
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
+    (
+      statement as
+        | {
+            predicate?:
+              | {
+                  buildDefinition?:
+                    | { resolvedDependencies?: unknown | undefined }
+                    | undefined
+                }
+              | undefined
+          }
+        | undefined
+    )?.predicate?.buildDefinition?.resolvedDependencies
   if (!Array.isArray(resolved) || resolved.length === 0) {
     return undefined
   }
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   const first = resolved[0] as
     | {
         digest?: { gitCommit?: unknown | undefined } | undefined
@@ -156,9 +162,9 @@ export function readStatementGitSource(
  * lets the release-tag gate's tests inject a registry dependency.
  */
 export function classifyAttestationBody(body: unknown): AttestationRead {
-  const attestations = (
-    body as { attestations?: unknown | undefined } | undefined
-  )?.attestations
+  const attestations =
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
+    (body as { attestations?: unknown | undefined } | undefined)?.attestations
   if (!Array.isArray(attestations) || attestations.length === 0) {
     return {
       detail: 'the attestation endpoint returned no attestations',
@@ -169,6 +175,7 @@ export function classifyAttestationBody(body: unknown): AttestationRead {
   if (!slsa) {
     const seen = attestations
       .map(a =>
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
         String((a as { predicateType?: unknown | undefined })?.predicateType),
       )
       .join(', ')

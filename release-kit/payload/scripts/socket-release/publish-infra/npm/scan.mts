@@ -270,11 +270,13 @@ export function normalizeFullScanArtifacts(
   data: unknown,
 ): FullScanArtifact[] | undefined {
   if (Array.isArray(data)) {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
     return data as FullScanArtifact[]
   }
   if (data !== null && typeof data === 'object') {
     const maybe = (data as { artifacts?: unknown | undefined }).artifacts
     if (Array.isArray(maybe)) {
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
       return maybe as FullScanArtifact[]
     }
   }
@@ -293,6 +295,7 @@ export function extractSecurityPolicyRules(
     const rules = (data as { securityPolicyRules?: unknown | undefined })
       .securityPolicyRules
     if (rules !== null && typeof rules === 'object') {
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
       return rules as SecurityPolicyRules
     }
   }
@@ -509,6 +512,7 @@ async function runThreatLeg(
     const packageDir = path.join(dir, 'package')
     let manifest: ThreatManifest = {}
     try {
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
       manifest = JSON.parse(
         await fs.readFile(path.join(packageDir, 'package.json'), 'utf8'),
       ) as ThreatManifest

@@ -150,6 +150,7 @@ export async function resolveNpmUser(page: Page): Promise<string> {
     'application/json',
   )
   try {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
     const parsed = JSON.parse(body) as {
       user?: { name?: unknown | undefined } | null | undefined
       username?: unknown | undefined

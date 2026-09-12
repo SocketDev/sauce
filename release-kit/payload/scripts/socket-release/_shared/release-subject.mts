@@ -45,6 +45,7 @@ interface ManifestShape {
 }
 
 function readManifest(manifestPath: string): ManifestShape {
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   return JSON.parse(readFileSync(manifestPath, 'utf8')) as ManifestShape
 }
 

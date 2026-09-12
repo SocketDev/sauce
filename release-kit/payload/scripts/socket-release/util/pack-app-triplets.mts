@@ -93,6 +93,7 @@ export const PACK_APP_TRIPLET_SET: ReadonlySet<PackAppTriplet> = new Set(
 export function isPackAppTriplet(value: unknown): value is PackAppTriplet {
   return (
     typeof value === 'string' &&
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
     PACK_APP_TRIPLET_SET.has(value as PackAppTriplet)
   )
 }

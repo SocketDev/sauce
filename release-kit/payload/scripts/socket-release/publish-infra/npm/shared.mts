@@ -52,6 +52,7 @@ export function readKitNpmAccess(
       path.join(root, '.config', 'socket-release.json'),
       'utf8',
     )
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
     const doc = JSON.parse(raw) as {
       npm?: { access?: unknown | undefined } | undefined
     }
@@ -67,6 +68,7 @@ export function readKitDistTag(root: string = rootPath): string | undefined {
       path.join(root, '.config', 'socket-release.json'),
       'utf8',
     )
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
     const doc = JSON.parse(raw) as {
       npm?: { distTag?: unknown | undefined } | undefined
     }
@@ -82,6 +84,7 @@ export function readPublishConfigAccess(
 ): NpmAccess | undefined {
   try {
     const raw = readFileSync(manifestPath, 'utf8')
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
     const doc = JSON.parse(raw) as {
       publishConfig?: { access?: unknown | undefined } | undefined
     }
@@ -270,9 +273,11 @@ export function parseStageListJson(stdout: string): StageListEntry[] {
     }
   }
   const rawEntries: Array<RawStageEntry | undefined> = Array.isArray(parsed)
-    ? (parsed as Array<RawStageEntry | undefined>)
+    ? // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
+      (parsed as Array<RawStageEntry | undefined>)
     : parsed !== null && typeof parsed === 'object'
-      ? (Object.values(parsed) as Array<RawStageEntry | undefined>)
+      ? // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
+        (Object.values(parsed) as Array<RawStageEntry | undefined>)
       : []
   const result: StageListEntry[] = []
   for (let i = 0, { length } = rawEntries; i < length; i += 1) {

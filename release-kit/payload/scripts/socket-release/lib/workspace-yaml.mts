@@ -20,6 +20,7 @@ export function parseCatalogBlock(
   content: string,
   options?: { blockKey?: string | undefined } | undefined,
 ): Record<string, string> {
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   const opts = Object.assign(Object.create(null) as Record<string, string>, {
     blockKey: 'catalog',
     ...options,
@@ -65,6 +66,7 @@ export function parseListBlock(
   content: string,
   config: { blockKey: string },
 ): string[] {
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   const cfg = Object.assign(Object.create(null), config) as {
     blockKey: string
   }

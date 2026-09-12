@@ -196,6 +196,7 @@ export async function runBrewPublish(
     )
   }
   const checksums = parseChecksumsTxt(checksumsText)
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   const platforms = {} as FormulaSpec['platforms']
   for (let i = 0, { length } = assets; i < length; i += 1) {
     const { asset, triplet } = assets[i]!
@@ -212,6 +213,7 @@ export async function runBrewPublish(
       )
     }
     if ((FORMULA_PLATFORMS as readonly string[]).includes(triplet)) {
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
       platforms[triplet as FormulaPlatform] = {
         sha256: hex,
         url: `https://github.com/${cfg.slug}/releases/download/${cfg.tag}/${asset}`,

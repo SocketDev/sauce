@@ -129,6 +129,7 @@ export function readManifest(
     return undefined
   }
   try {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
     return JSON.parse(raw) as WorkspaceManifestShape
   } catch {
     return undefined

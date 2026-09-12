@@ -33,7 +33,7 @@
     {
       "channels": ["common"],
       "path": "_shared/playwright-law.mts",
-      "sha256": "e337a6bcf55ede88324409a34f48d92955e23ccd24a5a2199624ccdbcc2c66dd"
+      "sha256": "34555827e8a823b824d74fd4de96404f60281684475802d1c77d77e7b64e925c"
     },
     {
       "channels": ["common"],
@@ -43,7 +43,7 @@
     {
       "channels": ["common"],
       "path": "_shared/release-subject.mts",
-      "sha256": "072a93437c56f149350c844ade1068e4b999a9dcfead73f09a074d094f3a6f6d"
+      "sha256": "c02fa55c6740b482e3b3c511ad4eea5e335cc4096d24f981c067c8d2da2cb710"
     },
     {
       "channels": ["common"],
@@ -63,7 +63,7 @@
     {
       "channels": ["common"],
       "path": "bootstrap.mts",
-      "sha256": "8a1c5729b1bed1998de92619c188909f3aeafd51a3da7cce97ed28842f4ed3c4"
+      "sha256": "eba49a210a0454354236db280bef0fe07e1e0987eb1a736633d03343b380a1ca"
     },
     {
       "channels": ["common"],
@@ -138,7 +138,7 @@
     {
       "channels": ["brew"],
       "path": "brew-publish.mts",
-      "sha256": "63ad4bc3b9fe52a910fd4771b3e4ccca4d5dfb9c711586bf93d235382e1ae5c1"
+      "sha256": "e9f42c52c46e9c3cacb643808a50e6e4be7c0efe1dd442174daad34bea84d419"
     },
     {
       "channels": ["crates"],
@@ -153,7 +153,7 @@
     {
       "channels": ["github-release"],
       "path": "create-release.mts",
-      "sha256": "a841b95bfa3df4000b1ccda352c45554b47f41cec7a1c6f0a0215c4ce2849a27"
+      "sha256": "5b48a81136b6426068abb26b9874a32e9d045311400dab8352155620367d6ff0"
     },
     {
       "channels": ["github-release"],
@@ -178,12 +178,12 @@
     {
       "channels": ["github-release"],
       "path": "lib/release-checksums/core.mts",
-      "sha256": "1e5a925f038425aed85440fa590ee7d53d9cc641404e24ffbb889a72f85fb2b7"
+      "sha256": "1f0878453709380f8ed443e017d71fdffbd7c4cc93f5ffa7e5eb3eecde3b5b65"
     },
     {
       "channels": ["github-release"],
       "path": "lib/release-checksums/producer.mts",
-      "sha256": "71149ddc9771eec5306e00543c6ed9cd319e055524b3e813d37e6b047c1a95b6"
+      "sha256": "b99e2b08129f5259be1eeae89489d4aab792135a241ffa48f028458a5f9d0adb"
     },
     {
       "channels": ["common"],
@@ -193,7 +193,7 @@
     {
       "channels": ["common"],
       "path": "lib/workspace-yaml.mts",
-      "sha256": "11bd96c62c6b7b3eee683ef1143d77e4cc55c8dd762902d478a0253c2beb7eb7"
+      "sha256": "1e31225f2e88ebd66dee5347bb7ddd1c8cd7f8a4a83c983509546e1802e2aef6"
     },
     {
       "channels": ["npm"],
@@ -223,12 +223,12 @@
     {
       "channels": ["brew"],
       "path": "publish-infra/brew/tap.mts",
-      "sha256": "819266972f8dcd87fae911fd090915efe7e15e8c4ff6c71d670c183a2a8a18bb"
+      "sha256": "1307791d7999b118bd7cac0ee7bd6ec58dc28290bb44cc02fdfe97395cd3a462"
     },
     {
       "channels": ["crates"],
       "path": "publish-infra/cargo/approve.mts",
-      "sha256": "bca1d3ed2b8532a07dfb74d3f02d5a84c288c14ebc0801d77c1b57da8179bf8c"
+      "sha256": "d39b493aa31afc5f94af550a4b766d3eaa69a79b86e20aa832c800983b5d12b8"
     },
     {
       "channels": ["crates"],
@@ -238,12 +238,12 @@
     {
       "channels": ["crates"],
       "path": "publish-infra/cargo/registry.mts",
-      "sha256": "d5c81723ff1cc5b5b03822320cd4b84255de0527fb143bea9f859a66e4bd8412"
+      "sha256": "a159aace49bbe41811ccae004066175adc0c0539ed4f586d8620ede994817da3"
     },
     {
       "channels": ["crates"],
       "path": "publish-infra/cargo/shared.mts",
-      "sha256": "966a0cd82fc7c648fdc7eeac13fa20e165843447ae8d90f903ab8f174ee9a348"
+      "sha256": "ba265d451e20199a69c8b887c45989f919269740854953525374b1b78544bab8"
     },
     {
       "channels": ["crates"],
@@ -253,7 +253,7 @@
     {
       "channels": ["crates"],
       "path": "publish-infra/cargo/trusted-publisher.mts",
-      "sha256": "44cf9d802eae658983a92465dc9e6ff3828ee09ab548cbfc32c699851bf03bdc"
+      "sha256": "ba0f0bc2a68370e39c53e6d6632cf05e3ba7270001b7f8c32c6e1a0b2ad079b2"
     },
     {
       "channels": ["npm"],
@@ -288,7 +288,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/browser-session.mts",
-      "sha256": "a85355d09223c332d7e56f46eddc09bc5a84e3666b80a8d1bdfe59d88819e764"
+      "sha256": "9f642fae4a5fcc895ad332c8c831fd6f7f0c8f44b7602da7ade4acc68de96d42"
     },
     {
       "channels": ["npm"],
@@ -303,7 +303,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/pack-manifest.mts",
-      "sha256": "4cba521fe2182a457b9985ce3297c39dc90db72b3d754f24231fb16a5ea283ec"
+      "sha256": "5a9c2ad577daf879bae5d40eb25100062c27f72969a28cec050fbdcb97472ce5"
     },
     {
       "channels": ["npm"],
@@ -323,7 +323,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/provenance.mts",
-      "sha256": "02d04fb94d3fc620575d52dde42da6af5ea7e66b6fcc17960b6667b31ef4ccd2"
+      "sha256": "f50a5b08d7a5daba9d5ece3e6a5c577348043a0c03b24652533a253a1a3f8d50"
     },
     {
       "channels": ["npm"],
@@ -333,17 +333,17 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/scan.mts",
-      "sha256": "351a17c5c12ccb97f9615a95e71241cecc09e9e774ca7e251520067460734ab4"
+      "sha256": "a6c327fed5a5151e959b529cf9d6dcc6b28e580427d5cf9c9fbb57cefe1633e3"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/shared.mts",
-      "sha256": "c2c2ddfba7c0e7c923063f0ab695f271bc4c097571edcc579307a40cfb499a2f"
+      "sha256": "b0a66a86ed6a558521ee590faa9a7c1caf4cec5477230a04b24aa093db524a67"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/staged-browser-parse.mts",
-      "sha256": "fd6cd8f4e37387ba2580f13cbdffe4e7e9754cd9c2b3908da25738a90c97f2fe"
+      "sha256": "d92c5d1d79cc24c104927c662f0776be4cc3dbadb6139b7a5b3fca4006059c51"
     },
     {
       "channels": ["npm"],
@@ -353,22 +353,22 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/staged-workspace.mts",
-      "sha256": "5b60b4dc22013479daed498683df963250a43316dca3b1c1790e4d3b9e05d42a"
+      "sha256": "a98320cc908f94828687d936d56d6f24d4f5da0e2c33064f0fbee594a1babc28"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/staged.mts",
-      "sha256": "3c611315d9743b9b03db663d2433199fd1112f10049b366105f0826a94effa26"
+      "sha256": "a28d818ef3eb5175af1acbf210d77dccce348fc9af5f578e232facba1f525630"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/threat-scan.mts",
-      "sha256": "2abc9a11438378112af7800078fdb09c6a1e06d5e34e89e8580fb83294f8f09d"
+      "sha256": "624e041937d5dcb2330a57a7ce3727e251dde057022e041c346444ce4460a216"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/trust-sweep.mts",
-      "sha256": "5d45b1029d555f29b1b532308ac487e630da6215c4806076730fa34bddefd817"
+      "sha256": "f677ce37ce4fddc2fd9437a73b792bd59be27a1b7b89f4eca7537f979cccf8ea"
     },
     {
       "channels": ["npm"],
@@ -388,7 +388,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/trusted-publisher-plan.mts",
-      "sha256": "5747b645915468b286dac1d4b6c874413bc215cbca56cd5a49f8f78d2553486b"
+      "sha256": "ac35208205749045ebe6959efc0dfb87b01309b024f74b455ce64c3782ba8adf"
     },
     {
       "channels": ["npm"],
@@ -398,7 +398,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/workspace.mts",
-      "sha256": "1eb3c3f3065ea442c07d5fa3e8b88c766cb7cc8c977e3f74b4dad83b751889f9"
+      "sha256": "3544a199027b4fbd36c762dbcf4159b42694a58c50809184d5409fd89cbe629c"
     },
     {
       "channels": ["common"],
@@ -418,12 +418,12 @@
     {
       "channels": ["common"],
       "path": "publish-infra/shared.mts",
-      "sha256": "14d96d90f93d2e7dc6c12c89c2312049f5cb443ae142f8c430349e615b970317"
+      "sha256": "4b4590a67df10ff06a08c10f654448d940dffe2c665b2e24c877faac24abb18d"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/socket-oauth.mts",
-      "sha256": "c90dfe65117160cd7b5703bab42803bf9dd1e1a6cd84ac5cfca286ffe55a1af3"
+      "sha256": "b2da2b92f801a3e5795d98f3b211581bdd52d9e6a9020eb9880aa51449b9031d"
     },
     {
       "channels": ["github-release"],
@@ -478,12 +478,12 @@
     {
       "channels": ["common"],
       "path": "util/napi-targets.mts",
-      "sha256": "ef3181c515f446c0a840b48f11ec57933ecfaafe67fc364cb20d0d59bc8c6fb2"
+      "sha256": "b6c5352cf479c0184112fa89420f456e13b3647521bcb0e8f371e2cde0832588"
     },
     {
       "channels": ["brew"],
       "path": "util/pack-app-triplets.mts",
-      "sha256": "e6f05ea012d7f68b3041a0960b4dd1a0d33fb06a0261b88fa30c4211c3510115"
+      "sha256": "053c4a9201d48d531677da7bafc91b1c2882dbe0c3205c97622a0a2d8c2bcf85"
     }
   ],
   "kitVersion": "0.1.0",

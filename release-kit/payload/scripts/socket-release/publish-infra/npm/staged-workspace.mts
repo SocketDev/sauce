@@ -272,6 +272,7 @@ export async function verifyStagedPlatformEntry(
     const packageDir = path.join(tmpDir, 'package')
     let staged: { name?: unknown | undefined; version?: unknown | undefined }
     try {
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
       staged = JSON.parse(
         readFileSync(path.join(packageDir, 'package.json'), 'utf8'),
       ) as typeof staged

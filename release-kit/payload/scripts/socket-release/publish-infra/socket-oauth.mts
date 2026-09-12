@@ -135,6 +135,7 @@ export async function discoverAuthServer(
         '/.well-known/oauth-authorization-server.',
     )
   }
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   const metadata = (await response.json()) as {
     authorization_endpoint?: string | undefined
     issuer?: string | undefined
@@ -322,6 +323,7 @@ export async function acquireSocketTokenViaOAuth(
         '  Fix: verify the client registration allows loopback redirects and the authorization-code grant.',
     )
   }
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   const body = (await tokenResponse.json()) as {
     access_token?: string | undefined
   }

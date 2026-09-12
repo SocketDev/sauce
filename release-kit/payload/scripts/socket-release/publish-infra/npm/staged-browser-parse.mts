@@ -92,7 +92,8 @@ function asString(value: unknown): string | undefined {
 export function mapStagedTarball(raw: Record<string, unknown>): StagedTarball {
   const stagedBy =
     raw['stagedBy'] && typeof raw['stagedBy'] === 'object'
-      ? (raw['stagedBy'] as Record<string, unknown>)
+      ? // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
+        (raw['stagedBy'] as Record<string, unknown>)
       : {}
   return {
     createdAt:
@@ -131,7 +132,8 @@ export function parseStagedPayload(
       | undefined
   }
   const objects = Array.isArray(payload.stagedVersions?.objects)
-    ? (payload.stagedVersions.objects as Array<Record<string, unknown>>)
+    ? // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
+      (payload.stagedVersions.objects as Array<Record<string, unknown>>)
     : []
   let tarballs = objects.map(mapStagedTarball)
   const filter = (packageFilter ?? '').trim().replace(/^@/, '').toLowerCase()

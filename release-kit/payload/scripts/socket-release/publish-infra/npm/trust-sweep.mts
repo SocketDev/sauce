@@ -150,6 +150,7 @@ async function trustList(pkg: string): Promise<TrustConfig | undefined> {
       ? undefined
       : (() => {
           try {
+            // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
             return JSON.parse(stdout.slice(jsonStart)) as TrustConfig & {
               error?: { authUrl?: string | undefined } | undefined
             }

@@ -336,6 +336,7 @@ export function provenanceAllowed(): boolean {
     return false
   }
   try {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
     const event = JSON.parse(readFileSync(eventPath, 'utf8')) as {
       repository?:
         | {

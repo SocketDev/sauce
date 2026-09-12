@@ -108,6 +108,7 @@ export function lawViolations(launchOptions: unknown): string[] {
   if (typeof launchOptions !== 'object' || launchOptions === null) {
     return ['launch options must be an object matching LawfulLaunchShape']
   }
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   const opts = launchOptions as Record<string, unknown>
   const violations: string[] = []
   if (opts['chromiumSandbox'] !== true) {

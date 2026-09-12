@@ -115,6 +115,7 @@ export function getEmbeddedChecksums(): EmbeddedChecksums | undefined {
         path.dirname(findUpPackageJson(import.meta)),
         'release-assets.json',
       )
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
       embeddedChecksums = JSON.parse(
         readFileSync(checksumPath, 'utf8'),
       ) as EmbeddedChecksums
@@ -135,6 +136,7 @@ export function getEmbeddedChecksums(): EmbeddedChecksums | undefined {
  * prepend a header or comments.
  */
 export function parseChecksums(content: string): Record<string, string> {
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   const checksums: Record<string, string> = { __proto__: null as never }
   const lines = content.split(/\r?\n/)
   for (let i = 0, { length } = lines; i < length; i += 1) {

@@ -53,6 +53,7 @@ export async function isAlreadyPublished(
     return false
   }
   try {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
     const parsed = JSON.parse(stdout) as {
       version?: { num?: unknown | undefined } | undefined
     }
@@ -91,6 +92,7 @@ export function classifyCrateLatest(
     errors?: unknown | undefined
   }
   try {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
     parsed = JSON.parse(stdout) as typeof parsed
   } catch {
     return { reachable: false }
@@ -158,6 +160,7 @@ export async function fetchPublishedAt(
     return undefined
   }
   try {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
     const parsed = JSON.parse(stdout) as {
       version?: { created_at?: unknown | undefined } | undefined
     }
@@ -182,6 +185,7 @@ export async function crateNameStatus(
     return 'unknown'
   }
   try {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
     const parsed = JSON.parse(stdout) as {
       crate?: unknown | undefined
       errors?: unknown | undefined

@@ -200,6 +200,7 @@ export function parseThreatVerdict(text: string): {
   const match = text.match(/\{[\s\S]*\}/)
   if (match) {
     try {
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
       const parsed = JSON.parse(match[0]) as {
         confidence?: unknown | undefined
         reasons?: unknown | undefined

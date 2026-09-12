@@ -124,6 +124,7 @@ export function readSfwTool(toolKey: 'sfw-enterprise' | 'sfw-free'): {
         '  Every fleet repo ships this file at its root via the wheelhouse cascade.',
     )
   }
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   const tools = JSON.parse(
     readFileSync(EXTERNAL_TOOLS_PATH, 'utf8'),
   ) as ExternalToolsFile

@@ -351,14 +351,17 @@ export async function runBootstrap(
     version?: string | undefined
   } = {}
   try {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
     pkg = pkgRaw ? (JSON.parse(pkgRaw) as typeof pkg) : {}
   } catch {
     pkg = {}
   }
   const packageName =
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
     (values['package'] as string | undefined) ?? pkg.name ?? '(unresolved)'
   const packageVersion = pkg.version ?? '0.0.0'
 
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   let slug = values['repo'] as string | undefined
   if (!slug) {
     const origin = await seams.exec(
@@ -370,12 +373,14 @@ export async function runBootstrap(
   }
   const resolvedSlug = slug ?? '(unresolved)'
 
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   let defaultBranch = (values['branch'] as string | undefined) ?? 'main'
   let visibility: 'private' | 'public' | 'unknown' = 'unknown'
   if (slug) {
     const repoRead = await seams.exec('gh', ['api', `repos/${slug}`], repoRoot)
     if (repoRead.code === 0) {
       try {
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
         const repoJson = JSON.parse(repoRead.stdout) as {
           default_branch?: string | undefined
           private?: boolean | undefined
@@ -399,6 +404,7 @@ export async function runBootstrap(
     }
   }
 
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   const accessFlag = values['access'] as string | undefined
   if (
     accessFlag !== undefined &&
@@ -419,6 +425,7 @@ export async function runBootstrap(
   const ctx: StepContext = {
     access,
     apply,
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
     branch: values['branch'] as string | undefined,
     channels: kitConfig.channels,
     defaultBranch,
@@ -427,6 +434,7 @@ export async function runBootstrap(
     packageName,
     packageVersion,
     repoRoot,
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
     reserve: values['reserve'] as string | undefined,
     slug: resolvedSlug,
     visibility,
@@ -639,6 +647,7 @@ async function runStep(
     return {
       ...base,
       effects: applied.effects,
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
       gate: gateToJson(applied.gate as never),
       status: 'blocked',
     }

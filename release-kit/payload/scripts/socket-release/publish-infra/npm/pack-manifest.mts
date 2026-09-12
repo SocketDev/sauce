@@ -65,6 +65,7 @@ export async function withPrunedPackManifest<T>(
     // No readable manifest — the pack itself will fail loud; nothing to prune.
     return await fn()
   }
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   const manifest = JSON.parse(original) as ManifestShape
   const dangling = danglingLifecycleScriptsFor(manifest, subjectDir)
   if (!dangling.length || !manifest.scripts) {

@@ -146,6 +146,7 @@ export async function runApprove(config: {
 
       // Confirmation gate — crates.io publishing is PERMANENT (yank-only).
       if (!cfg.yes) {
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
         const confirmed = (await confirm({
           default: false,
           message:

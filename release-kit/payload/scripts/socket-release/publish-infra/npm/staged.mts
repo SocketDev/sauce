@@ -201,6 +201,7 @@ export async function runStaged(
   // brackets too — the bytes it inspects are the bytes the stage command
   // uploads — and a tarball missing any declared payload file stops the
   // publish before the command runs.
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   const subjectManifest = JSON.parse(
     readFileSync(pkg.manifestPath, 'utf8'),
   ) as WorkspaceManifestShape
@@ -375,6 +376,7 @@ export async function runDirect(
   // Pin the SUBJECT README to the release tag + prune repo-only lifecycle
   // scripts for the published tarball only, and run the pack preflight inside
   // the same brackets so a hollow tarball never publishes (see runStaged).
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   const subjectManifest = JSON.parse(
     readFileSync(pkg.manifestPath, 'utf8'),
   ) as WorkspaceManifestShape

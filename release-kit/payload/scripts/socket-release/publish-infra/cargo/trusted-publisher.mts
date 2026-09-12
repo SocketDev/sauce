@@ -334,6 +334,7 @@ export function extractCratesIoErrorDetail(
     errors?: Array<{ detail?: unknown | undefined }> | undefined
   }
   try {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
     parsed = JSON.parse(bodyText) as typeof parsed
   } catch {
     return undefined

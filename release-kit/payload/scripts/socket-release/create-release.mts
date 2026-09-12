@@ -287,6 +287,7 @@ async function loadConfig(): Promise<ReleaseAssetsConfig> {
     )
     process.exit(1)
   }
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   const mod = (await import(url.pathToFileURL(configPath).href)) as {
     config?: ReleaseAssetsConfig | undefined
   }
@@ -338,6 +339,7 @@ async function loadProducer(): Promise<ReleaseProducer> {
     )
     process.exit(1)
   }
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   const mod = (await import(
     url.pathToFileURL(producerPath).href
   )) as Partial<ReleaseProducer>
@@ -347,6 +349,7 @@ async function loadProducer(): Promise<ReleaseProducer> {
     )
     process.exit(1)
   }
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   return mod as ReleaseProducer
 }
 

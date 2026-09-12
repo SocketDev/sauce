@@ -97,6 +97,7 @@ export const RUST_TRIPLE_TO_NAPI_TARGET: Readonly<Record<string, NapiTarget>> =
  * release-tag-parsing output) is about to be used as a napi target.
  */
 export function isNapiTarget(value: unknown): value is NapiTarget {
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   return typeof value === 'string' && NAPI_TARGET_SET.has(value as NapiTarget)
 }
 
