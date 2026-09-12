@@ -68,9 +68,9 @@ jobs:
           # fleet release bundle from the private wheelhouse. Both refs are
           # empty on a non-thin member (var/secret unset) - the mint is skipped
           # and the fetch no-ops. A thin member sets a dedicated read-only App's
-          # client-id var + private-key secret.
-          payload-token-client-id: ${{ vars.SOCKET_PAYLOAD_CLIENT_ID }}
-          payload-token-private-key: ${{ secrets.SOCKET_PAYLOAD_APP_PRIVATE_KEY }}
+          # client-id + private-key secrets.
+          payload-token-client-id: ${{ secrets.SOCKET_PR_CLIENT_ID }}
+          payload-token-private-key: ${{ secrets.SOCKET_PR_APP_PRIVATE_KEY }}
       - name: Run checks
         uses: ./.github/actions/fleet/run-script
         with:
@@ -116,9 +116,9 @@ jobs:
           # fleet release bundle from the private wheelhouse. Both refs are
           # empty on a non-thin member (var/secret unset) - the mint is skipped
           # and the fetch no-ops. A thin member sets a dedicated read-only App's
-          # client-id var + private-key secret.
-          payload-token-client-id: ${{ vars.SOCKET_PAYLOAD_CLIENT_ID }}
-          payload-token-private-key: ${{ secrets.SOCKET_PAYLOAD_APP_PRIVATE_KEY }}
+          # client-id + private-key secrets.
+          payload-token-client-id: ${{ secrets.SOCKET_PR_CLIENT_ID }}
+          payload-token-private-key: ${{ secrets.SOCKET_PR_APP_PRIVATE_KEY }}
       - name: Run tests
         uses: ./.github/actions/fleet/run-script
         env:
