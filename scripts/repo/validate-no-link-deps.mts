@@ -147,6 +147,7 @@ async function main(): Promise<void> {
 const SCRIPT_META: ScriptMeta = {
   describe: 'validates package manifests contain no link dependencies',
   help: 'Usage: node scripts/repo/validate-no-link-deps.mts',
+  json: 'result',
 }
 
 if (isMainModule(import.meta.url)) {

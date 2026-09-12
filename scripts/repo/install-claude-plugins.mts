@@ -455,6 +455,7 @@ function main(): void {
 const SCRIPT_META: ScriptMeta = {
   describe: 'installs and reconciles the configured Claude plugins',
   help: 'Usage: node scripts/repo/install-claude-plugins.mts',
+  json: 'result',
 }
 
 if (isMainModule(import.meta.url)) {

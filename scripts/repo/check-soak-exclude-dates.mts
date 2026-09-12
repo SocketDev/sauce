@@ -158,6 +158,7 @@ function main(): void {
 const SCRIPT_META: ScriptMeta = {
   describe: 'checks soak exclusions for valid publication and removal dates',
   help: 'Usage: node scripts/repo/check-soak-exclude-dates.mts',
+  json: 'result',
 }
 
 if (isMainModule(import.meta.url)) {

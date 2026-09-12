@@ -73,6 +73,7 @@ function main(): void {
 const SCRIPT_META: ScriptMeta = {
   describe: 'configures the repository to use its tracked Git hooks',
   help: 'Usage: node scripts/repo/install-git-hooks.mts',
+  json: 'result',
 }
 
 if (isMainModule(import.meta.url)) {

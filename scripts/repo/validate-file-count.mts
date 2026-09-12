@@ -124,6 +124,7 @@ async function main(): Promise<void> {
 const SCRIPT_META: ScriptMeta = {
   describe: 'validates the number of files staged for a commit',
   help: 'Usage: node scripts/repo/validate-file-count.mts',
+  json: 'result',
 }
 
 if (isMainModule(import.meta.url)) {

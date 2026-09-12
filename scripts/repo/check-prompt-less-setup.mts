@@ -435,6 +435,7 @@ function main(): void {
 const SCRIPT_META: ScriptMeta = {
   describe: 'checks local signing and token setup for prompt-free automation',
   help: 'Usage: node scripts/repo/check-prompt-less-setup.mts',
+  json: 'result',
 }
 
 if (isMainModule(import.meta.url)) {

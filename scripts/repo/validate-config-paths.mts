@@ -149,6 +149,7 @@ function main(): void {
 const SCRIPT_META: ScriptMeta = {
   describe: 'validates canonical configuration file paths',
   help: 'Usage: node scripts/repo/validate-config-paths.mts',
+  json: 'result',
 }
 
 if (isMainModule(import.meta.url)) {

@@ -337,6 +337,7 @@ const SCRIPT_META: ScriptMeta = {
   help: `Usage: pnpm run install-token-minifier [options]
   --force    Reinstall an existing matching version
   --quiet    Suppress status output`,
+  json: 'result',
 }
 
 if (isMainModule(import.meta.url)) {

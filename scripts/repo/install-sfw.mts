@@ -242,6 +242,7 @@ const SCRIPT_META: ScriptMeta = {
   --enterprise    Install the enterprise binary
   --force         Reinstall an existing matching version
   --quiet         Suppress status output`,
+  json: 'result',
 }
 
 if (isMainModule(import.meta.url)) {

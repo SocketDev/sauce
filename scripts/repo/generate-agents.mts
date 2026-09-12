@@ -260,6 +260,7 @@ function main(): void {
 const SCRIPT_META: ScriptMeta = {
   describe: 'generates agent documentation and the README skills table',
   help: 'Usage: node scripts/repo/generate-agents.mts',
+  json: 'result',
 }
 
 if (isMainModule(import.meta.url)) {

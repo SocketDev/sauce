@@ -174,6 +174,7 @@ const SCRIPT_META: ScriptMeta = {
   --types             Clean dist/types
   --modules           Clean node_modules
   --quiet, -q         Suppress output`,
+  json: 'result',
 }
 
 if (isMainModule(import.meta.url)) {

@@ -149,6 +149,7 @@ async function main(): Promise<void> {
 const SCRIPT_META: ScriptMeta = {
   describe: 'manages partial Git submodules with persisted sparse paths',
   help: USAGE,
+  json: 'result',
 }
 
 if (isMainModule(import.meta.url)) {

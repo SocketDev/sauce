@@ -101,6 +101,7 @@ async function main(): Promise<void> {
 const SCRIPT_META: ScriptMeta = {
   describe: 'validates that esbuild configurations do not enable minification',
   help: 'Usage: node scripts/repo/validate-esbuild-minify.mts',
+  json: 'result',
 }
 
 if (isMainModule(import.meta.url)) {

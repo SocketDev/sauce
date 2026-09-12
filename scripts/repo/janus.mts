@@ -123,6 +123,7 @@ async function main(): Promise<void> {
 const SCRIPT_META: ScriptMeta = {
   describe: 'runs the pinned Janus binary for the current platform',
   help: 'Usage: node scripts/repo/janus.mts [janus arguments...]',
+  json: 'result',
 }
 
 if (isMainModule(import.meta.url)) {

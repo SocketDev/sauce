@@ -187,6 +187,7 @@ async function main(): Promise<void> {
 const SCRIPT_META: ScriptMeta = {
   describe: 'validates repository files against the maximum size policy',
   help: 'Usage: node scripts/repo/validate-file-size.mts',
+  json: 'result',
 }
 
 if (isMainModule(import.meta.url)) {

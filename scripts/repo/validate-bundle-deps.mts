@@ -479,6 +479,7 @@ async function main(): Promise<void> {
 const SCRIPT_META: ScriptMeta = {
   describe: 'validates bundled imports against declared package dependencies',
   help: 'Usage: node scripts/repo/validate-bundle-deps.mts',
+  json: 'result',
 }
 
 if (isMainModule(import.meta.url)) {

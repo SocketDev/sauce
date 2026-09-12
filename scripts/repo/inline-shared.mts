@@ -211,6 +211,7 @@ const SCRIPT_META: ScriptMeta = {
   describe: 'inlines shared documentation sections into skill files',
   help: `Usage: node scripts/repo/inline-shared.mts [--check]
   --check    Verify shared sections without writing`,
+  json: 'result',
 }
 
 if (isMainModule(import.meta.url)) {
