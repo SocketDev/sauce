@@ -30,6 +30,7 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { isAgent } from '@socketsecurity/lib-stable/env/agents'
 
 import {
   buildManifest,
@@ -314,9 +315,11 @@ function main(): void {
     process.exitCode = 1
     return
   }
-  logger.success(
-    `release-kit is coherent — ${payloadFiles.length} payload files checked.`,
-  )
+  if (!isAgent()) {
+    logger.success(
+      `release-kit is coherent — ${payloadFiles.length} payload files checked.`,
+    )
+  }
 }
 
 if (isMainModule(import.meta.url)) {

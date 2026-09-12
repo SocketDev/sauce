@@ -14,6 +14,7 @@ import * as path from 'node:path'
 import process from 'node:process'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { isAgent } from '@socketsecurity/lib-stable/env/agents'
 
 import { PAYLOAD_ROOT } from '../../../release-kit/install/seams.mts'
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
@@ -173,9 +174,11 @@ function main(): void {
     process.exitCode = 1
     return
   }
-  logger.success(
-    `release-kit workflow templates are env-mapped — ${files.length} template(s) checked.`,
-  )
+  if (!isAgent()) {
+    logger.success(
+      `release-kit workflow templates are env-mapped — ${files.length} template(s) checked.`,
+    )
+  }
 }
 
 if (isMainModule(import.meta.url)) {

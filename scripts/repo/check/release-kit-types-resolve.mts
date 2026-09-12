@@ -12,6 +12,7 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { isAgent } from '@socketsecurity/lib-stable/env/agents'
 import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
 import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
@@ -48,7 +49,9 @@ function main(): void {
     process.exitCode = 1
     return
   }
-  logger.success('release-kit typechecks clean.')
+  if (!isAgent()) {
+    logger.success('release-kit typechecks clean.')
+  }
 }
 
 if (isMainModule(import.meta.url)) {

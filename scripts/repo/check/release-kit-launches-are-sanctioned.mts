@@ -15,6 +15,7 @@ import * as path from 'node:path'
 import process from 'node:process'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { isAgent } from '@socketsecurity/lib-stable/env/agents'
 
 import {
   lawfulLaunchOptions,
@@ -208,9 +209,11 @@ function main(): void {
     process.exitCode = 1
     return
   }
-  logger.success(
-    `release-kit launches are sanctioned — ${scanned} playwright-importing payload file(s) checked; law self-check clean.`,
-  )
+  if (!isAgent()) {
+    logger.success(
+      `release-kit launches are sanctioned — ${scanned} playwright-importing payload file(s) checked; law self-check clean.`,
+    )
+  }
 }
 
 if (isMainModule(import.meta.url)) {
