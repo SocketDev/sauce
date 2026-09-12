@@ -1,6 +1,4 @@
 /**
- * Runner-collection: opt-in lane.
- *
  * @file Property fuzzing for the installer's path safety and the drift /
  *   byte-parity checker. A manifest path that could escape the install prefix
  *   is refused loudly; the sha256 comparison catches any single-byte mutation
