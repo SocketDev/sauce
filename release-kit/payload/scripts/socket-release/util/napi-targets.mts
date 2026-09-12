@@ -21,6 +21,7 @@
  *   `platformArchABI` exactly this way (oxc's `@oxc-parser/binding-*` packages
  *   are the reference deployment of the convention).
  */
+/* eslint-disable socket/prefer-refined-record -- schema-keyed data */
 
 /**
  * Every ABI/NAPI target the fleet ships or recognizes, in ASCII order.

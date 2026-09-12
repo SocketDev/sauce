@@ -7,6 +7,7 @@
  *   is unit-testable from fixtures. The browser side lives in
  *   `trusted-publisher-browser.mts` / `trusted-publisher-page.mts`.
  */
+/* eslint-disable typescript/no-unsafe-type-assertion -- validated boundaries */
 
 import { allowsAction } from './trusted-publisher-parse.mts'
 import type {
@@ -395,3 +396,5 @@ export function formatApplySummary(
     `${count('failed')} failed.`
   )
 }
+
+/* eslint-enable typescript/no-unsafe-type-assertion */

@@ -7,6 +7,7 @@
  *   scripts/repo/sync-scaffolding/fix-workspace-yaml-splicers.mts for
  *   back-compat with their existing importers.
  */
+/* eslint-disable socket/prefer-refined-record -- schema-keyed data */
 
 /**
  * Parse a named block of `<key>: <value>` entries from a pnpm-workspace.yaml

@@ -5,10 +5,8 @@
  *   the human approve step is even offered), then multi-select over the
  *   verified entries, then batch-approve with one shared 2FA OTP and create
  *   the git tag + GitHub release for each promoted package. `--yes` replaces
- *   both interactive prompts for agent/scripted runs: every verified entry is
- *   selected, and with no `--otp` the registry challenge drives pnpm's
- *   web-OTP (a browser window to npmjs.com opens per approve call, so the
- *   human authenticates in the browser instead of the terminal).
+ *   both prompts for agent/scripted runs: every verified entry is selected,
+ *   and with no `--otp` uses pnpm's browser web-OTP challenge.
  */
 
 import process from 'node:process'
@@ -21,11 +19,11 @@ import {
 } from '../../_shared/release-gap-recovery.mts'
 import { releaseBehindLiveGate } from '../release.mts'
 import { logger, rootPath, runInheritTty } from '../shared.mts'
+import { buildApproveChoices } from './approve-choices.mts'
 import { isAlreadyPublished } from './registry.mts'
 import type { StageListEntry } from './shared.mts'
 import {
   fetchPriorProvenanceMap,
-  formatPriorProvenance,
   listStagedPackages,
   readPackageJson,
 } from './shared.mts'
@@ -55,30 +53,7 @@ import {
   resolveNpmWorkspaceLayout,
 } from './workspace.mts'
 
-export interface ApproveChoice {
-  checked: boolean
-  name: string
-  value: string
-}
-
-/**
- * Build the checkbox choices for the approve multi-select: one row per eligible
- * staged entry, labelled `name@version` with the prior-provenance annotation,
- * valued by its stageId, pre-checked so the default is "approve all". Pure over
- * the eligible list + the prior-provenance map.
- */
-export function buildApproveChoices(
-  eligible: readonly StageListEntry[],
-  priorProvenance: ReadonlyMap<string, boolean>,
-): ApproveChoice[] {
-  return eligible.map(e => ({
-    __proto__: null,
-    checked: true,
-    name: `${e.name}@${e.version}${formatPriorProvenance(priorProvenance.get(e.name!))}`,
-    value: e.stageId!,
-  }))
-}
-
+export { buildApproveChoices, type ApproveChoice } from './approve-choices.mts'
 /**
  * `--approve` mode: list the user's staged packages, multi-select, batch
  * approve with one OTP.

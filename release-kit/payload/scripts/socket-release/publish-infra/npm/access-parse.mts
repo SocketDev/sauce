@@ -46,6 +46,7 @@ export interface PublishingAccessRead {
  * never renders that shape (a package must accept at least one publish
  * path). Pure — exported for tests.
  */
+// oxlint-disable-next-line socket/no-boolean-trap-param -- paired toggle state
 export function classifyPublishingAccess(
   directEnabled: boolean | undefined,
   stagedEnabled: boolean | undefined,

@@ -273,11 +273,6 @@ export function formatReleaseChecksums(
  * non-zero exit code, so the caller (releaseBehindLiveGate) can raise the
  * four-part release-gap message: the registry write has already succeeded, so
  * a quiet `void` here is exactly how a half-done release escapes unnoticed.
- *
- * `options.packAssets` generalizes the release asset packing off npm: when
- * provided it is called to produce the asset file paths (the cargo tier passes
- * a packer that returns `[cratePath, checksumsPath]`); when omitted the exact
- * `pnpm pack` behavior is kept, so the npm path is unchanged.
  */
 // oxlint-disable-next-line eslint/complexity -- branch dispatcher
 export async function ensureTagAndRelease(

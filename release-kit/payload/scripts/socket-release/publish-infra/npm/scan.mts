@@ -15,21 +15,20 @@
  *   pasted key (masked — the token never echoes).
  */
 
-import { promises as fs } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 
 import { SocketSdk } from '@socketsecurity/sdk-stable'
 
-import { logger, rootPath, runCapture } from '../shared.mts'
+import { logger } from '../shared.mts'
 import {
   acquireSocketTokenViaOAuth,
   socketOAuthConfigured,
 } from '../socket-oauth.mts'
 import { defaultPackTarball } from './staged.mts'
-import { collectThreatFailures, runLocalThreatScan } from './threat-scan.mts'
-import type { ThreatManifest } from './threat-scan.mts'
+import { runThreatScanLeg } from './scan-threat.mts'
+import { runLocalThreatScan } from './threat-scan.mts'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
@@ -310,11 +309,6 @@ export function extractSecurityPolicyRules(
  * extracts the archive server-side and ingests every bundled manifest and
  * lockfile as shipped — the full pinned DEPENDENCY graph, not just a
  * hand-picked package.json — and the gate fails on any `error`-action alert
- * in the org security policy. Scope note: the archive endpoint scans the
- * dependency graph, NOT the package's own source code; non-manifest files are
- * matched out and ignored server-side (depscan ingest-tar-hash). Socket's
- * code/malware analysis is keyed to PUBLISHED packages by purl, so a
- * pre-publish staged tarball's own novel code is not analyzed here.
  * `options.packTarball` swaps the artifact source: a generated platform
  * package's payload is CI-built with no local twin, so the approve flow passes
  * a provider that downloads the STAGED tarball, whose structure the platform
@@ -467,7 +461,7 @@ export async function scanStagedEntry(
     // when the scan was requested but no local model resolved — the operator
     // asked for it, so a silent skip must not read as a pass.
     if (threatScan) {
-      const passed = await runThreatLeg(tarballPath, entry, runThreat)
+      const passed = await runThreatScanLeg(tarballPath, entry, runThreat)
       if (!passed) {
         return false
       }
@@ -482,70 +476,5 @@ export async function scanStagedEntry(
     if (tarballPath.startsWith(tmpRoot + path.sep)) {
       await safeDelete(path.dirname(tarballPath))
     }
-  }
-}
-
-// Extract the tarball and run the keyless local threat scan over its `package/`
-// root. Returns true only when the scan ran AND every file triaged clean.
-// Fails closed (returns false) on a blocking verdict, an extraction failure, or
-// `available:false` — the scan was explicitly requested, so a missing local
-// model must not read as a pass. The extract dir is always cleaned.
-async function runThreatLeg(
-  tarballPath: string,
-  entry: { name: string; version: string },
-  runThreat: typeof runLocalThreatScan,
-): Promise<boolean> {
-  const { name, version } = entry
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'socket-threat-'))
-  try {
-    const untar = await runCapture(
-      'tar',
-      ['-xzf', tarballPath, '-C', dir],
-      rootPath,
-    )
-    if (untar.code !== 0) {
-      logger.fail(
-        `Threat scan: extracting ${name}@${version} failed (tar exited ${untar.code}); not approving.`,
-      )
-      return false
-    }
-    const packageDir = path.join(dir, 'package')
-    let manifest: ThreatManifest = {}
-    try {
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
-      manifest = JSON.parse(
-        await fs.readFile(path.join(packageDir, 'package.json'), 'utf8'),
-      ) as ThreatManifest
-    } catch {
-      // A tarball with no readable package.json still gets a code scan; the
-      // manifest only refines file prioritization.
-    }
-    const result = await runThreat(packageDir, { manifest })
-    if (!result.available) {
-      logger.fail(
-        `Threat scan: requested (--threat-scan) but no on-device model resolved for ${name}@${version}; ` +
-          'failing closed. Provision a local backend (ODAI_BACKEND / node:smol-ai / llama-server) or drop --threat-scan.',
-      )
-      return false
-    }
-    const failing = collectThreatFailures(result.findings)
-    if (failing.length > 0) {
-      logger.fail(
-        `Threat scan: ${failing.length} threat finding(s) for ${name}@${version}; not approving.`,
-      )
-      for (let i = 0, { length } = failing; i < length; i += 1) {
-        const f = failing[i]!
-        logger.fail(
-          `  - ${f.verdict} (${f.confidence}) ${f.file}: ${f.reasons.join('; ')}`,
-        )
-      }
-      return false
-    }
-    logger.log(
-      `Threat scan: ${result.findings.length} file(s) triaged clean for ${name}@${version}.`,
-    )
-    return true
-  } finally {
-    await safeDelete(dir)
   }
 }

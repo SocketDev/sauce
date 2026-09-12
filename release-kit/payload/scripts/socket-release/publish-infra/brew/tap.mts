@@ -8,6 +8,7 @@
  *   fakes; `resolveBrewDependencies()` returns the real `gh`/token-backed
  *   implementations.
  */
+/* eslint-disable typescript/no-unsafe-type-assertion -- validated boundaries */
 
 import { commitViaGithubApi } from '../../lib/commit-via-github-api.mts'
 import { runCapture } from '../shared.mts'
@@ -228,3 +229,5 @@ export function resolveBrewSeams(cwd: string): BrewSeams {
     },
   }
 }
+
+/* eslint-enable typescript/no-unsafe-type-assertion */

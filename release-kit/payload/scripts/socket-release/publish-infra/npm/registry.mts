@@ -3,6 +3,7 @@
  *   and the packument trust-metadata fetch (provenance attestations,
  *   staged-publish approver, trusted-publisher attribution).
  */
+/* eslint-disable socket/prefer-refined-record -- schema-keyed data */
 
 import crypto from 'node:crypto'
 
@@ -264,10 +265,6 @@ export interface RegistryVersionInfo {
  *   bundle URL).
  * - Abbreviated (~10-20KB, Accept: application/vnd.npm.install-v1+json): drops
  *   `_npmUser` but keeps `dist.attestations`.
- *
- * Callers pick: `'abbreviated'` for cheap attestation-only checks (Stop-hook,
- * approve-flow enrich), `'full'` for audits that need to confirm
- * trusted-publisher attribution (check/provenance-is-attested.mts).
  *
  * Use this from `check/provenance-is-attested.mts` (CLI audit), the approve
  * flow, show prior-version status, and the Stop-hook (verify a freshly- bumped

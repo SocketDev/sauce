@@ -8,6 +8,7 @@
  *   extension and the publish gate treat a Cloudflare interstitial the same
  *   way (a transient challenge, never a fatal "not valid JSON").
  */
+/* eslint-disable typescript/no-unsafe-type-assertion -- validated boundaries */
 
 // Coarse outcome of a staged-packages fetch. `challenge` is the case this
 // exists for: Cloudflare (or any edge interstitial) answers the ?format=json
@@ -154,3 +155,5 @@ export function parseStagedPayload(
         : objects.length,
   }
 }
+
+/* eslint-enable typescript/no-unsafe-type-assertion */

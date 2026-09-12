@@ -24,6 +24,8 @@
  *     reads TAG from the env and exits non-zero when the gate refuses. Usage:
  *     TAG=v1.2.3 node scripts/socket-release/registry-liveness-gate.mjs
  */
+/* eslint-disable socket/prefer-error-message-helper -- dep-zero script */
+/* eslint-disable socket/prefer-socket-lib-error-message -- dep-zero script */
 
 import crypto from 'node:crypto'
 import { existsSync, readFileSync, realpathSync } from 'node:fs'

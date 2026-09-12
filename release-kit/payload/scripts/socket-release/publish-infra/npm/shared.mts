@@ -4,6 +4,7 @@
  *   `pnpm stage list` fetch, prior-provenance lookup, and the
  *   staging-expected trust check consumed by both --staged and --direct.
  */
+/* eslint-disable typescript/no-unsafe-type-assertion -- validated boundaries */
 
 import { readFileSync } from 'node:fs'
 import os from 'node:os'
@@ -392,3 +393,5 @@ export async function isStagingExpected(pkgName: string): Promise<boolean> {
   }
   return false
 }
+
+/* eslint-enable typescript/no-unsafe-type-assertion */

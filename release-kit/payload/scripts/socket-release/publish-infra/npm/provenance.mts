@@ -22,6 +22,7 @@
  *   from a registry that could not be reached, and a gate that conflates them
  *   reports a green it did not earn.
  */
+/* eslint-disable typescript/no-unsafe-type-assertion -- validated boundaries */
 
 import {
   httpJson,
@@ -235,3 +236,5 @@ export async function fetchAttestedGitSource(
     }
   }
 }
+
+/* eslint-enable typescript/no-unsafe-type-assertion */

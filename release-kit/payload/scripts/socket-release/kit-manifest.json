@@ -63,7 +63,7 @@
     {
       "channels": ["common"],
       "path": "bootstrap.mts",
-      "sha256": "eba49a210a0454354236db280bef0fe07e1e0987eb1a736633d03343b380a1ca"
+      "sha256": "60704a11f875c7ab9aa1046679ea09604b6f1e7ea38529676bec8288e7ae7478"
     },
     {
       "channels": ["common"],
@@ -87,6 +87,11 @@
     },
     {
       "channels": ["common"],
+      "path": "bootstrap/run-step.mts",
+      "sha256": "fc03c594e6b73f56f45804f4ac0d033cc2a300c52e30389024b928cac853af39"
+    },
+    {
+      "channels": ["common"],
       "path": "bootstrap/seams.mts",
       "sha256": "4317d2d24284c8508dcf7f31869135bb7295c48b4ef295905fe5bb50667ee137"
     },
@@ -94,6 +99,11 @@
       "channels": ["common"],
       "path": "bootstrap/state.mts",
       "sha256": "3465e4dda9240a2578c6c53e35dcbe8fa10f7f9ca7ada34bc6dd375b709f5ad0"
+    },
+    {
+      "channels": ["common"],
+      "path": "bootstrap/step-registry.mts",
+      "sha256": "8d40154820650bc5d725ad939e7694f67a33af95b23f194a224cf07e18cba291"
     },
     {
       "channels": ["common"],
@@ -178,7 +188,7 @@
     {
       "channels": ["github-release"],
       "path": "lib/release-checksums/core.mts",
-      "sha256": "1f0878453709380f8ed443e017d71fdffbd7c4cc93f5ffa7e5eb3eecde3b5b65"
+      "sha256": "2c9c721ef640089d0e5b0a33431a11798d42b04995b221db298a6eda51882e2a"
     },
     {
       "channels": ["github-release"],
@@ -193,7 +203,7 @@
     {
       "channels": ["common"],
       "path": "lib/workspace-yaml.mts",
-      "sha256": "1e31225f2e88ebd66dee5347bb7ddd1c8cd7f8a4a83c983509546e1802e2aef6"
+      "sha256": "f198da30409e89fcef0360a1a7dd19eb6ab1a4c3b0b76c5c38f4686c03f2d1e8"
     },
     {
       "channels": ["npm"],
@@ -223,7 +233,7 @@
     {
       "channels": ["brew"],
       "path": "publish-infra/brew/tap.mts",
-      "sha256": "75261988efe1f29806049cb166e30103d42a7219945feaf23253835a7d285512"
+      "sha256": "2eef77577c4e97384eabb0745374889d1d6ca6680d87ad2fa618f541b73cf168"
     },
     {
       "channels": ["crates"],
@@ -252,8 +262,18 @@
     },
     {
       "channels": ["crates"],
+      "path": "publish-infra/cargo/trusted-publisher-runtime.mts",
+      "sha256": "7aa5166a66b74acbfd9c10b99c27ec2fc766404a6349eb849f94a2016bbadb63"
+    },
+    {
+      "channels": ["crates"],
+      "path": "publish-infra/cargo/trusted-publisher-shape.mts",
+      "sha256": "e9a3fba03db6a16defe449f24892a507597cd528e856b8c216a6fa3384927e59"
+    },
+    {
+      "channels": ["crates"],
       "path": "publish-infra/cargo/trusted-publisher.mts",
-      "sha256": "ba0f0bc2a68370e39c53e6d6632cf05e3ba7270001b7f8c32c6e1a0b2ad079b2"
+      "sha256": "10046e684dd6cc33e11e35f0e803929c5fd9f4604301804319e472bedb1d3597"
     },
     {
       "channels": ["npm"],
@@ -263,7 +283,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/access-parse.mts",
-      "sha256": "66380b56762610f648d4c72206a1d8a03471608bba4971aeed20fa8631440068"
+      "sha256": "7425176ec0b75e128ea327910dd59fca76ebc9b5130d8bde97dfc04c6101f95c"
     },
     {
       "channels": ["npm"],
@@ -272,8 +292,13 @@
     },
     {
       "channels": ["npm"],
+      "path": "publish-infra/npm/approve-choices.mts",
+      "sha256": "0ecc5c131f1d2b7559c2ab472ce6ead3a8a198e704c8b3ebafdfd6863d9aa40c"
+    },
+    {
+      "channels": ["npm"],
       "path": "publish-infra/npm/approve.mts",
-      "sha256": "12a184a27629b7d134f1b33292679a03ffbaece573de615d3f80fcb3f98d7dd8"
+      "sha256": "adde47163354d9487b151bd511fa02f2ae22901b146f336e35a2a967a98f77f0"
     },
     {
       "channels": ["npm"],
@@ -323,27 +348,32 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/provenance.mts",
-      "sha256": "93fdca8db063515f695fce94c8b6e2c56059bc07cbd5068a10c4f4913282c8b1"
+      "sha256": "4412a0c27f09557a5a82ca43b563b2f8bee2987cb8072707dcbe9b6b332e5e76"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/registry.mts",
-      "sha256": "9b8d52054cc7da895cec509379f61cb193b3ec410f6e408ee46daa6fb5b753a1"
+      "sha256": "6d322575c332055d172acc8717ae46a86252983696bac0d77f9119dad7bf83a6"
+    },
+    {
+      "channels": ["npm"],
+      "path": "publish-infra/npm/scan-threat.mts",
+      "sha256": "294c1e809d5e90d8eeef754716920b5afb35ff20fa27df38f0508d0f3e8ece02"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/scan.mts",
-      "sha256": "a6c327fed5a5151e959b529cf9d6dcc6b28e580427d5cf9c9fbb57cefe1633e3"
+      "sha256": "7b4bb52b2f3cf6215383bae3c4689b7995df5bc6fca26e45718dbfe2ad99b832"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/shared.mts",
-      "sha256": "a213e62db5f4393754559eef505fcf237acbc10cd84f09ffed042b622b790b07"
+      "sha256": "7657f8f2eaac1eb699fdf1d310beecd735de093e5b1c8c79a8857e18ad967334"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/staged-browser-parse.mts",
-      "sha256": "8ddcf1536898d37146dba4cdc0f97a40cad0acd25f1707b3daa2c62e6e8afa42"
+      "sha256": "ee6f53145cf6a239b31d87bf0754d6b239224d0510577f872235df72740ba07d"
     },
     {
       "channels": ["npm"],
@@ -352,13 +382,23 @@
     },
     {
       "channels": ["npm"],
+      "path": "publish-infra/npm/staged-verify.mts",
+      "sha256": "0a8d683fa3a9e870de469ade69ca327f4492302f00599364b3f945605c218388"
+    },
+    {
+      "channels": ["npm"],
+      "path": "publish-infra/npm/staged-workspace-verify.mts",
+      "sha256": "08128218091b7d46e845687e9b788ecf51c1390eed41cd35a75a11f2c672719b"
+    },
+    {
+      "channels": ["npm"],
       "path": "publish-infra/npm/staged-workspace.mts",
-      "sha256": "a98320cc908f94828687d936d56d6f24d4f5da0e2c33064f0fbee594a1babc28"
+      "sha256": "31f0fce264dcb0e598d290ac95380e4429aea155e3e0addb957be8797922aad2"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/staged.mts",
-      "sha256": "a28d818ef3eb5175af1acbf210d77dccce348fc9af5f578e232facba1f525630"
+      "sha256": "1dd14c924fd9a9cdcbef2dd1299c23021a149c6b3e990bc5a1be27ff308bb09e"
     },
     {
       "channels": ["npm"],
@@ -388,7 +428,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/trusted-publisher-plan.mts",
-      "sha256": "58e8d5507b587ce5d065cc3c9e042113f5343ebd594f9b0a354b5be6ed8b5d5a"
+      "sha256": "f70de52ea770c3ca44fc2f7833915782d952abd95f5203bd7096eb0dad766b9b"
     },
     {
       "channels": ["npm"],
@@ -413,7 +453,7 @@
     {
       "channels": ["common"],
       "path": "publish-infra/release.mts",
-      "sha256": "1e8f8b58b776b704f0a3b1398aeb6dbb3ebdcc0c9a2952ee36f325202e9f9765"
+      "sha256": "aca140d2f62156196c2e84da25d7942313e7c024879073af8fe5fe43c35161c9"
     },
     {
       "channels": ["common"],
@@ -433,7 +473,7 @@
     {
       "channels": ["github-release"],
       "path": "registry-liveness-gate.mjs",
-      "sha256": "b4416f89a60c93a8ded5efe376b40833d76eeb461679bb68029f231af6ddf450"
+      "sha256": "ce95a5497f8dc554a07e260e9ca01ae2754b4cbb2f308c3fc188eacb3236bd03"
     },
     {
       "channels": ["brew"],
@@ -443,7 +483,7 @@
     {
       "channels": ["brew"],
       "path": "templates/actions/socket-release-app-token/mint-app-installation-token.mjs",
-      "sha256": "2f95db9b0dd6aa964cf6b58cab57c805ae61db85c9ff9a506f7385ab4ea3d97e"
+      "sha256": "f117e79146c098b71e269e06a6bb46eed4b2bed4cfe5071713765729b13969c6"
     },
     {
       "channels": ["common"],
@@ -478,7 +518,7 @@
     {
       "channels": ["common"],
       "path": "util/napi-targets.mts",
-      "sha256": "b6c5352cf479c0184112fa89420f456e13b3647521bcb0e8f371e2cde0832588"
+      "sha256": "1dd2c459749ced21fb64748b03fbcb7287e1a42bfaf3f355274159ccbbc5b95b"
     },
     {
       "channels": ["brew"],

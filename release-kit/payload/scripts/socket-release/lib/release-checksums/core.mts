@@ -22,6 +22,7 @@
  * `scripts/socket-release/build-infra/lib/release-checksums/`. Drift caught by
  * sync-scaffolding.
  */
+/* eslint-disable socket/prefer-refined-record -- schema-keyed data */
 
 import crypto from 'node:crypto'
 import { createReadStream, readFileSync } from 'node:fs'

@@ -1,3 +1,4 @@
+/* eslint-disable socket/prefer-undefined-over-null -- JSON null sentinel */
 /**
  * @file The socket-release bootstrap: stand up publishing for this repo in
  *   eight idempotent, individually re-runnable steps —
@@ -33,15 +34,8 @@ import {
   preconditionGaps,
   STEP_IDS,
 } from './bootstrap/plan.mts'
-import type {
-  StepContext,
-  StepDetection,
-  StepId,
-  StepPlan,
-  StepReceipt,
-} from './bootstrap/plan.mts'
+import type { StepContext, StepId, StepReceipt } from './bootstrap/plan.mts'
 import {
-  gateToJson,
   KitError,
   renderStatusTable,
   renderStepHuman,
@@ -58,149 +52,11 @@ import {
 import type { BootstrapState } from './bootstrap/state.mts'
 import { REPO_ROOT, resolveSeams } from './bootstrap/seams.mts'
 import type { BootstrapSeams } from './bootstrap/seams.mts'
-import { npmAuthGate } from './_shared/human-gate.mts'
-import {
-  apply as applyGithubEnv,
-  classify as classifyGithubEnv,
-  id as idGithubEnv,
-  plan as planGithubEnv,
-  read as readGithubEnv,
-} from './bootstrap/steps/github-env.mts'
-import {
-  apply as applyNpmAccessPermissive,
-  classify as classifyNpmAccessPermissive,
-  id as idNpmAccessPermissive,
-  plan as planNpmAccessPermissive,
-  read as readNpmAccessPermissive,
-} from './bootstrap/steps/npm-access-permissive.mts'
-import {
-  apply as applyNpmAccessStagedOnly,
-  classify as classifyNpmAccessStagedOnly,
-  id as idNpmAccessStagedOnly,
-  plan as planNpmAccessStagedOnly,
-  read as readNpmAccessStagedOnly,
-} from './bootstrap/steps/npm-access-staged-only.mts'
-import {
-  apply as applyPlaceholder,
-  classify as classifyPlaceholder,
-  id as idPlaceholder,
-  plan as planPlaceholder,
-  read as readPlaceholder,
-} from './bootstrap/steps/placeholder.mts'
-import {
-  apply as applyPreflight,
-  classify as classifyPreflight,
-  id as idPreflight,
-  plan as planPreflight,
-  read as readPreflight,
-} from './bootstrap/steps/preflight.mts'
-import {
-  apply as applyStagedConfig,
-  classify as classifyStagedConfig,
-  id as idStagedConfig,
-  plan as planStagedConfig,
-  read as readStagedConfig,
-} from './bootstrap/steps/staged-config.mts'
-import {
-  apply as applyTrustedPublisher,
-  classify as classifyTrustedPublisher,
-  id as idTrustedPublisher,
-  plan as planTrustedPublisher,
-  read as readTrustedPublisher,
-} from './bootstrap/steps/trusted-publisher.mts'
-import {
-  apply as applyVerify,
-  classify as classifyVerify,
-  id as idVerify,
-  plan as planVerify,
-  read as readVerify,
-} from './bootstrap/steps/verify.mts'
+import { runStep } from './bootstrap/run-step.mts'
+import { STEP_MODULES } from './bootstrap/step-registry.mts'
 
 export const KIT_NAME = 'socket-release-kit'
 export const KIT_VERSION = '0.1.0'
-
-interface StepShape {
-  readonly __proto__: null
-  apply(
-    plan: StepPlan,
-    ctx: StepContext,
-    seams: BootstrapSeams,
-  ): Promise<{
-    effects: RunJson['steps'][number]['effects']
-    gate?: unknown | undefined
-  }>
-  classify(inputs: unknown, ctx: StepContext): StepDetection
-  id: StepId
-  plan(detection: StepDetection, ctx: StepContext): StepPlan
-  read(ctx: StepContext, seams: BootstrapSeams): Promise<unknown>
-}
-
-const STEP_MODULES: Record<StepId, StepShape> = {
-  'github-env': {
-    __proto__: null,
-    apply: applyGithubEnv,
-    classify: classifyGithubEnv,
-    id: idGithubEnv,
-    plan: planGithubEnv,
-    read: readGithubEnv,
-  },
-  'npm-access-permissive': {
-    __proto__: null,
-    apply: applyNpmAccessPermissive,
-    classify: classifyNpmAccessPermissive,
-    id: idNpmAccessPermissive,
-    plan: planNpmAccessPermissive,
-    read: readNpmAccessPermissive,
-  },
-  'npm-access-staged-only': {
-    __proto__: null,
-    apply: applyNpmAccessStagedOnly,
-    classify: classifyNpmAccessStagedOnly,
-    id: idNpmAccessStagedOnly,
-    plan: planNpmAccessStagedOnly,
-    read: readNpmAccessStagedOnly,
-  },
-  placeholder: {
-    __proto__: null,
-    apply: applyPlaceholder,
-    classify: classifyPlaceholder,
-    id: idPlaceholder,
-    plan: planPlaceholder,
-    read: readPlaceholder,
-  },
-  preflight: {
-    __proto__: null,
-    apply: applyPreflight,
-    classify: classifyPreflight,
-    id: idPreflight,
-    plan: planPreflight,
-    read: readPreflight,
-  },
-  'staged-config': {
-    __proto__: null,
-    apply: applyStagedConfig,
-    classify: classifyStagedConfig,
-    id: idStagedConfig,
-    plan: planStagedConfig,
-    read: readStagedConfig,
-  },
-  'trusted-publisher': {
-    __proto__: null,
-    apply: applyTrustedPublisher,
-    classify: classifyTrustedPublisher,
-    id: idTrustedPublisher,
-    plan: planTrustedPublisher,
-    read: readTrustedPublisher,
-  },
-  verify: {
-    __proto__: null,
-    apply: applyVerify,
-    classify: classifyVerify,
-    id: idVerify,
-    plan: planVerify,
-    read: readVerify,
-  },
-}
 
 const USAGE = `Usage: node scripts/socket-release/bootstrap.mts [step ...] [options]
 
@@ -558,145 +414,6 @@ export async function runBootstrap(
   return exitCode
 }
 
-interface RunStepOutcome extends StepOutcomeJson {
-  usageExit?: boolean | undefined
-}
-
-// oxlint-disable-next-line eslint/complexity -- branch dispatcher
-async function runStep(
-  mod: StepShape,
-  ctx: StepContext,
-  seams: BootstrapSeams,
-  mode: RunJson['mode'],
-): Promise<RunStepOutcome> {
-  const base: RunStepOutcome = {
-    already: false,
-    checks: [],
-    detail: '',
-    durationMs: 0,
-    effects: [],
-    gate: null,
-    status: 'planned',
-    step: mod.id,
-  }
-  let detection: StepDetection
-  try {
-    const inputs = await mod.read(ctx, seams)
-    detection = mod.classify(inputs, ctx)
-  } catch (e) {
-    if (e instanceof KitError) {
-      throw e
-    }
-    return {
-      ...base,
-      detail: `read failed: ${errorMessage(e)}`,
-      status: 'failed',
-    }
-  }
-  base.checks = detection.checks
-  base.detail = detection.detail
-  if (detection.done) {
-    return { ...base, already: true, status: 'passed' }
-  }
-  if (detection.gate) {
-    return { ...base, gate: gateToJson(detection.gate), status: 'blocked' }
-  }
-  if (detection.authUnknown) {
-    if (mode === 'apply') {
-      return {
-        ...base,
-        gate: gateToJson(
-          npmAuthGate(ctx.repoRoot, `the bootstrap resumes at ${mod.id}.`),
-        ),
-        status: 'blocked',
-      }
-    }
-    return { ...base, status: 'planned' }
-  }
-  if (detection.failed) {
-    // Fail-closed reads (hardFail) fail in BOTH modes; every other
-    // definitive failure renders `planned` in plan mode — a plan reports the
-    // machine, it does not grade it. The failing checks stay visible.
-    if (mode === 'apply' || detection.hardFail) {
-      return { ...base, status: 'failed' }
-    }
-    return { ...base, status: 'planned' }
-  }
-  const stepPlan = mod.plan(detection, ctx)
-  if (stepPlan.usage) {
-    return {
-      ...base,
-      detail: `--reserve does not name the package: saw ${stepPlan.usage.saw}, wanted ${stepPlan.usage.wanted}.`,
-      status: 'failed',
-      usageExit: true,
-    }
-  }
-  if (mode !== 'apply') {
-    return { ...base, effects: stepPlan.effects, status: 'planned' }
-  }
-  if (stepPlan.gate) {
-    return {
-      ...base,
-      effects: stepPlan.effects,
-      gate: gateToJson(stepPlan.gate),
-      status: 'blocked',
-    }
-  }
-  const applied = await mod.apply(stepPlan, ctx, seams)
-  if (applied.gate) {
-    return {
-      ...base,
-      effects: applied.effects,
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
-      gate: gateToJson(applied.gate as never),
-      status: 'blocked',
-    }
-  }
-  // Post-verify: re-read + re-classify; `passed` ONLY when the re-read says
-  // done (never false-green).
-  let reDetection: StepDetection
-  try {
-    const reInputs = await mod.read(ctx, seams)
-    reDetection = mod.classify(reInputs, ctx)
-  } catch (e) {
-    return {
-      ...base,
-      detail: `post-apply re-read failed: ${errorMessage(e)}`,
-      effects: applied.effects,
-      status: 'failed',
-    }
-  }
-  base.checks = reDetection.checks
-  if (reDetection.done) {
-    return {
-      ...base,
-      detail: reDetection.detail,
-      effects: applied.effects,
-      status: 'passed',
-    }
-  }
-  if (reDetection.gate) {
-    return {
-      ...base,
-      detail: reDetection.detail,
-      effects: applied.effects,
-      gate: gateToJson(reDetection.gate),
-      status: 'blocked',
-    }
-  }
-  // Read-only steps (preflight/verify) fail here with their own detail;
-  // apply steps fail as saved-state-unproven.
-  return {
-    ...base,
-    detail:
-      applied.effects.length > 0
-        ? `saved-state unproven: the post-apply re-read reports "${reDetection.detail}" — success is the registry's answer, never the command's exit code.`
-        : reDetection.detail,
-    effects: applied.effects,
-    status: 'failed',
-  }
-}
-
 function buildDoc(config: {
   ctx: StepContext
   exitCode: number
@@ -714,14 +431,18 @@ function buildDoc(config: {
     }
     return rest
   })
+  // oxlint-disable-next-line socket/prefer-undefined-over-null -- JSON null sentinel
+  const nextCommand = pending
+    ? nextCommandFor(pending, { packageName: ctx.packageName })
+    : null
+  // oxlint-disable-next-line socket/prefer-undefined-over-null -- JSON null sentinel
+  const nextStep = pending ?? null
   return {
     exitCode,
     kit: { name: KIT_NAME, version: KIT_VERSION },
     mode,
-    nextCommand: pending
-      ? nextCommandFor(pending, { packageName: ctx.packageName })
-      : null,
-    nextStep: pending ?? null,
+    nextCommand,
+    nextStep,
     package: {
       access: ctx.access ?? 'unresolved',
       name: ctx.packageName,
@@ -764,3 +485,5 @@ if (isMainModule(import.meta.url)) {
 // the shared factories (mirror-tested); formatHumanGate is re-exported for
 // smoke assertions.
 export { formatHumanGate }
+
+/* eslint-enable socket/prefer-undefined-over-null */

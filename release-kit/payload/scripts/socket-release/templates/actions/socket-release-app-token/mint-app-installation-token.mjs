@@ -24,6 +24,7 @@
  *   REPOSITORIES    (optional) newline/comma repo NAMES to scope the token to
  *   GITHUB_OUTPUT   (required) set by the runner; token is written here.
  */
+/* eslint-disable socket/prefer-socket-lib-error-message -- dep-zero script */
 
 import crypto from 'node:crypto'
 import { appendFileSync } from 'node:fs'
