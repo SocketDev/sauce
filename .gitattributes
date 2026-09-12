@@ -124,4 +124,5 @@ test/fleet/unit/comment-voice.test.mts linguist-generated=true
 *.patch whitespace=-blank-at-eol,-space-before-tab
 # </fleet>
 # <repo>
+patches/*.patch text eol=lf
 # </repo>
