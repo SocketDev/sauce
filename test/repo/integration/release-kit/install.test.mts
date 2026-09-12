@@ -68,7 +68,7 @@ describe('installer integration (real fs, temp dirs)', () => {
 
       // The config seed exists (write-only-if-absent).
       expect(
-        fs.existsSync(path.join(target, '.config/socket-release.json')),
+        fs.existsSync(path.join(target, '.config/repo/socket-release.json')),
       ).toBe(true)
 
       const second = runInstall({
@@ -138,7 +138,7 @@ describe('installer integration (real fs, temp dirs)', () => {
 
   it('the config seed never overwrites an existing config', () => {
     const target = tempCopy('npm-lib')
-    const configPath = path.join(target, '.config/socket-release.json')
+    const configPath = path.join(target, '.config/repo/socket-release.json')
     fs.mkdirSync(path.dirname(configPath), { recursive: true })
     fs.writeFileSync(configPath, '{"schemaVersion":1,"channels":["npm"]}\n')
     runInstall({

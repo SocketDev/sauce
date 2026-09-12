@@ -180,12 +180,12 @@ export async function runBootstrap(
 
   // ---- resolve the run context (reads only; failures surface as checks).
   const configRaw = seams.readFile(
-    path.join(repoRoot, '.config/socket-release.json'),
+    path.join(repoRoot, '.config/repo/socket-release.json'),
   )
   let kitConfig: KitConfig
   if (configRaw === undefined) {
     log(
-      `bootstrap: no .config/socket-release.json in ${repoRoot} — install the kit first ` +
+      `bootstrap: no .config/repo/socket-release.json in ${repoRoot} — install the kit first ` +
         '(node release-kit/install.mts --target . --channels npm,github-release --apply).',
     )
     return 2
@@ -193,7 +193,7 @@ export async function runBootstrap(
   try {
     kitConfig = parseKitConfig(
       configRaw,
-      path.join(repoRoot, '.config/socket-release.json'),
+      path.join(repoRoot, '.config/repo/socket-release.json'),
     )
   } catch (e) {
     log(errorMessage(e))

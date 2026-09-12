@@ -277,7 +277,7 @@ export function classifyPreflightInputs(
     ctx.access ??
       'none of config npm.access, publishConfig.access, --access is set',
     'public or restricted',
-    'set "npm": { "access": "restricted" } in .config/socket-release.json, or pass --access restricted.',
+    'set "npm": { "access": "restricted" } in .config/repo/socket-release.json, or pass --access restricted.',
   )
   const failing = checks.filter(c => !c.ok)
   return {

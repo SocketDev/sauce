@@ -1,6 +1,6 @@
 /**
  * @file Pure parsing/validation of the consumer's
- *   `.config/socket-release.json`. Hand-rolled — every violation is a
+ *   `.config/repo/socket-release.json`. Hand-rolled — every violation is a
  *   four-ingredient refusal (What / Where / Saw / Fix) with the pinned usage
  *   exit code. The `brew` block is required only when the channels include
  *   `brew`.

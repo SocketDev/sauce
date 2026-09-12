@@ -111,10 +111,10 @@ export async function runBrewPublish(
       'config-brew-block',
       [
         'x the brew channel is not configured.',
-        '  Fix: add the "brew" block to .config/socket-release.json (tap, formula, assetTemplate, triplets).',
+        '  Fix: add the "brew" block to .config/repo/socket-release.json (tap, formula, assetTemplate, triplets).',
       ],
       'no brew block',
-      'add the brew block to .config/socket-release.json',
+      'add the brew block to .config/repo/socket-release.json',
     )
   }
   const tap = normalizeTap(cfg.tap ?? brew.tap)
@@ -168,10 +168,10 @@ export async function runBrewPublish(
         'assets-present',
         [
           `x asset "${asset}" does not exist on release ${cfg.tag}.`,
-          'Fix: build and upload the asset before bumping the formula, or remove the triplet from .config/socket-release.json brew.triplets.',
+          'Fix: build and upload the asset before bumping the formula, or remove the triplet from .config/repo/socket-release.json brew.triplets.',
         ],
         `missing ${asset}`,
-        'build and upload the asset before bumping the formula, or remove the triplet from .config/socket-release.json brew.triplets.',
+        'build and upload the asset before bumping the formula, or remove the triplet from .config/repo/socket-release.json brew.triplets.',
       )
     }
   }
@@ -345,7 +345,7 @@ async function main(): Promise<void> {
     return
   }
   const fs = await import('node:fs')
-  const configPath = path.join(REPO_ROOT, '.config/socket-release.json')
+  const configPath = path.join(REPO_ROOT, '.config/repo/socket-release.json')
   let brewConfig: BrewPublishConfig['brewConfig']
   try {
     const kitConfig = parseKitConfig(

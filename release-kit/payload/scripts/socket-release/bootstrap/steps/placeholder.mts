@@ -183,7 +183,7 @@ export function classifyPlaceholderState(
     // §6 byte contract: no accidental `public` — a scoped package refuses
     // before planning without an explicit access level.
     checks.push({
-      fix: 'set "npm": { "access": "restricted" } in .config/socket-release.json, or pass --access restricted.',
+      fix: 'set "npm": { "access": "restricted" } in .config/repo/socket-release.json, or pass --access restricted.',
       id: 'access-resolved',
       ok: false,
       saw: 'none of them is set',

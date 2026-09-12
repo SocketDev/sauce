@@ -64,7 +64,7 @@ export function buildScenario(config?: ScenarioConfig | undefined): Scenario {
   const npmTemplate = payloadFile('templates/workflows/npm-publish.yml')
   const ghrTemplate = payloadFile('templates/workflows/github-release.yml')
   const files: Record<string, string> = {
-    [path.join(ROOT, '.config/socket-release.json')]: JSON.stringify({
+    [path.join(ROOT, '.config/repo/socket-release.json')]: JSON.stringify({
       channels: ['npm', 'github-release'],
       npm: { access: 'restricted', distTag: 'latest' },
       schemaVersion: 1,

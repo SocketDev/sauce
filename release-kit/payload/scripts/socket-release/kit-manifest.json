@@ -63,12 +63,12 @@
     {
       "channels": ["common"],
       "path": "bootstrap.mts",
-      "sha256": "dd7123ee14b6d1ca953c17d2f932c4bae8be1cd5f192f9d3f9475a029ddbe692"
+      "sha256": "cb11115536ccec9b4dda6d6f043a164bb88a8c296c41866a9472bcb43bec3bf8"
     },
     {
       "channels": ["common"],
       "path": "bootstrap/config.mts",
-      "sha256": "55076143a11233152944bde40f24659cfcab6b524d4e98b92aa1fa20373295fd"
+      "sha256": "c765bc98ed6838956d7ffc86732b865f689230b858982bcd89c710c666dc0000"
     },
     {
       "channels": ["common"],
@@ -123,12 +123,12 @@
     {
       "channels": ["common"],
       "path": "bootstrap/steps/placeholder.mts",
-      "sha256": "9f532d8ccb417df772d6c8f16a640dbc903acc5184bf7f888316046a1e3b6712"
+      "sha256": "5fdeea13396dad99f9ee0e6bc963d22040d1d9c64d4a9a5947166d16d782b8c4"
     },
     {
       "channels": ["common"],
       "path": "bootstrap/steps/preflight.mts",
-      "sha256": "853a98c698fa691cdda5e8413bb7fd19c931057660d7a43aa787e0569f6a35b6"
+      "sha256": "289bbc97ef00d28bfe5e8b202f5c220ca611265a7cc920c43cb46a6ce06b615a"
     },
     {
       "channels": ["common"],
@@ -148,7 +148,7 @@
     {
       "channels": ["brew"],
       "path": "brew-publish.mts",
-      "sha256": "5712e354d01ef48761b693733915a8f91f6cb761b1d89444cbfe4e7c2a4dadfb"
+      "sha256": "19a585c453be40d2d480f141dab1f1c9b45a4274103ccea022bb3f712332f9a7"
     },
     {
       "channels": ["crates"],
@@ -208,7 +208,7 @@
     {
       "channels": ["npm"],
       "path": "npm-publish.mts",
-      "sha256": "71e3867421988834e3f374b05f600fdd53afe757e934372587020fc94c28e60a"
+      "sha256": "1b3dad3ac432f45ec01cfc4496f6447bb3056b981f99e43e4976020651e68d4e"
     },
     {
       "channels": ["npm"],
@@ -228,7 +228,7 @@
     {
       "channels": ["brew"],
       "path": "publish-infra/brew/shared.mts",
-      "sha256": "e7b047fb7f47b199b2f5c02bb67a487d86c883afbf7a26a5eadf89e9700c4be3"
+      "sha256": "f2872642f6e7f2834fa0f312a6db84614e308130adb50292ea65358c95069063"
     },
     {
       "channels": ["brew"],

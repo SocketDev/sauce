@@ -191,14 +191,14 @@ export function runInstall(config: RunInstallConfig): InstallRunResult {
   }
   if (mode === 'apply') {
     // Seed the consumer config from the template ONLY if absent.
-    const configPath = path.join(cfg.target, '.config/socket-release.json')
+    const configPath = path.join(cfg.target, '.config/repo/socket-release.json')
     if (!seams.targetFileExists(configPath)) {
       const template = seams.readPayloadFile(
         'templates/config/socket-release.json',
       )
       if (template !== undefined) {
         seams.writeTargetFile(configPath, template)
-        log('seeded .config/socket-release.json from the template.')
+        log('seeded .config/repo/socket-release.json from the template.')
       }
     }
     log(

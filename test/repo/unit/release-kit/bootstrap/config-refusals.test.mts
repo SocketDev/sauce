@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest'
 
 import { parseKitConfig } from '../../../../../release-kit/payload/scripts/socket-release/bootstrap/config.mts'
 
-const WHERE = '.config/socket-release.json'
+const WHERE = '.config/repo/socket-release.json'
 
 function reject(raw: string): unknown {
   try {

@@ -210,7 +210,7 @@ async function main(): Promise<void> {
       '  --tag <tag>          dist-tag for --staged (default: npm.distTag from',
     )
     logger.log(
-      '                       .config/socket-release.json, else latest)',
+      '                       .config/repo/socket-release.json, else latest)',
     )
     logger.log(
       '  --backfill <ver>     CI: stage a never-published GAP version of prior',

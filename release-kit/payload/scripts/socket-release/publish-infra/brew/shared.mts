@@ -19,7 +19,7 @@ export function normalizeTap(input: string): { repo: string; slug: string } {
     throw new Error(
       [
         `Unrecognized tap "${input}".`,
-        '  Where: .config/socket-release.json brew.tap (or --tap)',
+        '  Where: .config/repo/socket-release.json brew.tap (or --tap)',
         `  Saw: ${input}`,
         '  Wanted: <owner>/<name> in either form',
         '  Fix: use the brew slug form (SocketDev/socket) or the repo form (SocketDev/homebrew-socket).',
