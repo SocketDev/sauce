@@ -18,6 +18,8 @@ import {
   stringifyWithFormatting,
 } from '@socketsecurity/lib-stable/json/format'
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../../fleet/process/run-main.mts'
 
 interface UsageMatch {
   path: string
@@ -229,6 +231,12 @@ function main(): void {
   }
 }
 
+const SCRIPT_META: ScriptMeta = {
+  describe: 'searches source files for package usage',
+  help: 'Usage: node scripts/repo/helpers/search-usage.mts --package <name> [--ecosystem <name>] [--dir <path>]',
+  json: 'native',
+}
+
 if (isMainModule(import.meta.url)) {
-  main()
+  runMain(() => main(), SCRIPT_META)
 }

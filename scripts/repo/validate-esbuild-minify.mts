@@ -11,6 +11,8 @@ import { findUpPackageJson } from '@socketsecurity/lib-stable/packages/find'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { runMain } from '../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../fleet/process/run-main.mts'
 
 const logger = getDefaultLogger()
 
@@ -96,9 +98,11 @@ async function main(): Promise<void> {
   process.exitCode = 1
 }
 
+const SCRIPT_META: ScriptMeta = {
+  describe: 'validates that esbuild configurations do not enable minification',
+  help: 'Usage: node scripts/repo/validate-esbuild-minify.mts',
+}
+
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    logger.error('Validation failed:', e)
-    process.exitCode = 1
-  })
+  runMain(main, SCRIPT_META)
 }

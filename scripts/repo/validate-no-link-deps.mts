@@ -13,6 +13,8 @@ import { findUpPackageJson } from '@socketsecurity/lib-stable/packages/find'
 
 import { DEP_FIELDS } from '../../.claude/hooks/fleet/_shared/dependency-spec-forms.mts'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { runMain } from '../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../fleet/process/run-main.mts'
 
 const logger = getDefaultLogger()
 
@@ -142,9 +144,11 @@ async function main(): Promise<void> {
   }
 }
 
+const SCRIPT_META: ScriptMeta = {
+  describe: 'validates package manifests contain no link dependencies',
+  help: 'Usage: node scripts/repo/validate-no-link-deps.mts',
+}
+
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    logger.error('Validation failed:', e)
-    process.exitCode = 1
-  })
+  runMain(main, SCRIPT_META)
 }

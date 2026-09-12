@@ -6,4 +6,10 @@
  *   orchestrator.
  */
 
-import './ai-lint-fix/cli.mts'
+import { main, SCRIPT_META } from './ai-lint-fix/cli.mts'
+import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { runMain } from '../fleet/process/run-main.mts'
+
+if (isMainModule(import.meta.url)) {
+  runMain(() => main(), SCRIPT_META)
+}

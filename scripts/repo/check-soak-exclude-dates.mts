@@ -21,6 +21,8 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { runMain } from '../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../fleet/process/run-main.mts'
 
 const SECTION_HEADER = /^minimumReleaseAgeExclude:\s*$/
 const ANY_TOP_LEVEL_KEY = /^[A-Za-z_][\w-]*:\s*(\S.*)?$/
@@ -153,6 +155,11 @@ function main(): void {
   process.exit(0)
 }
 
+const SCRIPT_META: ScriptMeta = {
+  describe: 'checks soak exclusions for valid publication and removal dates',
+  help: 'Usage: node scripts/repo/check-soak-exclude-dates.mts',
+}
+
 if (isMainModule(import.meta.url)) {
-  main()
+  runMain(main, SCRIPT_META)
 }

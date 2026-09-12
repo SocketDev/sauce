@@ -80,6 +80,7 @@ export function syncPluginVersions(
 const SCRIPT_META: ScriptMeta = {
   describe: 'syncs the plugin version into marketplace and extension metadata',
   help: 'Usage: node scripts/repo/sync-versions.mts',
+  json: 'result',
 }
 
 if (isMainModule(import.meta.url)) {

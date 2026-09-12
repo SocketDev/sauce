@@ -18,7 +18,6 @@
 
 import process from 'node:process'
 
-import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import {
@@ -30,6 +29,8 @@ import {
 import type { AddOpts, CommonOpts } from './git-partial-submodule-internal.mts'
 import { checkGitVersion } from './git-partial-submodule-internal.mts'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { runMain } from '../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../fleet/process/run-main.mts'
 
 const logger = getDefaultLogger()
 
@@ -145,9 +146,11 @@ async function main(): Promise<void> {
   }
 }
 
+const SCRIPT_META: ScriptMeta = {
+  describe: 'manages partial Git submodules with persisted sparse paths',
+  help: USAGE,
+}
+
 if (isMainModule(import.meta.url)) {
-  main().catch((err: unknown) => {
-    logger.error(`git-partial-submodule: ${errorMessage(err)}`)
-    process.exitCode = 1
-  })
+  runMain(main, SCRIPT_META)
 }

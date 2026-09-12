@@ -41,6 +41,8 @@ import {
   walkPayload,
 } from '../../../release-kit/install/seams.mts'
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../../fleet/process/run-main.mts'
 
 const logger = getDefaultLogger()
 const REPO_ROOT = path.resolve(
@@ -323,6 +325,12 @@ function main(): void {
   }
 }
 
+const SCRIPT_META: ScriptMeta = {
+  describe: 'checks release-kit payload coherence',
+  help: 'Usage: node scripts/repo/check/release-kit-is-coherent.mts',
+  json: 'result',
+}
+
 if (isMainModule(import.meta.url)) {
-  main()
+  runMain(() => main(), SCRIPT_META)
 }

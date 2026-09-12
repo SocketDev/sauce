@@ -28,6 +28,8 @@ import process from 'node:process'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { runMain } from '../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../fleet/process/run-main.mts'
 
 const logger = getDefaultLogger()
 
@@ -200,6 +202,12 @@ function main(): void {
   }
 }
 
+const SCRIPT_META: ScriptMeta = {
+  describe: 'runs repository lint checks',
+  help: 'Usage: node scripts/repo/lint.mts [--all | --staged] [--fix] [--quiet]',
+  json: 'result',
+}
+
 if (isMainModule(import.meta.url)) {
-  main()
+  runMain(() => main(), SCRIPT_META)
 }

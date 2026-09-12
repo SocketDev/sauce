@@ -18,6 +18,8 @@ import { isAgent } from '@socketsecurity/lib-stable/env/agents'
 
 import { PAYLOAD_ROOT } from '../../../release-kit/install/seams.mts'
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../../fleet/process/run-main.mts'
 
 const logger = getDefaultLogger()
 
@@ -181,6 +183,12 @@ function main(): void {
   }
 }
 
+const SCRIPT_META: ScriptMeta = {
+  describe: 'checks release-kit workflow environment mapping',
+  help: 'Usage: node scripts/repo/check/release-kit-workflows-are-env-mapped.mts',
+  json: 'result',
+}
+
 if (isMainModule(import.meta.url)) {
-  main()
+  runMain(() => main(), SCRIPT_META)
 }

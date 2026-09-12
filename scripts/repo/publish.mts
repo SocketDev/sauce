@@ -17,6 +17,8 @@ import { fileURLToPath } from 'node:url'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
 import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { runMain } from '../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../fleet/process/run-main.mts'
 
 const rootPath = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -132,9 +134,19 @@ export async function main(
   }
 }
 
+const SCRIPT_META: ScriptMeta = {
+  describe: 'generates repository publication artifacts',
+  help: 'Usage: node scripts/repo/publish.mts [--check]',
+  json: 'result',
+}
+
 if (isMainModule(import.meta.url)) {
-  main().catch((error: unknown) => {
-    process.stderr.write(`${String(error)}\n`)
-    process.exitCode = 1
-  })
+  runMain(
+    () =>
+      main().catch((error: unknown) => {
+        process.stderr.write(`${String(error)}\n`)
+        process.exitCode = 1
+      }),
+    SCRIPT_META,
+  )
 }

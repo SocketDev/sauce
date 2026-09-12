@@ -20,11 +20,12 @@ import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 
-import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
 import { parseShell } from '@socketsecurity/lib-stable/shell/parse'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { runMain } from '../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../fleet/process/run-main.mts'
 
 const logger = getDefaultLogger()
 
@@ -445,9 +446,16 @@ async function main(): Promise<void> {
   }
 }
 
+const SCRIPT_META: ScriptMeta = {
+  describe: 'audits a Claude transcript for unsafe command patterns',
+  help: `Usage: node scripts/repo/audit-transcript.mts [transcript-path] [options]
+  --latest                 Audit the most recent transcript
+  --all                    Show every finding instead of the summary
+  --category <category>    Limit findings to one category
+  --json                   Print the native JSON report`,
+  json: 'native',
+}
+
 if (isMainModule(import.meta.url)) {
-  main().catch((err: unknown) => {
-    logger.error(errorMessage(err))
-    process.exit(1)
-  })
+  runMain(main, SCRIPT_META)
 }

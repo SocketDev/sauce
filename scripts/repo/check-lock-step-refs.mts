@@ -40,6 +40,8 @@ import { parseArgs } from 'node:util'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { runMain } from '../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../fleet/process/run-main.mts'
 
 const CONFIG_PATH = '.config/repo/lock-step-refs.json'
 const SKIP_DIRS = new Set([
@@ -320,6 +322,14 @@ function main(): void {
   }
 }
 
+const SCRIPT_META: ScriptMeta = {
+  describe: 'checks lock-step references for stale or missing targets',
+  help: `Usage: node scripts/repo/check-lock-step-refs.mts [options]
+  --json     Print the native JSON report
+  --quiet    Suppress clean status output`,
+  json: 'native',
+}
+
 if (isMainModule(import.meta.url)) {
-  main()
+  runMain(main, SCRIPT_META)
 }

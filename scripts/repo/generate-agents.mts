@@ -21,6 +21,8 @@ import {
 } from './lib/validate-marketplace.mts'
 import type { Skill } from './lib/validate-marketplace.mts'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { runMain } from '../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../fleet/process/run-main.mts'
 import { repoClaudeMarketplacePath } from './_shared/paths.mts'
 
 const logger = getDefaultLogger()
@@ -255,6 +257,11 @@ function main(): void {
   }
 }
 
+const SCRIPT_META: ScriptMeta = {
+  describe: 'generates agent documentation and the README skills table',
+  help: 'Usage: node scripts/repo/generate-agents.mts',
+}
+
 if (isMainModule(import.meta.url)) {
-  main()
+  runMain(main, SCRIPT_META)
 }

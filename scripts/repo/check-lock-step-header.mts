@@ -39,6 +39,8 @@ import process from 'node:process'
 import { parseArgs } from 'node:util'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { runMain } from '../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../fleet/process/run-main.mts'
 
 const CONFIG_PATH = '.config/repo/lock-step-refs.json'
 const SKIP_DIRS = new Set([
@@ -378,6 +380,14 @@ function main(): void {
   }
 }
 
+const SCRIPT_META: ScriptMeta = {
+  describe: 'checks lock-step header blocks against their canonical sources',
+  help: `Usage: node scripts/repo/check-lock-step-header.mts [options]
+  --json     Print the native JSON report
+  --quiet    Suppress clean status output`,
+  json: 'native',
+}
+
 if (isMainModule(import.meta.url)) {
-  main()
+  runMain(main, SCRIPT_META)
 }

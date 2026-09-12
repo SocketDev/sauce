@@ -51,6 +51,8 @@ import {
   TIER_MODEL,
 } from './rule-guidance.mts'
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../../fleet/process/run-main.mts'
 import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
 
 const logger = getDefaultLogger()
@@ -369,7 +371,7 @@ async function hasClaudeCli(cwd: string): Promise<boolean> {
   return 'claude' in discovered
 }
 
-async function main(): Promise<void> {
+export async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2))
   if (args.noAi) {
     return
@@ -458,10 +460,20 @@ async function main(): Promise<void> {
   )
 }
 
+export const SCRIPT_META: ScriptMeta = {
+  describe: 'fixes supported lint findings with a restricted agent',
+  help: 'Usage: node scripts/repo/ai-lint-fix.mts [lint options]',
+  json: 'result',
+}
+
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    const msg = errorMessage(e)
-    logger.error(`ai-lint-fix: ${msg}`)
-    process.exitCode = 1
-  })
+  runMain(
+    () =>
+      main().catch((e: unknown) => {
+        const msg = errorMessage(e)
+        logger.error(`ai-lint-fix: ${msg}`)
+        process.exitCode = 1
+      }),
+    SCRIPT_META,
+  )
 }

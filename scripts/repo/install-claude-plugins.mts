@@ -29,11 +29,13 @@
 import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 import { cpSync, existsSync, readdirSync, readFileSync } from 'node:fs'
 import path from 'node:path'
-import process from 'node:process'
-import { fileURLToPath, pathToFileURL } from 'node:url'
+import { fileURLToPath } from 'node:url'
 
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { runMain } from '../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../fleet/process/run-main.mts'
 
 import {
   extractInstalledSha,
@@ -450,16 +452,11 @@ function main(): void {
   logger.log('Done.')
 }
 
-// Skip execution when imported (for tests). The CLI entry is direct
-// `node scripts/repo/install-claude-plugins.mts` invocation.
-if (
-  process.argv[1] &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  try {
-    main()
-  } catch (e) {
-    logger.fail(errorMessage(e))
-    process.exit(1)
-  }
+const SCRIPT_META: ScriptMeta = {
+  describe: 'installs and reconciles the configured Claude plugins',
+  help: 'Usage: node scripts/repo/install-claude-plugins.mts',
+}
+
+if (isMainModule(import.meta.url)) {
+  runMain(main, SCRIPT_META)
 }

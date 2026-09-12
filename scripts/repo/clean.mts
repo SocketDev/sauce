@@ -16,8 +16,9 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
-import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { runMain } from '../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../fleet/process/run-main.mts'
 
 const rootPath = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -163,9 +164,18 @@ async function main(): Promise<void> {
   }
 }
 
+const SCRIPT_META: ScriptMeta = {
+  describe: 'removes generated project directories and TypeScript build state',
+  help: `Usage: pnpm clean [options]
+  --all               Clean all generated directories
+  --cache             Clean .cache
+  --coverage          Clean coverage
+  --dist              Clean dist and TypeScript build state
+  --types             Clean dist/types
+  --modules           Clean node_modules
+  --quiet, -q         Suppress output`,
+}
+
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    process.stderr.write(`clean failed: ${errorMessage(e)}\n`)
-    process.exitCode = 1
-  })
+  runMain(main, SCRIPT_META)
 }

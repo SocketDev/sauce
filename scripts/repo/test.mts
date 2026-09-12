@@ -33,6 +33,8 @@ import type { SpawnSyncOptions } from 'node:child_process'
 import process from 'node:process'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { runMain } from '../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../fleet/process/run-main.mts'
 
 const logger = getDefaultLogger()
 
@@ -172,6 +174,12 @@ function main(): void {
   process.exitCode = runChanged()
 }
 
+const SCRIPT_META: ScriptMeta = {
+  describe: 'runs repository tests',
+  help: 'Usage: node scripts/repo/test.mts [--all | --staged] [--quiet]',
+  json: 'result',
+}
+
 if (isMainModule(import.meta.url)) {
-  main()
+  runMain(() => main(), SCRIPT_META)
 }

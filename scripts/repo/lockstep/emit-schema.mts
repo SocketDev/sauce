@@ -21,13 +21,15 @@ import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { REPO_ROOT } from '../../fleet/paths.mts'
 import { LockstepManifestSchema } from './schema.mts'
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../../fleet/process/run-main.mts'
 
 const logger = getDefaultLogger()
 
 const rootDir = REPO_ROOT
 const outPath = path.join(rootDir, 'lockstep.schema.json')
 
-async function main(): Promise<void> {
+export async function main(): Promise<void> {
   // TypeBox schemas carry JSON Schema shape directly, plus a Symbol-keyed
   // [Kind] marker that JSON.stringify drops. Spreading the schema first
   // then layering the canonical $schema / $id / title on top gives a clean
@@ -62,9 +64,19 @@ async function main(): Promise<void> {
   logger.success(`wrote ${path.relative(rootDir, outPath)}`)
 }
 
+export const SCRIPT_META: ScriptMeta = {
+  describe: 'emits the lockstep manifest schema',
+  help: 'Usage: node scripts/repo/lockstep-emit-schema.mts',
+  json: 'result',
+}
+
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    logger.error(errorMessage(e))
-    process.exitCode = 1
-  })
+  runMain(
+    () =>
+      main().catch((e: unknown) => {
+        logger.error(errorMessage(e))
+        process.exitCode = 1
+      }),
+    SCRIPT_META,
+  )
 }

@@ -21,6 +21,8 @@ import * as path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { runMain } from '../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../fleet/process/run-main.mts'
 import { parseFrontmatter } from './lib/frontmatter.mts'
 import { repoClaudePluginPath } from './_shared/paths.mts'
 
@@ -225,6 +227,12 @@ function main(): void {
   logger.log(`Wrote ${path.relative(ROOT, result.mcpPath)}`)
 }
 
+const SCRIPT_META: ScriptMeta = {
+  describe: 'generates Cursor plugin artifacts',
+  help: 'Usage: node scripts/repo/generate-cursor-plugin.mts [--check]',
+  json: 'result',
+}
+
 if (isMainModule(import.meta.url)) {
-  main()
+  runMain(() => main(), SCRIPT_META)
 }

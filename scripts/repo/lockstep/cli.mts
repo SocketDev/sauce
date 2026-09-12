@@ -47,6 +47,8 @@ import { emitHuman, summarize } from './report.mts'
 import type { Row } from './schema.mts'
 import type { Manifest, Report } from './types.mts'
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../../fleet/process/run-main.mts'
 
 const logger = getDefaultLogger()
 
@@ -99,7 +101,7 @@ function evaluate(
   return reports
 }
 
-function main(): void {
+export function main(): void {
   const rootManifestPath = path.join(rootDir, 'lockstep.json')
   const { areas, merged } = loadManifestTree(rootManifestPath)
 
@@ -148,6 +150,12 @@ function main(): void {
   }
 }
 
+export const SCRIPT_META: ScriptMeta = {
+  describe: 'checks lockstep manifests for drift',
+  help: 'Usage: node scripts/repo/lockstep.mts [--json | --format=json]',
+  json: 'result',
+}
+
 if (isMainModule(import.meta.url)) {
-  main()
+  runMain(() => main(), SCRIPT_META)
 }

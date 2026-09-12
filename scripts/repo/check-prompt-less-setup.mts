@@ -32,6 +32,8 @@ import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { runMain } from '../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../fleet/process/run-main.mts'
 
 const logger = console
 
@@ -430,6 +432,11 @@ function main(): void {
   process.exit(summary.failed > 0 ? 1 : 0)
 }
 
+const SCRIPT_META: ScriptMeta = {
+  describe: 'checks local signing and token setup for prompt-free automation',
+  help: 'Usage: node scripts/repo/check-prompt-less-setup.mts',
+}
+
 if (isMainModule(import.meta.url)) {
-  main()
+  runMain(main, SCRIPT_META)
 }

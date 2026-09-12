@@ -19,6 +19,8 @@ import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
 import { SocketWheelhouseConfigSchema } from './socket-wheelhouse-schema.mts'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { runMain } from '../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../fleet/process/run-main.mts'
 
 const logger = getDefaultLogger()
 
@@ -64,9 +66,19 @@ async function main(): Promise<void> {
   logger.success(`wrote ${path.relative(rootDir, outPath)}`)
 }
 
+const SCRIPT_META: ScriptMeta = {
+  describe: 'emits the repository wheelhouse schema',
+  help: 'Usage: node scripts/repo/socket-wheelhouse-emit-schema.mts',
+  json: 'result',
+}
+
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    logger.error(errorMessage(e))
-    process.exitCode = 1
-  })
+  runMain(
+    () =>
+      main().catch((e: unknown) => {
+        logger.error(errorMessage(e))
+        process.exitCode = 1
+      }),
+    SCRIPT_META,
+  )
 }

@@ -15,6 +15,8 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { isAgent } from '@socketsecurity/lib-stable/env/agents'
 import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../../fleet/process/run-main.mts'
 import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
 
 const logger = getDefaultLogger()
@@ -54,6 +56,12 @@ function main(): void {
   }
 }
 
+const SCRIPT_META: ScriptMeta = {
+  describe: 'checks release-kit TypeScript resolution',
+  help: 'Usage: node scripts/repo/check/release-kit-types-resolve.mts',
+  json: 'result',
+}
+
 if (isMainModule(import.meta.url)) {
-  main()
+  runMain(() => main(), SCRIPT_META)
 }

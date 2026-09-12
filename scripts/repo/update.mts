@@ -22,6 +22,8 @@
 import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
+import { runMain } from '../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../fleet/process/run-main.mts'
 
 async function run(cmd: string, args: string[]): Promise<boolean> {
   try {
@@ -79,9 +81,19 @@ async function main(): Promise<void> {
   }
 }
 
+const SCRIPT_META: ScriptMeta = {
+  describe: 'updates repository dependencies',
+  help: 'Usage: node scripts/repo/update.mts',
+  json: 'result',
+}
+
 if (isMainModule(import.meta.url)) {
-  main().catch((e: unknown) => {
-    process.exitCode =
-      isObject(e) && typeof e['code'] === 'number' ? e['code'] : 1
-  })
+  runMain(
+    () =>
+      main().catch((e: unknown) => {
+        process.exitCode =
+          isObject(e) && typeof e['code'] === 'number' ? e['code'] : 1
+      }),
+    SCRIPT_META,
+  )
 }

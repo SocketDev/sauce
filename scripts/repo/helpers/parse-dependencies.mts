@@ -17,6 +17,8 @@ import {
   stringifyWithFormatting,
 } from '@socketsecurity/lib-stable/json/format'
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../../fleet/process/run-main.mts'
 
 interface Dependency {
   name: string
@@ -365,6 +367,12 @@ function main(): void {
   }
 }
 
+const SCRIPT_META: ScriptMeta = {
+  describe: 'extracts dependencies from ecosystem manifests',
+  help: 'Usage: node scripts/repo/helpers/parse-dependencies.mts [--ecosystem <name>] [--dir <path>]',
+  json: 'native',
+}
+
 if (isMainModule(import.meta.url)) {
-  main()
+  runMain(() => main(), SCRIPT_META)
 }

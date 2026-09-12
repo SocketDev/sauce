@@ -45,6 +45,9 @@ import {
 
 import { REPO_ROOT } from '../../fleet/paths.mts'
 import { sharedGithubWorkflowsPath } from '../../fleet/paths/util.mts'
+import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { runMain } from '../../fleet/process/run-main.mts'
+import type { ScriptMeta } from '../../fleet/process/run-main.mts'
 import { isAllowlisted, loadAllowlist, snippetHash } from './allowlist.mts'
 import { isExempt } from './exempt.mts'
 import { checkRuleF } from './rules.mts'
@@ -185,9 +188,19 @@ export function main(): number {
   return 1
 }
 
-try {
-  process.exitCode = main()
-} catch (e) {
-  logger.error(`Path-hygiene gate crashed: ${errorMessage(e)}`)
-  process.exitCode = 2
+export const SCRIPT_META: ScriptMeta = {
+  describe: 'checks repository path construction hygiene',
+  help: 'Usage: node scripts/repo/check-paths.mts [--explain] [--json] [--quiet] [--show-hashes]',
+  json: 'native',
+}
+
+if (isMainModule(import.meta.url)) {
+  runMain(() => {
+    try {
+      process.exitCode = main()
+    } catch (e) {
+      logger.error(`Path-hygiene gate crashed: ${errorMessage(e)}`)
+      process.exitCode = 2
+    }
+  }, SCRIPT_META)
 }
