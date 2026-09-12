@@ -1,4 +1,6 @@
 /**
+ * Runner-collection: opt-in lane.
+ *
  * @file Property fuzzing for the pnpm-workspace.yaml catalog string helpers.
  *   Splice then parse must round-trip the entry; remove then parse must drop
  *   it; splice must be idempotent for an unchanged version. Every parser must

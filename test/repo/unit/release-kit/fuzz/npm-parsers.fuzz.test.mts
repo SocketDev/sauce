@@ -1,4 +1,6 @@
 /**
+ * Runner-collection: opt-in lane.
+ *
  * @file Property fuzzing for the npm access-state, trusted-publisher, and
  *   staged-tarball page parsers. Arbitrary HTML/JSON and single-byte mutations
  *   of the golden fixtures must never crash a parser and never let it invent a
