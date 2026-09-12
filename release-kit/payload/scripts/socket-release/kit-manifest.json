@@ -483,7 +483,7 @@
     {
       "channels": ["brew"],
       "path": "templates/actions/socket-release-app-token/mint-app-installation-token.mjs",
-      "sha256": "f117e79146c098b71e269e06a6bb46eed4b2bed4cfe5071713765729b13969c6"
+      "sha256": "157f00caeffa4ce61dc860bd617ab9b7faf4e851c68da3f30bd869547876354b"
     },
     {
       "channels": ["common"],

@@ -317,7 +317,7 @@ if (
     try {
       await main()
     } catch (e) {
-      // oxlint-disable-next-line socket/prefer-error-message, socket/prefer-error-message-helper -- dep-0: this .mjs uses only node: builtins and runs in CI BEFORE `pnpm install`, so it cannot import errorMessage() from the external @socketsecurity/lib.
+      // oxlint-disable-next-line socket/prefer-error-message-helper -- dep-0: this .mjs uses only node: builtins and runs in CI BEFORE `pnpm install`, so it cannot import errorMessage() from the external @socketsecurity/lib.
       die(e instanceof Error ? e.message : String(e))
     }
   })()
