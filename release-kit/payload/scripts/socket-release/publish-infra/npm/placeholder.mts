@@ -308,6 +308,7 @@ export function expandNapiFamily(meta: string): string[] | undefined {
  * unknown flag, a bad `--access` value, a `--napi-family` positional that
  * already carries a target token, or when no names are given.
  */
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 export function parseArgs(argv: readonly string[]): PlaceholderArgs {
   let access: Access = 'public'
   let apply = false

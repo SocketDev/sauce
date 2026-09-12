@@ -31,6 +31,7 @@ export interface KitManifest {
  * `common` (bootstrap, shared libs, constants, config templates, the
  * manifest itself travels implicitly).
  */
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 export function channelsForPath(relPath: string): ManifestChannel[] {
   const p = relPath.replaceAll('\\', '/')
   if (
@@ -141,6 +142,7 @@ export function parseChannelsFlag(value: string): KitChannel[] {
  * Parse + validate a kit manifest. Throws with the four ingredients on any
  * violation — a manifest that cannot be trusted must never drive copies.
  */
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 export function parseKitManifest(raw: string, where: string): KitManifest {
   let parsed: unknown
   try {

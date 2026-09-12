@@ -72,6 +72,7 @@ async function findDistFiles(distPath: string): Promise<string[]> {
 /**
  * Check if a string is a valid package specifier.
  */
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 function isValidPackageSpecifier(specifier: string): boolean {
   // Relative imports
   if (specifier.startsWith('.') || specifier.startsWith('/')) {
@@ -181,6 +182,7 @@ async function extractExternalPackages(filePath: string): Promise<Set<string>> {
 /**
  * Extract bundled package names from node_modules paths in comments and code.
  */
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 async function extractBundledPackages(filePath: string): Promise<Set<string>> {
   const content = await fs.readFile(filePath, 'utf8')
   const bundled = new Set<string>()
@@ -247,6 +249,7 @@ async function extractBundledPackages(filePath: string): Promise<Set<string>> {
 /**
  * Get package name from a module specifier (strip subpaths).
  */
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 function getPackageName(specifier: string): string | undefined {
   // Relative imports are not packages
   if (specifier.startsWith('.') || specifier.startsWith('/')) {
@@ -347,6 +350,7 @@ interface ValidationResult {
 /**
  * Validate bundle dependencies.
  */
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 async function validateBundleDeps(): Promise<ValidationResult> {
   const distPath = path.join(rootPath, 'dist')
   const pkg = await readPackageJson()

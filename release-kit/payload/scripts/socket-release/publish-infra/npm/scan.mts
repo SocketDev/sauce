@@ -92,6 +92,7 @@ function openInBrowser(url: string): void {
  * human selection, not mid-gate. Every dependency is an injectable dependency
  * so tests drive the flow with no network, browser, or TTY.
  */
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 export async function preflightSocketScanAuth(
   options?:
     | {
@@ -318,6 +319,7 @@ export function extractSecurityPolicyRules(
  * `options.context` carries the preflighted SDK+org; when absent the entry
  * runs its own preflight (self-contained use).
  */
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 export async function scanStagedEntry(
   entry: {
     name: string

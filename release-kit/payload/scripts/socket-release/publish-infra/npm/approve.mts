@@ -91,6 +91,7 @@ export function buildApproveChoices(
  * are selected, and (absent `otpFromFlag`) 2FA falls through to the browser
  * web-OTP challenge.
  */
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 export async function runApprove(config: {
   dryRun: boolean
   noScan: boolean

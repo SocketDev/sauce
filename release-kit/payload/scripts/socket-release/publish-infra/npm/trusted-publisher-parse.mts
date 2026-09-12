@@ -34,6 +34,7 @@ export type AccessPageState =
  * are present, `unconfigured` when only the access-settings shell renders.
  * Pure — exported for tests.
  */
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 export function classifyAccessPage(config: {
   body?: string | undefined
   status: number
@@ -94,6 +95,7 @@ export interface TrustedPublisherCurrent {
  * when not even the repo marker is present — callers classify first, so
  * that means an unconfigured page. Pure — exported for tests.
  */
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 export function parseTrustedPublisherForm(
   html: string,
 ): TrustedPublisherCurrent | undefined {

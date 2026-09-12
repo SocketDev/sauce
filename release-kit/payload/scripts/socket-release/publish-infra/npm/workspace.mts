@@ -219,6 +219,7 @@ export function expandWorkspaceGlob(rootPath: string, glob: string): string[] {
  * `scripts/make-npm-dirs.mts` generator — even when those dirs are not
  * workspace members, the stuie shape. Deduped by dir, sorted by relDir.
  */
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 export function discoverWorkspacePackages(
   rootPath: string,
 ): WorkspacePackage[] {
@@ -349,6 +350,7 @@ function selectMainPackage(
  * when neither shape resolves (a versionless root with no publishable
  * members) — a publish must never guess its subject.
  */
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 export function resolveNpmWorkspaceLayout(
   rootPath: string,
 ): NpmWorkspaceLayout {

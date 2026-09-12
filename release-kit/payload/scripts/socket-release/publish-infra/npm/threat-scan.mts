@@ -79,6 +79,7 @@ export interface ThreatManifest {
   scripts?: Record<string, string> | undefined
 }
 
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 function manifestReferencedFiles(manifest: ThreatManifest): string[] {
   const cfg = { __proto__: null, ...manifest } as ThreatManifest
   const out: string[] = []

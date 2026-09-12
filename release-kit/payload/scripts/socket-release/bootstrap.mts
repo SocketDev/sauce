@@ -130,6 +130,7 @@ export interface RunBootstrapConfig {
  * The whole run, in-process — the CLI calls this with real dependencies; the
  * integration tests call it with fakes and capture `out`/`log`.
  */
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 export async function runBootstrap(
   config: RunBootstrapConfig,
 ): Promise<number> {
@@ -448,6 +449,7 @@ interface RunStepOutcome extends StepOutcomeJson {
   usageExit?: boolean | undefined
 }
 
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 async function runStep(
   mod: StepShape,
   ctx: StepContext,

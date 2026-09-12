@@ -46,6 +46,7 @@ interface Finding {
   removable?: string | undefined
 }
 
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 function scan(text: string, todayISO: string): Finding[] {
   const lines = text.split(/\r?\n/)
   const findings: Finding[] = []

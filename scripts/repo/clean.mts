@@ -109,6 +109,7 @@ export async function removeTsBuildInfo(quiet: boolean): Promise<void> {
   }
 }
 
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 async function main(): Promise<void> {
   const flags = parseFlags(process.argv.slice(2))
 

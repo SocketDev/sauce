@@ -258,6 +258,7 @@ export async function runStaged(
  * `--staged` (preferred) or accept the trust regression by removing the prior
  * staged-published versions from the registry first.
  */
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 export async function runDirect(
   tag: string,
   config: {

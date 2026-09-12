@@ -383,6 +383,7 @@ export async function packWorkspaceReleaseAssets(
  * non-zero upload aborts the remainder — dependency order guarantees nothing
  * publishes ahead of a failed dependency.
  */
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 export async function runWorkspacePublish(
   mode: 'direct' | 'staged',
   tag: string,

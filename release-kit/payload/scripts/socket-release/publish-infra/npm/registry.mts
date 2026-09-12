@@ -273,6 +273,7 @@ export interface RegistryVersionInfo {
  * flow, show prior-version status, and the Stop-hook (verify a freshly- bumped
  * version landed with provenance).
  */
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 export async function fetchVersionTrustInfo(
   name: string,
   variant: 'abbreviated' | 'full' = 'abbreviated',

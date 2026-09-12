@@ -63,7 +63,7 @@
     {
       "channels": ["common"],
       "path": "bootstrap.mts",
-      "sha256": "49ff8a47bf207011b011c722b8a79dd8f8c405a9435dfdb6379f707519e63b4a"
+      "sha256": "1be6597959148de7da2227776c48bddfa903fff2ac5a089ec320d4b6cf651c0a"
     },
     {
       "channels": ["common"],
@@ -138,7 +138,7 @@
     {
       "channels": ["brew"],
       "path": "brew-publish.mts",
-      "sha256": "055da61e96763d7124fb15e6bb88493a57f8df7c46a681bd17063517a21b21ac"
+      "sha256": "63ad4bc3b9fe52a910fd4771b3e4ccca4d5dfb9c711586bf93d235382e1ae5c1"
     },
     {
       "channels": ["crates"],
@@ -198,7 +198,7 @@
     {
       "channels": ["npm"],
       "path": "npm-publish.mts",
-      "sha256": "4ab3d5d50d050c28a17e9ac334104b9f4607948befff27a7b11fe873669ef4b3"
+      "sha256": "4e61eb9925355252f36f8c1fc91c6c8a3c59ad587e84ca6d73512ef97c993097"
     },
     {
       "channels": ["npm"],
@@ -273,7 +273,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/approve.mts",
-      "sha256": "ff1e38f8ef482d0303a41c9652d2eeb0c188a7185e139e425c3ea162649e10b6"
+      "sha256": "12a184a27629b7d134f1b33292679a03ffbaece573de615d3f80fcb3f98d7dd8"
     },
     {
       "channels": ["npm"],
@@ -318,7 +318,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/placeholder.mts",
-      "sha256": "800082782263b72a54c9037dac89d9a2665a019c29db133cf114ed4a7e68f044"
+      "sha256": "4850d2ce4fe3debd71a3888a6d5f9a65e4b5a6f269e25b6476a3af080fc3877c"
     },
     {
       "channels": ["npm"],
@@ -328,12 +328,12 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/registry.mts",
-      "sha256": "d2f849367d58bc9abf75aa9a02047081ebd24926c610e54a2389e99cf5b21cb7"
+      "sha256": "9b8d52054cc7da895cec509379f61cb193b3ec410f6e408ee46daa6fb5b753a1"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/scan.mts",
-      "sha256": "1fb2d383f032093afb976c2cb5f03d81b7f0bc1884fafd1d6056ebd226b1e69f"
+      "sha256": "351a17c5c12ccb97f9615a95e71241cecc09e9e774ca7e251520067460734ab4"
     },
     {
       "channels": ["npm"],
@@ -353,17 +353,17 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/staged-workspace.mts",
-      "sha256": "10dec0048e51c15a9f9103c80f0cfbbdb13745e05b4cffd7b6eb0104db5b5964"
+      "sha256": "5b60b4dc22013479daed498683df963250a43316dca3b1c1790e4d3b9e05d42a"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/staged.mts",
-      "sha256": "90b8a12c2612acf01d296439088853f345c9115e1641ffb5c60539c5bc2c3790"
+      "sha256": "3c611315d9743b9b03db663d2433199fd1112f10049b366105f0826a94effa26"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/threat-scan.mts",
-      "sha256": "658668758ed017ac8622a46897fa9023ffd30f11de3743629df93bf8e74ea121"
+      "sha256": "2abc9a11438378112af7800078fdb09c6a1e06d5e34e89e8580fb83294f8f09d"
     },
     {
       "channels": ["npm"],
@@ -383,12 +383,12 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/trusted-publisher-parse.mts",
-      "sha256": "b206aa6176556e78ff7dfc0206bf3a50221f070a0de0a35872cecd0e08d1f582"
+      "sha256": "7cd59c729f40854f19f6e375534f50db4e38cddf0ab5dfd3fa288f5121bab93e"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/trusted-publisher-plan.mts",
-      "sha256": "74eed3d596130b904e683a75b0fea35071f54091cd35a27651ca8f4b2f058059"
+      "sha256": "5747b645915468b286dac1d4b6c874413bc215cbca56cd5a49f8f78d2553486b"
     },
     {
       "channels": ["npm"],
@@ -398,7 +398,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/workspace.mts",
-      "sha256": "4662efbfffa0454e6251fee1214b3181ff5533e1703b91e1d619c641fdcfa9b2"
+      "sha256": "1eb3c3f3065ea442c07d5fa3e8b88c766cb7cc8c977e3f74b4dad83b751889f9"
     },
     {
       "channels": ["common"],
@@ -413,7 +413,7 @@
     {
       "channels": ["common"],
       "path": "publish-infra/release.mts",
-      "sha256": "f2d7e3be754e0209b757b3c8e6d5ceadd89199c3f87527f50e5376637ede6d3f"
+      "sha256": "1e8f8b58b776b704f0a3b1398aeb6dbb3ebdcc0c9a2952ee36f325202e9f9765"
     },
     {
       "channels": ["common"],
@@ -433,7 +433,7 @@
     {
       "channels": ["github-release"],
       "path": "registry-liveness-gate.mjs",
-      "sha256": "e4ad308ae61434a8bec256b8ad295d9b172164ea64fe65ad61f222daffe24290"
+      "sha256": "b4416f89a60c93a8ded5efe376b40833d76eeb461679bb68029f231af6ddf450"
     },
     {
       "channels": ["brew"],

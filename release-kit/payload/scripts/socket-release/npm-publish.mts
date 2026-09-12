@@ -132,6 +132,7 @@ export function parsePublishArgs(
   return parsePublishArgv(args).values
 }
 
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 async function main(): Promise<void> {
   const { positionals, values } = parsePublishArgv()
 

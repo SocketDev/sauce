@@ -279,6 +279,7 @@ export function formatReleaseChecksums(
  * a packer that returns `[cratePath, checksumsPath]`); when omitted the exact
  * `pnpm pack` behavior is kept, so the npm path is unchanged.
  */
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 export async function ensureTagAndRelease(
   pkg: {
     name: string

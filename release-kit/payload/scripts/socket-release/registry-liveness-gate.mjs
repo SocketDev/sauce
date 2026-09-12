@@ -235,6 +235,7 @@ export async function checkCrateLive(
  * loggers keep it drivable end-to-end by the unit suite with the network
  * closed.
  */
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 export async function runGate({
   fetchImpl = fetch,
   log = console.log,

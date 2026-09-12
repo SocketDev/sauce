@@ -416,6 +416,7 @@ export function checkLangParity(
  * covers per-row shape, enum values, id pattern, and required fields — this is
  * the referential-integrity layer on top.
  */
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 export function checkCrossRowConsistency(
   rowsWithArea: Array<{ row: Row; area: string }>,
   merged: Manifest,

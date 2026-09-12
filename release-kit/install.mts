@@ -75,10 +75,12 @@ export interface RunInstallConfig {
  * The whole install flow, in-process — the CLI wraps it; integration tests
  * call it against temp dirs with real fs.
  */
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 export function runInstall(config: RunInstallConfig): InstallRunResult {
   const cfg = { __proto__: null, ...config } as RunInstallConfig
   const payloadRoot = cfg.payloadRoot ?? PAYLOAD_ROOT
   const seams = cfg.seams ?? resolveInstallSeams(payloadRoot)
+  // oxlint-disable-next-line socket/no-direct-stream-write -- exact output
   const log = cfg.log ?? ((line: string) => process.stderr.write(`${line}\n`))
   const mode: InstallRunResult['mode'] = cfg.verify
     ? 'verify'
@@ -230,11 +232,13 @@ function main(): void {
     })
     values = parsed.values as typeof values
   } catch (e) {
+    // oxlint-disable-next-line socket/no-direct-stream-write -- exact CLI error
     process.stderr.write(`install: ${errorMessage(e)}\n${USAGE}`)
     process.exitCode = 2
     return
   }
   if (values['help'] === true) {
+    // oxlint-disable-next-line socket/no-direct-stream-write -- exact help text
     process.stdout.write(USAGE)
     return
   }
@@ -244,6 +248,7 @@ function main(): void {
   const channelsRaw =
     typeof channelsValue === 'string' ? channelsValue : undefined
   if (!target || !channelsRaw) {
+    // oxlint-disable-next-line socket/no-direct-stream-write -- exact CLI error
     process.stderr.write(
       `install: --target and --channels are required.\n${USAGE}`,
     )
@@ -251,6 +256,7 @@ function main(): void {
     return
   }
   if (!existsSync(path.join(target, 'package.json'))) {
+    // oxlint-disable-next-line socket/no-direct-stream-write -- exact CLI error
     process.stderr.write(
       [
         'Install target is not a package root.',
@@ -268,6 +274,7 @@ function main(): void {
   try {
     channels = parseChannelsFlag(channelsRaw)
   } catch (e) {
+    // oxlint-disable-next-line socket/no-direct-stream-write -- exact CLI error
     process.stderr.write(`install: ${errorMessage(e)}\n${USAGE}`)
     process.exitCode = 2
     return
@@ -280,6 +287,7 @@ function main(): void {
     verify: values['verify'] === true,
   })
   if (values['json'] === true) {
+    // oxlint-disable-next-line socket/no-direct-stream-write -- exact JSON output
     process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
   }
   process.exitCode = result.exitCode

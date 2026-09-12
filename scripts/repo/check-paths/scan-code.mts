@@ -116,6 +116,7 @@ export const extractStringLiterals = (args: string): string[] => {
   return literals
 }
 
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 export const scanCodeFile = (repoRoot: string, relPath: string): void => {
   const full = path.join(repoRoot, relPath)
   let content: string

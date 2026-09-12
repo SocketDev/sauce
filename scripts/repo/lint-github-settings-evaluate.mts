@@ -73,6 +73,7 @@ export function severityOverride(
  * the fix URL. `fixPatch` is the body to send to PATCH /repos/{owner}/{repo}
  * when --fix is given (undefined = manual fix required, no API endpoint yet).
  */
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 export function evaluate(
   repo: string,
   apiRepo: RepoApiPayload,

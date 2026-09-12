@@ -104,6 +104,7 @@ export async function cmdAdd(config: AddOpts): Promise<void> {
   ])
 }
 
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 export async function cmdClone(config: CloneOpts): Promise<void> {
   const opts = { __proto__: null, ...config } as CloneOpts
   const { repoRoot, worktreeRoot } = await getRoots()

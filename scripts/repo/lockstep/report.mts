@@ -39,6 +39,7 @@ export function summarize(reports: Report[]): AreaSummary[] {
   return [...byArea.values()].toSorted((a, b) => a.area.localeCompare(b.area))
 }
 
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 export function emitHuman(reports: Report[], summaries: AreaSummary[]): number {
   logger.info(
     `lockstep — ${reports.length} row(s) across ${summaries.length} area(s)`,

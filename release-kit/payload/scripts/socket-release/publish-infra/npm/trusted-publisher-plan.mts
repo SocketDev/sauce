@@ -286,6 +286,7 @@ function readVerdict(row: AccessReadRow): string {
  * Render read-mode rows as an aligned table: package, repo, workflow,
  * environment, allowed actions, verdict. Pure — exported for tests.
  */
+// oxlint-disable-next-line eslint/complexity -- branch dispatcher
 export function renderReadTable(rows: readonly AccessReadRow[]): string {
   const header = [
     'package',
