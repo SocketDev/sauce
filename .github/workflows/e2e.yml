@@ -74,16 +74,6 @@ jobs:
             git fetch "${FETCH_ARGS[@]}"
           fi
           git checkout -q --detach FETCH_HEAD
-      - name: Set up and install
-        uses: ./.github/actions/fleet/setup-and-install
-        with:
-          socket-api-token: ${{ secrets.SOCKET_API_TOKEN_FOR_CLI_AND_SFW }}
-          # Thin-distribution CI auth: mint a contents:read-only token so the
-          # bootstrap fetch (fired by `prepare` during install) can download the
-          # fleet release bundle from the private wheelhouse.
-          payload-token-client-id: ${{ secrets.SOCKET_PR_CLIENT_ID }}
-          payload-token-private-key: ${{ secrets.SOCKET_PR_APP_PRIVATE_KEY }}
-
       - name: Check agent credential
         id: agent-credential
         env:
@@ -102,6 +92,17 @@ jobs:
           else
             echo 'available=false' >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Set up and install
+        if: steps.agent-credential.outputs.available == 'true'
+        uses: ./.github/actions/fleet/setup-and-install
+        with:
+          socket-api-token: ${{ secrets.SOCKET_API_TOKEN_FOR_CLI_AND_SFW }}
+          # Thin-distribution CI auth: mint a contents:read-only token so the
+          # bootstrap fetch (fired by `prepare` during install) can download the
+          # fleet release bundle from the private wheelhouse.
+          payload-token-client-id: ${{ secrets.SOCKET_PR_CLIENT_ID }}
+          payload-token-private-key: ${{ secrets.SOCKET_PR_APP_PRIVATE_KEY }}
 
       - name: Run e2e tests (tier 3)
         if: steps.agent-credential.outputs.available == 'true'
