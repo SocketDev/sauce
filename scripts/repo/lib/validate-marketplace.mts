@@ -34,11 +34,22 @@ interface Marketplace {
   plugins: MarketplacePlugin[]
 }
 
+export interface CollectSkillsOptions {
+  basePath?: string | undefined
+}
+
 /**
  * Collect all skills from the skills directory, including subskills nested
  * inside a parent skill directory.
  */
-export function collectSkills(skillsDir: string, basePath = 'skills'): Skill[] {
+export function collectSkills(
+  skillsDir: string,
+  options?: CollectSkillsOptions | undefined,
+): Skill[] {
+  const { basePath = 'skills' } = {
+    __proto__: null,
+    ...options,
+  } as CollectSkillsOptions
   if (!existsSync(skillsDir)) {
     return []
   }
@@ -70,7 +81,9 @@ export function collectSkills(skillsDir: string, basePath = 'skills'): Skill[] {
     })
 
     // Recurse into subdirectories to discover subskills
-    const subSkills = collectSkills(path.join(skillsDir, entry.name), skillPath)
+    const subSkills = collectSkills(path.join(skillsDir, entry.name), {
+      basePath: skillPath,
+    })
     skills.push(...subSkills)
   }
 

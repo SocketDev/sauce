@@ -43,9 +43,17 @@ export interface GenerateResult {
   outdated: string[]
 }
 
+export interface BuildCursorPluginManifestOptions {
+  root?: string | undefined
+}
+
 export function buildCursorPluginManifest(
-  root: string = ROOT,
+  options?: BuildCursorPluginManifestOptions | undefined,
 ): Record<string, unknown> {
+  const { root = ROOT } = {
+    __proto__: null,
+    ...options,
+  } as BuildCursorPluginManifestOptions
   const src = loadJson(repoClaudePluginPath(root))
 
   const name = src['name']
@@ -132,7 +140,7 @@ export function generateCursorPlugin(
   const manifestPath = path.join(root, '.cursor-plugin', 'plugin.json')
   const mcpPath = path.join(root, CURSOR_MCP_RELATIVE)
 
-  const pluginManifest = renderJson(buildCursorPluginManifest(root))
+  const pluginManifest = renderJson(buildCursorPluginManifest({ root }))
   const mcpConfig = renderJson(buildMcpConfig())
 
   const outdated: string[] = []

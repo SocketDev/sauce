@@ -104,7 +104,17 @@ async function check(): Promise<void> {
   process.stdout.write('All generated artifacts are up to date.\n')
 }
 
-export async function main(args = process.argv.slice(2)): Promise<void> {
+export interface PublishMainOptions {
+  args?: string[] | undefined
+}
+
+export async function main(
+  options?: PublishMainOptions | undefined,
+): Promise<void> {
+  const { args = process.argv.slice(2) } = {
+    __proto__: null,
+    ...options,
+  } as PublishMainOptions
   const { 0: arg } = args
   if (arg === undefined) {
     await generate()

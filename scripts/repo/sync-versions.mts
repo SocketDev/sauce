@@ -39,7 +39,17 @@ export function writeJSON(filePath: string, data: unknown): void {
   writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n', 'utf-8')
 }
 
-export function syncPluginVersions(root: string = ROOT): void {
+export interface SyncPluginVersionsOptions {
+  root?: string | undefined
+}
+
+export function syncPluginVersions(
+  options?: SyncPluginVersionsOptions | undefined,
+): void {
+  const { root = ROOT } = {
+    __proto__: null,
+    ...options,
+  } as SyncPluginVersionsOptions
   const source = repoClaudePluginPath(root)
   const version = readJSON(source).version
   if (typeof version !== 'string' || !version) {

@@ -58,10 +58,18 @@ const SOURCE_EXTENSIONS = new Set([
   '.tsx',
 ])
 
+export interface GetPatternsOptions {
+  ecosystem?: string | undefined
+}
+
 export function getPatterns(
   pkg: string,
-  ecosystem?: string | undefined,
+  options?: GetPatternsOptions | undefined,
 ): RegExp[] {
+  const { ecosystem } = {
+    __proto__: null,
+    ...options,
+  } as GetPatternsOptions
   const escaped = pkg.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   const patterns: RegExp[] = []
 
@@ -180,7 +188,7 @@ export function walkDir(
 function main(): void {
   try {
     const { pkg, ecosystem, dir } = parseArgs()
-    const patterns = getPatterns(pkg, ecosystem)
+    const patterns = getPatterns(pkg, { ecosystem })
     const matches: UsageMatch[] = []
 
     walkDir(dir, filePath => {

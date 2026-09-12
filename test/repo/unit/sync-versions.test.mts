@@ -51,7 +51,7 @@ test('syncs released metadata without changing the private tooling version', () 
     path.join(root, '.claude-plugin/plugin.json'),
     'utf8',
   )
-  syncPluginVersions(root)
+  syncPluginVersions({ root })
   expect(readFixture(root, '.claude-plugin/marketplace.json')).toEqual({
     name: 'example-market',
     metadata: { version: '2.3.4', owner: 'example-owner' },
@@ -74,7 +74,7 @@ test('rejects a missing plugin version before rewriting metadata', () => {
     path.join(root, '.claude-plugin/marketplace.json'),
     'utf8',
   )
-  expect(() => syncPluginVersions(root)).toThrow(Error)
+  expect(() => syncPluginVersions({ root })).toThrow(Error)
   expect(
     readFileSync(path.join(root, '.claude-plugin/marketplace.json'), 'utf8'),
   ).toBe(before)

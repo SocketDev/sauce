@@ -83,7 +83,7 @@ it('generate writes the empty plugin mcp config under .cursor-plugin/', () => {
 it('manifest references the .cursor-plugin mcp artifact, not root .mcp.json', () => {
   const root = makeFixtureRoot()
   try {
-    const manifest = buildCursorPluginManifest(root)
+    const manifest = buildCursorPluginManifest({ root })
     expect(manifest['mcpServers']).toBe('.cursor-plugin/mcp.json')
   } finally {
     safeDeleteSync(root)
