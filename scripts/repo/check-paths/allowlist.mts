@@ -163,26 +163,26 @@ export const loadAllowlist = (repoRoot: string): AllowlistEntry[] => {
     blockKind = undefined
     blockLines = []
   }
-  const indentOf = (line: string): number => {
-    let i = 0
-    while (i < line.length && line[i] === ' ') {
-      i += 1
+  const getAllowlistIndent = (line: string): number => {
+    let index = 0
+    while (index < line.length && line.charCodeAt(index) === 32 /* ' ' */) {
+      index += 1
     }
-    return i
+    return index
   }
   const lines = text.split(/\r?\n/)
   for (let i = 0; i < lines.length; i++) {
     const raw = lines[i]!
     const line = raw.replace(/\r$/, '')
     // Block-scalar accumulation takes precedence over normal parsing.
-    if (blockKey !== null) {
+    if (blockKey !== undefined) {
       if (line.trim() === '') {
         // Preserve blank lines inside a literal block; folded blocks
         // turn them into paragraph breaks and keep them as separate joins.
         blockLines.push('')
         continue
       }
-      const indent = indentOf(line)
+      const indent = getAllowlistIndent(line)
       if (indent >= blockIndent) {
         blockLines.push(line.slice(blockIndent))
         continue
@@ -195,13 +195,14 @@ export const loadAllowlist = (repoRoot: string): AllowlistEntry[] => {
     }
     const tryAssign = (key: string, value: string) => {
       const trimmed = value.trim()
-      if (current === null) {
+      if (current === undefined) {
         return
       }
       if (trimmed === '>' || trimmed === '|') {
         blockKey = key
         blockKind = trimmed
-        blockIndent = indentOf(lines[i + 1] ?? '') || indentOf(line) + 2
+        blockIndent =
+          getAllowlistIndent(lines[i + 1] ?? '') || getAllowlistIndent(line) + 2
         blockLines = []
         return
       }
@@ -236,7 +237,7 @@ export const loadAllowlist = (repoRoot: string): AllowlistEntry[] => {
       }
     }
   }
-  if (blockKey !== null) {
+  if (blockKey !== undefined) {
     flushBlock()
   }
   if (current?.reason) {
