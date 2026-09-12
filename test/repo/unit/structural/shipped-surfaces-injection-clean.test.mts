@@ -1,6 +1,6 @@
-// socket-lint: mirror-exempt — scans every shipped doc for injection-class content, so the shipped tree is the subject, not a module.
 import { readdirSync, readFileSync } from 'node:fs'
 import * as path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 /**
@@ -13,7 +13,14 @@ import { describe, expect, it } from 'vitest'
  */
 
 import { SHIPPED_DIRS } from '../../../../scripts/repo/constants/shipped-surfaces.mts'
-import { REPO_ROOT } from '../../../../scripts/fleet/paths.mts'
+
+const REPO_ROOT = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '..',
+  '..',
+  '..',
+  '..',
+)
 
 const SCANNED_EXTENSIONS = new Set([
   '.json',

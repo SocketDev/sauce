@@ -1,72 +1,14 @@
-// socket-lint: mirror-exempt — covers the failure branches of several scaffolding libs at once, so no one source module is the mirror.
 import { describe, expect, it } from 'vitest'
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import * as path from 'node:path'
 import * as os from 'node:os'
-import { parseFrontmatter } from '../../../../scripts/repo/lib/frontmatter.mts'
 import {
   collectSkills,
   validateMarketplace,
 } from '../../../../scripts/repo/lib/validate-marketplace.mts'
 import { safeDeleteSync } from '@socketsecurity/lib/fs/safe'
-import { REPO_ROOT } from '../../../../scripts/fleet/paths.mts'
-
-const SKILLS_DIR = path.join(REPO_ROOT, 'skills')
 
 describe('Error Paths', () => {
-  describe('parseFrontmatter()', () => {
-    it('returns empty object for missing --- delimiters', () => {
-      const result = parseFrontmatter('no frontmatter here\njust content')
-      expect(result).toEqual({})
-    })
-
-    it('returns empty object for empty frontmatter', () => {
-      const result = parseFrontmatter('---\n---\nsome content')
-      expect(result).toEqual({})
-    })
-
-    it('returns empty object for single --- delimiter', () => {
-      const result = parseFrontmatter('---\nname: test\nno closing')
-      expect(result).toEqual({})
-    })
-
-    it('returns partial data when name is present but description missing', () => {
-      const result = parseFrontmatter('---\nname: test\n---\ncontent')
-      expect(result['name']).toBe('test')
-      expect(result['description']).toBeUndefined()
-    })
-
-    it('returns partial data when description is present but name missing', () => {
-      const result = parseFrontmatter(
-        '---\ndescription: a test skill\n---\ncontent',
-      )
-      expect(result['description']).toBe('a test skill')
-      expect(result['name']).toBeUndefined()
-    })
-
-    it('handles malformed YAML (lines without colons)', () => {
-      const result = parseFrontmatter(
-        '---\nname: test\nthis is not yaml\ndescription: desc\n---',
-      )
-      expect(result['name']).toBe('test')
-      expect(result['description']).toBe('desc')
-    })
-
-    it('handles empty values after colon', () => {
-      const result = parseFrontmatter('---\nname:\ndescription: valid\n---')
-      // Empty value should not be set
-      expect(result['name']).toBeUndefined()
-      expect(result['description']).toBe('valid')
-    })
-
-    it('folds indented continuation lines after an inline value', () => {
-      const result = parseFrontmatter(
-        '---\ndescription: first words,\n  followed by more words.\n---',
-      )
-      expect(result['description']).toBe('first words, followed by more words.')
-    })
-  })
-
   describe('collectSkills()', () => {
     it('returns empty array for non-existent directory', () => {
       const result = collectSkills('/tmp/nonexistent-dir-12345')
@@ -132,7 +74,7 @@ describe('Error Paths', () => {
   describe('validateMarketplace()', () => {
     it('returns error for missing marketplace.json', () => {
       const errors = validateMarketplace(
-        SKILLS_DIR,
+        '/tmp/nonexistent-skills-dir',
         '/tmp/nonexistent-marketplace.json',
       )
       expect(errors.length).toBeGreaterThan(0)

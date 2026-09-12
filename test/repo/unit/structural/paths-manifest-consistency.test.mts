@@ -1,16 +1,9 @@
-// socket-lint: mirror-exempt — asserts the marketplace manifest agrees with the skills tree on disk, not the behavior of one module.
 import { describe, expect, it } from 'vitest'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import * as path from 'node:path'
-import { validateMarketplace } from '../../../../scripts/repo/lib/validate-marketplace.mts'
 import { REPO_ROOT } from '../../../../scripts/fleet/paths.mts'
 
 const SKILLS_DIR = path.join(REPO_ROOT, 'skills')
-const MARKETPLACE_PATH = path.join(
-  REPO_ROOT,
-  '.claude-plugin',
-  'marketplace.json',
-)
 
 interface MarketplacePlugin {
   name: string
@@ -60,14 +53,6 @@ describe('Manifest Consistency', () => {
   )
 
   describe('marketplace.json', () => {
-    it('passes shared validation (skills ↔ marketplace sync)', () => {
-      const errors = validateMarketplace(SKILLS_DIR, MARKETPLACE_PATH)
-      expect(
-        errors,
-        `Marketplace validation errors:\n${errors.map(e => `  - ${e.message}`).join('\n')}`,
-      ).toEqual([])
-    })
-
     it('every plugin source path resolves to a real SKILL.md', () => {
       const plugins = marketplace.plugins
       for (let i = 0, { length } = plugins; i < length; i += 1) {

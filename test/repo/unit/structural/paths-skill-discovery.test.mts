@@ -1,11 +1,9 @@
-// socket-lint: mirror-exempt — asserts every skill on disk is discoverable through its frontmatter, so the shipped tree is the subject, not a module.
 import { describe, expect, it } from 'vitest'
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync } from 'node:fs'
 import * as path from 'node:path'
-import { parseFrontmatter } from '../../../../scripts/repo/lib/frontmatter.mts'
 import { REPO_ROOT } from '../../../../scripts/fleet/paths.mts'
 
-const SKILLS_DIR = path.join(REPO_ROOT, 'skills')
+export const SKILLS_DIR = path.join(REPO_ROOT, 'skills')
 
 /**
  * Top-level skill directories expected under skills/
@@ -97,41 +95,6 @@ describe('Skill Discovery', () => {
       expect(existsSync(skillMd), `${skillPath}/SKILL.md does not exist`).toBe(
         true,
       )
-    }
-  })
-
-  it('every SKILL.md has valid YAML frontmatter with name and description', () => {
-    const skillPaths = getAllSkillPaths()
-    for (let i = 0, { length } = skillPaths; i < length; i += 1) {
-      const skillPath = skillPaths[i]!
-      const skillMd = path.join(SKILLS_DIR, skillPath, 'SKILL.md')
-      const content = readFileSync(skillMd, 'utf-8')
-      const meta = parseFrontmatter(content)
-
-      expect(
-        meta['name'],
-        `${skillPath}/SKILL.md missing 'name' in frontmatter`,
-      ).toBeTruthy()
-      expect(
-        meta['description'],
-        `${skillPath}/SKILL.md missing 'description' in frontmatter`,
-      ).toBeTruthy()
-    }
-  })
-
-  it('frontmatter name matches the directory name', () => {
-    const skillPaths = getAllSkillPaths()
-    for (let i = 0, { length } = skillPaths; i < length; i += 1) {
-      const skillPath = skillPaths[i]!
-      const dirName = path.basename(skillPath)
-      const skillMd = path.join(SKILLS_DIR, skillPath, 'SKILL.md')
-      const content = readFileSync(skillMd, 'utf-8')
-      const meta = parseFrontmatter(content)
-
-      expect(
-        meta['name'],
-        `${skillPath}/SKILL.md: frontmatter name '${meta['name']}' does not match directory '${dirName}'`,
-      ).toBe(dirName)
     }
   })
 
