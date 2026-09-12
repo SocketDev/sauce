@@ -39,7 +39,7 @@ const loadAllowlistFromJson = (
   // socket-wheelhouse.json resolution: primary under .config/ and
   // legacy root-level dotfile.
   const candidates = [
-    path.join(repoRoot, '.config', 'socket-wheelhouse.json'),
+    path.join(repoRoot, '.config', 'repo', 'socket-wheelhouse.json'),
     path.join(repoRoot, '.socket-wheelhouse.json'),
   ]
   let configPath: string | undefined

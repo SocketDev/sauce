@@ -26,7 +26,12 @@ const rootDir = path.dirname(findUpPackageJson(import.meta))
 // Schema lives in `.config/` next to the per-repo
 // `.config/repo/socket-wheelhouse.json` it describes — the marker's
 // `$schema` ref is `./socket-wheelhouse-schema.json`.
-const outPath = path.join(rootDir, '.config', 'socket-wheelhouse-schema.json')
+const outPath = path.join(
+  rootDir,
+  '.config',
+  'repo',
+  'socket-wheelhouse-schema.json',
+)
 
 async function main(): Promise<void> {
   const enriched = {

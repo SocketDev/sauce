@@ -368,7 +368,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/shared.mts",
-      "sha256": "7657f8f2eaac1eb699fdf1d310beecd735de093e5b1c8c79a8857e18ad967334"
+      "sha256": "a32c017f8bc26db1ac218ca76aa681856ea084ce3cf97444695cae21b4e6496a"
     },
     {
       "channels": ["npm"],

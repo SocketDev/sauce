@@ -112,7 +112,12 @@ export function findRolldownConfigs(): string[] {
 // or undefined when the file is absent / malformed (caller falls back to the
 // single-config auto-discovery below).
 export function readConfigManifest(): string[] | undefined {
-  const manifestPath = path.join(rootPath, '.config', 'rolldown-validate.json')
+  const manifestPath = path.join(
+    rootPath,
+    '.config',
+    'repo',
+    'rolldown-validate.json',
+  )
   if (!existsSync(manifestPath)) {
     return undefined
   }

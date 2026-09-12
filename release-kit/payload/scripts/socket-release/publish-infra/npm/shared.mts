@@ -50,7 +50,7 @@ export function readKitNpmAccess(
 ): NpmAccess | undefined {
   try {
     const raw = readFileSync(
-      path.join(root, '.config', 'socket-release.json'),
+      path.join(root, '.config', 'repo', 'socket-release.json'),
       'utf8',
     )
     const doc = JSON.parse(raw) as {
@@ -65,7 +65,7 @@ export function readKitNpmAccess(
 export function readKitDistTag(root: string = rootPath): string | undefined {
   try {
     const raw = readFileSync(
-      path.join(root, '.config', 'socket-release.json'),
+      path.join(root, '.config', 'repo', 'socket-release.json'),
       'utf8',
     )
     const doc = JSON.parse(raw) as {
