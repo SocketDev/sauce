@@ -17,5 +17,6 @@
  * leaf does not collapse `.` / `..` segments.
  */
 export function toUnixPath(pathLike: string): string {
+  // oxlint-disable-next-line socket/prefer-socket-lib-normalize-path -- dependency-free normalizer
   return pathLike.replace(/\\/g, '/')
 }

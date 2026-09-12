@@ -27,6 +27,10 @@ import path from 'node:path'
 import process from 'node:process'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import {
+  getDefaultFormatting,
+  stringifyWithFormatting,
+} from '@socketsecurity/lib-stable/json/format'
 
 import { REPO_ROOT } from '../../fleet/paths.mts'
 import {
@@ -125,7 +129,9 @@ function main(): void {
     process.argv.includes('--json') || process.argv.includes('--format=json')
 
   if (jsonMode) {
-    process.stdout.write(JSON.stringify({ reports, summaries }, null, 2) + '\n')
+    process.stdout.write(
+      stringifyWithFormatting({ reports, summaries }, getDefaultFormatting()),
+    )
     const anyError = reports.some(r => r.severity === 'error')
     const anyDrift = reports.some(r => r.severity === 'drift')
     if (anyError) {

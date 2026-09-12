@@ -11,6 +11,10 @@ import process from 'node:process'
 import { findUpPackageJson } from '@socketsecurity/lib-stable/packages/find'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import {
+  getDefaultFormatting,
+  stringifyWithFormatting,
+} from '@socketsecurity/lib-stable/json/format'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
 import { SocketWheelhouseConfigSchema } from './socket-wheelhouse-schema.mts'
@@ -32,7 +36,11 @@ async function main(): Promise<void> {
     ...SocketWheelhouseConfigSchema,
   }
 
-  writeFileSync(outPath, JSON.stringify(enriched, null, 2) + '\n', 'utf8')
+  writeFileSync(
+    outPath,
+    stringifyWithFormatting(enriched, getDefaultFormatting()),
+    'utf8',
+  )
 
   // Run oxfmt on the output so the file matches what oxfmt would
   // produce. Without this, `pnpm run check --all` (which runs oxfmt

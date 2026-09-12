@@ -18,6 +18,8 @@ import {
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { compareStr } from '@socketsecurity/lib-stable/sorts/strings'
+
 export const PAYLOAD_ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '..',
@@ -111,7 +113,5 @@ export function walkPayload(root: string = PAYLOAD_ROOT): string[] {
     }
   }
   walk(root)
-  return files
-    .filter(f => f !== 'kit-manifest.json')
-    .toSorted((a, b) => (a < b ? -1 : a > b ? 1 : 0))
+  return files.filter(f => f !== 'kit-manifest.json').toSorted(compareStr)
 }

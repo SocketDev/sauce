@@ -73,8 +73,8 @@ export function rawBaseUrl(slug: string, ref: string): string {
  */
 export function pinReadmeAssets(readme: string, baseUrl: string): string {
   return readme
-    .replaceAll('src="assets/', `src="${baseUrl}assets/`)
-    .replaceAll('](assets/', `](${baseUrl}assets/`)
+    .replaceAll('src="assets/', () => `src="${baseUrl}assets/`)
+    .replaceAll('](assets/', () => `](${baseUrl}assets/`)
 }
 
 // A full `git commit` sha — the only thing we'll pin a raw URL to besides the

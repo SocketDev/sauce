@@ -58,7 +58,7 @@
     {
       "channels": ["common"],
       "path": "_shared/unix-path.mts",
-      "sha256": "efa2307bbc071642b0eca6d8e254ed72ac8184476f86f0962f29cf2b1ead2328"
+      "sha256": "00c75f6df554aa218bad525abd7e51e39a7438216ae9236b42b33b138a3c9b5d"
     },
     {
       "channels": ["common"],
@@ -203,7 +203,7 @@
     {
       "channels": ["npm"],
       "path": "npm-web-auth.mts",
-      "sha256": "34b4b34a86bf2e01fff2c2b30cacc7d0c95ab7e0e41d20e329bf24901093581b"
+      "sha256": "d52e99d739d0022cb2d9186d2c2a44a052db1a8890de1d5bf0558bb141806410"
     },
     {
       "channels": ["common"],
@@ -218,7 +218,7 @@
     {
       "channels": ["brew"],
       "path": "publish-infra/brew/shared.mts",
-      "sha256": "f0a965ddf3fc6a3075ceb626b3c6b41fd9c96058438d049b48c80c22ea6392fd"
+      "sha256": "e7b047fb7f47b199b2f5c02bb67a487d86c883afbf7a26a5eadf89e9700c4be3"
     },
     {
       "channels": ["brew"],
@@ -313,7 +313,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/pinned-npm.mts",
-      "sha256": "942eda5093ea71dcb4d2bdcfac1edc21f9a22a6073a63f6e849f02b31708f824"
+      "sha256": "77e424fb2e905b221b2f4a7dc43fd6ccb01f8aa60368b093f8110f08c8db1874"
     },
     {
       "channels": ["npm"],
@@ -403,7 +403,7 @@
     {
       "channels": ["common"],
       "path": "publish-infra/pin-readme.mts",
-      "sha256": "9626b47c1b978bc7317d997f51302a2f958212a31d93e92ff62724cd4faa9938"
+      "sha256": "ae683ff4a9373f11227376033f7ecb7fabc251952e70f4a0de0af5e8f5057012"
     },
     {
       "channels": ["common"],

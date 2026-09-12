@@ -100,7 +100,7 @@ export function resolvePinnedNpm(config: {
   }
   const candidates = pinnedNpmCandidates(pin, cfg.home, cfg.platform)
   for (let i = 0, { length } = candidates; i < length; i += 1) {
-    // oxlint-disable-next-line socket/prefer-exists-sync -- injected test dependency
+    // oxlint-disable-next-line socket/prefer-exists-sync -- test dependency
     if (fileExists(candidates[i]!)) {
       return { npmPath: candidates[i]!, pin, refusal: undefined }
     }

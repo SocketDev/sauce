@@ -72,14 +72,16 @@ export function assetNamesForTriplets(
   return triplets.map(triplet => ({
     __proto__: null,
     asset: template
-      .replaceAll('<name>', name)
-      .replaceAll('<triplet>', triplet)
-      .replaceAll('<version>', version),
+      .replaceAll('<name>', () => name)
+      .replaceAll('<triplet>', () => triplet)
+      .replaceAll('<version>', () => version),
     triplet,
   }))
 }
 
+// Capture a 64-digit SHA-256 followed by its non-space asset name.
 const PLAIN_LINE = /^([0-9a-f]{64})\s+(\S+)$/
+// Capture the prefixed SHA-256 form followed by its non-space asset name.
 const PREFIXED_LINE = /^sha256: ([0-9a-f]{64})\s+(\S+)$/
 
 /**
