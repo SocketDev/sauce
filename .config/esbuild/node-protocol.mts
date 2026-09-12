@@ -13,6 +13,7 @@ import type { OnResolveArgs, PluginBuild } from 'esbuild'
 
 export function createNodeProtocolPlugin() {
   return {
+    __proto__: null,
     name: 'node-protocol',
     setup(build: PluginBuild) {
       const builtins = Module.builtinModules
@@ -28,6 +29,7 @@ export function createNodeProtocolPlugin() {
         build.onResolve(
           { filter: new RegExp(`^${escapedBuiltin}$`) },
           (_args: OnResolveArgs) => ({
+            __proto__: null,
             path: `node:${builtin}`,
             external: true,
           }),

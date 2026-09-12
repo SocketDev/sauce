@@ -72,6 +72,7 @@ export function buildApproveChoices(
   priorProvenance: ReadonlyMap<string, boolean>,
 ): ApproveChoice[] {
   return eligible.map(e => ({
+    __proto__: null,
     checked: true,
     name: `${e.name}@${e.version}${formatPriorProvenance(priorProvenance.get(e.name!))}`,
     value: e.stageId!,

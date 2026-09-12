@@ -32,6 +32,7 @@ const logger = getDefaultLogger()
 
 export function createPathShorteningPlugin() {
   return {
+    __proto__: null,
     name: 'shorten-module-paths',
     setup(build: PluginBuild) {
       build.onEnd(async (result: BuildResult) => {

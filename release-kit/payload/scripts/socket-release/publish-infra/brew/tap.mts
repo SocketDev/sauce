@@ -187,7 +187,7 @@ export function resolveBrewSeams(cwd: string): BrewSeams {
         cwd,
       )
       if (code !== 0) {
-        return { assets: [], exists: false, isDraft: false }
+        return { __proto__: null, assets: [], exists: false, isDraft: false }
       }
       try {
         const parsed = JSON.parse(stdout) as {
@@ -195,6 +195,7 @@ export function resolveBrewSeams(cwd: string): BrewSeams {
           isDraft?: boolean | undefined
         }
         return {
+          __proto__: null,
           assets: (parsed.assets ?? [])
             .map(a => a.name)
             .filter((n): n is string => typeof n === 'string'),
@@ -202,7 +203,7 @@ export function resolveBrewSeams(cwd: string): BrewSeams {
           isDraft: parsed.isDraft === true,
         }
       } catch {
-        return { assets: [], exists: false, isDraft: false }
+        return { __proto__: null, assets: [], exists: false, isDraft: false }
       }
     },
     readTapFile: async (repo, filePath) => {
@@ -217,6 +218,7 @@ export function resolveBrewSeams(cwd: string): BrewSeams {
         return undefined
       }
       return {
+        __proto__: null,
         content: Buffer.from(doc.content, 'base64').toString('utf8'),
         sha: doc.sha ?? '',
       }

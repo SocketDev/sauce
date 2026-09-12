@@ -67,7 +67,7 @@ async function fetchAccessPage(
         headers: { accept: 'text/html' },
         method: 'GET',
       })
-      return { body: await r.text(), status: r.status }
+      return { __proto__: null, body: await r.text(), status: r.status }
     }, accessUrl(pkg))
   } catch {
     return { body: '', status: 0 }

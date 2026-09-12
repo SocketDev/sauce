@@ -70,6 +70,7 @@ export function assetNamesForTriplets(
   triplets: readonly string[],
 ): Array<{ asset: string; triplet: string }> {
   return triplets.map(triplet => ({
+    __proto__: null,
     asset: template
       .replaceAll('<name>', name)
       .replaceAll('<triplet>', triplet)

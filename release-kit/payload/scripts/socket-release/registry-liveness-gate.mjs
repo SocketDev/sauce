@@ -119,13 +119,17 @@ export function planGate(rootDir, fsLike = defaultFsLike) {
   if (fsLike.existsSync(pkgPath)) {
     const manifest = JSON.parse(fsLike.readFileSync(pkgPath, 'utf8'))
     if (manifest.private !== true) {
-      return { name: String(manifest.name), registry: 'npm' }
+      return { __proto__: null, name: String(manifest.name), registry: 'npm' }
     }
   }
   if (fsLike.existsSync(path.join(rootDir, 'Cargo.toml'))) {
-    return { names: deriveCrateNames(rootDir, fsLike), registry: 'crates' }
+    return {
+      __proto__: null,
+      names: deriveCrateNames(rootDir, fsLike),
+      registry: 'crates',
+    }
   }
-  return { registry: 'none' }
+  return { __proto__: null, registry: 'none' }
 }
 
 /**

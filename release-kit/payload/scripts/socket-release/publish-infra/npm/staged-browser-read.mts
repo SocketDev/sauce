@@ -137,7 +137,7 @@ export async function downloadStagedTarballInPage(
           credentials: 'same-origin',
         })
         if (!r.ok) {
-          return { kind: 'error' as const }
+          return { __proto__: null, kind: 'error' as const }
         }
         // Reject before buffering when the server declares an oversize body,
         // and again after reading in case it was chunked with no length. The
@@ -146,17 +146,25 @@ export async function downloadStagedTarballInPage(
         // artifact; a too-large result falls back to the registry/local pack.
         const declared = Number(r.headers.get('content-length') || '0')
         if (declared > maxBytes) {
-          return { bytes: declared, kind: 'too-large' as const }
+          return {
+            __proto__: null,
+            bytes: declared,
+            kind: 'too-large' as const,
+          }
         }
         const buf = new Uint8Array(await r.arrayBuffer())
         if (buf.byteLength > maxBytes) {
-          return { bytes: buf.byteLength, kind: 'too-large' as const }
+          return {
+            __proto__: null,
+            bytes: buf.byteLength,
+            kind: 'too-large' as const,
+          }
         }
         let binary = ''
         for (let i = 0, { length } = buf; i < length; i += 1) {
           binary += String.fromCharCode(buf[i]!)
         }
-        return { base64: btoa(binary), kind: 'ok' as const }
+        return { __proto__: null, base64: btoa(binary), kind: 'ok' as const }
       },
       { fetchUrl: url, maxBytes: MAX_STAGED_TARBALL_BYTES },
     )

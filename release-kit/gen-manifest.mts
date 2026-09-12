@@ -12,6 +12,8 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+
 import { isMainModule } from './payload/scripts/socket-release/_shared/is-main-module.mts'
 import {
   channelsForPath,
@@ -21,11 +23,14 @@ import {
 import type { KitManifest } from './install/manifest.mts'
 import { PAYLOAD_ROOT, sha256Hex, walkPayload } from './install/seams.mts'
 
+const logger = getDefaultLogger()
+
 /**
  * Build the manifest from the payload's current bytes.
  */
 export function buildManifest(payloadRoot: string = PAYLOAD_ROOT): KitManifest {
   const files = walkPayload(payloadRoot).map(rel => ({
+    __proto__: null,
     channels: channelsForPath(rel),
     path: rel,
     sha256: sha256Hex(readFileSync(path.join(payloadRoot, rel))),
@@ -63,7 +68,7 @@ function main(): void {
       current = undefined
     }
     if (current !== next) {
-      process.stderr.write(
+      logger.error(
         [
           'Kit manifest is stale: the payload bytes drifted from kit-manifest.json.',
           `  Where: ${manifestPath}`,
@@ -76,13 +81,11 @@ function main(): void {
       process.exitCode = 1
       return
     }
-    process.stdout.write('kit-manifest.json matches the payload bytes.\n')
+    logger.log('kit-manifest.json matches the payload bytes.')
     return
   }
   writeFileSync(manifestPath, next)
-  process.stdout.write(
-    `wrote ${manifestPath} (${manifest.files.length} files).\n`,
-  )
+  logger.log(`wrote ${manifestPath} (${manifest.files.length} files).`)
 }
 
 // Entrypoint-guarded so the coherence check can import buildManifest without

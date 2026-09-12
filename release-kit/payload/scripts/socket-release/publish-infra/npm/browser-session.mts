@@ -122,7 +122,7 @@ export async function fetchInPage(
           headers: { accept: acceptHeader, 'x-spiferack': '1' },
           method: 'GET',
         })
-        return { body: await r.text(), status: r.status }
+        return { __proto__: null, body: await r.text(), status: r.status }
       },
       { acceptHeader: accept, fetchUrl: url },
     )

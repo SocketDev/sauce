@@ -72,6 +72,7 @@ export function driftCommitsSince(
       // first tab inside the summary.
       const [commitSha, ...summaryParts] = line.split('\t')
       return {
+        __proto__: null,
         sha: commitSha ?? '',
         summary: summaryParts.join('\t') ?? '',
       }

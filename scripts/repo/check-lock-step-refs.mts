@@ -291,6 +291,7 @@ function main(): void {
     process.stdout.write(
       JSON.stringify(
         findings.map(f => ({
+          __proto__: null,
           file: path.relative(repoRoot, f.file),
           line: f.line,
           lang: f.lang,

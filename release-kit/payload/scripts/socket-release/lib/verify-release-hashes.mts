@@ -268,7 +268,11 @@ async function defaultFetchGitHubAssetDigest(
       stdio: ['ignore', 'pipe', 'pipe'],
       stdioString: true,
     },
-  ).catch((e: unknown) => ({ code: 1, stderr: errorMessage(e) }))
+  ).catch((e: unknown) => ({
+    __proto__: null,
+    code: 1,
+    stderr: errorMessage(e),
+  }))
   const code = (result as { code?: number | null | undefined }).code ?? 1
   if (code !== 0) {
     throw new Error(
