@@ -72,7 +72,7 @@ async function readStagedPayload(
   let announced = false
   let raceAttempts = 0
   for (;;) {
-    // eslint-disable-next-line no-await-in-loop -- serial poll: one live page, one challenge at a time.
+    // eslint-disable-next-line no-await-in-loop -- serial operation
     const last = await fetchInPage(page, url, 'application/json')
     const state = classifyStagedFetch({ body: last.body, status: last.status })
     if (state === 'ok') {
@@ -88,7 +88,7 @@ async function readStagedPayload(
       // a destroyed execution context — retry it a couple of times, fast.
       if (last.status === 0 && raceAttempts < RACE_MAX_ATTEMPTS) {
         raceAttempts += 1
-        // eslint-disable-next-line no-await-in-loop -- serial short retry for a navigation race.
+        // eslint-disable-next-line no-await-in-loop -- serial operation
         await sleep(opts.raceRetryMs ?? RACE_RETRY_MS)
         continue
       }
@@ -96,7 +96,7 @@ async function readStagedPayload(
         `Staged-packages read failed (HTTP ${last.status}). Re-run and sign in.`,
       )
     }
-    // eslint-disable-next-line no-await-in-loop -- serial pause while the operator solves the challenge.
+    // eslint-disable-next-line no-await-in-loop -- serial operation
     const pause = await pauseForChallenge(page, {
       announced,
       budgetMs: opts.challengeBudgetMs,

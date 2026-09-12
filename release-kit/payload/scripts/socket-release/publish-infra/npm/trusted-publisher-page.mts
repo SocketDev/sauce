@@ -105,7 +105,7 @@ export async function readTrustedPublisher(
   let raceAttempts = 0
   let announced = false
   for (;;) {
-    // eslint-disable-next-line no-await-in-loop -- serial poll: one live page, one challenge at a time.
+    // eslint-disable-next-line no-await-in-loop -- serial operation
     const last = await fetchAccessPage(page, pkg)
     const state = classifyAccessPage({ body: last.body, status: last.status })
     if (state === 'configured' || state === 'unconfigured') {
@@ -133,7 +133,7 @@ export async function readTrustedPublisher(
       // error: retry it a couple of times, fast, then report honestly.
       if (last.status === 0 && raceAttempts < RACE_MAX_ATTEMPTS) {
         raceAttempts += 1
-        // eslint-disable-next-line no-await-in-loop -- serial short retry for a navigation race.
+        // eslint-disable-next-line no-await-in-loop -- serial operation
         await sleep(raceRetryMs)
         continue
       }
@@ -149,7 +149,7 @@ export async function readTrustedPublisher(
     }
     // A challenge: PAUSE for the operator, visibly, through the sanctioned
     // helper — it owns the countdown and the budget refusal.
-    // eslint-disable-next-line no-await-in-loop -- serial pause while the operator solves the challenge.
+    // eslint-disable-next-line no-await-in-loop -- serial operation
     const pause = await pauseForChallenge(page, {
       announced,
       budgetMs: challengeBudgetMs,
@@ -304,11 +304,11 @@ export async function awaitVerifiedSave(
     ok: false,
   }
   for (;;) {
-    // eslint-disable-next-line no-await-in-loop -- serial poll while npm settles/2FA completes.
+    // eslint-disable-next-line no-await-in-loop -- serial operation
     await optIntoChallengeCooldown(page)
     let reread: TrustedPublisherCurrent | undefined
     try {
-      // eslint-disable-next-line no-await-in-loop -- serial poll while npm settles/2FA completes.
+      // eslint-disable-next-line no-await-in-loop -- serial operation
       reread = (await readTrustedPublisher(page, pkg)).current
     } catch {
       reread = undefined

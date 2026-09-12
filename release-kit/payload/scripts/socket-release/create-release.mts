@@ -209,7 +209,7 @@ async function main(): Promise<void> {
   ]
   for (let i = 0, { length } = steps; i < length; i += 1) {
     const step = steps[i]!
-    // oxlint-disable-next-line no-await-in-loop -- the three steps are ordered: the draft must exist before assets upload, and every asset must land before the release goes public.
+    // oxlint-disable-next-line no-await-in-loop -- serial operation
     const code = await runInherit('gh', step.args, rootPath)
     if (code !== 0) {
       logger.fail(

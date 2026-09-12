@@ -274,9 +274,9 @@ export async function waitForNpmSignIn(
   for (;;) {
     // The challenge page with the cooldown box can appear at any poll tick
     // while the operator works through sign-in/2FA; keep it ticked.
-    // eslint-disable-next-line no-await-in-loop -- serial poll while the operator signs in.
+    // eslint-disable-next-line no-await-in-loop -- serial operation
     await optIntoChallengeCooldown(page)
-    // eslint-disable-next-line no-await-in-loop -- serial poll while the operator signs in.
+    // eslint-disable-next-line no-await-in-loop -- serial operation
     const user = await resolveNpmUser(page)
     if (user) {
       return user
@@ -352,7 +352,7 @@ export async function clearStaleSingletons(
     }
   }
   for (let i = 0, { length } = SINGLETON_ARTIFACTS; i < length; i += 1) {
-    // eslint-disable-next-line no-await-in-loop -- three tiny unlinks, sequential by choice.
+    // eslint-disable-next-line no-await-in-loop -- serial operation
     await safeDelete(path.join(profileDir, SINGLETON_ARTIFACTS[i]!))
   }
   return true

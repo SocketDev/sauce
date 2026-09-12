@@ -94,7 +94,7 @@ export async function drivePublishingAccess(
   for (let i = 0, { length } = edits; i < length; i += 1) {
     const edit = edits[i]!
     const box = page.locator(`input[name="${edit.checkbox}"]`).first()
-    // eslint-disable-next-line no-await-in-loop -- serial form drive on one live page.
+    // eslint-disable-next-line no-await-in-loop -- serial operation
     await box.setChecked(edit.to, { timeout: 10_000 })
   }
   if (edits.length > 0) {
@@ -105,9 +105,9 @@ export async function drivePublishingAccess(
   }
   const deadline = Date.now() + SAVE_VERIFY_TIMEOUT_MS
   for (;;) {
-    // eslint-disable-next-line no-await-in-loop -- serial poll while npm settles/2FA completes.
+    // eslint-disable-next-line no-await-in-loop -- serial operation
     await optIntoChallengeCooldown(page)
-    // eslint-disable-next-line no-await-in-loop -- serial poll while npm settles/2FA completes.
+    // eslint-disable-next-line no-await-in-loop -- serial operation
     const read = await readPublishingAccessInPage(page, pkg)
     if (accessMatchesDesired(read, desired)) {
       return { ok: true, read }

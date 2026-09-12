@@ -136,7 +136,7 @@ export async function runBootstrap(
   const cfg = { __proto__: null, ...config } as RunBootstrapConfig
   const seams = cfg.seams ?? resolveSeams()
   const repoRoot = cfg.repoRoot ?? REPO_ROOT
-  // oxlint-disable-next-line socket/no-direct-stream-write -- bootstrap output preserves exact JSON bytes for machine consumers.
+  // oxlint-disable-next-line socket/no-direct-stream-write -- exact JSON bytes
   const out = cfg.out ?? ((text: string) => process.stdout.write(text))
   let jsonMode = false
   const log =
@@ -397,7 +397,7 @@ export async function runBootstrap(
     const stepId = toRun[i]!
     const mod = STEP_MODULES[stepId]
     const started = seams.now().getTime()
-    // eslint-disable-next-line no-await-in-loop -- steps are strictly serial: each later step's detection depends on the earlier applies.
+    // eslint-disable-next-line no-await-in-loop -- serial operation
     const outcome = await runStep(mod, ctx, seams, mode)
     outcome.durationMs = Math.max(0, seams.now().getTime() - started)
     outcomes.push(outcome)

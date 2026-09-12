@@ -346,7 +346,7 @@ export async function packWorkspaceReleaseAssets(
   const assets: string[] = []
   const checksumLines: string[] = []
   for (const pkg of layout.packages) {
-    // eslint-disable-next-line no-await-in-loop -- serial packs; each rewrites its member's manifest in place
+    // eslint-disable-next-line no-await-in-loop -- serial operation
     const tarballPath = await packWorkspaceMemberTarball(
       layout,
       pkg.name,
@@ -406,7 +406,7 @@ export async function runWorkspacePublish(
   let published = 0
   let skipped = 0
   for (const pkg of order) {
-    // eslint-disable-next-line no-await-in-loop -- serial by design: dependency order is the point
+    // eslint-disable-next-line no-await-in-loop -- serial operation
     if (await isAlreadyPublished(pkg.name, version)) {
       logger.log(
         `Skipping ${pkg.name}@${version} — already on the registry ` +
@@ -494,11 +494,11 @@ export async function runWorkspacePublish(
           `remaining members — a dependent must never publish ahead of a ` +
           `failed dependency.`,
       )
-      // eslint-disable-next-line no-await-in-loop -- failure path, loop exits here
+      // eslint-disable-next-line no-await-in-loop -- serial operation
       for (const line of await diagnoseStageConflict(pkg.name, version)) {
         logger.fail(line)
       }
-      // eslint-disable-next-line no-await-in-loop -- failure path, loop exits here
+      // eslint-disable-next-line no-await-in-loop -- serial operation
       for (const line of await diagnoseStagedAuthFailure(pkg.name)) {
         logger.fail(line)
       }

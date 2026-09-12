@@ -47,7 +47,7 @@
  *      <publish|login|deprecate|owner|access|...> [args] [--npm]
  */
 
-// oxlint-disable-next-line socket/prefer-async-spawn -- PTY streaming + detached opener + exact exit-code propagation need raw child_process control; see the per-call rationale on runUnderPty/runInherit/openInBrowser.
+// oxlint-disable-next-line socket/prefer-async-spawn -- streaming child process
 import { spawn as nodeSpawn } from 'node:child_process'
 import process from 'node:process'
 
@@ -281,7 +281,7 @@ function openInBrowser(url: string, platform: NodeJS.Platform): void {
 // Run `cmd args` inheriting all stdio and resolve with its exit code. The direct
 // (non-PTY) path for the TTY / --otp passthrough and for platforms without
 // `script`.
-// oxlint-disable-next-line socket/prefer-async-spawn -- streaming passthrough: stdio is inherited and the exact child exit code is propagated.
+// oxlint-disable-next-line socket/prefer-async-spawn -- streaming child process
 function runInherit(
   cmd: string,
   args: readonly string[],
@@ -298,7 +298,7 @@ function runInherit(
 // Run npm under the PTY: stream npm's output through to the caller while
 // watching the raw stream for the auth URL, opening it on first match. Resolves
 // with npm's exit code.
-// oxlint-disable-next-line socket/prefer-async-spawn -- PTY web-auth requires streaming stdio and a live URL watcher on the raw child stream.
+// oxlint-disable-next-line socket/prefer-async-spawn -- streaming child process
 function runUnderPty(pty: PtyInvocation, config: RunConfig): Promise<number> {
   return new Promise(resolve => {
     const child = nodeSpawn(pty.command, [...pty.args], {
@@ -396,7 +396,7 @@ export async function runNpmWebAuth(config: RunConfig): Promise<number> {
 // design: one cheap hop on the login path.
 function bridgePnpmTokenToNpm(env: NodeJS.ProcessEnv | undefined): boolean {
   try {
-    // oxlint-disable-next-line socket/prefer-async-spawn -- one-shot sync config read on the login path.
+    // oxlint-disable-next-line socket/prefer-async-spawn -- streaming child process
     const read = spawnSync('pnpm', ['config', 'get', NPM_AUTH_TOKEN_KEY], {
       cwd: npmScratchCwd(),
       env,
@@ -405,7 +405,7 @@ function bridgePnpmTokenToNpm(env: NodeJS.ProcessEnv | undefined): boolean {
     if (read.status !== 0 || !token || token === 'undefined') {
       return false
     }
-    // oxlint-disable-next-line socket/prefer-async-spawn -- one-shot sync config write on the login path.
+    // oxlint-disable-next-line socket/prefer-async-spawn -- streaming child process
     const write = spawnSync(
       'npm',
       ['config', 'set', `${NPM_AUTH_TOKEN_KEY}=${token}`, '--location=user'],
@@ -421,7 +421,7 @@ function bridgePnpmTokenToNpm(env: NodeJS.ProcessEnv | undefined): boolean {
 // the split-token guard. Sync by design: one cheap gate on the login path.
 function npmWhoamiAlive(env: NodeJS.ProcessEnv | undefined): boolean {
   try {
-    // oxlint-disable-next-line socket/prefer-async-spawn -- one-shot sync liveness probe on the login path.
+    // oxlint-disable-next-line socket/prefer-async-spawn -- streaming child process
     const result = spawnSync('npm', ['whoami'], {
       cwd: npmScratchCwd(),
       env,
@@ -437,7 +437,7 @@ function npmWhoamiAlive(env: NodeJS.ProcessEnv | undefined): boolean {
 // resolveAuthTool's pure planning. A miss quietly keeps the npm path.
 function pnpmOnPath(): boolean {
   try {
-    // oxlint-disable-next-line socket/prefer-async-spawn -- one-shot sync availability probe before the exec path is chosen.
+    // oxlint-disable-next-line socket/prefer-async-spawn -- streaming child process
     const result = spawnSync('pnpm', ['--version'], { stdio: 'ignore' })
     return result.status === 0
   } catch {
