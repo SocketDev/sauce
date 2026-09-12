@@ -13,7 +13,7 @@
 
 import process from 'node:process'
 
-import { checkbox, password } from '@socketsecurity/lib/stdio/prompts'
+import { checkbox, password } from '@socketsecurity/lib-stable/stdio/prompts'
 
 import {
   APPROVE_IS_NOT_A_RESUME_PATH,

@@ -157,7 +157,7 @@ export function extractAllowedActions(html: string): string[] {
     ['allowStagePublish', 'npm stage publish'],
   ]
   for (let i = 0, { length } = checkboxNames; i < length; i += 1) {
-    const [name, action] = checkboxNames[i]!
+    const { 0: name, 1: action } = checkboxNames[i]!
     // The whole input tag, whatever the attribute order; checkedness is
     // tested on the matched tag text.
     const re = new RegExp(`<input[^>]*\\bname="${name}"[^>]*>`, 'i')

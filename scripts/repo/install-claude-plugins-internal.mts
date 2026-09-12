@@ -8,7 +8,7 @@
 import { existsSync } from 'node:fs'
 import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
 import path from 'node:path'
-import process from 'node:process'
+import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
 
 // Canonical marketplace identity. The repo URL is what `claude plugin
 // marketplace add` resolves; the name is what Claude Code records in
@@ -85,7 +85,7 @@ export function parsePatchFileName(
  * Returns `undefined` if HOME / USERPROFILE is unresolvable.
  */
 export function getPluginsDir(): string | undefined {
-  const home = process.env['HOME'] ?? process.env['USERPROFILE']
+  const home = getEnvValue('HOME') ?? getEnvValue('USERPROFILE')
   if (!home || !path.isAbsolute(home)) {
     return undefined
   }

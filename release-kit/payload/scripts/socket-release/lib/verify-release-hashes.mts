@@ -16,8 +16,8 @@ import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 
-import { errorMessage } from '@socketsecurity/lib/errors/message'
-import { spawn } from '@socketsecurity/lib/process/spawn/child'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
 import { fetchVersionTrustInfo } from '../publish-infra/npm/registry.mts'
 
@@ -183,7 +183,7 @@ export async function verifyReleaseHashes(
     cfg.fetchGitHubAssetDigest ?? defaultFetchGitHubAssetDigest
   const fetchRegistry = cfg.fetchRegistryDigest ?? defaultFetchRegistryDigest
   const local = hashLocal(cfg.localTarball)
-  const [github, registry] = await Promise.all([
+  const { 0: github, 1: registry } = await Promise.all([
     fetchGitHub({
       assetName: path.basename(cfg.localTarball),
       cwd: cfg.cwd,

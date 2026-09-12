@@ -20,7 +20,7 @@ import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 
-import { SocketSdk } from '@socketsecurity/sdk'
+import { SocketSdk } from '@socketsecurity/sdk-stable'
 
 import { logger, rootPath, runCapture } from '../shared.mts'
 import {
@@ -30,10 +30,10 @@ import {
 import { defaultPackTarball } from './staged.mts'
 import { collectThreatFailures, runLocalThreatScan } from './threat-scan.mts'
 import type { ThreatManifest } from './threat-scan.mts'
-import { errorMessage } from '@socketsecurity/lib/errors/message'
-import { safeDelete } from '@socketsecurity/lib/fs/safe'
-import { spawn } from '@socketsecurity/lib/process/spawn/child'
-import { password } from '@socketsecurity/lib/stdio/prompts'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
+import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
+import { password } from '@socketsecurity/lib-stable/stdio/prompts'
 
 // The canonical fleet env name for the Socket API token — bootstrap hooks
 // normalize the legacy aliases into it, so only this one is read.
@@ -273,7 +273,7 @@ export function normalizeFullScanArtifacts(
   if (Array.isArray(data)) {
     return data as FullScanArtifact[]
   }
-  if (data && typeof data === 'object') {
+  if (data !== null && typeof data === 'object') {
     const maybe = (data as { artifacts?: unknown | undefined }).artifacts
     if (Array.isArray(maybe)) {
       return maybe as FullScanArtifact[]
@@ -290,10 +290,10 @@ export function normalizeFullScanArtifacts(
 export function extractSecurityPolicyRules(
   data: unknown,
 ): SecurityPolicyRules | undefined {
-  if (data && typeof data === 'object') {
+  if (data !== null && typeof data === 'object') {
     const rules = (data as { securityPolicyRules?: unknown | undefined })
       .securityPolicyRules
-    if (rules && typeof rules === 'object') {
+    if (rules !== null && typeof rules === 'object') {
       return rules as SecurityPolicyRules
     }
   }
@@ -408,7 +408,7 @@ export async function scanStagedEntry(
     let artifacts: FullScanArtifact[]
     let policyRules: SecurityPolicyRules
     try {
-      const [scan, policy] = await Promise.all([
+      const { 0: scan, 1: policy } = await Promise.all([
         sdk.getFullScan(orgSlug, scanId),
         sdk.getOrgSecurityPolicy(orgSlug),
       ])

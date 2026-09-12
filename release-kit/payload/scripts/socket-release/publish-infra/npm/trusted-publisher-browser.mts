@@ -47,7 +47,7 @@ import process from 'node:process'
 
 import type { Page } from 'playwright-core'
 
-import { errorMessage } from '@socketsecurity/lib/errors/message'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 
 import { isMainModule } from '../../_shared/is-main-module.mts'
 import { logger, rootPath, runCapture } from '../shared.mts'
@@ -317,8 +317,9 @@ export async function main(): Promise<void> {
       return
     }
     logger.log(
-      `npm trusted publishing — ${packages.length} package(s)` +
-        `${args.drive ? ' [drive]' : ' [dry-run]'}`,
+      `npm trusted publishing — ${packages.length} package(s)` + args.drive
+        ? ' [drive]'
+        : ' [dry-run]',
     )
     const results: ApplyResult[] = []
     for (let i = 0, { length } = packages; i < length; i += 1) {

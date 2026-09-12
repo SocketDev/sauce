@@ -6,10 +6,10 @@
  *   `pnpm type` doesn't accept our scope flags, so it's always a full
  *   check.
  *   Usage:
- *   pnpm run check              # lint in modified scope + full type
+ *   `pnpm run` check              # lint in modified scope + full type
  *   check + path-hygiene
- *   pnpm run check --staged     # lint staged + full type + paths
- *   pnpm run check --all        # full lint + full type + paths (CI)
+ *   `pnpm run` check --staged     # lint staged + full type + paths
+ *   `pnpm run` check --all        # full lint + full type + paths (CI)
  *   Byte-identical across every fleet repo. Sync-scaffolding flags drift.
  */
 

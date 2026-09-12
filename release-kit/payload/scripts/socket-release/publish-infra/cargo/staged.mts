@@ -25,6 +25,7 @@ import {
   logCargoApproveHandoff,
   readCargoPackage,
 } from './shared.mts'
+import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
 
 /**
  * Run `cargo package` (with `--locked` unless `locked` is false) and return the
@@ -171,7 +172,7 @@ export async function runStaged(config: {
       const sidecar = `${crate}.sha256`
       writeThroughMirrorLock(sidecar, `${sha256}  ${path.basename(crate)}\n`)
       logger.log(`Staged crate sha256 ${sha256} (recorded at ${sidecar}).`)
-      if (process.env['GITHUB_ACTIONS'] === 'true') {
+      if (getEnvValue('GITHUB_ACTIONS') === 'true') {
         logger.log(
           '[cargo] CI: provenance/attestation is handled by the publish ' +
             'workflow (this script does not attest the artifact itself).',
@@ -204,8 +205,9 @@ export async function runDirect(config: {
   }
   const pkg = await readCargoPackage(cfg.packageName)
   logger.log(
-    `Direct-publishing ${pkg.name}@${pkg.version}` +
-      `${cfg.dryRun ? ' [dry-run]' : ''}`,
+    `Direct-publishing ${pkg.name}@${pkg.version}` + cfg.dryRun
+      ? ' [dry-run]'
+      : '',
   )
 
   if (await isAlreadyPublished(pkg.name, pkg.version)) {

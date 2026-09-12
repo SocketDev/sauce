@@ -10,8 +10,8 @@ import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 
-import { safeDelete } from '@socketsecurity/lib/fs/safe'
-import { normalizePath } from '@socketsecurity/lib/paths/normalize'
+import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
+import { normalizePath } from '@socketsecurity/lib-stable/paths/normalize'
 
 import type {
   HashSource,
@@ -57,6 +57,7 @@ import { tarExecutable } from '../../_shared/tar-executable.mts'
 
 import type { WorkspaceManifestShape } from './workspace.mts'
 import type { ReleaseSubject } from '../../_shared/release-subject.mts'
+import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
 
 // The README-pin bracket target for a publish subject: the pinned README is
 // the one that PACKS — the subject's, not the repo root's when
@@ -173,7 +174,7 @@ export async function runStaged(
     '--no-git-checks',
     '--ignore-scripts',
   ]
-  if (process.env['GITHUB_ACTIONS'] === 'true') {
+  if (getEnvValue('GITHUB_ACTIONS') === 'true') {
     if (provenanceAllowed()) {
       args.push('--provenance')
     } else {
@@ -355,7 +356,7 @@ export async function runDirect(
     '--no-git-checks',
     '--ignore-scripts',
   ]
-  if (process.env['GITHUB_ACTIONS'] === 'true') {
+  if (getEnvValue('GITHUB_ACTIONS') === 'true') {
     if (provenanceAllowed()) {
       args.push('--provenance')
     } else {

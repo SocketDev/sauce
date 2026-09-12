@@ -18,8 +18,8 @@ import path from 'node:path'
 import process from 'node:process'
 import { parseArgs } from 'node:util'
 
-import { errorMessage } from '@socketsecurity/lib/errors/message'
-import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 import { isMainModule } from './_shared/is-main-module.mts'
 import { REPO_ROOT } from './paths.mts'
@@ -299,13 +299,13 @@ export async function runBrewPublish(
 
 async function main(): Promise<void> {
   let values: {
-    apply?: boolean
-    formula?: string
-    help?: boolean
-    json?: boolean
-    repo?: string
-    tag?: string
-    tap?: string
+    apply?: boolean | undefined
+    formula?: string | undefined
+    help?: boolean | undefined
+    json?: boolean | undefined
+    repo?: string | undefined
+    tag?: string | undefined
+    tap?: string | undefined
   }
   try {
     ;({ values } = parseArgs({

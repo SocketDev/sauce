@@ -96,7 +96,7 @@ export function classifyCrateLatest(
     return { reachable: false }
   }
   const crate = parsed.crate
-  if (crate && typeof crate === 'object') {
+  if (crate !== null && typeof crate === 'object') {
     if (
       typeof crate.max_stable_version === 'string' &&
       crate.max_stable_version

@@ -26,13 +26,13 @@ import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 
-import { errorMessage } from '@socketsecurity/lib/errors/message'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 
 import { isMainModule } from '../../_shared/is-main-module.mts'
 import { runNpmWebAuth } from '../../npm-web-auth.mts'
 import { NAPI_TARGETS_DEFAULT } from '../../util/napi-targets.mts'
 import { logger } from '../shared.mts'
-import { safeDelete } from '@socketsecurity/lib/fs/safe'
+import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
 
 // The reservation version. Deliberately the lowest possible semver so the real
 // first release (any 0.0.1+ / 1.0.0) always supersedes it as `latest`.

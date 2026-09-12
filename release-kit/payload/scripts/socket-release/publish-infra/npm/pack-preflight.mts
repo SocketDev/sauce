@@ -1,5 +1,5 @@
 /**
- * @file Pack preflight — the tarball-level hollow gate every npm publish
+ * @file Pack preflight — the tarball-level hollow gate every `npm publish`
  *   stands behind. Packs the publish subject with `pnpm pack` and requires
  *   every declared payload file (the literal `files` entries plus `main`,
  *   via requiredPayloadFiles) present INSIDE the packed tarball before any
@@ -15,8 +15,8 @@
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 
-import { safeDelete } from '@socketsecurity/lib/fs/safe'
-import { normalizePath } from '@socketsecurity/lib/paths/normalize'
+import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
+import { normalizePath } from '@socketsecurity/lib-stable/paths/normalize'
 
 import { logger, runCapture } from '../shared.mts'
 import { requiredPayloadFiles } from './workspace-plan.mts'
@@ -99,7 +99,7 @@ export async function verifyPackedPayload(
     // npm roots every tarball entry at `package/`. Normalize separators (a
     // Windows tar can list `\`-joined paths) before any '/'-sensitive match.
     const entries = listing.stdout
-      .split('\n')
+      .split(/\r?\n/)
       .map(line => normalizePath(line.trim()))
       .filter(entry => entry.length > 0)
     const missing = required.filter(rel => {

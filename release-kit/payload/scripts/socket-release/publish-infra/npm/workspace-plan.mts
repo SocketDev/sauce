@@ -1,7 +1,7 @@
 /**
- * @file Pure planning over a resolved multi-package npm workspace layout
+ * @file Pure planning over a resolved multi-package `npm workspace` layout
  *   (workspace.mts): version-lockstep drift detection, dependency-aware
- *   publish-order computation (pnpm -r publish's topological semantics),
+ *   publish-order computation (`pnpm -r` publish's topological semantics),
  *   absent- and hollow-platform-package detection, and the
  *   formatting-preserving lockstep bump-write planner. Everything here is pure
  *   over its inputs (plus existsSync probes against the real tree for the

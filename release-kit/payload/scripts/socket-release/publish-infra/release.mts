@@ -2,7 +2,7 @@
  * @file Registry-agnostic post-publish release orchestration: derive the
  *   GitHub release body from CHANGELOG.md, then create the git tag + the
  *   IMMUTABLE (draft → upload → undraft) GitHub release carrying the tarball
- *   \+ a checksums file. A future cargo publish reuses this tier verbatim.
+ *   \+ a checksums file. A future `cargo publish` reuses this tier verbatim.
  */
 
 import crypto from 'node:crypto'
@@ -11,9 +11,9 @@ import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 
-import { errorMessage } from '@socketsecurity/lib/errors/message'
-import { safeDeleteSync } from '@socketsecurity/lib/fs/safe'
-import { sleep } from '@socketsecurity/lib/promises/timers'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+import { safeDeleteSync } from '@socketsecurity/lib-stable/fs/safe'
+import { sleep } from '@socketsecurity/lib-stable/promises/timers'
 
 import { createTagRef } from '../lib/github-git-refs.mts'
 import { formatReleaseGapFailure } from '../_shared/release-gap-recovery.mts'
@@ -21,6 +21,8 @@ import { resolveReleaseSubject } from '../_shared/release-subject.mts'
 import { writeThroughMirrorLock } from '../_shared/mirror-lock.mts'
 import { withPrunedPackManifest } from './npm/pack-manifest.mts'
 import { logger, rootPath, runCapture } from './shared.mts'
+import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
+import { getGhToken } from '@socketsecurity/lib-stable/env/github'
 
 /**
  * Extract the CHANGELOG.md section for `version` (from its `## <version>`
@@ -40,7 +42,7 @@ export function extractChangelogSection(
     return `Release ${version}.`
   }
   const text = readFileSync(changelogPath, 'utf8')
-  const lines = text.split('\n')
+  const lines = text.split(/\r?\n/)
   // Heading shapes seen across the fleet: `## 1.2.3`, `## [1.2.3]`,
   // `## v1.2.3`, each optionally followed by a date.
   const isVersionHeading = (line: string): boolean => {
@@ -319,14 +321,13 @@ export async function ensureTagAndRelease(
       rootPath,
     )
     if (remote.code !== 0 || !remote.stdout.includes(`refs/tags/${tagName}`)) {
-      // CI checkouts run `persist-credentials: false`, so the plain git push
+      // CI checkouts run `persist-credentials: false`, so the plain `git push`
       // above has no credential and exits 128 — retry over the GitHub API
       // with the App token the branch-based bump already holds. This is the
       // exact shape that stranded a published crate version tagless while
       // its release branch was already gone.
-      const apiRepo = process.env['GITHUB_REPOSITORY']
-      const apiToken =
-        process.env['RELEASE_APP_TOKEN'] || process.env['GH_TOKEN'] || ''
+      const apiRepo = getEnvValue('GITHUB_REPOSITORY')
+      const apiToken = getEnvValue('RELEASE_APP_TOKEN') || getGhToken() || ''
       const tagSha = await runCapture(
         'git',
         ['rev-parse', `refs/tags/${tagName}`],

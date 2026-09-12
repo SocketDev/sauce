@@ -52,7 +52,9 @@ export function readKitNpmAccess(
       path.join(root, '.config', 'socket-release.json'),
       'utf8',
     )
-    const doc = JSON.parse(raw) as { npm?: { access?: unknown } | undefined }
+    const doc = JSON.parse(raw) as {
+      npm?: { access?: unknown | undefined } | undefined
+    }
     return accessFromValue(doc.npm?.access)
   } catch {
     return undefined
@@ -65,7 +67,9 @@ export function readKitDistTag(root: string = rootPath): string | undefined {
       path.join(root, '.config', 'socket-release.json'),
       'utf8',
     )
-    const doc = JSON.parse(raw) as { npm?: { distTag?: unknown } | undefined }
+    const doc = JSON.parse(raw) as {
+      npm?: { distTag?: unknown | undefined } | undefined
+    }
     const distTag = doc.npm?.distTag
     return typeof distTag === 'string' && distTag ? distTag : undefined
   } catch {
@@ -79,7 +83,7 @@ export function readPublishConfigAccess(
   try {
     const raw = readFileSync(manifestPath, 'utf8')
     const doc = JSON.parse(raw) as {
-      publishConfig?: { access?: unknown } | undefined
+      publishConfig?: { access?: unknown | undefined } | undefined
     }
     return accessFromValue(doc.publishConfig?.access)
   } catch {
@@ -267,7 +271,7 @@ export function parseStageListJson(stdout: string): StageListEntry[] {
   }
   const rawEntries: Array<RawStageEntry | undefined> = Array.isArray(parsed)
     ? (parsed as Array<RawStageEntry | undefined>)
-    : parsed && typeof parsed === 'object'
+    : parsed !== null && typeof parsed === 'object'
       ? (Object.values(parsed) as Array<RawStageEntry | undefined>)
       : []
   const result: StageListEntry[] = []

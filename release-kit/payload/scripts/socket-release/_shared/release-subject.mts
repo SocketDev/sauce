@@ -9,7 +9,7 @@
  *   reimplementation — so a redirected repo like socket-registry behaves
  *   exactly like a plain one downstream. Dependency-free by design: node
  *   builtins only, loadable on a bare checkout — the release-reconcile gap job
- *   imports this before any pnpm install.
+ *   imports this before any `pnpm install`.
  */
 
 import { existsSync, readFileSync } from 'node:fs'

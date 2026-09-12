@@ -108,7 +108,7 @@ export function parseFormula(raw: string): ParsedFormula | undefined {
     ['on_linux', 'linux'],
   ]
   for (let i = 0, { length } = os; i < length; i += 1) {
-    const [marker, prefix] = os[i]!
+    const { 0: marker, 1: prefix } = os[i]!
     const blockStart = raw.indexOf(marker)
     if (blockStart === -1) {
       continue
@@ -127,7 +127,7 @@ export function parseFormula(raw: string): ParsedFormula | undefined {
       ['on_intel', 'x64'],
     ]
     for (let a = 0, { length: al } = arch; a < al; a += 1) {
-      const [archMarker, archName] = arch[a]!
+      const { 0: archMarker, 1: archName } = arch[a]!
       const archStart = block.indexOf(archMarker)
       if (archStart === -1) {
         continue

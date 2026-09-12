@@ -10,8 +10,8 @@
  *   [--sparse] <url> <path> node scripts/repo/git-partial-submodule.mts clone
  *   [path...] node scripts/repo/git-partial-submodule.mts save-sparse [path...]
  *   node scripts/repo/git-partial-submodule.mts restore-sparse [path...]
- *   Requires git >= 2.27 (--filter + --sparse on git clone). Subcommand bodies
- *   live in `git-partial-submodule-commands.mts`; git + `.gitmodules`
+ *   Requires git >= 2.27 (--filter + --sparse on `git clone`). Subcommand
+ *   bodies live in `git-partial-submodule-commands.mts`; git + `.gitmodules`
  *   primitives live in `git-partial-submodule-internal.mts` — both split out to
  *   keep this CLI entry and each helper file under the 500-line soft cap.
  */

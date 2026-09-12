@@ -57,24 +57,15 @@ export const RULE_MODEL_TIER: Readonly<
   Record<string, 'haiku' | 'sonnet' | 'opus'>
 > = {
   __proto__: null,
-  // Identifier renames, single-token substitutions, namespace rewrites.
-  // The right rewrite is fully determined by the pattern that fired.
   'socket/inclusive-language': 'haiku',
+  'socket/max-file-lines': 'opus',
+  'socket/no-fetch-prefer-http-request': 'sonnet',
   'socket/no-placeholders': 'haiku',
   'socket/personal-path-placeholders': 'haiku',
-  'socket/prefer-node-builtin-imports': 'haiku',
-  'socket/prefer-undefined-over-null': 'haiku',
-  // Control-flow / caller-chain rewrites. Need to read surrounding code +
-  // reason about side effects (the `fs.access` Promise<boolean> collapse,
-  // the sync→async caller chain, the fetch → httpJson error-handling
-  // shape). Sonnet's reasoning is the right depth.
-  'socket/no-fetch-prefer-http-request': 'sonnet',
   'socket/prefer-async-spawn': 'sonnet',
   'socket/prefer-exists-sync': 'sonnet',
-  // Module decomposition. The model has to read the whole file, partition
-  // by domain, decide what each new module exports, and rewrite imports
-  // in every consumer. Real refactoring; Opus's depth pays back.
-  'socket/max-file-lines': 'opus',
+  'socket/prefer-node-builtin-imports': 'haiku',
+  'socket/prefer-undefined-over-null': 'haiku',
 } as unknown as Readonly<Record<string, 'haiku' | 'sonnet' | 'opus'>>
 /* eslint-enable typescript/no-unsafe-type-assertion */
 
@@ -87,8 +78,8 @@ export const TIER_MODEL: Readonly<Record<'haiku' | 'sonnet' | 'opus', string>> =
   {
     __proto__: null,
     haiku: 'claude-haiku-4-5',
-    sonnet: 'claude-sonnet-4-6',
     opus: 'claude-opus-4-8',
+    sonnet: 'claude-sonnet-4-6',
   } as Readonly<Record<'haiku' | 'sonnet' | 'opus', string>>
 
 /**
@@ -103,8 +94,8 @@ export const TIER_EFFORT: Readonly<
 > = {
   __proto__: null,
   haiku: 'low',
-  sonnet: 'medium',
   opus: 'high',
+  sonnet: 'medium',
 } as Readonly<Record<'haiku' | 'sonnet' | 'opus', 'low' | 'medium' | 'high'>>
 
 /**
@@ -159,12 +150,14 @@ export const RULE_GUIDANCE: Readonly<Record<string, string>> = {
   // oxlint-disable-next-line socket/inclusive-language -- legacy terms
   'socket/inclusive-language':
     'Replace `master`/`slave` with the contextually correct term: `main` (branch), `primary`/`controller` (process), `replica`/`worker`/`secondary`/`follower` (subordinate). Read the surrounding code to pick the right one. Do not autofix when an external API field name forces the legacy term — leave a `// inclusive-language: external-api` comment instead.',
+  'socket/max-file-lines':
+    'Split the file along its natural seams: one tool/domain/phase per file. Name the new files descriptively (`spawn-cdxgen.mts`, `parse-arguments.mts`). Update import paths in callers. Do not introduce a barrel just to hide the split. If the file is a single legitimate parser/state-machine/table, add a leading `// max-file-lines: legitimate parser` comment instead of splitting.',
+  'socket/no-fetch-prefer-http-request':
+    'Replace `fetch(url, opts)` with the right helper from `@socketsecurity/lib-stable/http-request`: `httpJson` when the caller calls `.json()` on the response, `httpText` when it calls `.text()`, `httpRequest` for raw access. Add the named import.',
+  'socket/no-placeholders':
+    'Implement the placeholder. If the work is too large, do NOT delete the marker — leave the file unchanged and explain in your final reply.',
   'socket/personal-path-placeholders':
     "Two scenarios. (1) Source code / docs / tests: replace literal usernames in user-home paths with the canonical placeholder — `<user>` for /Users/ and /home/, `<USERNAME>` for C:\\Users\\. Env-var forms (`$HOME`, `${USER}`, `%USERNAME%`) are also acceptable. (2) WASM / generated bundles / minified output: a literal username inside compiled output means the bundler is leaking the developer's path. Trace back to the build config (esbuild / rolldown / webpack `sourcemap`, `sourceRoot`, `__dirname` baking, fs.realpath calls in plugins) and fix THAT — do not chase the string in the artifact.",
-  'socket/prefer-exists-sync':
-    'Rewrite `fs.access` / `fs.stat` existence-checks to `existsSync(p)` from `node:fs`. Common shapes: `try { await fs.access(p); return true } catch { return false }` → `return existsSync(p)`. `await fs.access(p).then(() => true).catch(() => false)` → `existsSync(p)`. `if (await fs.stat(p))` → `if (existsSync(p))`. When the stat result is destructured for metadata (`s.size`, `s.mtime`, `s.isDirectory()`), KEEP the stat call and add a one-line comment stating intent — that is not an existence check. Trace back through callers: if the caller awaited a Promise<boolean>, the rewrite collapses to a sync boolean and the await becomes a no-op (safe).',
-  'socket/prefer-node-builtin-imports':
-    "Rewrite `import fs from 'node:fs'` / `import * as fs from 'node:fs'` to `import { … } from 'node:fs'` with the names actually used in the file. Change every `fs.X` reference to bare `X`. If `fs` is passed as a value (e.g. `someApi(fs)`), keep the namespace import and add a `// prefer-node-builtin-imports: passed-as-value` comment.",
   'socket/prefer-async-spawn': `Replace \`node:child_process\` spawn calls with their \`@socketsecurity/lib-stable/process/spawn/child\` equivalents. The lib re-exports BOTH names so a sync caller keeps using \`spawnSync\` and only the import source changes; only convert sync → async when the enclosing function is already async (or can be safely made async) AND every caller of that function is async-ready.
 
 <process>
@@ -203,13 +196,11 @@ export const RULE_GUIDANCE: Readonly<Record<string, string>> = {
     return r.code === 0  // .code, not .status
   }
 </good-fix>`,
+  'socket/prefer-exists-sync':
+    'Rewrite `fs.access` / `fs.stat` existence-checks to `existsSync(p)` from `node:fs`. Common shapes: `try { await fs.access(p); return true } catch { return false }` → `return existsSync(p)`. `await fs.access(p).then(() => true).catch(() => false)` → `existsSync(p)`. `if (await fs.stat(p))` → `if (existsSync(p))`. When the stat result is destructured for metadata (`s.size`, `s.mtime`, `s.isDirectory()`), KEEP the stat call and add a one-line comment stating intent — that is not an existence check. Trace back through callers: if the caller awaited a Promise<boolean>, the rewrite collapses to a sync boolean and the await becomes a no-op (safe).',
+  'socket/prefer-node-builtin-imports':
+    "Rewrite `import fs from 'node:fs'` / `import * as fs from 'node:fs'` to `import { … } from 'node:fs'` with the names actually used in the file. Change every `fs.X` reference to bare `X`. If `fs` is passed as a value (e.g. `someApi(fs)`), keep the namespace import and add a `// prefer-node-builtin-imports: passed-as-value` comment.",
   'socket/prefer-undefined-over-null':
     'In the target file, flip BOTH the value and the surrounding type annotation in lockstep: `let x: string | null = null` → `let x: string | undefined = undefined`. Apply to function-parameter annotations, return-type annotations, generic-parameter constraints, interface / type-alias members. For tight-equality checks in the same file: `x === null` → `x === undefined` (loose `x == null` already covers both — leave loose-equality alone). DO NOT edit other files; if a caller in another file depends on the type, the lint rule will fire there on the next run and a separate AI-fix subprocess will pick it up. Skip the finding if the type is a third-party API contract you cannot change (e.g. a return type from a library).',
-  'socket/max-file-lines':
-    'Split the file along its natural seams: one tool/domain/phase per file. Name the new files descriptively (`spawn-cdxgen.mts`, `parse-arguments.mts`). Update import paths in callers. Do not introduce a barrel just to hide the split. If the file is a single legitimate parser/state-machine/table, add a leading `// max-file-lines: legitimate parser` comment instead of splitting.',
-  'socket/no-placeholders':
-    'Implement the placeholder. If the work is too large, do NOT delete the marker — leave the file unchanged and explain in your final reply.',
-  'socket/no-fetch-prefer-http-request':
-    'Replace `fetch(url, opts)` with the right helper from `@socketsecurity/lib-stable/http-request`: `httpJson` when the caller calls `.json()` on the response, `httpText` when it calls `.text()`, `httpRequest` for raw access. Add the named import.',
 } as unknown as Readonly<Record<string, string>>
 /* eslint-enable typescript/no-unsafe-type-assertion */

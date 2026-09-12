@@ -105,7 +105,7 @@ async function check(): Promise<void> {
 }
 
 export async function main(args = process.argv.slice(2)): Promise<void> {
-  const [arg] = args
+  const { 0: arg } = args
   if (arg === undefined) {
     await generate()
     process.stdout.write('Publish artifacts generated successfully.\n')

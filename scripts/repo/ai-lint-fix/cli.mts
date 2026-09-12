@@ -51,6 +51,7 @@ import {
   TIER_MODEL,
 } from './rule-guidance.mts'
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
 
 const logger = getDefaultLogger()
 
@@ -127,7 +128,11 @@ function normalizeOxlintJson(payload: OxlintJsonOutput): OxlintFile[] {
       byFile.set(d.filename, [msg])
     }
   }
-  return Array.from(byFile, ([filePath, messages]) => ({ filePath, messages }))
+  return Array.from(byFile, ([filePath, messages]) => ({
+    __proto__: null,
+    filePath,
+    messages,
+  }))
 }
 
 interface CliArgs {
@@ -369,7 +374,7 @@ async function main(): Promise<void> {
   if (args.noAi) {
     return
   }
-  if (process.env['SKIP_AI_FIX'] === '1') {
+  if (getEnvValue('SKIP_AI_FIX') === '1') {
     return
   }
   if (!existsSync('.config/oxlintrc.json')) {

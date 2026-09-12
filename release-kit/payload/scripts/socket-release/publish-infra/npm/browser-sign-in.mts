@@ -10,7 +10,7 @@
  *   shared profile for the one human sign-in, and every automation launch
  *   only ever REUSES the session it seeded.
  *   Flow: refuse if the profile is held → open plain Chrome on the profile at
- *   the npm login page → the operator signs in (password + OTP) and QUITS
+ *   the `npm login` page → the operator signs in (password + OTP) and QUITS
  *   Chrome (Cmd-Q; quitting releases the profile lock and flushes cookies) →
  *   the sanctioned driver opens the profile and proves the session with
  *   npm's own /-/whoami. Fail-loud on every arm: a signed-out verify names
@@ -23,9 +23,9 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 
-import { errorMessage } from '@socketsecurity/lib/errors/message'
-import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
-import { spawn } from '@socketsecurity/lib/process/spawn/child'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
 import {
   DEFAULT_PROFILE_DIR,
@@ -34,6 +34,7 @@ import {
   sleep,
 } from './browser-session.mts'
 import { isMainModule } from '../../_shared/is-main-module.mts'
+import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
 
 const logger = getDefaultLogger()
 
@@ -51,7 +52,7 @@ const POLL_MS = 2000
  * the seeded session through the sanctioned driver. Returns the signed-in
  * username; throws loud on refusal, timeout, or a signed-out verify.
  */
-export async function seedNpmSignIn(
+export async function setupNpmSignIn(
   options?: { profileDir?: string | undefined } | undefined,
 ): Promise<string> {
   const opts = { __proto__: null, ...options } as {
@@ -73,7 +74,7 @@ export async function seedNpmSignIn(
   // signs in on their personal profile while this script waits forever for a
   // lock that can never appear (observed 2026-07-30).
   const chromeBinary =
-    process.env['SOCKET_BROWSER_BINARY'] ||
+    getEnvValue('SOCKET_BROWSER_BINARY') ||
     '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
   if (!existsSync(chromeBinary)) {
     throw new Error(
@@ -150,7 +151,7 @@ export async function seedNpmSignIn(
 }
 
 async function main(): Promise<void> {
-  const user = await seedNpmSignIn()
+  const user = await setupNpmSignIn()
   logger.success(
     `signed in as ${user} — the shared profile now carries the session, ` +
       'and every driver launch reuses it (never re-logs-in).',

@@ -23,6 +23,13 @@ interface LinkViolation {
   value: string
 }
 
+const DEPENDENCY_FIELDS = [
+  'dependencies',
+  'devDependencies',
+  'optionalDependencies',
+  'peerDependencies',
+] as const
+
 /**
  * Check if a package.json contains link: dependencies.
  */
@@ -48,63 +55,18 @@ export async function checkPackageJson(
 
   const violations: LinkViolation[] = []
 
-  // Check dependencies.
-  if (pkg['dependencies']) {
-    const entries = Object.entries(pkg['dependencies'])
-    for (let i = 0, { length } = entries; i < length; i += 1) {
-      const [name, version] = entries[i]!
-      if (typeof version === 'string' && version.startsWith('link:')) {
-        violations.push({
-          file: filePath,
-          field: 'dependencies',
-          package: name,
-          value: version,
-        })
-      }
+  for (const field of DEPENDENCY_FIELDS) {
+    const dependencyBlock = pkg[field]
+    if (!dependencyBlock) {
+      continue
     }
-  }
-
-  // Check devDependencies.
-  if (pkg['devDependencies']) {
-    const entries = Object.entries(pkg['devDependencies'])
+    const entries = Object.entries(dependencyBlock)
     for (let i = 0, { length } = entries; i < length; i += 1) {
-      const [name, version] = entries[i]!
+      const { 0: name, 1: version } = entries[i]!
       if (typeof version === 'string' && version.startsWith('link:')) {
         violations.push({
           file: filePath,
-          field: 'devDependencies',
-          package: name,
-          value: version,
-        })
-      }
-    }
-  }
-
-  // Check peerDependencies.
-  if (pkg['peerDependencies']) {
-    const entries = Object.entries(pkg['peerDependencies'])
-    for (let i = 0, { length } = entries; i < length; i += 1) {
-      const [name, version] = entries[i]!
-      if (typeof version === 'string' && version.startsWith('link:')) {
-        violations.push({
-          file: filePath,
-          field: 'peerDependencies',
-          package: name,
-          value: version,
-        })
-      }
-    }
-  }
-
-  // Check optionalDependencies.
-  if (pkg['optionalDependencies']) {
-    const entries = Object.entries(pkg['optionalDependencies'])
-    for (let i = 0, { length } = entries; i < length; i += 1) {
-      const [name, version] = entries[i]!
-      if (typeof version === 'string' && version.startsWith('link:')) {
-        violations.push({
-          file: filePath,
-          field: 'optionalDependencies',
+          field,
           package: name,
           value: version,
         })

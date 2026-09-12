@@ -37,11 +37,11 @@
  *      makes bare `npm login` fail EBADDEVENGINES inside every pnpm-enforced
  *      fleet repo (the odai 0.0.1 release hit exactly that). The tokens SPLIT,
  *      though: pnpm 11's web login keeps its token in pnpm's own config, and
- *      bare npm keeps reading ~/.npmrc — a green pnpm login can leave every
+ *      bare npm keeps reading ~/.npmrc — a green `pnpm login` can leave every
  *      npm op 401ing minutes later (three trust-sweep rounds, 2026-07-31).
  *      The split-token guard below makes one `login` mean BOTH tools hold a
  *      live token. `--npm` forces npm (stripped before exec), and an
- *      `--otp` run stays on npm since pnpm login takes no OTP flag. Every
+ *      `--otp` run stays on npm since `pnpm login` takes no OTP flag. Every
  *      other operation stays on npm. Usage: node
  *      scripts/socket-release/npm-web-auth.mts
  *      <publish|login|deprecate|owner|access|...> [args] [--npm]
@@ -51,8 +51,8 @@
 import { spawn as nodeSpawn } from 'node:child_process'
 import process from 'node:process'
 
-import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
-import { spawnSync } from '@socketsecurity/lib/process/spawn/child'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 
 import { NPM_AUTH_TOKEN_KEY } from './constants/npm-registry.mts'
 import { isMainModule } from './_shared/is-main-module.mts'
@@ -309,6 +309,7 @@ function runUnderPty(pty: PtyInvocation, config: RunConfig): Promise<number> {
     let buffer = ''
     let opened = false
     const watch = (chunk: Buffer) => {
+      // oxlint-disable-next-line socket/no-direct-stream-write -- PTY forwarding must preserve raw bytes without logger decoration.
       process.stdout.write(chunk)
       if (opened) {
         return
@@ -330,7 +331,10 @@ function runUnderPty(pty: PtyInvocation, config: RunConfig): Promise<number> {
       }
     }
     child.stdout?.on('data', watch)
-    child.stderr?.on('data', (chunk: Buffer) => process.stderr.write(chunk))
+    child.stderr?.on('data', (chunk: Buffer) => {
+      // oxlint-disable-next-line socket/no-direct-stream-write -- PTY forwarding must preserve raw bytes without logger decoration.
+      process.stderr.write(chunk)
+    })
     child.on('error', () => resolve(1))
     child.on('exit', code => resolve(code ?? 1))
   })

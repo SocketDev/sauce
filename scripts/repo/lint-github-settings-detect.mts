@@ -21,6 +21,7 @@ import type {
   CustomPropertyValue,
   WorkflowsPayload,
 } from './lint-github-settings-types.mts'
+import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
 
 // Inline path + config-loader equivalents of the wheelhouse template's
 // paths.mts helpers. `lint-github-settings.mts` cascades into fleet
@@ -125,7 +126,7 @@ export function ghApi<T>(
   }
   const r = spawnSync('gh', args, {})
   if (r.status !== 0) {
-    if (process.env['DEBUG']) {
+    if (getEnvValue('DEBUG')) {
       process.stderr.write(`gh ${args.join(' ')} failed: ${r.stderr}\n`)
     }
     return undefined
@@ -275,19 +276,8 @@ export function detectLocalShadows(
     if (r.status !== 0) {
       continue
     }
-    let bodyRaw: string
-    try {
-      const obj: unknown = JSON.parse(r.stdout)
-      if (
-        !isObject(obj) ||
-        obj['encoding'] !== 'base64' ||
-        typeof obj['content'] !== 'string' ||
-        !obj['content']
-      ) {
-        continue
-      }
-      bodyRaw = Buffer.from(obj['content'], 'base64').toString('utf8')
-    } catch {
+    const bodyRaw = decodeWorkflowContent(r.stdout)
+    if (bodyRaw === undefined) {
       continue
     }
     // Exemption 1: delegates to the shared workflow via `uses:`.
@@ -308,4 +298,21 @@ export function detectLocalShadows(
     out.push({ basename, localPath: w.path })
   }
   return out
+}
+
+function decodeWorkflowContent(stdout: string): string | undefined {
+  try {
+    const obj: unknown = JSON.parse(stdout)
+    if (
+      !isObject(obj) ||
+      obj['encoding'] !== 'base64' ||
+      typeof obj['content'] !== 'string' ||
+      !obj['content']
+    ) {
+      return undefined
+    }
+    return Buffer.from(obj['content'], 'base64').toString('utf8')
+  } catch {
+    return undefined
+  }
 }

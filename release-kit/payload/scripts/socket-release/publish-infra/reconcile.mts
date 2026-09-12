@@ -54,7 +54,7 @@ export async function findPublishedBaseSha(
     cwd,
   )
   if (code === 0) {
-    const lines = stdout.split('\n')
+    const lines = stdout.split(/\r?\n/)
     for (let i = 0, { length } = lines; i < length; i += 1) {
       const line = lines[i]!
       const sha = line.slice(0, line.indexOf(' '))
@@ -85,7 +85,7 @@ export async function rebaseOntoPublishedBase(
   if (status.stdout.trim().length > 0) {
     throw new Error(
       'reconcile: working tree is dirty — cannot rebase for publish.\n' +
-        `  Saw: ${status.stdout.trim().split('\n').length} uncommitted path(s).\n` +
+        `  Saw: ${status.stdout.trim().split(/\r?\n/).length} uncommitted path(s).\n` +
         '  Fix: commit or set aside your changes, then re-run the publish.',
     )
   }

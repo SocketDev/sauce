@@ -12,7 +12,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import process from 'node:process'
 
-import { confirm } from '@socketsecurity/lib/stdio/prompts'
+import { confirm } from '@socketsecurity/lib-stable/stdio/prompts'
 
 import { withPinnedReadme } from '../pin-readme.mts'
 import { releaseBehindLiveGate } from '../release.mts'
@@ -20,6 +20,7 @@ import { logger, rootPath, runInherit } from '../shared.mts'
 import { isAlreadyPublished } from './registry.mts'
 import { cratePath, crateSha256, readCargoPackage } from './shared.mts'
 import { packCrate, packCrateAssets } from './staged.mts'
+import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
 
 /**
  * Resolve the staged `.crate` sha256 recorded at stage time, if discoverable:
@@ -32,7 +33,7 @@ export function resolveStagedSha256(
   name: string,
   version: string,
 ): string | undefined {
-  const fromEnv = process.env['CARGO_STAGED_SHA256']
+  const fromEnv = getEnvValue('CARGO_STAGED_SHA256')
   if (typeof fromEnv === 'string' && fromEnv.trim()) {
     return fromEnv.trim().toLowerCase()
   }
@@ -70,8 +71,9 @@ export async function runApprove(config: {
   }
   const pkg = await readCargoPackage(cfg.packageName)
   logger.log(
-    `Approving publish of ${pkg.name}@${pkg.version}` +
-      `${cfg.dryRun ? ' [dry-run]' : ''}`,
+    `Approving publish of ${pkg.name}@${pkg.version}` + cfg.dryRun
+      ? ' [dry-run]'
+      : '',
   )
 
   if (await isAlreadyPublished(pkg.name, pkg.version)) {

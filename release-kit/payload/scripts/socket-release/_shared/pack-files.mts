@@ -6,7 +6,7 @@
  *   plus the path normalizer only.
  */
 
-import { normalizePath } from '@socketsecurity/lib/paths/normalize'
+import { normalizePath } from '@socketsecurity/lib-stable/paths/normalize'
 
 /**
  * True when a tarball-relative path is covered by a package.json `files`
@@ -28,7 +28,7 @@ export function isCoveredByFiles(
     }
     // A simple one-level glob (`lib/*.js`) — match by prefix + suffix.
     if (nf.includes('*')) {
-      const [pre = '', post = ''] = nf.split('*', 2)
+      const { 0: pre = '', 1: post = '' } = nf.split('*', 2)
       if (e.startsWith(pre) && e.endsWith(post)) {
         return true
       }

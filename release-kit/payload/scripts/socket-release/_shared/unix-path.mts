@@ -4,7 +4,7 @@
  *   normalizer (segment collapse, UNC + Windows-namespace preservation, MSYS
  *   drive letters) and stays the right call anywhere lib-stable is reachable.
  *   This leaf covers the dep-0 tier ONLY — modules that load on a bare
- *   checkout before any pnpm install (the release-reconcile gap job, hook
+ *   checkout before any `pnpm install` (the release-reconcile gap job, hook
  *   scripts) and therefore cannot import lib-stable at all. Its inputs are
  *   already `path.join` / `path.relative` output, which node has collapsed,
  *   so the separator swap is the whole remaining job.

@@ -21,7 +21,7 @@ import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 
-import { safeDelete } from '@socketsecurity/lib/fs/safe'
+import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
 
 import { releaseBehindLiveGate } from '../release.mts'
 import {
@@ -55,6 +55,7 @@ import { writeThroughMirrorLock } from '../../_shared/mirror-lock.mts'
 
 import type { StageListEntry } from './shared.mts'
 import type { NpmWorkspaceLayout, WorkspacePackage } from './workspace.mts'
+import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
 
 function pinTargetForPackage(
   layout: NpmWorkspaceLayout,
@@ -141,7 +142,7 @@ export function gateWorkspaceForPublish(
       .map(
         report =>
           `    ${report.owner.relDir} (${report.owner.name}) declares ` +
-          `${report.missing.join(', ')}`,
+          report.missing.join(', '),
       )
       .join('\n')
     logger.fail(
@@ -441,7 +442,7 @@ export async function runWorkspacePublish(
       '--no-git-checks',
       '--ignore-scripts',
     )
-    if (process.env['GITHUB_ACTIONS'] === 'true') {
+    if (getEnvValue('GITHUB_ACTIONS') === 'true') {
       if (provenanceAllowed()) {
         args.push('--provenance')
       } else {

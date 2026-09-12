@@ -3,15 +3,15 @@
  *   token, and `pnpm stage list`'s failure output parses as an EMPTY stage
  *   list, so a missing login must be repaired BEFORE anything reads the stage
  *   list. On a real terminal `npm login` owns the flow; without a TTY the
- *   registry's web-login protocol runs by hand (npm login's non-TTY path
+ *   registry's web-login protocol runs by hand (`npm login`'s non-TTY path
  *   bails to the legacy `Username:` prompt, which EOFs and dies in
  *   agent-driven runs — the runs `--yes` exists for).
  */
 
 import process from 'node:process'
 
-import { httpRequest } from '@socketsecurity/lib/http-request'
-import { sleep } from '@socketsecurity/lib/promises/timers'
+import { httpRequest } from '@socketsecurity/lib-stable/http-request'
+import { sleep } from '@socketsecurity/lib-stable/promises/timers'
 
 import {
   NPM_AUTH_TOKEN_KEY,

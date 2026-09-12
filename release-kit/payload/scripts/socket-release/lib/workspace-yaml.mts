@@ -26,7 +26,7 @@ export function parseCatalogBlock(
   }) as { blockKey: string }
   const blockHeader = `${opts.blockKey}:`
   const out: Record<string, string> = {}
-  const lines = content.split('\n')
+  const lines = content.split(/\r?\n/)
   let inBlock = false
   for (let i = 0; i < lines.length; i += 1) {
     const ln = lines[i]!
@@ -70,7 +70,7 @@ export function parseListBlock(
   }
   const blockHeader = `${cfg.blockKey}:`
   const results: string[] = []
-  const lines = content.split('\n')
+  const lines = content.split(/\r?\n/)
   let inBlock = false
   for (let i = 0; i < lines.length; i += 1) {
     const ln = lines[i]!
@@ -107,7 +107,7 @@ export function parseNamedCatalogs(
   content: string,
 ): Record<string, Record<string, string>> {
   const result: Record<string, Record<string, string>> = {}
-  const lines = content.split('\n')
+  const lines = content.split(/\r?\n/)
   let inCatalogsBlock = false
   let currentName: string | undefined
   for (let i = 0; i < lines.length; i += 1) {
@@ -158,7 +158,7 @@ export function spliceCatalogEntry(
   version: string,
 ): string {
   const newLine = `  '${name}': ${version}`
-  const lines = content.split('\n')
+  const lines = content.split(/\r?\n/)
   const catalogIdx = lines.findIndex(line => line.trimEnd() === 'catalog:')
 
   if (catalogIdx === -1) {
@@ -221,7 +221,7 @@ export function spliceCatalogEntry(
  * block or the entry is absent.
  */
 export function removeCatalogEntry(content: string, name: string): string {
-  const lines = content.split('\n')
+  const lines = content.split(/\r?\n/)
   const catalogIdx = lines.findIndex(line => line.trimEnd() === 'catalog:')
   if (catalogIdx === -1) {
     return content

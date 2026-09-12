@@ -48,6 +48,11 @@ import type {
   Finding,
   RepoApiPayload,
 } from './lint-github-settings-types.mts'
+import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
+import {
+  getDefaultFormatting,
+  stringifyWithFormatting,
+} from '@socketsecurity/lib-stable/json/format'
 
 // Cache lives under the repo-root `.cache/repo/` store that paths.mts owns,
 // so `pnpm run clean` sweeping `node_modules/.cache` cannot take the audit
@@ -151,7 +156,9 @@ function printReport(
 ): void {
   const { json } = { __proto__: null, ...config } as typeof config
   if (json) {
-    process.stdout.write(JSON.stringify({ repo, findings }, null, 2) + '\n')
+    process.stdout.write(
+      stringifyWithFormatting({ repo, findings }, getDefaultFormatting()),
+    )
     return
   }
   if (findings.length === 0) {
@@ -201,7 +208,7 @@ function printReport(
 
 function main(): number {
   // CI bypass — settings audits are local-run only. See header comment.
-  if (process.env['CI'] === 'true') {
+  if (getEnvValue('CI') === 'true') {
     process.stdout.write(
       'CI=true detected; skipping GitHub settings audit (local-run only).\n',
     )

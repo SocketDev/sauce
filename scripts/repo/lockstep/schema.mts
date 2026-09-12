@@ -19,7 +19,7 @@ import type { Static } from '@sinclair/typebox'
 // Shared primitives.
 // ---------------------------------------------------------------------------
 
-// Full git commit SHA. Used by file-fork.forked_at_sha and
+// Full `git commit` SHA. Used by file-fork.forked_at_sha and
 // version-pin.pinned_sha. Centralized so adding a new SHA-bearing
 // field can't accidentally accept short SHAs.
 const FULL_SHA_PATTERN = '^[0-9a-f]{40}$'

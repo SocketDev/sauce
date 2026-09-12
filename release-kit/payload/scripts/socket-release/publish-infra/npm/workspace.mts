@@ -1,5 +1,5 @@
 /*
- * @file Multi-package npm workspace layout resolution for the publish engine.
+ * @file Multi-package `npm workspace` layout resolution for the publish engine.
  *   A repo's publishable npm surface is DERIVED, never declared twice: the
  *   pnpm-workspace.yaml `packages:` globs name the members, `private: false`
  *   (absent) + name + version marks a member publishable, and the
@@ -27,7 +27,7 @@
  *   `lib/workspace-yaml.mts`, `_shared/release-subject.mts`, and
  *   `_shared/unix-path.mts` — nothing from lib-stable. The release-reconcile
  *   gap job resolves its npm subject through `resolveNpmWorkspaceLayout` on a
- *   bare depth-1 checkout with no pnpm install, so ONE layout resolver serves
+ *   bare depth-1 checkout with no `pnpm install`, so ONE layout resolver serves
  *   both the installed publish engine and the dep-0 healer. Keep it that way:
  *   a lib-stable import here blinds the healer on every private-root
  *   workspace repo.
@@ -342,7 +342,7 @@ function selectMainPackage(
 }
 
 /**
- * Resolve the repo's npm publish layout. `single` — byte-identical to the
+ * Resolve the repo's `npm publish` layout. `single` — byte-identical to the
  * existing engine behavior — whenever the root manifest is itself publishable
  * or redirects via `publishConfig.directory`. `multi` when the root is
  * private/versionless and publishable workspace members exist. Throws LOUD

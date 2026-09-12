@@ -1,5 +1,5 @@
 /*
- * @file The sanctioned gap-fill backfill gate for the npm publish flow. A
+ * @file The sanctioned gap-fill backfill gate for the `npm publish` flow. A
  *   backfill republishes PRIOR content as a version that was skipped between
  *   two already-published versions — 1.4.3 between a live 1.4.2 and 1.4.4.
  *   The normal release path can't reach it: the bump/changelog gate anchors
@@ -27,7 +27,7 @@
  *      version — the content commit declares itself.
  */
 
-import { lt } from '@socketsecurity/lib/versions/compare'
+import { lt } from '@socketsecurity/lib-stable/versions/compare'
 
 import { logger, rootPath } from '../shared.mts'
 import { fetchRegistryReleaseState } from './registry.mts'

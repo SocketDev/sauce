@@ -30,8 +30,8 @@ import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 
-import { errorMessage } from '@socketsecurity/lib/errors/message'
-import { safeDelete } from '@socketsecurity/lib/fs/safe'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
 
 import { isMainModule } from '../../_shared/is-main-module.mts'
 import { logger, runInherit } from '../shared.mts'
@@ -384,7 +384,9 @@ export async function main(): Promise<void> {
   }
   logger.log(
     `crates.io placeholder reservation — ${args.names.length} name(s)` +
-      `${args.apply ? ' [apply]' : ' [dry-run]'}`,
+      args.apply
+      ? ' [apply]'
+      : ' [dry-run]',
   )
   const results = await runPlaceholder(args)
   if (results.some(r => r.status === 'failed')) {

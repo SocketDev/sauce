@@ -1,8 +1,8 @@
-#!/usr/bin/env pnpm dlx tsx
+#!/usr/bin/env `pnpm dlx` tsx
 /**
  * Extract dependencies from manifest files by ecosystem.
  *
- * Usage: pnpm dlx tsx scripts/repo/helpers/parse-dependencies.ts [--ecosystem
+ * Usage: `pnpm dlx` tsx scripts/repo/helpers/parse-dependencies.ts [--ecosystem
  * <name>] [--dir <path>]
  *
  * Outputs JSON: { dependencies: [{ name, version, type, ecosystem }] }
@@ -12,6 +12,10 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import * as path from 'node:path'
 
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+import {
+  getDefaultFormatting,
+  stringifyWithFormatting,
+} from '@socketsecurity/lib-stable/json/format'
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
 
 interface Dependency {
@@ -210,7 +214,7 @@ export function parseNpm(dir: string): Dependency[] {
 
   const prodEntries = Object.entries(pkg.dependencies ?? {})
   for (let i = 0, { length } = prodEntries; i < length; i += 1) {
-    const [name, version] = prodEntries[i]!
+    const { 0: name, 1: version } = prodEntries[i]!
     deps.push({
       name,
       version: String(version),
@@ -220,12 +224,12 @@ export function parseNpm(dir: string): Dependency[] {
   }
   const devEntries = Object.entries(pkg.devDependencies ?? {})
   for (let i = 0, { length } = devEntries; i < length; i += 1) {
-    const [name, version] = devEntries[i]!
+    const { 0: name, 1: version } = devEntries[i]!
     deps.push({ name, version: String(version), type: 'dev', ecosystem: 'npm' })
   }
   const peerEntries = Object.entries(pkg.peerDependencies ?? {})
   for (let i = 0, { length } = peerEntries; i < length; i += 1) {
-    const [name, version] = peerEntries[i]!
+    const { 0: name, 1: version } = peerEntries[i]!
     deps.push({
       name,
       version: String(version),
@@ -235,7 +239,7 @@ export function parseNpm(dir: string): Dependency[] {
   }
   const optionalEntries = Object.entries(pkg.optionalDependencies ?? {})
   for (let i = 0, { length } = optionalEntries; i < length; i += 1) {
-    const [name, version] = optionalEntries[i]!
+    const { 0: name, 1: version } = optionalEntries[i]!
     deps.push({
       name,
       version: String(version),
@@ -276,55 +280,37 @@ export function parseNuget(dir: string): Dependency[] {
 
 export function parsePypi(dir: string): Dependency[] {
   const deps: Dependency[] = []
-  const reqPath = path.join(dir, 'requirements.txt')
-  if (existsSync(reqPath)) {
-    const lines = readFileSync(reqPath, 'utf-8').split(/\r?\n/)
-    for (let i = 0, { length } = lines; i < length; i += 1) {
-      const line = lines[i]!
-      const trimmed = line.trim()
-      if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('-')) {
-        continue
-      }
-      // Matches a requirements.txt line, e.g. `requests>=2.0` — group 1 is
-      // the package name, group 2 (optional) is the version constraint
-      // (comparison operator(s) followed by a version number).
-      const match = trimmed.match(/^([a-zA-Z0-9._-]+)\s*([><=!~]+\s*[\d.]+)?/)
-      if (match) {
-        deps.push({
-          name: match[1]!,
-          version: match[2]?.trim() ?? '*',
-          type: 'production',
-          ecosystem: 'pypi',
-        })
-      }
-    }
-  }
-
-  const devReqPath = path.join(dir, 'requirements-dev.txt')
-  if (existsSync(devReqPath)) {
-    const lines = readFileSync(devReqPath, 'utf-8').split(/\r?\n/)
-    for (let i = 0, { length } = lines; i < length; i += 1) {
-      const line = lines[i]!
-      const trimmed = line.trim()
-      if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('-')) {
-        continue
-      }
-      // Matches a requirements-dev.txt line, e.g. `pytest>=7.0` — group 1 is
-      // the package name, group 2 (optional) is the version constraint
-      // (comparison operator(s) followed by a version number).
-      const match = trimmed.match(/^([a-zA-Z0-9._-]+)\s*([><=!~]+\s*[\d.]+)?/)
-      if (match) {
-        deps.push({
-          name: match[1]!,
-          version: match[2]?.trim() ?? '*',
-          type: 'dev',
-          ecosystem: 'pypi',
-        })
-      }
-    }
-  }
+  appendPypiRequirements(deps, path.join(dir, 'requirements.txt'), 'production')
+  appendPypiRequirements(deps, path.join(dir, 'requirements-dev.txt'), 'dev')
 
   return deps
+}
+
+function appendPypiRequirements(
+  deps: Dependency[],
+  requirementsPath: string,
+  type: Dependency['type'],
+): void {
+  if (!existsSync(requirementsPath)) {
+    return
+  }
+  const lines = readFileSync(requirementsPath, 'utf-8').split(/\r?\n/)
+  for (let i = 0, { length } = lines; i < length; i += 1) {
+    const trimmed = lines[i]!.trim()
+    if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('-')) {
+      continue
+    }
+    // Capture the package name, then an optional comparison and numeric version.
+    const match = /^([a-zA-Z0-9._-]+)\s*([><=!~]+\s*[\d.]+)?/.exec(trimmed)
+    if (match) {
+      deps.push({
+        name: match[1]!,
+        version: match[2]?.trim() ?? '*',
+        type,
+        ecosystem: 'pypi',
+      })
+    }
+  }
 }
 
 const PARSERS: Record<string, (dir: string) => Dependency[]> = {
@@ -371,7 +357,7 @@ function main(): void {
     })
 
     process.stdout.write(
-      JSON.stringify({ dependencies: unique }, null, 2) + '\n',
+      stringifyWithFormatting({ dependencies: unique }, getDefaultFormatting()),
     )
   } catch (err: unknown) {
     process.stderr.write(JSON.stringify({ error: errorMessage(err) }) + '\n')

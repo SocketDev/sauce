@@ -51,7 +51,7 @@
  *     new tool cannot re-derive its own.
  */
 
-import { safeDelete } from '@socketsecurity/lib/fs/safe'
+import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
 import { existsSync } from 'node:fs'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
@@ -62,6 +62,7 @@ import type { BrowserContext, Page } from 'playwright-core'
 
 import { logger } from '../shared.mts'
 import { SOCKET_RELEASE_BROWSER_PROFILE_DIR } from '../../paths.mts'
+import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
 
 export const NPM_ORIGIN = 'https://www.npmjs.com'
 
@@ -449,7 +450,7 @@ export async function openNpmBrowserSession(
   // (SOCKET_BROWSER_CHANNEL=msedge / chromium / …) for a machine without
   // Chrome installed — playwright-core can't conjure a channel it has no
   // binary for, so the operator points it at one they do have.
-  const channel = process.env['SOCKET_BROWSER_CHANNEL'] || 'chrome'
+  const channel = getEnvValue('SOCKET_BROWSER_CHANNEL') || 'chrome'
   const doLaunch =
     launch ??
     // The sanctioned shape: channel + sandbox ON + headedness + the two

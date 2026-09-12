@@ -1,8 +1,8 @@
-#!/usr/bin/env pnpm dlx tsx
+#!/usr/bin/env `pnpm dlx` tsx
 /**
  * Search the codebase for import/require patterns of a specific package.
  *
- * Usage: pnpm dlx tsx scripts/repo/helpers/search-usage.ts --package <name>
+ * Usage: `pnpm dlx` tsx scripts/repo/helpers/search-usage.ts --package <name>
  * [--ecosystem <eco>] [--dir <path>]
  *
  * Outputs JSON: { package, found: boolean, files: [{ path, line, match }] }
@@ -13,6 +13,10 @@ import type { Dirent } from 'node:fs'
 import * as path from 'node:path'
 
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+import {
+  getDefaultFormatting,
+  stringifyWithFormatting,
+} from '@socketsecurity/lib-stable/json/format'
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
 
 interface UsageMatch {
@@ -61,7 +65,12 @@ export function getPatterns(
   const escaped = pkg.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   const patterns: RegExp[] = []
 
-  if (!ecosystem || ['npm', 'pnpm', 'yarn'].includes(ecosystem)) {
+  if (
+    ecosystem === undefined ||
+    ecosystem === 'npm' ||
+    ecosystem === 'pnpm' ||
+    ecosystem === 'yarn'
+  ) {
     patterns.push(
       new RegExp(
         `require\\s*\\(\\s*['"]${escaped}(?:/[^'"]*)?['"]\\s*\\)`,
@@ -72,37 +81,44 @@ export function getPatterns(
       new RegExp(`import\\s*\\(\\s*['"]${escaped}(?:/[^'"]*)?['"]\\s*\\)`, 'g'),
     )
   }
-  if (!ecosystem || ecosystem === 'pypi') {
+  if (matchesEcosystem(ecosystem, 'pypi')) {
     patterns.push(
       new RegExp(`^import\\s+${escaped}`, 'gm'),
       new RegExp(`^from\\s+${escaped}\\s+import`, 'gm'),
     )
   }
-  if (!ecosystem || ecosystem === 'cargo') {
+  if (matchesEcosystem(ecosystem, 'cargo')) {
     const crateIdent = escaped.replace(/-/g, '_')
     patterns.push(
       new RegExp(`use\\s+${crateIdent}::`, 'g'),
       new RegExp(`extern\\s+crate\\s+${crateIdent}`, 'g'),
     )
   }
-  if (!ecosystem || ecosystem === 'go') {
+  if (matchesEcosystem(ecosystem, 'go')) {
     patterns.push(new RegExp(`"${escaped}"`, 'g'))
   }
-  if (!ecosystem || ecosystem === 'maven') {
+  if (matchesEcosystem(ecosystem, 'maven')) {
     const parts = pkg.split(':')
     if (parts.length >= 2) {
       const groupEscaped = parts[0]!.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
       patterns.push(new RegExp(`import\\s+${groupEscaped}\\.`, 'g'))
     }
   }
-  if (!ecosystem || ecosystem === 'bundler') {
+  if (matchesEcosystem(ecosystem, 'bundler')) {
     patterns.push(new RegExp(`require\\s+['"]${escaped}['"]`, 'g'))
   }
-  if (!ecosystem || ecosystem === 'nuget') {
+  if (matchesEcosystem(ecosystem, 'nuget')) {
     patterns.push(new RegExp(`using\\s+${escaped}`, 'g'))
   }
 
   return patterns
+}
+
+function matchesEcosystem(
+  ecosystem: string | undefined,
+  candidate: string,
+): boolean {
+  return ecosystem === undefined || ecosystem === candidate
 }
 
 export function parseArgs(): {
@@ -194,11 +210,10 @@ function main(): void {
     })
 
     process.stdout.write(
-      JSON.stringify(
+      stringifyWithFormatting(
         { package: pkg, found: matches.length > 0, files: matches },
-        null,
-        2,
-      ) + '\n',
+        getDefaultFormatting(),
+      ),
     )
   } catch (err: unknown) {
     process.stderr.write(JSON.stringify({ error: errorMessage(err) }) + '\n')

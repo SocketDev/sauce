@@ -18,7 +18,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { parseArgs } from 'node:util'
 
-import { errorMessage } from '@socketsecurity/lib/errors/message'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 
 import { isMainModule } from './_shared/is-main-module.mts'
 import { formatHumanGate } from './_shared/human-gate.mts'
@@ -26,12 +26,12 @@ import { parseGitHubSlug } from './publish-infra/pin-readme.mts'
 import { parseKitConfig } from './bootstrap/config.mts'
 import type { KitConfig } from './bootstrap/config.mts'
 import {
-  STEP_IDS,
   canonicalizeSteps,
   nextCommandFor,
   nextPendingStep,
   planRun,
   preconditionGaps,
+  STEP_IDS,
 } from './bootstrap/plan.mts'
 import type {
   StepContext,
@@ -41,18 +41,18 @@ import type {
   StepReceipt,
 } from './bootstrap/plan.mts'
 import {
-  KitError,
   gateToJson,
+  KitError,
   renderStatusTable,
   renderStepHuman,
 } from './bootstrap/render.mts'
 import type { RunJson, StepOutcomeJson } from './bootstrap/render.mts'
 import {
-  STATE_RELATIVE_PATH,
   contextKey,
   loadState,
   resetState,
   saveState,
+  STATE_RELATIVE_PATH,
   withReceipt,
 } from './bootstrap/state.mts'
 import type { BootstrapState } from './bootstrap/state.mts'
@@ -76,7 +76,10 @@ interface StepShape {
     plan: StepPlan,
     ctx: StepContext,
     seams: BootstrapSeams,
-  ): Promise<{ effects: RunJson['steps'][number]['effects']; gate?: unknown }>
+  ): Promise<{
+    effects: RunJson['steps'][number]['effects']
+    gate?: unknown | undefined
+  }>
   classify(inputs: unknown, ctx: StepContext): StepDetection
   id: StepId
   plan(detection: StepDetection, ctx: StepContext): StepPlan
@@ -133,14 +136,17 @@ export async function runBootstrap(
   const cfg = { __proto__: null, ...config } as RunBootstrapConfig
   const seams = cfg.seams ?? resolveSeams()
   const repoRoot = cfg.repoRoot ?? REPO_ROOT
+  // oxlint-disable-next-line socket/no-direct-stream-write -- bootstrap output preserves exact JSON bytes for machine consumers.
   const out = cfg.out ?? ((text: string) => process.stdout.write(text))
   let jsonMode = false
   const log =
     cfg.log ??
     ((line: string) => {
       if (jsonMode) {
+        // oxlint-disable-next-line socket/no-direct-stream-write -- JSON mode reserves stdout for its exact machine-readable payload.
         process.stderr.write(`${line}\n`)
       } else {
+        // oxlint-disable-next-line socket/no-direct-stream-write -- injected output seam preserves exact line-oriented CLI output.
         process.stdout.write(`${line}\n`)
       }
     })
@@ -623,10 +629,12 @@ async function main(): Promise<void> {
     process.exitCode = await runBootstrap({ argv: process.argv.slice(2) })
   } catch (e) {
     if (e instanceof KitError) {
+      // oxlint-disable-next-line socket/no-direct-stream-write -- CLI errors preserve the bootstrap protocol without logger decoration.
       process.stderr.write(`${e.message}\n`)
       process.exitCode = e.exitCode
       return
     }
+    // oxlint-disable-next-line socket/no-direct-stream-write -- CLI errors preserve the bootstrap protocol without logger decoration.
     process.stderr.write(`bootstrap: ${errorMessage(e)}\n`)
     process.exitCode = 1
   }

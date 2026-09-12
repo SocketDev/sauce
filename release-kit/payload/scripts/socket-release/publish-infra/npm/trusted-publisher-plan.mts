@@ -153,7 +153,7 @@ export function diffTrustedPublisher(config: {
       ],
     ]
   for (let i = 0, { length } = boxes; i < length; i += 1) {
-    const [field, have, want] = boxes[i]!
+    const { 0: field, 1: have, 2: want } = boxes[i]!
     if (have !== want) {
       edits.push({
         field,

@@ -1,5 +1,5 @@
 /*
- * @file The npm SLSA provenance read — "which git commit actually produced
+ * @file The npm SLSA provenance read — "which `git commit` actually produced
  *   this published artifact?". The registry answers at
  *   `/-/npm/v1/attestations/<name>@<version>`, returning an ARRAY of
  *   attestations. Two traps live in that array and both cost real debugging
@@ -23,7 +23,10 @@
  *   reports a green it did not earn.
  */
 
-import { httpJson, HttpResponseError } from '@socketsecurity/lib/http-request'
+import {
+  httpJson,
+  HttpResponseError,
+} from '@socketsecurity/lib-stable/http-request'
 
 import { NPM_REGISTRY_URL } from '../../constants/npm-registry.mts'
 
@@ -212,7 +215,7 @@ export async function fetchAttestedGitSource(
   version: string,
 ): Promise<AttestationRead> {
   try {
-    const body = await httpJson<unknown>(npmAttestationUrl(name, version), {
+    const body = await httpJson(npmAttestationUrl(name, version), {
       headers: { accept: 'application/json' },
       timeout: ATTESTATION_TIMEOUT_MS,
     })

@@ -33,9 +33,9 @@ import { glob } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import url from 'node:url'
+import { parseArgs } from 'node:util'
 
-import { parseArgs } from '@socketsecurity/lib/argv/parse'
-import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 
 // The release-checksums producer (writeChecksumsFile + updateReleaseAssets)
 // lives at a repo-shape-specific location — `scripts/socket-release/build-infra/lib/
@@ -227,15 +227,15 @@ async function main(): Promise<void> {
 
 const OPTIONS = {
   'dry-run': { default: false, type: 'boolean' },
-  'no-pin': { default: false, type: 'boolean' },
   help: { default: false, type: 'boolean' },
+  'no-pin': { default: false, type: 'boolean' },
   tag: { type: 'string' },
 } as const
 
 function parseCli(): CliArgs {
   const { positionals, values } = parseArgs({
     options: OPTIONS,
-    allowPositionals: false,
+    allowPositionals: true,
     strict: false,
   })
   if (positionals.length > 0) {

@@ -27,10 +27,10 @@ import crypto from 'node:crypto'
 import { createReadStream, readFileSync } from 'node:fs'
 import path from 'node:path'
 
-import type { Hash, HashAlgorithm } from '@socketsecurity/lib/integrity'
-import { equalHashes, parseHash } from '@socketsecurity/lib/integrity'
-import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
-import { findUpPackageJson } from '@socketsecurity/lib/packages/find'
+import type { Hash, HashAlgorithm } from '@socketsecurity/lib-stable/integrity'
+import { equalHashes, parseHash } from '@socketsecurity/lib-stable/integrity'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { findUpPackageJson } from '@socketsecurity/lib-stable/packages/find'
 
 const logger = getDefaultLogger()
 
@@ -136,7 +136,7 @@ export function getEmbeddedChecksums(): EmbeddedChecksums | undefined {
  */
 export function parseChecksums(content: string): Record<string, string> {
   const checksums: Record<string, string> = { __proto__: null as never }
-  const lines = content.split('\n')
+  const lines = content.split(/\r?\n/)
   for (let i = 0, { length } = lines; i < length; i += 1) {
     const line = lines[i]!
     const trimmed = line.trim()

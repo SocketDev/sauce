@@ -9,12 +9,14 @@
  *   implementations.
  */
 
-import process from 'node:process'
-
 import { commitViaGithubApi } from '../../lib/commit-via-github-api.mts'
 import { runCapture } from '../shared.mts'
 import { parseFormula } from './formula.mts'
 import type { ParsedFormula } from './formula.mts'
+import {
+  getGhToken,
+  getGithubToken,
+} from '@socketsecurity/lib-stable/env/github'
 
 export interface BrewReleaseView {
   assets: string[]
@@ -100,7 +102,7 @@ export function resolveBrewSeams(cwd: string): BrewSeams {
     return { body, code }
   }
   async function token(): Promise<string> {
-    const envToken = process.env['GH_TOKEN'] || process.env['GITHUB_TOKEN']
+    const envToken = getGhToken() || getGithubToken()
     if (envToken) {
       return envToken
     }
@@ -115,7 +117,7 @@ export function resolveBrewSeams(cwd: string): BrewSeams {
   return {
     commitFile: async cfg => {
       const ghToken = await token()
-      const [repoRead, refRead] = await Promise.all([
+      const { 0: repoRead, 1: refRead } = await Promise.all([
         ghJson(`repos/${cfg.repo}`),
         ghJson(`repos/${cfg.repo}/git/ref/heads/main`).then(async r =>
           r.code === 0

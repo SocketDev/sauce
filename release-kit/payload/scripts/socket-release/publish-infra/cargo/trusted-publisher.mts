@@ -40,9 +40,12 @@ import { promises as fs, statSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
-import { errorMessage } from '@socketsecurity/lib/errors/message'
-import { httpJson, HttpResponseError } from '@socketsecurity/lib/http-request'
-import { normalizePath } from '@socketsecurity/lib/paths/normalize'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+import {
+  httpJson,
+  HttpResponseError,
+} from '@socketsecurity/lib-stable/http-request'
+import { normalizePath } from '@socketsecurity/lib-stable/paths/normalize'
 
 import { isMainModule } from '../../_shared/is-main-module.mts'
 import { socketReleaseWorkflowsPath } from '../../paths.mts'
@@ -69,7 +72,7 @@ const REQUEST_TIMEOUT_MS = 20_000
 // by code point rather than spelling a control byte into this source file.
 const REJECTED_ENVIRONMENT_CHARS = '\'"`,;\\'
 
-// The workflow basenames that carry the fleet's cargo publish job. crates.io
+// The workflow basenames that carry the fleet's `cargo publish` job. crates.io
 // stores a BASENAME, it rejects a path, so the config's `workflow_filename` is
 // exactly one of these.
 export const CARGO_PUBLISH_WORKFLOW_BASENAMES = [
@@ -192,7 +195,7 @@ export function unwrapEnvironmentValue(rawValue: string): string | undefined {
 export function extractWorkflowEnvironment(
   workflowText: string,
 ): string | undefined {
-  const lines = workflowText.split('\n')
+  const lines = workflowText.split(/\r?\n/)
   for (let i = 0, { length } = lines; i < length; i += 1) {
     // The `environment:` key with its indent and whatever follows on the line.
     const keyMatch = /^(?<indent>[ \t]*)environment:(?<rest>.*)$/.exec(
@@ -634,7 +637,7 @@ export function buildTrustedPublisherTarget(
     environment?: string | undefined
     workflow?: string | undefined
   }
-  const [repositoryOwner, repositoryName] = slug.split('/')
+  const { 0: repositoryOwner, 1: repositoryName } = slug.split('/')
   if (!repositoryOwner || !repositoryName) {
     throw new Error(
       `[cargo-trustpub] the repository slug is malformed. Saw: ${slug}; ` +
@@ -872,14 +875,15 @@ export async function main(): Promise<void> {
   }
 
   logger.log(
-    `crates.io trusted publishing — ${crates.length} crate(s)` +
-      `${args.apply ? ' [apply]' : ' [dry-run]'}`,
+    `crates.io trusted publishing — ${crates.length} crate(s)` + args.apply
+      ? ' [apply]'
+      : ' [dry-run]',
   )
   logger.substep(`path: ${root}`)
   logger.substep(
     `target: ${target.repositoryOwner}/${target.repositoryName} · ` +
       `${target.workflowFilename} · environment ` +
-      `${target.environment ?? '(none)'}`,
+      target.environment ?? '(none)',
   )
   const results = await runTrustedPublisher(crates, target, {
     apply: args.apply,

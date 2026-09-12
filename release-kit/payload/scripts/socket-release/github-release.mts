@@ -15,7 +15,7 @@
 import process from 'node:process'
 import { parseArgs } from 'node:util'
 
-import { errorMessage } from '@socketsecurity/lib/errors/message'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 
 import { isMainModule } from './_shared/is-main-module.mts'
 import { resolveReleaseSubject } from './_shared/release-subject.mts'
@@ -28,7 +28,11 @@ import {
 import { logger } from './publish-infra/shared.mts'
 
 async function main(): Promise<void> {
-  let values: { help?: boolean; release?: boolean; tag?: string }
+  let values: {
+    help?: boolean | undefined
+    release?: boolean | undefined
+    tag?: string | undefined
+  }
   try {
     ;({ values } = parseArgs({
       allowPositionals: false,

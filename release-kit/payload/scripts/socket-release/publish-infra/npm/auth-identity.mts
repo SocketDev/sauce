@@ -19,9 +19,12 @@
 
 import process from 'node:process'
 
-import { errorMessage } from '@socketsecurity/lib/errors/message'
-import { httpJson, HttpResponseError } from '@socketsecurity/lib/http-request'
-import { confirm } from '@socketsecurity/lib/stdio/prompts'
+import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
+import {
+  httpJson,
+  HttpResponseError,
+} from '@socketsecurity/lib-stable/http-request'
+import { confirm } from '@socketsecurity/lib-stable/stdio/prompts'
 
 import { packumentUrl } from '../../constants/npm-registry.mts'
 import { ensureNpmLogin } from './login.mts'
@@ -133,7 +136,7 @@ export function describeNpmIdentity(report: NpmIdentityReport, pkg: string) {
  * and non-membership, including an empty maintainer set, do not.
  */
 export async function npmIdentityFor(pkg: string): Promise<NpmIdentityReport> {
-  const [currentUser, read] = await Promise.all([
+  const { 0: currentUser, 1: read } = await Promise.all([
     npmWhoami(),
     readPackageMaintainers(pkg),
   ])

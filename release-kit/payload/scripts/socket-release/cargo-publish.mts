@@ -28,8 +28,7 @@
  */
 
 import process from 'node:process'
-
-import { parseArgs } from '@socketsecurity/lib/argv/parse'
+import { parseArgs } from 'node:util'
 
 import {
   resolveStagedSha256,
@@ -93,7 +92,7 @@ const OPTIONS = {
 async function main(): Promise<void> {
   const { positionals, values } = parseArgs({
     options: OPTIONS,
-    allowPositionals: false,
+    allowPositionals: true,
     strict: false,
   })
 

@@ -14,6 +14,7 @@ import { fileURLToPath } from 'node:url'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
+import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
 
 const logger = getDefaultLogger()
 const REPO_ROOT = path.resolve(
@@ -24,7 +25,7 @@ const REPO_ROOT = path.resolve(
 )
 
 function main(): void {
-  if (process.env['FLEET_CHECK_RELEASE'] !== '1') {
+  if (getEnvValue('FLEET_CHECK_RELEASE') !== '1') {
     logger.log(
       'release-kit typecheck held to the release tier (pre-push / CI / --release).',
     )

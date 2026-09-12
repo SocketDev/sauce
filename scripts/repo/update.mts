@@ -9,7 +9,7 @@
  * override, so the second pass uses `--include <scopes> --maturity- period 0`
  * flags instead of a second config file.
  *
- * Pass 3: pnpm install to refresh the lockfile against the updated
+ * Pass 3: `pnpm install` to refresh the lockfile against the updated
  * package.json.
  *
  * SOCKET_SCOPES below MUST match the `exclude` list in .config/taze.config.mts

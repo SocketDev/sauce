@@ -31,6 +31,7 @@
  */
 
 import { SOCKET_RELEASE_BROWSER_PROFILE_DIR } from '../paths.mts'
+import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
 
 /**
  * The ONE durable Chrome profile every npm browser tool shares. Mirrors the
@@ -53,7 +54,7 @@ export const LAWFUL_IGNORED_DEFAULT_ARGS = Object.freeze([
  * no binary for).
  */
 export function lawfulBrowserChannel(): string {
-  return process.env['SOCKET_BROWSER_CHANNEL'] || 'chrome'
+  return getEnvValue('SOCKET_BROWSER_CHANNEL') || 'chrome'
 }
 
 /**

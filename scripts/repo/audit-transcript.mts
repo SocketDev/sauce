@@ -320,12 +320,15 @@ function findRecentTranscript(): string | undefined {
     .map(f => {
       const full = path.join(dir, f)
       try {
-        return { full, mtime: statSync(full).mtimeMs }
+        return { __proto__: null, full, mtime: statSync(full).mtimeMs }
       } catch {
         return undefined
       }
     })
-    .filter((x): x is { full: string; mtime: number } => x !== undefined)
+    .filter(
+      (x): x is { __proto__: null; full: string; mtime: number } =>
+        x !== undefined,
+    )
     .toSorted((a, b) => b.mtime - a.mtime)
   return entries[0]?.full
 }
@@ -427,7 +430,7 @@ async function main(): Promise<void> {
     }
     logger.log(`── ${severity.toUpperCase()} ──`)
     for (let i = 0, { length } = entries; i < length; i += 1) {
-      const [category, fs] = entries[i]!
+      const { 0: category, 1: fs } = entries[i]!
       logger.log(`  ${category} (${fs.length})`)
       const top = fs.slice(0, 5)
       for (let j = 0, { length: topLength } = top; j < topLength; j += 1) {

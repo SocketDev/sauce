@@ -12,8 +12,8 @@
  *   dest root, only `dependencies/` end up under `node_modules/`. The proxy
  *   resolves its deps via the colocated `node_modules` — same module-resolution
  *   semantics as the wheelhouse repo itself. The install dir is a one-package
- *   pnpm workspace so the `@socketsecurity/lib-stable` alias resolves the same
- *   way it does inside the fleet (catalog maps `lib-stable` →
+ *   `pnpm workspace` so the `@socketsecurity/lib-stable` alias resolves the
+ *   same way it does inside the fleet (catalog maps `lib-stable` →
  *   `npm:@socketsecurity/lib@<v>`). Without the workspace yaml at the install
  *   dest, the alias name wouldn't resolve from outside the originating
  *   workspace. Source of the package: packages/socket-token-minifier/ in the
@@ -22,8 +22,8 @@
  *   `pnpm-workspace.yaml` carrying the catalog aliases, then `pnpm install`s at
  *   the dest to materialize deps. Idempotent: re-running upgrades the install
  *   when the package version in package.json differs from the version recorded
- *   in the dest's package.json. Usage: pnpm run install-token-minifier pnpm run
- *   install-token-minifier -- --force # ignore cached install pnpm run
+ *   in the dest's package.json. Usage: `pnpm run` install-token-minifier `pnpm
+ *   run` install-token-minifier -- --force # ignore cached install `pnpm run`
  *   install-token-minifier -- --quiet.
  */
 
@@ -36,6 +36,10 @@ import { parseArgs } from 'node:util'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { safeMkdirSync } from '@socketsecurity/lib-stable/fs/safe'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import {
+  getDefaultFormatting,
+  stringifyWithFormatting,
+} from '@socketsecurity/lib-stable/json/format'
 import { getSocketAppDir } from '@socketsecurity/lib-stable/paths/socket'
 import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
@@ -177,7 +181,7 @@ export function writeInstallPackageJson(sourceVersion: string): void {
   }
   writeFileSync(
     path.join(INSTALL_DIR, 'package.json'),
-    JSON.stringify(pkg, null, 2) + '\n',
+    stringifyWithFormatting(pkg, getDefaultFormatting()),
     'utf8',
   )
 }

@@ -6,11 +6,15 @@
 
 import crypto from 'node:crypto'
 
-import { httpJson, HttpResponseError } from '@socketsecurity/lib/http-request'
+import {
+  httpJson,
+  HttpResponseError,
+} from '@socketsecurity/lib-stable/http-request'
 
 import { packumentUrl } from '../../constants/npm-registry.mts'
 
 import type { RegistryLatestRead } from '../../lib/release-anchor.mts'
+import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
 
 /**
  * A cache-busting registry read: the packument URL with a unique `_cb` nonce
@@ -389,15 +393,15 @@ export async function diagnoseStageConflict(
 export async function diagnoseStagedAuthFailure(
   name: string,
 ): Promise<string[]> {
-  if (process.env['GITHUB_ACTIONS'] !== 'true') {
+  if (getEnvValue('GITHUB_ACTIONS') !== 'true') {
     return []
   }
   const trust = await fetchVersionTrustInfo(name, 'full')
   const trusted = Object.entries(trust).filter(
     ([, info]) => info.trustedPublisher !== undefined,
   )
-  const repo = process.env['GITHUB_REPOSITORY'] ?? '<owner>/<repo>'
-  const workflowRef = process.env['GITHUB_WORKFLOW_REF'] ?? ''
+  const repo = getEnvValue('GITHUB_REPOSITORY') ?? '<owner>/<repo>'
+  const workflowRef = getEnvValue('GITHUB_WORKFLOW_REF') ?? ''
   const workflow =
     /\/(\.github\/workflows\/[^@]+)@/.exec(workflowRef)?.[1] ??
     '.github/workflows/npm-publish.yml'
@@ -414,7 +418,8 @@ export async function diagnoseStagedAuthFailure(
       `  re-dispatch the publish workflow.`,
     ]
   }
-  const [latestTrustedVersion, latestInfo] = trusted[trusted.length - 1]!
+  const { 0: latestTrustedVersion, 1: latestInfo } =
+    trusted[trusted.length - 1]!
   return [
     `Probable cause: this run's OIDC claims do not match ${name}'s`,
     `  trusted-publisher registration.`,

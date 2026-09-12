@@ -15,7 +15,7 @@
  *   keeps relative paths (GitHub renders those live at HEAD, and the badge
  *   generators/checks key on the relative form) — so this is applied around the
  *   pack/publish and restored after (try/finally). Why pack-time +
- *   orchestrator-driven, not a prepack hook: the fleet npm publish runs `pnpm
+ *   orchestrator-driven, not a prepack hook: the fleet `npm publish` runs `pnpm
  *   stage publish --ignore-scripts`, so lifecycle hooks never fire; and npm
  *   `--approve` re-packs locally to integrity-compare against the staged
  *   tarball, so BOTH packs must see the same pinned README or the gate trips on
@@ -77,7 +77,7 @@ export function pinReadmeAssets(readme: string, baseUrl: string): string {
     .replaceAll('](assets/', `](${baseUrl}assets/`)
 }
 
-// A full git commit sha — the only thing we'll pin a raw URL to besides the
+// A full `git commit` sha — the only thing we'll pin a raw URL to besides the
 // tag name itself.
 const COMMIT_SHA_RE = /^[0-9a-f]{40}$/ // socket-lint: allow uncommented-regex
 

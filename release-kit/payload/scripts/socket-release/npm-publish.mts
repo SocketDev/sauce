@@ -46,9 +46,9 @@
  */
 
 import process from 'node:process'
+import { parseArgs } from 'node:util'
 
-import { isCI } from '@socketsecurity/lib/env/ci'
-import { parseArgs } from '@socketsecurity/lib/exe/argv/parse'
+import { isCI } from '@socketsecurity/lib-stable/env/ci'
 
 import { runApprove } from './publish-infra/npm/approve.mts'
 import {
@@ -116,7 +116,7 @@ export function parsePublishArgv(
   const parsed = parseArgs({
     args,
     options: OPTIONS,
-    allowPositionals: false,
+    allowPositionals: true,
     strict: false,
     configuration: { 'boolean-negation': false },
   })

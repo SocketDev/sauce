@@ -90,7 +90,7 @@ const PREFIXED_LINE = /^sha256: ([0-9a-f]{64})\s+(\S+)$/
  */
 export function parseChecksumsTxt(text: string): Map<string, string> {
   const map = new Map<string, string>()
-  const lines = text.split('\n')
+  const lines = text.split(/\r?\n/)
   for (let i = 0, { length } = lines; i < length; i += 1) {
     const line = lines[i]!.trim()
     const m = PLAIN_LINE.exec(line) ?? PREFIXED_LINE.exec(line)

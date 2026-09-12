@@ -9,15 +9,16 @@
 import { fstatSync, readFileSync } from 'node:fs'
 import process from 'node:process'
 
-import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
+import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 // oxlint-disable-next-line socket/prefer-async-spawn -- streaming
 // stdio required to forward `pnpm stage approve` 2FA prompts +
 // `gh release create` upload progress. lib/spawn returns a Promise
 // that resolves only on exit; here we need the live ChildProcess
 // stream.
-import { spawn } from '@socketsecurity/lib/process/spawn/child'
+import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
 import { REPO_ROOT } from '../paths.mts'
+import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
 
 export const logger = getDefaultLogger()
 export const rootPath = REPO_ROOT
@@ -179,8 +180,14 @@ export function runPtyPumped(
     // enriched promise's non-zero rejection must be swallowed.
     void childPromise.catch(() => undefined)
     const child = childPromise.process
-    child.stdout?.on('data', (chunk: Buffer) => process.stdout.write(chunk))
-    child.stderr?.on('data', (chunk: Buffer) => process.stderr.write(chunk))
+    child.stdout?.on('data', (chunk: Buffer) => {
+      // oxlint-disable-next-line socket/no-direct-stream-write -- PTY pump preserves raw bytes for redirected stdout.
+      process.stdout.write(chunk)
+    })
+    child.stderr?.on('data', (chunk: Buffer) => {
+      // oxlint-disable-next-line socket/no-direct-stream-write -- PTY pump preserves raw bytes for redirected stderr.
+      process.stderr.write(chunk)
+    })
     child.on('error', reject)
     child.on('exit', code => {
       resolve(code ?? 0)
@@ -237,6 +244,7 @@ export function runCapture(
       stdout += chunk.toString('utf8')
     })
     child.on('error', (e: Error) => {
+      // oxlint-disable-next-line socket/no-direct-stream-write -- capture helper preserves stderr behavior while resolving a structured result.
       process.stderr.write(`spawn ${cmd} failed: ${e.message}\n`)
       resolve({ stdout, code: 127 })
     })
@@ -320,10 +328,10 @@ export function extractFirstJson(text: string): string | undefined {
  * provenance back on with zero config.
  */
 export function provenanceAllowed(): boolean {
-  if (process.env['GITHUB_ACTIONS'] !== 'true') {
+  if (getEnvValue('GITHUB_ACTIONS') !== 'true') {
     return false
   }
-  const eventPath = process.env['GITHUB_EVENT_PATH']
+  const eventPath = getEnvValue('GITHUB_EVENT_PATH')
   if (!eventPath) {
     return false
   }

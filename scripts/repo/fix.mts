@@ -3,7 +3,7 @@
  *   agentshield) if available, then an AI-assisted pass for the lint findings
  *   the deterministic fixer can't safely handle. Steps:
  *
- *   1. pnpm run lint --fix — oxlint + oxfmt (forwards extra argv like --all)
+ *   1. `pnpm run` lint --fix — oxlint + oxfmt (forwards extra argv like --all)
  *   2. zizmor --fix .github/ — GitHub Actions workflow fixes (skipped if .github/
  *      doesn't exist)
  *   3. agentshield scan --fix — Claude config fixes (skipped if .claude/ or
