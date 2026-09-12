@@ -47,8 +47,8 @@
 
 import process from 'node:process'
 
-import { parseArgs } from '@socketsecurity/lib/argv/parse'
-import { getCI } from '@socketsecurity/lib/env/ci'
+import { isCI } from '@socketsecurity/lib/env/ci'
+import { parseArgs } from '@socketsecurity/lib/exe/argv/parse'
 
 import { runApprove } from './publish-infra/npm/approve.mts'
 import {
@@ -263,7 +263,7 @@ async function main(): Promise<void> {
   // forgotten and local main drifts from the release). Gated OFF in CI:
   // `--staged` runs on a clean OIDC checkout and must never touch git.
   // `--no-reconcile` is the deliberate local opt-out.
-  const reconcile = !getCI() && !values['no-reconcile']
+  const reconcile = !isCI() && !values['no-reconcile']
   const backfillVersion =
     typeof values['backfill'] === 'string' && values['backfill']
       ? values['backfill']

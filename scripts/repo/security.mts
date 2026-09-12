@@ -6,7 +6,7 @@
  *      and overly-permissive tool permissions.
  *   2. zizmor — static analysis for `.github/workflows/*.yml` (unpinned actions,
  *      secret exposure, template injection, permission issues). Either tool
- *      missing prints a "run pnpm run setup-security-tools" hint (which
+ *      missing prints a "run `pnpm run setup-security-tools`" hint (which
  *      downloads + verifies the pinned binary via the setup-security-tools hook
  *      + prompts for a Socket API token if none is stored) and skips that scan
  *      rather than failing the entire run. Cross-platform: uses `which` from
@@ -20,8 +20,8 @@
 
 import process from 'node:process'
 
-import { which } from '@socketsecurity/lib-stable/bin/which'
-import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
+import { isWin32 } from '@socketsecurity/lib-stable/constants/platform'
+import { which } from '@socketsecurity/lib-stable/exe/path/which'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
@@ -38,7 +38,7 @@ async function runTool(command: string, args: string[]): Promise<number> {
   try {
     const result = await spawn(command, args, {
       stdio: 'inherit',
-      shell: WIN32,
+      shell: isWin32(),
     })
     return result.code ?? 1
   } catch (e) {

@@ -24,7 +24,7 @@ import path from 'node:path'
 import process from 'node:process'
 
 import { findUpPackageJson } from '@socketsecurity/lib-stable/packages/find'
-import { WIN32 } from '@socketsecurity/lib-stable/constants/platform'
+import { isWin32 } from '@socketsecurity/lib-stable/constants/platform'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { getSocketHomePath } from '@socketsecurity/lib-stable/paths/socket'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
@@ -105,7 +105,7 @@ async function main(): Promise<void> {
   try {
     const result = await spawn(binaryPath, forwardedArgs, {
       stdio: 'inherit',
-      shell: WIN32,
+      shell: isWin32(),
     })
     process.exitCode = result.code ?? 1
   } catch (e) {

@@ -17,10 +17,10 @@
  *   Reads version + per-platform sha256 from the repo's root
  *   `external-tools.json` under `tools.sfw-free` / `tools.sfw-enterprise`.
  *   That file is the single fleet source of truth — every consumer of
- *   external tooling reads the same entries. Usage: pnpm run install:sfw #
- *   free flavor pnpm run install:sfw --enterprise # requires
- *   SOCKET_API_KEY (or SOCKET_API_TOKEN) pnpm run install:sfw --force #
- *   ignore cache, redownload pnpm run install:sfw --quiet.
+ *   external tooling reads the same entries. Usage: `pnpm run install:sfw` #
+ *   free flavor `pnpm run install:sfw --enterprise` # requires
+ *   SOCKET_API_KEY (or SOCKET_API_TOKEN) `pnpm run install:sfw --force` #
+ *   ignore cache, redownload `pnpm run install:sfw --quiet`.
  */
 
 import {
@@ -34,7 +34,7 @@ import process from 'node:process'
 import { parseArgs } from 'node:util'
 
 import { findUpPackageJson } from '@socketsecurity/lib-stable/packages/find'
-import { getArch, WIN32 } from '@socketsecurity/lib-stable/constants/platform'
+import { getArch, isWin32 } from '@socketsecurity/lib-stable/constants/platform'
 import { downloadBinary } from '@socketsecurity/lib-stable/dlx/binary'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { safeDelete, safeMkdirSync } from '@socketsecurity/lib-stable/fs/safe'
@@ -108,6 +108,52 @@ export function detectPlatform(): string {
   throw new Error(`Unsupported platform: ${process.platform}`)
 }
 
+export function failSfwInstall(message: string): never {
+  logger.fail(message)
+  process.exit(1)
+}
+
+export function readSfwTool(toolKey: 'sfw-enterprise' | 'sfw-free'): {
+  entry: ToolEntry & { repository: string }
+  platform: string
+  platformMeta: { asset: string; sha256: string }
+} {
+  if (!existsSync(EXTERNAL_TOOLS_PATH)) {
+    failSfwInstall(
+      `external-tools.json not found at ${EXTERNAL_TOOLS_PATH}\n` +
+        '  Every fleet repo ships this file at its root via the wheelhouse cascade.',
+    )
+  }
+  const tools = JSON.parse(
+    readFileSync(EXTERNAL_TOOLS_PATH, 'utf8'),
+  ) as ExternalToolsFile
+  const entry = tools.tools?.[toolKey]
+  if (!entry) {
+    failSfwInstall(
+      `external-tools.json has no \`tools.${toolKey}\` entry at ${EXTERNAL_TOOLS_PATH}`,
+    )
+  }
+  if (!entry.repository) {
+    failSfwInstall(
+      `tools.${toolKey} is missing the required \`repository\` field`,
+    )
+  }
+  const platform = detectPlatform()
+  const platformMeta = entry.checksums?.[platform]
+  if (!platformMeta) {
+    const supported = Object.keys(entry.checksums ?? {}).join(', ')
+    failSfwInstall(
+      `${toolKey} v${entry.version} is not published for ${platform}.\n` +
+        `  Supported: ${supported || '(none)'}`,
+    )
+  }
+  return {
+    entry: { ...entry, repository: entry.repository },
+    platform,
+    platformMeta,
+  }
+}
+
 async function main(): Promise<void> {
   const { values } = parseArgs({
     args: process.argv.slice(2),
@@ -130,61 +176,21 @@ async function main(): Promise<void> {
   // socket-api-token-getter: allow direct-env
   const apiTokenInEnv = process.env['SOCKET_API_TOKEN']
   if (values['enterprise'] && !apiKeyInEnv && !apiTokenInEnv) {
-    logger.fail(
+    failSfwInstall(
       '--enterprise requires SOCKET_API_KEY (or SOCKET_API_TOKEN) in env',
     )
-    process.exit(1)
-    return
   }
 
   if (!values['quiet']) {
     logger.info(`Reading version table from ${EXTERNAL_TOOLS_PATH}`)
   }
 
-  if (!existsSync(EXTERNAL_TOOLS_PATH)) {
-    logger.fail(
-      `external-tools.json not found at ${EXTERNAL_TOOLS_PATH}\n` +
-        '  Every fleet repo ships this file at its root via the wheelhouse cascade.',
-    )
-    process.exit(1)
-    return
-  }
-  // external-tools.json is schema-checked in CI (external-tools-schema.json);
-  // the sfw entry is validated right below.
-  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
-  const tools = JSON.parse(
-    readFileSync(EXTERNAL_TOOLS_PATH, 'utf8'),
-  ) as ExternalToolsFile
   const toolKey = values['enterprise'] ? 'sfw-enterprise' : 'sfw-free'
-  const entry = tools.tools?.[toolKey]
-  if (!entry) {
-    logger.fail(
-      `external-tools.json has no \`tools.${toolKey}\` entry at ${EXTERNAL_TOOLS_PATH}`,
-    )
-    process.exit(1)
-    return
-  }
-  if (!entry.repository) {
-    logger.fail(`tools.${toolKey} is missing the required \`repository\` field`)
-    process.exit(1)
-    return
-  }
-
-  const platform = detectPlatform()
-  const platformMeta = entry.checksums?.[platform]
-  if (!platformMeta) {
-    const supported = Object.keys(entry.checksums ?? {}).join(', ')
-    logger.fail(
-      `${toolKey} v${entry.version} is not published for ${platform}.\n` +
-        `  Supported: ${supported || '(none)'}`,
-    )
-    process.exit(1)
-    return
-  }
+  const { entry, platform, platformMeta } = readSfwTool(toolKey)
 
   const repoSlug = entry.repository.replace(/^github:/, '')
   const url = `https://github.com/${repoSlug}/releases/download/v${entry.version}/${platformMeta.asset}`
-  const binaryName = WIN32 ? 'sfw.exe' : 'sfw'
+  const binaryName = isWin32() ? 'sfw.exe' : 'sfw'
   const sha256 = platformMeta.sha256
 
   if (!values['quiet']) {
