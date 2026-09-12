@@ -28,12 +28,71 @@ import crypto from 'node:crypto'
 import { createReadStream, readFileSync } from 'node:fs'
 import path from 'node:path'
 
-import type { Hash, HashAlgorithm } from '@socketsecurity/lib/integrity'
-import { equalHashes, parseHash } from '@socketsecurity/lib/integrity'
 import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 import { findUpPackageJson } from '@socketsecurity/lib/packages/find'
 
 const logger = getDefaultLogger()
+
+export type HashAlgorithm = 'sha256' | 'sha384' | 'sha512'
+
+interface Hash {
+  readonly algorithm: HashAlgorithm
+  readonly hex: string
+  readonly sri: string
+}
+
+const SRI_RE = /^(sha(?:256|384|512))-([A-Za-z0-9+/]+=*)$/u
+const HEX_RE = /^[a-f0-9]+$/iu
+const HEX_LENGTHS: Readonly<Record<HashAlgorithm, number>> = {
+  sha256: 64,
+  sha384: 96,
+  sha512: 128,
+}
+
+export function parseHash(input: string | Hash): Hash {
+  if (typeof input === 'object') {
+    return makeHash(input.algorithm, input.hex)
+  }
+  const sriMatch = SRI_RE.exec(input)
+  if (sriMatch) {
+    const algorithm = sriMatch[1] as HashAlgorithm
+    const hex = Buffer.from(sriMatch[2]!, 'base64').toString('hex')
+    if (hex.length !== HEX_LENGTHS[algorithm]) {
+      throw new TypeError(`Invalid ${algorithm} digest length.`)
+    }
+    return makeHash(algorithm, hex)
+  }
+  const algorithm = Object.entries(HEX_LENGTHS).find(
+    ([, length]) => length === input.length,
+  )?.[0] as HashAlgorithm | undefined
+  if (!algorithm || !HEX_RE.test(input)) {
+    throw new TypeError('Expected a sha256, sha384, or sha512 digest.')
+  }
+  return makeHash(algorithm, input)
+}
+
+function equalHashes(left: string | Hash, right: string | Hash): boolean {
+  const leftHash = parseHash(left)
+  const rightHash = parseHash(right)
+  if (leftHash.algorithm !== rightHash.algorithm) {
+    return false
+  }
+  const leftBytes = Buffer.from(leftHash.hex, 'hex')
+  const rightBytes = Buffer.from(rightHash.hex, 'hex')
+  return (
+    leftBytes.length === rightBytes.length &&
+    crypto.timingSafeEqual(leftBytes, rightBytes)
+  )
+}
+
+function makeHash(algorithm: HashAlgorithm, hex: string): Hash {
+  const normalized = hex.toLowerCase()
+  return Object.freeze({
+    algorithm,
+    hex: normalized,
+    sri: `${algorithm}-${Buffer.from(normalized, 'hex').toString('base64')}`,
+  })
+}
 
 // ---------------------------------------------------------------------------
 // Public types — match the JSON Schema at scripts/socket-release/build-infra/release-assets.schema.json.

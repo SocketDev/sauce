@@ -48,7 +48,6 @@ import { cargoTokenProblem, resolveCratesToken } from './placeholder.mts'
 import { readPublishableCargoPackages } from './shared.mts'
 import {
   buildTrustedPublisherTarget,
-  isGitHubSlugShape,
   pathFlagMisuse,
   readCargoPublishSurface,
   repoFlagMisuse,

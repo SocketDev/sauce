@@ -12,6 +12,7 @@ import {
   describeHttpFailure,
   environmentProblem,
   extractCratesIoErrorDetail,
+  extractWorkflowEnvironment,
   formatConfig,
   isValidWorkflowFilename,
   matchesTarget,

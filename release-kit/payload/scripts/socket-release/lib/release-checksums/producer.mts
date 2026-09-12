@@ -22,10 +22,9 @@
 import { promises as fs, readFileSync } from 'node:fs'
 import path from 'node:path'
 
-import { parseHash } from '@socketsecurity/lib/integrity'
 import { getDefaultLogger } from '@socketsecurity/lib/logger/default'
 
-import { computeFileHash } from './core.mts'
+import { computeFileHash, parseHash } from './core.mts'
 import {
   withMirrorLockLifted,
   writeThroughMirrorLock,
