@@ -69,6 +69,7 @@ const MARKER_ALLOWLIST: ReadonlyArray<{
     marker: 'socket-wheelhouse',
     paths: [
       '_shared/playwright-law.mts',
+      'paths.mts',
       'publish-infra/npm/browser-session.mts',
       'publish-infra/npm/trusted-publisher-browser.mts',
     ],
