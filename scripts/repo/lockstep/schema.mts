@@ -451,7 +451,6 @@ export type Row = Static<typeof RowSchema>
 export type LockstepManifest = Static<typeof LockstepManifestSchema>
 export type Upstream = Static<typeof UpstreamSchema>
 export type Site = Static<typeof SiteSchema>
-export type PortStatus = Static<typeof PortStatusSchema>
 export type FileForkRow = Static<typeof FileForkRowSchema>
 export type VersionPinRow = Static<typeof VersionPinRowSchema>
 export type FeatureParityRow = Static<typeof FeatureParityRowSchema>

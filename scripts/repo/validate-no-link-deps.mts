@@ -10,6 +10,8 @@ import process from 'node:process'
 
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { findUpPackageJson } from '@socketsecurity/lib-stable/packages/find'
+
+import { DEP_FIELDS } from '../../.claude/hooks/fleet/_shared/dependency-spec-forms.mts'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
 
 const logger = getDefaultLogger()
@@ -22,13 +24,6 @@ interface LinkViolation {
   package: string
   value: string
 }
-
-const DEPENDENCY_FIELDS = [
-  'dependencies',
-  'devDependencies',
-  'optionalDependencies',
-  'peerDependencies',
-] as const
 
 /**
  * Check if a package.json contains link: dependencies.
@@ -55,7 +50,7 @@ export async function checkPackageJson(
 
   const violations: LinkViolation[] = []
 
-  for (const field of DEPENDENCY_FIELDS) {
+  for (const field of DEP_FIELDS) {
     const dependencyBlock = pkg[field]
     if (!dependencyBlock) {
       continue
