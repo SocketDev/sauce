@@ -3,6 +3,7 @@
  *   Splice then parse must round-trip the entry; remove then parse must drop
  *   it; splice must be idempotent for an unchanged version. Every parser must
  *   survive arbitrary text without throwing.
+ *   This is a runner-collection: opt-in lane suite.
  */
 
 import fc from 'fast-check'

@@ -4,6 +4,7 @@
  *   of the golden fixtures must never crash a parser and never let it invent a
  *   classification the page did not carry — an unreadable page reads as a
  *   refusal (`unknown` / `error`), never a silent default.
+ *   This is a runner-collection: opt-in lane suite.
  */
 
 import fc from 'fast-check'

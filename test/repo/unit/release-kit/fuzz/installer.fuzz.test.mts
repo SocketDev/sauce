@@ -4,6 +4,7 @@
  *   is refused loudly; the sha256 comparison catches any single-byte mutation
  *   of a payload copy; and the generated manifest round-trips through the
  *   parser it feeds.
+ *   This is a runner-collection: opt-in lane suite.
  */
 
 import crypto from 'node:crypto'
