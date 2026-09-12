@@ -9,14 +9,12 @@
  * Two checksum formats meet here, deliberately kept apart:
  *
  * - `release-assets.json` pins (`ToolConfig.checksums`) are SRI integrity strings
- *   (`sha256-<base64>`, forward-compatible with sha384/sha512) — the same shape
- *   the fleet verifies with elsewhere (`@socketsecurity/lib`'s `integrity`
- *   module, `external-tools.json`).
+ *   (`sha256-<base64>`, forward-compatible with sha384/sha512).
  * - `checksums.txt`, the release asset every tool publishes, stays sha256-hex —
  *   the ecosystem convention `shasum -c` expects.
  *
  * `parseChecksums` reads the hex transport format; `verifyReleaseChecksum`
- * bridges it to the SRI pin via `@socketsecurity/lib/integrity`.
+ * bridges it to the SRI pin through the release kit's dep-zero parser.
  *
  * Fleet-canonical: byte-identical across every repo that ships
  * `scripts/socket-release/build-infra/lib/release-checksums/`. Drift caught by
@@ -35,7 +33,7 @@ const logger = getDefaultLogger()
 
 export type HashAlgorithm = 'sha256' | 'sha384' | 'sha512'
 
-interface Hash {
+export interface Hash {
   readonly algorithm: HashAlgorithm
   readonly hex: string
   readonly sri: string
@@ -71,7 +69,10 @@ export function parseHash(input: string | Hash): Hash {
   return makeHash(algorithm, input)
 }
 
-function equalHashes(left: string | Hash, right: string | Hash): boolean {
+export function equalHashes(
+  left: string | Hash,
+  right: string | Hash,
+): boolean {
   const leftHash = parseHash(left)
   const rightHash = parseHash(right)
   if (leftHash.algorithm !== rightHash.algorithm) {
@@ -129,10 +130,8 @@ let embeddedChecksums: EmbeddedChecksums | undefined | null
 /**
  * Compute a hash of a file as lowercase hex, streamed so the whole file never
  * loads into memory. Defaults to sha256 — the `checksums.txt` / `shasum -a
- * 256` digest. `@socketsecurity/lib/integrity` has no streaming primitive (its
- * one-shot `computeHash` docs itself defer chunked input back to
- * `crypto.createHash`), so this stays a thin hand-rolled wrapper; convert the
- * result to SRI with `parseHash(hex).sri` rather than hand-rolling that step.
+ * 256` digest. Streaming avoids loading a release asset into memory. Convert
+ * the result to SRI with `parseHash(hex).sri`.
  */
 export async function computeFileHash(
   filePath: string,

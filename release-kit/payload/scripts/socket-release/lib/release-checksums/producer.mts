@@ -8,8 +8,8 @@
  *
  * `writeChecksumsFile` writes sha256-hex — `checksums.txt` stays the
  * ecosystem `shasum -c` transport format. `updateReleaseAssets` re-encodes
- * that same hex map to SRI (`@socketsecurity/lib/integrity`'s `parseHash`)
- * before embedding it as the `release-assets.json` pin; a caller that already
+ * that same hex map to SRI through the release kit's dep-zero parser before
+ * embedding it as the `release-assets.json` pin; a caller that already
  * hands it an SRI string is untouched (`parseHash` is idempotent on SRI
  * input).
  *
