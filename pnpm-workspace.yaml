@@ -511,9 +511,9 @@ tasks:
     dependsOn: []
 peerDependencyRules:
   allowedVersions:
-    '@socketsecurity/lib>typescript': 7.1.0-dev.20260903.1
-    '@socketsecurity/registry>typescript': 7.1.0-dev.20260903.1
-    mcp-tada>typescript: 7.1.0-dev.20260903.1
+    '@socketsecurity/lib>typescript': 7.1.0-dev.20260904.1
+    '@socketsecurity/registry>typescript': 7.1.0-dev.20260904.1
+    mcp-tada>typescript: 7.1.0-dev.20260904.1
 
 # Proceed with a node_modules purge WITHOUT an interactive confirm. The fleet
 # runs pnpm non-interactively everywhere (skills, scripts, hooks, agents, CI) —

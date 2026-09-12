@@ -58,10 +58,6 @@
     "resolutionMode": "highest",
     "trustPolicy": "no-downgrade"
   },
-  "bundle": {
-    "ref": "fleet-pack-b12f764b31ec17f8f08ab5a49c21c3852e46a385",
-    "cascadeSha": "b12f764b31ec17f8f08ab5a49c21c3852e46a385"
-  },
   "coverage": {
     "include": ["release-kit/**/*.mts", "release-kit/**/*.mjs"],
     "exclude": {
