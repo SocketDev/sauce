@@ -63,7 +63,7 @@
     {
       "channels": ["common"],
       "path": "bootstrap.mts",
-      "sha256": "60704a11f875c7ab9aa1046679ea09604b6f1e7ea38529676bec8288e7ae7478"
+      "sha256": "eb6340cf29626f08472ceb9cfebb28338fcf04f19017786430269444b11347f9"
     },
     {
       "channels": ["common"],
@@ -218,7 +218,7 @@
     {
       "channels": ["common"],
       "path": "paths.mts",
-      "sha256": "4aff4693272cbf6f4c63981a917f9e4bcd6973a6dd492c4d35ae48ff969191ae"
+      "sha256": "739fcbad80f0555077f2149c0aa10bed2f63201f99d55a68af543c79012a04e6"
     },
     {
       "channels": ["brew"],

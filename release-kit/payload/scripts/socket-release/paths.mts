@@ -33,7 +33,7 @@ export const SOCKET_RELEASE_BROWSER_PROFILE_DIR = path.join(
 )
 
 export function socketReleaseSystemTarPath(systemRoot: string): string {
-  return path.join(systemRoot, 'System32', 'tar.exe')
+  return path.join(systemRoot, 'System32/tar.exe')
 }
 
 export function socketReleaseWorkflowsPath(root: string): string {
