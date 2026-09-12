@@ -50,7 +50,7 @@ export interface TrustedPublisherLaw {
 }
 
 /**
- * The fleet law bound to one repository slug, stated once. Everything but
+ * The fleet rule bound to one repository slug, stated once. Everything but
  * the slug is a constant of the kit's publish model.
  */
 export function trustedPublisherLaw(slug: string): TrustedPublisherLaw {

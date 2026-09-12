@@ -81,7 +81,7 @@ export interface BrewPublishResult {
 }
 
 /**
- * The whole flow with injected seams — the CLI wraps this; tests call it
+ * The whole flow with injected dependencies — the CLI wraps this; tests call it
  * with fakes and assert check ids + exit codes + zero commit calls.
  */
 export async function runBrewPublish(

@@ -78,7 +78,7 @@ import type { AccessReadRow, ApplyResult } from './trusted-publisher-plan.mts'
  * `launchPersistentContext` on the ONE durable profile under
  * `~/.config/socket-wheelhouse/`, so an operator already signed in for the
  * publish gate is signed in here too, and never a second per-tool profile.
- * The `launch` seam stays injectable so tests never start a browser.
+ * The `launch` dependency stays injectable so tests never start a browser.
  */
 export async function openTrustedPublisherSession(
   options?: NpmBrowserSessionOptions | undefined,

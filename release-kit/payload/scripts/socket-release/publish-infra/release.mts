@@ -135,9 +135,9 @@ export async function requireRegistryLive(config: {
  * release leg is caught and reported the same way: the caller must never see a
  * publish tail die silently mid-window.
  *
- * `ensureRelease` and `sleepFn` are injectable for tests; an injected seam
- * declared `Promise<void>` keeps its old meaning (only an explicit `false`
- * counts as a failure).
+ * `ensureRelease` and `sleepFn` are injectable for tests; an injected
+ * dependency declared `Promise<void>` keeps its old meaning (only an explicit
+ * `false` counts as a failure).
  */
 export async function releaseBehindLiveGate(config: {
   attempts?: number | undefined
@@ -241,7 +241,7 @@ async function defaultPackAssets(pkg: {
 
 /**
  * The three checksum lines an asset contributes to `checksums.txt`: sha1
- * (compare with npm's staged shasum), sha256 (the line a Homebrew formula
+ * for comparison with npm's staged shasum, sha256 (the line a Homebrew formula
  * bump reads — `parseChecksumsTxt` accepts this grammar), and sha512-base64
  * (npm integrity comparisons). Pure — exported for tests.
  */

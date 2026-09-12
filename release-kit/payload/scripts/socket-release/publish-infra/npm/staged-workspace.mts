@@ -213,7 +213,7 @@ export function gateWorkspaceForPublish(
  * `files` entries + `main`) present AND non-empty inside it — a hollow
  * platform tarball never reaches the approve prompt. Fails LOUD and returns
  * false on any missing evidence. `downloadStagedTarball` is injected by the
- * caller, approve passes the stage-download helper — also the test seam.
+ * caller, approve passes the stage-download helper — also the test dependency.
  */
 export async function verifyStagedPlatformEntry(
   entry: StageListEntry,

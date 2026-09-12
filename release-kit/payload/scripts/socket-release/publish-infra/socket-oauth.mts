@@ -10,7 +10,7 @@
  *   reads) and a registered public CLI client id
  *   (`SOCKET_OAUTH_CLI_CLIENT_ID`) whose registration permits loopback
  *   redirect URIs. With either unset, `socketOAuthConfigured()` is false and
- *   callers keep their existing acquisition path — a disabled seam, never a
+ *   callers keep their existing acquisition path — a disabled dependency, never a
  *   silent failure.
  *
  *   SECURITY. PKCE S256 binds the code to this process; a random `state`

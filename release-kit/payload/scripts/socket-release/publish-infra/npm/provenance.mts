@@ -153,7 +153,7 @@ export function readStatementGitSource(
 /**
  * Classify a raw attestation-endpoint body. Pure — the whole decode path is
  * unit-testable from a fixture without touching the network, which is what
- * lets the release-tag gate's tests inject a registry seam.
+ * lets the release-tag gate's tests inject a registry dependency.
  */
 export function classifyAttestationBody(body: unknown): AttestationRead {
   const attestations = (
@@ -196,8 +196,8 @@ export function classifyAttestationBody(body: unknown): AttestationRead {
 }
 
 /**
- * A provenance reader — the seam the release-tag gate injects so its tests
- * exercise every branch without a network call.
+ * A provenance reader — the dependency the release-tag gate injects so its
+ * tests exercise every branch without a network call.
  */
 export type ProvenanceReader = (
   name: string,

@@ -8,7 +8,7 @@
  *   bootstrap never re-widens: the permissive shape is planned ONLY while
  *   the placeholder publish is still pending (see
  *   `bootstrap/steps/npm-access-permissive.mts`). No I/O here; the browser
- *   drive lives in `access-page.mts` and behind the bootstrap seams.
+ *   drive lives in `access-page.mts` and behind the bootstrap dependencies.
  */
 
 import type { PublishingAccessRead } from './access-parse.mts'

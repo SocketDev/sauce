@@ -203,7 +203,7 @@ export interface StagedBrowserSession {
  * Open a signed-in npm browser session and enumerate the staged tarballs. The
  * caller uses the returned `page` with `downloadStagedTarballInPage` to pull
  * each artifact's bytes, then MUST call `close()`. `scope` defaults to the
- * signed-in user; `packageFilter` narrows the list. Seams (`launch`) are
+ * signed-in user; `packageFilter` narrows the list. Dependencies (`launch`) are
  * injectable so tests never launch a browser.
  */
 export async function openStagedBrowserSession(

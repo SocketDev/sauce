@@ -5,7 +5,7 @@
  *   staged-config · trusted-publisher · npm-access-staged-only · verify.
  *   Plan (dry-run) is the DEFAULT for everything destructive; `--apply`
  *   performs effects; `--json` emits exactly ONE machine-readable document
- *   on stdout (human logs go to stderr). Every step begins with live
+ *   on stdout . Human logs go to stderr. Every step begins with live
  *   detection — the state file is a reporting cache, never authority — and
  *   after an apply the runner re-reads and marks `passed` only when the
  *   re-read says done (never false-green).
@@ -127,7 +127,7 @@ export interface RunBootstrapConfig {
 }
 
 /**
- * The whole run, in-process — the CLI calls this with real seams; the
+ * The whole run, in-process — the CLI calls this with real dependencies; the
  * integration tests call it with fakes and capture `out`/`log`.
  */
 export async function runBootstrap(
@@ -146,7 +146,7 @@ export async function runBootstrap(
         // oxlint-disable-next-line socket/no-direct-stream-write -- JSON mode reserves stdout for its exact machine-readable payload.
         process.stderr.write(`${line}\n`)
       } else {
-        // oxlint-disable-next-line socket/no-direct-stream-write -- injected output seam preserves exact line-oriented CLI output.
+        // oxlint-disable-next-line socket/no-direct-stream-write -- injected output dependency preserves exact line-oriented CLI output.
         process.stdout.write(`${line}\n`)
       }
     })
@@ -501,7 +501,7 @@ async function runStep(
   if (detection.failed) {
     // Fail-closed reads (hardFail) fail in BOTH modes; every other
     // definitive failure renders `planned` in plan mode — a plan reports the
-    // machine, it does not grade it (the failing checks stay visible).
+    // machine, it does not grade it. The failing checks stay visible.
     if (mode === 'apply' || detection.hardFail) {
       return { ...base, status: 'failed' }
     }

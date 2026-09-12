@@ -84,13 +84,13 @@ function openInBrowser(url: string): void {
 
 /**
  * One-shot pre-gate auth setup, SDK-only. Resolves the API token from the
- * environment — or, on an interactive terminal, opens the Socket dashboard
- * and prompts for a pasted key (masked input; the token is never echoed) —
- * verifies it with a cheap `getQuota()` call, and resolves the org slug the
- * full scans run under (`SOCKET_ORG_SLUG` override, else the token's single
- * org). Run ONCE before the per-entry loop so a missing/expired token
- * surfaces before any human selection, not mid-gate. Every dependency is an
- * injectable seam so tests drive the flow with no network, browser, or TTY.
+ * environment — or, on an interactive terminal, opens the Socket dashboard and
+ * prompts for a pasted key (masked input; the token is never echoed) — verifies
+ * it with a cheap `getQuota()` call, and resolves the org slug the full scans
+ * run under (`SOCKET_ORG_SLUG` override, else the token's single org). Run ONCE
+ * before the per-entry loop so a missing/expired token surfaces before any
+ * human selection, not mid-gate. Every dependency is an injectable dependency
+ * so tests drive the flow with no network, browser, or TTY.
  */
 export async function preflightSocketScanAuth(
   options?:

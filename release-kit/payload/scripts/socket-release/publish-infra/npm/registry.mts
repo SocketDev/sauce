@@ -342,15 +342,6 @@ export async function fetchVersionTrustInfo(
 }
 
 /**
- * Post-failure diagnosis for a staged upload under CI OIDC. pnpm's token
- * exchange 404s (`ERR_PNPM_AUTH_TOKEN_EXCHANGE`, logged as "Skipped OIDC")
- * when the registry has NO trusted-publisher registration matching this
- * run's OIDC claims — the upload then proceeds tokenless and fails. The
- * packument's per-version `_npmUser.trustedPublisher` splits the two causes:
- * never registered vs. registered-but-claims-drifted. Returns the diagnosis
- * lines to log (empty outside GitHub Actions).
- */
-/**
  * Post-failure diagnosis for a stage-conflict (E409-shaped) upload failure:
  * the target version is NOT publicly published, yet the stage was refused —
  * a staged (unpublished) entry for that exact version already exists, and

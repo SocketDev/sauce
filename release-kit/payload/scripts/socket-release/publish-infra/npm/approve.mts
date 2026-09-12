@@ -97,7 +97,7 @@ export async function runApprove(config: {
   otpFromFlag: string | undefined
   skipRelease?: boolean | undefined
   yes: boolean
-  // ── Injected collaborator seams, dependency injection. Every field
+  // ── Injected collaborator dependencies, dependency injection. Every field
   // defaults to the real import below, so omitting them leaves prod behavior
   // unchanged; tests pass fakes to drive each decision path without spawning
   // npm/pnpm/git/gh, prompting a TTY, or touching the registry. Typed as
@@ -125,7 +125,7 @@ export async function runApprove(config: {
     __proto__: null,
     ...config,
   } as typeof config
-  // Resolve each injected seam to its real implementation when omitted.
+  // Resolve each injected dependency to its real implementation when omitted.
   const resolveLayout = config.resolveLayout ?? resolveNpmWorkspaceLayout
   const ensureIdentity = config.ensureIdentity ?? ensureNpmIdentity
   const listStaged = config.listStaged ?? listStagedPackages

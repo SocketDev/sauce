@@ -8,7 +8,7 @@
  *   the desired shape — success is the page's answer, never the click. The
  *   session comes from the ONE sanctioned launch site
  *   (`browser-session.mts`), and the bootstrap reaches this module only
- *   through its seams so every test drives a fake.
+ *   through its dependencies so every test drives a fake.
  */
 
 import type { Page } from 'playwright-core'

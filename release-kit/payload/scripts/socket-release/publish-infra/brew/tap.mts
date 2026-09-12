@@ -1,11 +1,11 @@
 /**
- * @file Tap-repo effects behind `BrewSeams`: read the current formula off
- *   the tap via the GitHub contents API, commit the bumped formula with a
+ * @file Tap-repo effects behind `BrewDependencies`: read the current formula
+ *   off the tap via the GitHub contents API, commit the bumped formula with a
  *   GitHub-signed API commit (no GPG) DIRECT to the tap's default branch —
- *   never a PR (the version-bump-PR shape is guard-blocked fleet-wide) —
- *   and re-read + parse the committed bytes so success is the registry's
- *   answer, never the click. Every function takes the seams so tests drive
- *   fakes; `resolveBrewSeams()` returns the real `gh`/token-backed
+ *   never a PR (the version-bump-PR shape is guard-blocked fleet-wide) — and
+ *   re-read + parse the committed bytes so success is the registry's answer,
+ *   never the click. Every function takes the dependencies so tests drive
+ *   fakes; `resolveBrewDependencies()` returns the real `gh`/token-backed
  *   implementations.
  */
 
@@ -84,9 +84,10 @@ export async function commitFormula(
 }
 
 /**
- * The real seams: `gh api` for reads (ambient gh auth), the GitHub-signed
- * API commit for the write (GH_TOKEN in CI — minted by the co-located
- * socket-release-app-token composite — or ambient `gh auth token` locally).
+ * The real dependencies: `gh api` for reads (ambient gh auth), the
+ * GitHub-signed API commit for the write (GH_TOKEN in CI — minted by the
+ * co-located socket-release-app-token composite — or ambient `gh auth token`
+ * locally).
  */
 export function resolveBrewSeams(cwd: string): BrewSeams {
   async function ghJson(

@@ -63,7 +63,7 @@
     {
       "channels": ["common"],
       "path": "bootstrap.mts",
-      "sha256": "1aca233b3a5887e2129218abb3de60c3c819abab2affe0c7e9d97242f8583ffa"
+      "sha256": "49ff8a47bf207011b011c722b8a79dd8f8c405a9435dfdb6379f707519e63b4a"
     },
     {
       "channels": ["common"],
@@ -138,7 +138,7 @@
     {
       "channels": ["brew"],
       "path": "brew-publish.mts",
-      "sha256": "15796d0211e83f7c699c735a39355b3a116b3c54e868eb4e3562a59e42b2b592"
+      "sha256": "055da61e96763d7124fb15e6bb88493a57f8df7c46a681bd17063517a21b21ac"
     },
     {
       "channels": ["crates"],
@@ -223,7 +223,7 @@
     {
       "channels": ["brew"],
       "path": "publish-infra/brew/tap.mts",
-      "sha256": "599300800dade0729bb142a52a79310f9f954d96b9146b466762b388f34ff284"
+      "sha256": "819266972f8dcd87fae911fd090915efe7e15e8c4ff6c71d670c183a2a8a18bb"
     },
     {
       "channels": ["crates"],
@@ -258,7 +258,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/access-page.mts",
-      "sha256": "106fcaa16ba660f72746b474216ceeb64e5bc0f359453981df617970486f1ed3"
+      "sha256": "0b28b8109b292f59d3d8efe7bc9c88c6165032685a4cd96e3cbf85619e14ed5e"
     },
     {
       "channels": ["npm"],
@@ -268,12 +268,12 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/access-plan.mts",
-      "sha256": "4e02adb274bfd9f2481fd72fd4c299c0c01dfbbaa9caec81019fb144bb692d1d"
+      "sha256": "7cea496db6c634949910ccae8be448ed16f486d985a671d1cfb644078889aa8a"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/approve.mts",
-      "sha256": "b0b3fb2376d65d37348938bbb657fd832d60522df910c7ae312db7dfc54dad2f"
+      "sha256": "ff1e38f8ef482d0303a41c9652d2eeb0c188a7185e139e425c3ea162649e10b6"
     },
     {
       "channels": ["npm"],
@@ -313,7 +313,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/pinned-npm.mts",
-      "sha256": "2e6858204ed86053fe7a1a1fad7c9dff6ab5c5b4eb6ec4c109d3bb5e56b96890"
+      "sha256": "942eda5093ea71dcb4d2bdcfac1edc21f9a22a6073a63f6e849f02b31708f824"
     },
     {
       "channels": ["npm"],
@@ -323,17 +323,17 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/provenance.mts",
-      "sha256": "a64c168a60128c22871ba781b774c7b7c225a2b67e5516cf488c0cf79aa170d5"
+      "sha256": "02d04fb94d3fc620575d52dde42da6af5ea7e66b6fcc17960b6667b31ef4ccd2"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/registry.mts",
-      "sha256": "80df20ec699c43f77d28ec0133514713c9da55d009b53d35f178a024671b0458"
+      "sha256": "d2f849367d58bc9abf75aa9a02047081ebd24926c610e54a2389e99cf5b21cb7"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/scan.mts",
-      "sha256": "067c0ea0bf046f7f0e4158b315d97748ad5698966e6bee10fcd46740bf5f9cce"
+      "sha256": "bbf1804164c1b68f61e3549526616052dbaa1d02e83e1806098ec4df2cf7ab96"
     },
     {
       "channels": ["npm"],
@@ -348,17 +348,17 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/staged-browser-read.mts",
-      "sha256": "079f0f2bfcde9a4bdcc12dc9bce1f9c35a52957e5ec881d18a105a2c6e0ad260"
+      "sha256": "b914daee7cf8ff7e62b3860fd4e28c66e7cf0d66dbbade4c03690b5818d306ed"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/staged-workspace.mts",
-      "sha256": "0a6f030e3258afec7569aaf5783176c22fe45781faaf37d1cd97b138bb0a405c"
+      "sha256": "10dec0048e51c15a9f9103c80f0cfbbdb13745e05b4cffd7b6eb0104db5b5964"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/staged.mts",
-      "sha256": "8ab2f959a2b9f48e38b95c00d5f35cf0c7a572f7117f851f0310dd4ee8b76612"
+      "sha256": "90b8a12c2612acf01d296439088853f345c9115e1641ffb5c60539c5bc2c3790"
     },
     {
       "channels": ["npm"],
@@ -368,12 +368,12 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/trust-sweep.mts",
-      "sha256": "b333e457cbca7b8e38226d15594e8258b5f3324a5cb742a21fe735d9d4758522"
+      "sha256": "5d45b1029d555f29b1b532308ac487e630da6215c4806076730fa34bddefd817"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/trusted-publisher-browser.mts",
-      "sha256": "47c4e293ddac174fd6823f194037091fdf76cca3c0f6d2f8bfd2b5abcc92bb87"
+      "sha256": "a9ceaa5d7addd8a6d94b05a4305bcb8fc7bf61fd32b2e5285fcb4bf2ad1a082a"
     },
     {
       "channels": ["npm"],
@@ -413,7 +413,7 @@
     {
       "channels": ["common"],
       "path": "publish-infra/release.mts",
-      "sha256": "ec117af165cb3219bd1eb921574b8faaf2d76397228a7ac1f6741ac732167a8f"
+      "sha256": "f2d7e3be754e0209b757b3c8e6d5ceadd89199c3f87527f50e5376637ede6d3f"
     },
     {
       "channels": ["common"],
@@ -423,7 +423,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/socket-oauth.mts",
-      "sha256": "ecefd51838c63222a397edd366b10b75e7ee5e178c99af3a663e8b9c7fbbea2e"
+      "sha256": "c90dfe65117160cd7b5703bab42803bf9dd1e1a6cd84ac5cfca286ffe55a1af3"
     },
     {
       "channels": ["github-release"],
