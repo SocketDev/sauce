@@ -223,7 +223,7 @@
     {
       "channels": ["brew"],
       "path": "publish-infra/brew/tap.mts",
-      "sha256": "1307791d7999b118bd7cac0ee7bd6ec58dc28290bb44cc02fdfe97395cd3a462"
+      "sha256": "75261988efe1f29806049cb166e30103d42a7219945feaf23253835a7d285512"
     },
     {
       "channels": ["crates"],
@@ -323,7 +323,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/provenance.mts",
-      "sha256": "f50a5b08d7a5daba9d5ece3e6a5c577348043a0c03b24652533a253a1a3f8d50"
+      "sha256": "93fdca8db063515f695fce94c8b6e2c56059bc07cbd5068a10c4f4913282c8b1"
     },
     {
       "channels": ["npm"],
@@ -338,12 +338,12 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/shared.mts",
-      "sha256": "b0a66a86ed6a558521ee590faa9a7c1caf4cec5477230a04b24aa093db524a67"
+      "sha256": "a213e62db5f4393754559eef505fcf237acbc10cd84f09ffed042b622b790b07"
     },
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/staged-browser-parse.mts",
-      "sha256": "d92c5d1d79cc24c104927c662f0776be4cc3dbadb6139b7a5b3fca4006059c51"
+      "sha256": "8ddcf1536898d37146dba4cdc0f97a40cad0acd25f1707b3daa2c62e6e8afa42"
     },
     {
       "channels": ["npm"],
@@ -388,7 +388,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/trusted-publisher-plan.mts",
-      "sha256": "ac35208205749045ebe6959efc0dfb87b01309b024f74b455ce64c3782ba8adf"
+      "sha256": "58e8d5507b587ce5d065cc3c9e042113f5343ebd594f9b0a354b5be6ed8b5d5a"
     },
     {
       "channels": ["npm"],

@@ -214,7 +214,6 @@ export interface RegistryManifestEntry {
 export function parseSocketRegistryManifest(
   manifestJson: string,
 ): RegistryManifestEntry[] {
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   const parsed = JSON.parse(manifestJson) as { npm?: unknown | undefined }
   if (!Array.isArray(parsed.npm)) {
     throw new Error(
@@ -230,10 +229,10 @@ export function parseSocketRegistryManifest(
       continue
     }
     const purl = typeof entry[0] === 'string' ? entry[0] : ''
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
     const data =
       entry[1] && typeof entry[1] === 'object'
-        ? // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
-          (entry[1] as Record<string, unknown>)
+        ? (entry[1] as Record<string, unknown>)
         : {}
     let name = typeof data['name'] === 'string' ? data['name'] : ''
     if (!name) {

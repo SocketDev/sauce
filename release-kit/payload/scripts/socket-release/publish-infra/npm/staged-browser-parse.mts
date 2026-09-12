@@ -90,10 +90,10 @@ function asString(value: unknown): string | undefined {
 // Map one raw npm staged item to a StagedTarball. The web payload mirrors the
 // npm CLI's staged-item fields; read defensively in case the web names differ.
 export function mapStagedTarball(raw: Record<string, unknown>): StagedTarball {
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   const stagedBy =
     raw['stagedBy'] && typeof raw['stagedBy'] === 'object'
-      ? // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
-        (raw['stagedBy'] as Record<string, unknown>)
+      ? (raw['stagedBy'] as Record<string, unknown>)
       : {}
   return {
     createdAt:
@@ -121,6 +121,7 @@ export function parseStagedPayload(
   packageFilter?: string | undefined,
 ): StagedPayload {
   const parsed: unknown = JSON.parse(body)
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   const payload = (
     parsed !== null && typeof parsed === 'object' ? parsed : {}
   ) as {
@@ -131,9 +132,9 @@ export function parseStagedPayload(
       | { objects?: unknown | undefined; total?: unknown | undefined }
       | undefined
   }
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
   const objects = Array.isArray(payload.stagedVersions?.objects)
-    ? // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- validated boundary
-      (payload.stagedVersions.objects as Array<Record<string, unknown>>)
+    ? (payload.stagedVersions.objects as Array<Record<string, unknown>>)
     : []
   let tarballs = objects.map(mapStagedTarball)
   const filter = (packageFilter ?? '').trim().replace(/^@/, '').toLowerCase()
