@@ -35,9 +35,9 @@ interface RepoSpec {
 function makeRepo(spec: RepoSpec): string {
   const root = mkdtempSync(path.join(os.tmpdir(), 'clsh-'))
   if (spec.configContent !== undefined) {
-    mkdirSync(path.join(root, '.config'), { recursive: true })
+    mkdirSync(path.join(root, '.config', 'repo'), { recursive: true })
     writeFileSync(
-      path.join(root, '.config', 'lock-step-refs.json'),
+      path.join(root, '.config', 'repo', 'lock-step-refs.json'),
       spec.configContent,
     )
   }

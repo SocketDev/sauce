@@ -52,7 +52,7 @@ async function main(): Promise<void> {
   // formatted form is the byte-canonical form fleet-wide.
   await spawn(
     'pnpm',
-    ['exec', 'oxfmt', '-c', '.config/oxfmtrc.json', outPath],
+    ['exec', 'oxfmt', '-c', '.config/fleet/oxfmtrc.json', outPath],
     {
       cwd: rootDir,
       stdio: 'inherit',

@@ -1,7 +1,7 @@
 /*
  * @file TypeBox schema for the per-fleet-repo socket-wheelhouse config consumed
  *   by `sync-scaffolding`. Two valid locations:
- *   `.config/socket-wheelhouse.json` (primary) or `.socket-wheelhouse.json` at
+ *   `.config/repo/socket-wheelhouse.json` (primary) or `.socket-wheelhouse.json` at
  *   the repo root (alternative). Both are first-class — pick the location that
  *   fits your repo's convention. Each fleet repo (socket-lib, socket-cli,
  *   ultrathink, …) ships this config declaring its `layout` + `native` axes
@@ -12,7 +12,7 @@
  *   - This TypeBox source → `Static<typeof SocketWheelhouseConfigSchema>` for
  *     typed reads in the runner.
  *   - `socket-wheelhouse-emit-schema.mts` writes
- *     `.config/socket-wheelhouse-schema.json` (draft 2020-12) next to the
+ *     `.config/repo/socket-wheelhouse-schema.json` (draft 2020-12) next to the
  *     per-repo config.
  *   - The per-repo config references the JSON Schema via its `$schema` field for
  *     IDE autocompletion. Byte-identical across the fleet via
@@ -339,7 +339,7 @@ export const SocketWheelhouseConfigSchema = Type.Object(
   },
   {
     description:
-      "Per-repo socket-wheelhouse config. Two valid locations: `.config/socket-wheelhouse.json` (primary) or `.socket-wheelhouse.json` at the repo root (alternative). Both are first-class — pick the location that fits your repo's convention.",
+      "Per-repo socket-wheelhouse config. Two valid locations: `.config/repo/socket-wheelhouse.json` (primary) or `.socket-wheelhouse.json` at the repo root (alternative). Both are first-class — pick the location that fits your repo's convention.",
   },
 )
 

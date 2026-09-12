@@ -31,7 +31,8 @@ import { getEnvValue } from '@socketsecurity/lib-stable/env/rewire'
 // `loadSocketWheelhouseConfig` from `./paths.mts` would force every
 // consumer to widen their paths.mts surface — wrong direction. Keep
 // the per-package paths.mts narrow; carry the standalone helpers here.
-const SOCKET_WHEELHOUSE_CONFIG_PRIMARY_REL = '.config/socket-wheelhouse.json'
+const SOCKET_WHEELHOUSE_CONFIG_PRIMARY_REL =
+  '.config/repo/socket-wheelhouse.json'
 const SOCKET_WHEELHOUSE_CONFIG_LEGACY_REL = '.socket-wheelhouse.json'
 
 interface LoadedSocketWheelhouseConfig {
@@ -170,7 +171,7 @@ export function loadCustomProperties(
 
 /**
  * Read the declared GitHub apps from this checkout's
- * `.config/socket-wheelhouse.json` (the fleet-config canon — sibling of
+ * `.config/repo/socket-wheelhouse.json` (the fleet-config canon — sibling of
  * `claude`, `workspace`, `hooks` blocks). Schema:
  *
  * { "github": { "apps": ["cursor", "socket-security", "socket-trufflehog"] } }

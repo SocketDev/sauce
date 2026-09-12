@@ -7,7 +7,7 @@
  *   comment prefix). Drift on the contract is a different failure mode from a
  *   stale path reference (which `check-lock-step-refs.mts` catches) — this gate
  *   is the _intent_ tripwire. Opt-in per repo: uses the same
- *   `.config/lock-step-refs.json` as the path gate. Without the config, the
+ *   `.config/repo/lock-step-refs.json` as the path gate. Without the config, the
  *   gate is a no-op. With the config, the gate walks every scanned source file,
  *   looks for a `BEGIN LOCK-STEP HEADER` marker on the canonical side (a file
  *   whose header contains one or more `Lock-step with <Lang>: <path>` refs),
@@ -40,7 +40,7 @@ import { parseArgs } from 'node:util'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
 
-const CONFIG_PATH = '.config/lock-step-refs.json'
+const CONFIG_PATH = '.config/repo/lock-step-refs.json'
 const SKIP_DIRS = new Set([
   '.git',
   '.next',

@@ -5,12 +5,12 @@
  *   `Lock-step with <Lang>:` / `Lock-step from <Lang>:` / inline `// Lock-step
  *   with <Lang>: <path>:<lines>` comment in tracked source files, resolves each
  *   path against the per-lang impl root declared in
- *   `.config/lock-step-refs.json`, and fails CI when the path no longer exists.
- *   Line ranges are advisory and can drift; path existence is enforceable and
- *   that is what we enforce. The gate is opt-in per repo: if
- *   `.config/lock-step-refs.json` is absent, it exits 0 immediately. Repos that
- *   don't ship cross-language ports pay nothing. Config shape
- *   (`.config/lock-step-refs.json`): { "roots": { "Rust":
+ *   `.config/repo/lock-step-refs.json`, and fails CI when the path no longer
+ *   exists. Line ranges are advisory and can drift; path existence is
+ *   enforceable and that is what we enforce. The gate is opt-in per repo: if
+ *   `.config/repo/lock-step-refs.json` is absent, it exits 0 immediately. Repos
+ *   that don't ship cross-language ports pay nothing. Config shape
+ *   (`.config/repo/lock-step-refs.json`): { "roots": { "Rust":
  *   ["packages/acorn/lang/rust/crates"], "Go": ["packages/acorn/lang/go/src"],
  *   "C++": ["packages/acorn/lang/cpp/src"], "TS":
  *   ["packages/acorn/lang/typescript/src"] }, "scan": ["packages/acorn/lang"],
@@ -28,9 +28,9 @@
  *   scripts/repo/check-lock-step-refs.mts # report + fail on rot node
  *   scripts/repo/check-lock-step-refs.mts --json # machine-readable node
  *   scripts/repo/check-lock-step-refs.mts --quiet # silent on clean Exit codes:
- *   0 — clean, or repo has no `.config/lock-step-refs.json` (opt-in absent) 1 —
- *   at least one stale reference found 2 — gate itself crashed (malformed
- *   config, walker failure)
+ *   0 — clean, or repo has no `.config/repo/lock-step-refs.json` (opt-in
+ *   absent) 1 — at least one stale reference found 2 — gate itself crashed
+ *   (malformed config, walker failure)
  */
 
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
@@ -41,7 +41,7 @@ import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
 
-const CONFIG_PATH = '.config/lock-step-refs.json'
+const CONFIG_PATH = '.config/repo/lock-step-refs.json'
 const SKIP_DIRS = new Set([
   '.git',
   '.next',
@@ -236,7 +236,7 @@ function formatFindings(
       const f = fileFindings[i]!
       const tag =
         f.reason === 'unknown-lang'
-          ? `unknown <Lang> token "${f.lang}" (add to .config/lock-step-refs.json roots)`
+          ? `unknown <Lang> token "${f.lang}" (add to .config/repo/lock-step-refs.json roots)`
           : `path not found: ${f.refPath}`
       lines.push(`  L${f.line}: Lock-step ${f.lang} — ${tag}`)
     }

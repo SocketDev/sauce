@@ -9,7 +9,7 @@
  *   minify env var explicitly cleared. Config discovery (first match wins, in
  *   order):
  *
- *   1. `.config/rolldown-validate.json` — an optional `{ "configs": [...] }` array
+ *   1. `.config/repo/rolldown-validate.json` — an optional `{ "configs": [...] }` array
  *      of repo-root-relative config paths. Repos whose configs are nested
  *      (monorepo packages) or non-standard-named list them here. Each listed
  *      path is validated.
@@ -108,7 +108,7 @@ export function findRolldownConfigs(): string[] {
   return []
 }
 
-// Repo-root-relative config paths declared in `.config/rolldown-validate.json`,
+// Repo-root-relative config paths declared in `.config/repo/rolldown-validate.json`,
 // or undefined when the file is absent / malformed (caller falls back to the
 // single-config auto-discovery below).
 export function readConfigManifest(): string[] | undefined {
@@ -121,7 +121,7 @@ export function readConfigManifest(): string[] | undefined {
     parsed = JSON.parse(readFileSync(manifestPath, 'utf8'))
   } catch (e) {
     logger.error(
-      `Failed to parse .config/rolldown-validate.json: ${errorMessage(e)}`,
+      `Failed to parse .config/repo/rolldown-validate.json: ${errorMessage(e)}`,
     )
     process.exitCode = 1
     return undefined
@@ -129,7 +129,7 @@ export function readConfigManifest(): string[] | undefined {
   const configs = isObject(parsed) ? parsed['configs'] : undefined
   if (!Array.isArray(configs) || configs.some(c => typeof c !== 'string')) {
     logger.error(
-      '.config/rolldown-validate.json must have a "configs" array of string paths',
+      '.config/repo/rolldown-validate.json must have a "configs" array of string paths',
     )
     process.exitCode = 1
     return undefined

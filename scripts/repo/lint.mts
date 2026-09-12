@@ -12,8 +12,8 @@
  *   --fix       Auto-fix issues.
  *   --quiet     Suppress progress output.
  *   If the chosen scope has no lintable files, the script is a no-op.
- *   Config or infrastructure changes (.config/oxlintrc.json,
- *   .config/oxfmtrc.json, tsconfig*.json, pnpm-lock.yaml, .config/**,
+ *   Config or infrastructure changes (.config/fleet/oxlintrc.json,
+ *   .config/fleet/oxfmtrc.json, tsconfig*.json, pnpm-lock.yaml, .config/**,
  *   scripts/**, package.json) escalate to `--all` automatically, since they
  *   can affect everything.
  *   This is the minimal zero-dependency reference implementation. Larger repos
@@ -92,7 +92,7 @@ export function runAll(): number {
       'exec',
       'oxfmt',
       '-c',
-      '.config/oxfmtrc.json',
+      '.config/fleet/oxfmtrc.json',
       fix ? '--write' : '--check',
       '.',
     ],
@@ -102,7 +102,7 @@ export function runAll(): number {
     return 1
   }
   log('Running oxlint on all files…')
-  const oxlintArgs = ['exec', 'oxlint', '-c', '.config/oxlintrc.json']
+  const oxlintArgs = ['exec', 'oxlint', '-c', '.config/fleet/oxlintrc.json']
   if (fix) {
     oxlintArgs.push('--fix')
   }
@@ -123,7 +123,7 @@ export function runFiles(files: string[]): number {
     'exec',
     'oxfmt',
     '-c',
-    '.config/oxfmtrc.json',
+    '.config/fleet/oxfmtrc.json',
     fix ? '--write' : '--check',
     '--no-error-on-unmatched-pattern',
     ...files,
@@ -133,7 +133,7 @@ export function runFiles(files: string[]): number {
     return 1
   }
   log(`Running oxlint on ${files.length} file(s)...`)
-  const oxlintArgs = ['exec', 'oxlint', '-c', '.config/oxlintrc.json']
+  const oxlintArgs = ['exec', 'oxlint', '-c', '.config/fleet/oxlintrc.json']
   if (fix) {
     oxlintArgs.push('--fix')
   }

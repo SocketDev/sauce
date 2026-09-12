@@ -24,7 +24,7 @@ const logger = getDefaultLogger()
 
 const rootDir = path.dirname(findUpPackageJson(import.meta))
 // Schema lives in `.config/` next to the per-repo
-// `.config/socket-wheelhouse.json` it describes — the marker's
+// `.config/repo/socket-wheelhouse.json` it describes — the marker's
 // `$schema` ref is `./socket-wheelhouse-schema.json`.
 const outPath = path.join(rootDir, '.config', 'socket-wheelhouse-schema.json')
 
@@ -49,7 +49,7 @@ async function main(): Promise<void> {
   // formatted form is the byte-canonical form fleet-wide.
   await spawn(
     'pnpm',
-    ['exec', 'oxfmt', '-c', '.config/oxfmtrc.json', outPath],
+    ['exec', 'oxfmt', '-c', '.config/fleet/oxfmtrc.json', outPath],
     {
       cwd: rootDir,
       stdio: 'inherit',

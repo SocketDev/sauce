@@ -177,7 +177,7 @@ async function runLintJson(
     'exec',
     'oxlint',
     '--format=json',
-    '--config=.config/oxlintrc.json',
+    '--config=.config/fleet/oxlintrc.json',
     ...passthrough.filter(a => a !== '--all'),
   ]
   if (!passthrough.includes('--all') && !passthrough.includes('--staged')) {
@@ -377,7 +377,7 @@ async function main(): Promise<void> {
   if (getEnvValue('SKIP_AI_FIX') === '1') {
     return
   }
-  if (!existsSync('.config/oxlintrc.json')) {
+  if (!existsSync('.config/fleet/oxlintrc.json')) {
     return
   }
 

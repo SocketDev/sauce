@@ -19,7 +19,7 @@ import path from 'node:path'
 import type { AllowlistEntry, Finding } from './types.mts'
 
 /**
- * Read `pathsAllowlist` from `.config/socket-wheelhouse.json` (the fleet's
+ * Read `pathsAllowlist` from `.config/repo/socket-wheelhouse.json` (the fleet's
  * canonical config file — JSON, not YAML, per the "JSON not YAML for our own
  * configs" rule). Returns `undefined` when the config is absent / has no
  * pathsAllowlist key — caller falls back to the legacy
@@ -125,7 +125,7 @@ export const unquote = (s: string): string => {
 
 // oxlint-disable-next-line eslint/complexity -- format validation branches
 export const loadAllowlist = (repoRoot: string): AllowlistEntry[] => {
-  // Primary source: `.config/socket-wheelhouse.json` → `pathsAllowlist`
+  // Primary source: `.config/repo/socket-wheelhouse.json` → `pathsAllowlist`
   // array. Fleet convention is "JSON not YAML for our own configs"
   // (pnpm-mandated configs stay in pnpm-workspace.yaml; everything
   // else lives in socket-wheelhouse.json). Falls back to the legacy
