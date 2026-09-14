@@ -14,6 +14,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { packumentUrl } from '../../../../../../release-kit/payload/scripts/socket-release/constants/npm-registry.mts'
+import { npmAttestationUrl } from '../../../../../../release-kit/payload/scripts/socket-release/publish-infra/npm/provenance.mts'
 import {
   unexpectedPositionalsMessage,
   unknownFlags,
@@ -141,6 +142,31 @@ describe('packumentUrl', () => {
     expect(packumentUrl('@socketsecurity/lib')).toBe(
       'https://registry.npmjs.org/@socketsecurity%2Flib',
     )
+  })
+
+  it('preserves an embedded literal %40 as encoded data', () => {
+    expect(packumentUrl('example%40package')).toBe(
+      'https://registry.npmjs.org/example%2540package',
+    )
+  })
+})
+
+describe('npmAttestationUrl', () => {
+  it.each([
+    [
+      'example',
+      'https://registry.npmjs.org/-/npm/v1/attestations/example@1.2.3',
+    ],
+    [
+      '@example/package',
+      'https://registry.npmjs.org/-/npm/v1/attestations/@example%2Fpackage@1.2.3',
+    ],
+    [
+      'example%40package',
+      'https://registry.npmjs.org/-/npm/v1/attestations/example%2540package@1.2.3',
+    ],
+  ])('encodes the package name %s', (name, expected) => {
+    expect(npmAttestationUrl(name, '1.2.3')).toBe(expected)
   })
 })
 

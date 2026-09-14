@@ -26,7 +26,10 @@
 
 import { httpJson, HttpResponseError } from '@socketsecurity/lib/http-request'
 
-import { NPM_REGISTRY_URL } from '../../constants/npm-registry.mts'
+import {
+  encodeNpmRegistryName,
+  NPM_REGISTRY_URL,
+} from '../../constants/npm-registry.mts'
 
 // Attestation reads are small JSON documents; the registry answers fast or not
 // at all, and a release gate must not hang a CI lane on a stalled socket.
@@ -60,8 +63,7 @@ export type AttestationRead =
  * the scope separator stays encoded, matching `registry.mts`'s packument URLs.
  */
 export function npmAttestationUrl(name: string, version: string): string {
-  const encoded = encodeURIComponent(name).replace('%40', '@')
-  return `${NPM_REGISTRY_URL}/-/npm/v1/attestations/${encoded}@${version}`
+  return `${NPM_REGISTRY_URL}/-/npm/v1/attestations/${encodeNpmRegistryName(name)}@${version}`
 }
 
 /**

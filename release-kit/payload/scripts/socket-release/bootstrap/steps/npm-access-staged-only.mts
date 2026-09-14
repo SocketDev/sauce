@@ -9,7 +9,7 @@
  *   opens only under `--apply`.
  */
 
-import { NPM_REGISTRY_URL } from '../../constants/npm-registry.mts'
+import { packumentUrl } from '../../constants/npm-registry.mts'
 import { browserSessionGate } from '../../_shared/human-gate.mts'
 import { STAGED_ONLY_ACCESS } from '../../publish-infra/npm/access-plan.mts'
 import type { PublishingAccessRead } from '../../publish-infra/npm/access-parse.mts'
@@ -34,9 +34,7 @@ export async function read(
   ctx: StepContext,
   seams: BootstrapSeams,
 ): Promise<AccessStagedOnlyInputs> {
-  const packument = await seams.registryJson(
-    `${NPM_REGISTRY_URL}/${encodeURIComponent(ctx.packageName).replace('%40', '@')}`,
-  )
+  const packument = await seams.registryJson(packumentUrl(ctx.packageName))
   const live = classifyPackument(packument) === 'live'
   // Plan mode opens no browser; the tighten needs the read only under
   // --apply and only once the name is live.
