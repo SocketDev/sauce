@@ -9,7 +9,7 @@
  *   and an unreadable page refuses rather than classifying.
  */
 
-import { NPM_REGISTRY_URL } from '../../constants/npm-registry.mts'
+import { packumentUrl } from '../../constants/npm-registry.mts'
 import { browserSessionGate } from '../../_shared/human-gate.mts'
 import { PERMISSIVE_ACCESS } from '../../publish-infra/npm/access-plan.mts'
 import type { PublishingAccessRead } from '../../publish-infra/npm/access-parse.mts'
@@ -38,9 +38,7 @@ export async function read(
   ctx: StepContext,
   seams: BootstrapSeams,
 ): Promise<AccessPermissiveInputs> {
-  const packument = await seams.registryJson(
-    `${NPM_REGISTRY_URL}/${encodeURIComponent(ctx.packageName).replace('%40', '@')}`,
-  )
+  const packument = await seams.registryJson(packumentUrl(ctx.packageName))
   const live = classifyPackument(packument) === 'live'
   // The browser opens ONLY under --apply and ONLY while the placeholder is
   // pending — a live name never re-widens, and a plan run stays browserless.

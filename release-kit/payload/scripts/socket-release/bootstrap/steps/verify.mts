@@ -11,7 +11,7 @@
  *   the exact remediation command.
  */
 
-import { NPM_REGISTRY_URL } from '../../constants/npm-registry.mts'
+import { packumentUrl } from '../../constants/npm-registry.mts'
 import { placeholderPromoteGate } from '../../_shared/human-gate.mts'
 import { trustedPublisherLaw } from '../../publish-infra/npm/trust-sweep.mts'
 import { npmScratchCwd } from '../../publish-infra/npm/shared.mts'
@@ -57,9 +57,7 @@ export async function read(
   ctx: StepContext,
   seams: BootstrapSeams,
 ): Promise<VerifyInputs> {
-  const packument = await seams.registryJson(
-    `${NPM_REGISTRY_URL}/${encodeURIComponent(ctx.packageName).replace('%40', '@')}`,
-  )
+  const packument = await seams.registryJson(packumentUrl(ctx.packageName))
   const live = classifyPackument(packument) === 'live'
   const stageList = live
     ? undefined

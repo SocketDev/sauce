@@ -11,12 +11,16 @@ export const NPM_REGISTRY_URL = 'https://registry.npmjs.org'
 export const NPM_REGISTRY_HOST = new URL(NPM_REGISTRY_URL).host
 
 /**
- * The packument URL for a package name. encodeURIComponent escapes a scope's
- * leading `@` to `%40`, which the registry path rejects, so it is un-escaped
- * back — the one subtle rule every registry read shares.
+ * EncodeURIComponent escapes a scope's leading `@` to `%40`, which the
+ * registry path rejects, so only that leading scope marker is restored.
  */
+export function encodeNpmRegistryName(name: string): string {
+  const encoded = encodeURIComponent(name)
+  return name.startsWith('@') ? `@${encoded.slice(3)}` : encoded
+}
+
 export function packumentUrl(name: string): string {
-  return `${NPM_REGISTRY_URL}/${encodeURIComponent(name).replace('%40', '@')}`
+  return `${NPM_REGISTRY_URL}/${encodeNpmRegistryName(name)}`
 }
 
 /**

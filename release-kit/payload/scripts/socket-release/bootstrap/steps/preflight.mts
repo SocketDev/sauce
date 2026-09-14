@@ -9,7 +9,7 @@
 
 import path from 'node:path'
 
-import { NPM_REGISTRY_URL } from '../../constants/npm-registry.mts'
+import { packumentUrl } from '../../constants/npm-registry.mts'
 import { parseGitHubSlug } from '../../publish-infra/pin-readme.mts'
 import { npmScratchCwd } from '../../publish-infra/npm/shared.mts'
 import type {
@@ -62,9 +62,7 @@ export async function read(
       seams.exec('gh', ['auth', 'status'], ctx.repoRoot),
       seams.exec('pnpm', ['help', 'stage'], ctx.repoRoot),
       seams.exec('npm', ['trust', '--help'], npmScratchCwd()),
-      seams.registryJson(
-        `${NPM_REGISTRY_URL}/${encodeURIComponent(ctx.packageName).replace('%40', '@')}`,
-      ),
+      seams.registryJson(packumentUrl(ctx.packageName)),
     ])
   return {
     deps: {

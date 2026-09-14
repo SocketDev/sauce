@@ -14,7 +14,7 @@
  *   publishing stands.
  */
 
-import { NPM_REGISTRY_URL } from '../../constants/npm-registry.mts'
+import { packumentUrl } from '../../constants/npm-registry.mts'
 import {
   npmAuthGate,
   placeholderPromoteGate,
@@ -57,9 +57,7 @@ export async function read(
   ctx: StepContext,
   seams: BootstrapSeams,
 ): Promise<PlaceholderInputs> {
-  const packument = await seams.registryJson(
-    `${NPM_REGISTRY_URL}/${encodeURIComponent(ctx.packageName).replace('%40', '@')}`,
-  )
+  const packument = await seams.registryJson(packumentUrl(ctx.packageName))
   const state = classifyPackument(packument)
   const stageList =
     state === 'live'
@@ -292,9 +290,7 @@ export async function apply(
   // enabled immediately after, while the placeholder is still pending. A
   // name that re-reads as live needs nothing (and is never re-widened).
   const effects: Effect[] = [publishEffect]
-  const reread = await seams.registryJson(
-    `${NPM_REGISTRY_URL}/${encodeURIComponent(ctx.packageName).replace('%40', '@')}`,
-  )
+  const reread = await seams.registryJson(packumentUrl(ctx.packageName))
   if (classifyPackument(reread) !== 'live') {
     const accessRead = await seams.readPublishingAccess(ctx.packageName)
     if (accessRead.state !== 'unknown' && accessRead.state !== 'both-enabled') {
