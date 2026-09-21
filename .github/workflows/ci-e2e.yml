@@ -1,5 +1,5 @@
-name: 🧪 E2e
-run-name: E2e
+name: 'ci: e2e'
+run-name: 'ci: e2e'
 
 # Tier 3 end-to-end tests. Hit real LLM APIs (Claude, Codex, Gemini)
 # and the Socket production API.
@@ -101,8 +101,8 @@ jobs:
           # Thin-distribution CI auth: mint a contents:read-only token so the
           # bootstrap fetch (fired by `prepare` during install) can download the
           # fleet release bundle from the private wheelhouse.
-          payload-token-client-id: ${{ secrets.SOCKET_PR_CLIENT_ID }}
-          payload-token-private-key: ${{ secrets.SOCKET_PR_APP_PRIVATE_KEY }}
+          payload-token-client-id: ${{ secrets.SOCKET_RELEASE_CLIENT_ID || vars.SOCKET_RELEASE_CLIENT_ID }}
+          payload-token-private-key: ${{ secrets.SOCKET_RELEASE_APP_PRIVATE_KEY }}
 
       - name: Run e2e tests (tier 3)
         if: steps.agent-credential.outputs.available == 'true'
