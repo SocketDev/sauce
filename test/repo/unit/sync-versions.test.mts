@@ -11,7 +11,7 @@ const directories: string[] = []
 
 afterEach(() => {
   for (const directory of directories.splice(0)) {
-    safeDeleteSync(directory, { force: true, recursive: true })
+    safeDeleteSync(directory, { recursive: true })
   }
 })
 
