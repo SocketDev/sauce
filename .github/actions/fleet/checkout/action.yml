@@ -42,15 +42,16 @@ inputs:
     default: '.'
   payload-token-client-id:
     description: >-
-      Existing PR App Client ID. Pass secrets.SOCKET_PR_CLIENT_ID. The optional
+      Existing Release App client ID. Resolve secrets.SOCKET_RELEASE_CLIENT_ID ||
+      vars.SOCKET_RELEASE_CLIENT_ID in the caller. The optional
       private release fallback mints only when both credentials are present.
       Public GHCR hydration remains anonymous.
     required: false
     default: ''
   payload-token-private-key:
     description: >-
-      Existing PR App private key. Pass secrets.SOCKET_PR_APP_PRIVATE_KEY.
-      An absent key skips the optional mint and leaves public GHCR available.
+      Existing Release App private key. Pass secrets.SOCKET_RELEASE_APP_PRIVATE_KEY.
+      An absent credential pair leaves public GHCR hydration anonymous.
     required: false
     default: ''
 
@@ -70,8 +71,8 @@ runs:
       env:
         # Route every workflow-context value through env so no ${{ }} expands
         # directly into the shell body (zizmor expression-injection). The token
-        # authorizes the fetch inline via `git -c …extraheader` and is NEVER
-        # written to .git/config — the persist-credentials:false equivalent.
+        # authorizes Git through step-local environment configuration.
+        # The credential stays out of arguments and .git/config.
         CHECKOUT_REF: ${{ inputs.ref }}
         CHECKOUT_DEST: ${{ inputs.working-directory }}
         CHECKOUT_FETCH_DEPTH: ${{ inputs.fetch-depth }}
@@ -111,7 +112,10 @@ runs:
         # Inline, non-persisting auth header (persist-credentials:false equiv).
         if [ -n "${GITHUB_TOKEN}" ]; then
           AUTH_B64="$(printf 'x-access-token:%s' "${GITHUB_TOKEN}" | base64 | tr -d '\n')"
-          git -c "http.${SERVER_URL}/.extraheader=AUTHORIZATION: basic ${AUTH_B64}" fetch "${FETCH_ARGS[@]}"
+          export GIT_CONFIG_COUNT=1
+          export GIT_CONFIG_KEY_0="http.${SERVER_URL}/.extraheader"
+          export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic ${AUTH_B64}"
+          git fetch "${FETCH_ARGS[@]}"
         else
           git fetch "${FETCH_ARGS[@]}"
         fi
@@ -126,7 +130,7 @@ runs:
         # origin/HEAD, and they fail loud with their own What/Where/Fix.
         if [ "${CHECKOUT_FETCH_DEPTH}" = "0" ]; then
           if [ -n "${GITHUB_TOKEN}" ]; then
-            git -c "http.${SERVER_URL}/.extraheader=AUTHORIZATION: basic ${AUTH_B64:-}" remote set-head origin --auto \
+            git remote set-head origin --auto \
               || echo "::warning::set-head failed — origin/HEAD unset"
           else
             git remote set-head origin --auto \
@@ -150,11 +154,24 @@ runs:
         fi
         echo "needed=${NEEDED}" >> "${GITHUB_OUTPUT}"
 
+    - name: Validate fleet payload credentials
+      if: steps.detect-hydration.outputs.needed == 'true'
+      shell: bash
+      env:
+        PAYLOAD_TOKEN_CLIENT_ID: ${{ inputs.payload-token-client-id }}
+        PAYLOAD_TOKEN_PRIVATE_KEY: ${{ inputs.payload-token-private-key }}
+      run: |
+        set -euo pipefail
+        if { [ -z "${PAYLOAD_TOKEN_CLIENT_ID}" ] && [ -n "${PAYLOAD_TOKEN_PRIVATE_KEY}" ]; } || \
+           { [ -n "${PAYLOAD_TOKEN_CLIENT_ID}" ] && [ -z "${PAYLOAD_TOKEN_PRIVATE_KEY}" ]; }; then
+          echo "::error title=fleet payload credentials are incomplete::The payload client variable and private-key secret are both required for thin payload hydration."
+          exit 1
+        fi
+
     - name: Mint fleet payload read token
       # Scoped contents:read mint for the hydration fetch below. Gated on
-      # BOTH hydration actually being needed AND the caller having provisioned
-      # the PR App credentials, so a non-thin checkout — most callers of
-      # this action — never mints a token it has no use for. Mirrors
+      # hydration actually being needed, after validation rejects incomplete
+      # Release App input pairs. A non-thin checkout never mints an unused token. Mirrors
       # setup-and-install's own later mint (for the `pnpm install`-time
       # fetch), scoped identically (contents:read on the wheelhouse repo
       # alone) — see github-payload-app-token's own description.
@@ -164,12 +181,13 @@ runs:
       with:
         client-id: ${{ inputs.payload-token-client-id }}
         private-key: ${{ inputs.payload-token-private-key }}
+        repositories: socket-wheelhouse
 
     - name: Hydrate thin fleet payload
       # Materialize the release bundle right after checkout, before ANY
       # reader — see "Detect thin fleet payload" above. The GHCR pull inside
       # fleet.mjs is anonymous: the fleet-pack OCI artifact is published
-      # PUBLIC (github-release.yml's "Push fleet-pack to GHCR" step — "so
+      # PUBLIC (release-github.yml's "Push fleet-pack to GHCR" step — "so
       # members pull the bundle anonymously"), so the common case needs no
       # token at all. The token minted above only backs the
       # `gh release download` fallback fleet.mjs takes if GHCR itself is
@@ -195,7 +213,7 @@ runs:
         if [ -d template/base/universal ]; then
           HYDRATE_ARGS+=(--from-template)
         else
-          HYDRATE_ARGS+=(--ensure-current --quiet)
+          HYDRATE_ARGS+=(--quiet)
         fi
         if ! node scripts/repo/bootstrap/fleet.mjs "${HYDRATE_ARGS[@]+"${HYDRATE_ARGS[@]}"}"; then
           echo "::error title=fleet payload hydration failed::node scripts/repo/bootstrap/fleet.mjs exited non-zero"
@@ -228,7 +246,7 @@ runs:
         set -euo pipefail
         # The checkout action runs while the workspace may still contain only
         # the initial .github/ sparse checkout. Keep its pins beside the action.
-        TOOLS_FILE="${GITHUB_WORKSPACE}/scripts/fleet/setup/external-tools.json"
+        TOOLS_FILE="${GITHUB_ACTION_PATH}/../setup/external-tools.generated.json"
         # A THIN member's pin file used to be absent here — the payload only
         # landed five steps later, during `pnpm install`'s `prepare` lifecycle
         # — so this step soft-skipped rather than hard-failing on a state that
@@ -239,7 +257,7 @@ runs:
         # pin file here is therefore always a genuine packaging bug — the
         # hard failure below is the only branch left, no soft-skip.
         if [ ! -f "$TOOLS_FILE" ]; then
-          echo "× fleet pin file not found at ${TOOLS_FILE} — this member is missing scripts/fleet/setup/external-tools.json; re-run the cascade." >&2
+          echo "× fleet pin file not found at ${TOOLS_FILE}; re-run the cascade." >&2
           echo "  This is a packaging bug in the fleet scaffolding, not a consumer issue. File a bug." >&2
           echo "" >&2
           echo "  Diagnostics — what's actually present at runtime:" >&2
@@ -275,31 +293,39 @@ runs:
         # dependency: losing the audit on win-arm64 is worse than
         # failing the whole build there.
         PLATFORM_TOOL="${GITHUB_ACTION_PATH}/../_shared/platform.mjs"
+        RESOLVER="${GITHUB_ACTION_PATH}/../_shared/resolve-external-tool-asset.generated.mjs"
         PLATFORM="$(node "$PLATFORM_TOOL")"
         # Schema-lookup key for external-tools.json `platforms` (win32-*).
         # NOT $PLATFORM, which is the prose shape (win-*) and misses on Windows.
         PLATFORM_KEY="$(node "${GITHUB_ACTION_PATH}/../_shared/platform-key.mjs")"
-        # Soft-skip when zizmor upstream has no binary for this
-        # platform. SOCKET_TOOL_ZIZMOR_AVAILABLE=false signals the
-        # Audit step to skip cleanly. lib/jq.mjs exits non-zero when
-        # the key is missing — capture that without tripping set -e.
-        ASSET=""
-        if ASSET_TRY="$(node "$JQ" "$TOOLS_FILE" $NS zizmor platforms "$PLATFORM_KEY" asset 2>/dev/null)"; then
-          ASSET="$ASSET_TRY"
-        fi
-        if [ -z "$ASSET" ]; then
+        # The resolver validates the catalog and returns 42 only when the
+        # selected platform is genuinely absent. Preserve every other error.
+        ZIZMOR_PLAN_JSON=""
+        if ZIZMOR_PLAN_JSON="$(node "$RESOLVER" --tool zizmor --platform-key "$PLATFORM_KEY" --tools-file "$TOOLS_FILE")"; then
+          ASSET="$(printf '%s' "$ZIZMOR_PLAN_JSON" | node "$JQ" - asset)"
+          INTEGRITY="$(printf '%s' "$ZIZMOR_PLAN_JSON" | node "$JQ" - integrity)"
+          SRC="$(printf '%s' "$ZIZMOR_PLAN_JSON" | node "$JQ" - src 2>/dev/null || true)"
+          DATE="$(printf '%s' "$ZIZMOR_PLAN_JSON" | node "$JQ" - date 2>/dev/null || true)"
+        else
+          RESOLVER_STATUS=$?
+          if [ "$RESOLVER_STATUS" -ne 42 ]; then
+            exit "$RESOLVER_STATUS"
+          fi
           echo "ℹ zizmor is not published for ${PLATFORM_KEY} at v${ZIZMOR_VERSION} — skipping audit on this runner."
           echo "  See external-tools.json zizmor._notes for the supported set."
           echo "SOCKET_TOOL_ZIZMOR_AVAILABLE=false" >> "${GITHUB_ENV:-/dev/null}"
           exit 0
         fi
-        INTEGRITY="$(node "$JQ" "$TOOLS_FILE" $NS zizmor platforms "$PLATFORM_KEY" integrity)"
+        if [ -z "$ASSET" ] || [ -z "$INTEGRITY" ]; then
+          echo "× zizmor resolver returned incomplete asset metadata for ${PLATFORM_KEY}." >&2
+          exit 1
+        fi
         INSTALL_TOOL="${GITHUB_ACTION_PATH}/../_shared/install-tool.mjs"
-        ZIZMOR_URL="https://github.com/zizmorcore/zizmor/releases/download/v${ZIZMOR_VERSION}/${ASSET}"
+        ZIZMOR_URL="$ASSET"
         ZIZMOR_DIR="$(node "$INSTALL_TOOL" --directory "${RUNNER_TEMP:-/tmp}/zizmor-bin" "$ZIZMOR_URL" "$INTEGRITY")"
         ZIZMOR_BIN="$ZIZMOR_DIR/zizmor"
         [[ "$ASSET" == *.zip ]] && ZIZMOR_BIN="$ZIZMOR_DIR/zizmor.exe"
-        node "$INSTALL_TOOL" "$ZIZMOR_URL" "$INTEGRITY" "$ZIZMOR_DIR" --cache
+        node "$INSTALL_TOOL" "$ZIZMOR_URL" "$INTEGRITY" "$ZIZMOR_DIR" --cache --src "$SRC" --date "$DATE"
         if [ ! -x "$ZIZMOR_BIN" ]; then
           echo "Zizmor install failed at $ZIZMOR_BIN: expected the verified executable. Check the pinned release asset." >&2
           exit 1

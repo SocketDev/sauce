@@ -54,7 +54,7 @@ const { pnpmEcosystemFingerprint } = (function () {
     readonly directories: Map<string, PnpmDirectoryIdentity>
   }
 
-  const PNPM_CONFIG_TIMEOUT_MS = 5000
+  const PNPM_CONFIG_TIMEOUT_MS = 30_000
   const PNPM_CONFIG_MAX_BYTES = 1_048_576
   const PNPM_INPUT_MAX_ENTRIES = 50_000
   const PNPM_INPUT_MAX_BYTES = 16 * 1024 * 1024
@@ -129,12 +129,29 @@ const { pnpmEcosystemFingerprint } = (function () {
           },
         ),
       )
-    } catch {
-      throw new Error(
-        'Cannot read pnpm ecosystem ownership. Where: pnpm config list --json. Wanted valid configuration within five seconds. Fix pnpm setup or workspace configuration and retry.',
+    } catch (error) {
+      const code = pnpmConfigFailureCode(error)
+      throw Object.assign(
+        new Error(
+          `Cannot read pnpm ecosystem ownership. Where: pnpm config list --json. Saw ${code}; wanted valid configuration within ${PNPM_CONFIG_TIMEOUT_MS}ms. Fix pnpm setup or workspace configuration and retry.`,
+        ),
+        { code },
       )
     }
     return pnpmEcosystemOwnership(config)
+  }
+
+  function pnpmConfigFailureCode(error: unknown): string {
+    if (pnpmConfigRecord(error)) {
+      switch (error['code']) {
+        case 'EACCES':
+        case 'ENOENT':
+        case 'ENOBUFS':
+        case 'ETIMEDOUT':
+          return error['code']
+      }
+    }
+    return error instanceof SyntaxError ? 'INVALID_JSON' : 'CONFIG_FAILED'
   }
 
   function isPnpmInputDirectory(name: string): boolean {
@@ -455,6 +472,7 @@ const bootstrapRunner = (function (
    * `main()` actually parses.
    */
   interface ScriptMeta {
+    readonly heavyJob?: 'test' | 'coverage' | 'build' | 'type' | undefined
     readonly json?: 'native' | 'result' | undefined
     readonly describe: string
     readonly help: string
@@ -718,10 +736,8 @@ export function fetchBundle(): boolean {
     }
     return true
   }
-  if (!tryRun('node', [fleet, '--ensure-current'])) {
-    log(
-      'bundle refresh (fleet.mjs --ensure-current) reported a problem — continuing',
-    )
+  if (!tryRun('node', [fleet])) {
+    log('bundle refresh (fleet.mjs) reported a problem — continuing')
     return false
   }
   return true
@@ -795,6 +811,15 @@ export function resolveRepoRoot(startDir: string): string {
 export async function hydrateWorkspace(
   options?: { strict?: boolean | undefined } | undefined,
 ): Promise<boolean> {
+  // Runs before the pack applies: the rule file's repo-owned half rides in the
+  // same file as the fleet block, so it is renamed, never recreated.
+  const fleetSeed = path.join(HERE, 'fleet.mjs')
+  if (existsSync(fleetSeed)) {
+    const { migrateRuleFile } = await import(pathToFileURL(fleetSeed).href)
+    if (typeof migrateRuleFile === 'function') {
+      migrateRuleFile(REPO_ROOT)
+    }
+  }
   if (!fetchBundle() && options?.strict !== false) return false
   const wsPath = path.join(REPO_ROOT, 'pnpm-workspace.yaml')
   if (existsSync(wsPath)) {

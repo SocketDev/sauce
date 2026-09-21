@@ -1,7 +1,5 @@
-//#region scripts/repo/gen/bootstrap/src/workspace-migration.d.mts
+export declare function migrateRuleFile(dest: string): boolean;
 export declare function migrateWorkspaceSettings(dest: string, yaml: string): string;
-//#endregion
-//#region template/base/universal/scripts/fleet/process/script-meta.d.mts
 /**
  * A script's self-description, answered without running its side effect.
  * `--describe` prints `describe` verbatim — one line, what the script does —
@@ -11,26 +9,19 @@ export declare function migrateWorkspaceSettings(dest: string, yaml: string): st
  * `main()` actually parses.
  */
 interface ScriptMeta {
+  readonly heavyJob?: 'test' | 'coverage' | 'build' | 'type' | undefined;
   readonly json?: 'native' | 'result' | undefined;
   readonly describe: string;
   readonly help: string;
 }
-//#endregion
-//#region template/base/universal/scripts/fleet/process/script-result.d.mts
 interface ScriptResult {
   readonly exitCode: number;
   readonly data?: unknown | undefined;
   readonly error?: string | undefined;
 }
-//#endregion
-//#region template/base/universal/scripts/fleet/process/run-main-minimal.d.mts
 type MainFn = () => number | void | ScriptResult | Promise<number | void | ScriptResult>;
 export declare function runMainMinimal(main: MainFn, meta: ScriptMeta): void;
-//#endregion
-//#region template/base/universal/scripts/fleet/constants/oci-media-types.d.mts
 declare const OCI_MANIFEST_ACCEPT: string;
-//#endregion
-//#region scripts/repo/gen/bootstrap/src/ghcr-fetch.d.mts
 export declare const GHCR_HOST = "ghcr.io";
 export interface GhcrHttpResponse {
   readonly body: Buffer;
@@ -133,6 +124,9 @@ export declare function ghcrBasicAuthHeader(env: Record<string, string | undefin
  * token can be obtained.
  */
 export declare function getGhcrToken(repo: string, registry: string, httpFn?: GhcrHttpGetFn): Promise<string>;
+export declare function getAnonymousGhcrToken(repo: string, registry: string, options?: {
+  readonly httpFn?: GhcrHttpGetFn | undefined;
+} | undefined): Promise<string | undefined>;
 /**
  * GET one manifest by tag or digest. Resolves a multi-arch index to its first
  * sub-manifest so a concrete image manifest that carries the artifact layer is
@@ -166,12 +160,20 @@ export declare function sha256Hex(buf: Buffer): string;
  * mismatch aborts (fail closed). Returns the written tarball path.
  */
 export declare function pullFleetBundleTarball(config: PullBundleConfig): Promise<string>;
-//#endregion
-//#region template/base/universal/scripts/fleet/lib/conditional-config.d.mts
-type ConfigFlag = 'bundlesVendoredDeps' | 'hasCodeql' | 'hasCratesRegistry' | 'hasGhcr' | 'hasGithubRelease' | 'hasNapi' | 'hasPrebakes' | 'hasRust' | 'isGithubAction';
-//#endregion
-//#region scripts/repo/gen/bootstrap/src/conditional-files.d.mts
+interface WorkflowJobMigration {
+  id: string;
+  sha256: string;
+  replacementId: string;
+  replacement?: string | undefined;
+}
+interface WorkflowFileMove {
+  from: string;
+  to: string;
+  workflowJob?: WorkflowJobMigration | undefined;
+}
+type ConfigFlag = 'bundlesVendoredDeps' | 'hasCodeql' | 'hasCratesRegistry' | 'hasGhcr' | 'hasGithubRelease' | 'hasNapi' | 'hasNpmRegistry' | 'hasPrebakes' | 'hasRust' | 'isGithubAction';
 interface ConditionalManifestGroup {
+  readonly dependency?: string | undefined;
   readonly removeWhenInactive?: boolean | undefined;
   readonly marker?: string | undefined;
   readonly capability?: string | undefined;
@@ -179,8 +181,6 @@ interface ConditionalManifestGroup {
   readonly configFlag?: ConfigFlag | undefined;
   readonly files: readonly string[];
 }
-//#endregion
-//#region scripts/repo/gen/bootstrap/src/fleet-pack-manifest.d.mts
 export declare function normalizeManifestEntryPath(entry: {
   path: string;
 }): string;
@@ -196,10 +196,7 @@ export interface FleetFileManifest {
     files: readonly string[];
   }> | undefined;
   files: Record<string, string>;
-  movedPaths?: ReadonlyArray<{
-    from: string;
-    to: string;
-  }> | undefined;
+  movedPaths?: ReadonlyArray<WorkflowFileMove> | undefined;
   removedPaths?: readonly string[] | undefined;
   segments?: ReadonlyArray<{
     path: string;
@@ -242,7 +239,7 @@ export declare function filterManifestForShape<T extends FleetFileManifest>(mani
 /**
  * Compute the gitignore entries for thin mode — the wholly-fleet files that the
  * download/fetch action supplies, so they need not be git-tracked. Hybrid paths
- * (manifest.segments — CLAUDE.md, pnpm-workspace.yaml, …) are merged per repo
+ * (manifest.segments — AGENTS.md, pnpm-workspace.yaml, …) are merged per repo
  * and stay tracked, so they're excluded. The DESIGNATED sentinel-splice files
  * are hybrids too — they carry a member tail below the fleet-canonical end
  * sentinel that only the member's git history preserves; untracking one turns
@@ -269,17 +266,16 @@ export declare function fleetPackOwnedPaths(manifest: FleetFileManifest): string
  */
 export declare function extractFleetBlockLines(target: string): string[];
 /**
- * Non-Claude harness surfaces the fleet GENERATES, never tracks.
+ * Harness surfaces the fleet generates from tracked authority files.
  *
  * Each is a projection of a Claude-side source: `AGENTS.md` and the rule dirs
- * point at CLAUDE.md, `opencode.json` / `.codex/` project `.mcp.json`, and
+ * point at AGENTS.md, `opencode.json` / `.codex/` project `.mcp.json`, and
  * `.agents/skills/` flattens `.claude/skills/` for the hosts that discover
  * skills one level deep. Regenerating them is cheap; tracking them means every
  * member carries a copy that drifts and conflicts.
  *
- * Listed here so a hydrate ignores AND untracks the whole set. Before this,
- * only `.agents/` was named, so a member that had committed `AGENTS.md` or
- * `.codex/` kept it tracked forever and the generator fought git on every run.
+ * Thin conversion ignores and untracks these generated surfaces. AGENTS.md
+ * remains tracked as the authoritative repository rules.
  */
 export declare const HARNESS_ALIAS_PATHS: readonly string[];
 /**
@@ -309,8 +305,12 @@ export declare function stripLegacyUntrackEntriesFromFleetBlock(target: string):
 /**
  * Refresh exact tracked fleet paths using the active ownership classification.
  */
-export declare function fleetTrackedAllowlist(manifest: FleetFileManifest, current: readonly string[]): string;
 export declare function refreshFleetPackIgnores(config: {
+  dest: string;
+  manifest: FleetFileManifest;
+}): void;
+export declare function readFleetTrackedPaths(dest: string): Set<string>;
+export declare function refreshFleetPackCheckoutExcludes(config: {
   dest: string;
   manifest: FleetFileManifest;
 }): void;
@@ -325,17 +325,12 @@ export declare function refreshFleetPackIgnores(config: {
  * index on the next ordinary hydrate.
  */
 export declare function untrackFleetPackPaths(config: UntrackFleetPackConfig): void;
-//#endregion
-//#region scripts/repo/gen/bootstrap/src/helpers.d.mts
 export type FleetCommentStyle = 'hash' | 'html' | 'json' | 'slash';
 export declare const HYBRID_BUNDLE_PATHS: ReadonlySet<string>;
 export interface BundleManifest extends Pick<FleetFileManifest, 'capabilityScopedFiles' | 'conditionalScopedFiles' | 'shapeScopedFiles'> {
   readonly files: Record<string, string>;
   readonly generatedPaths?: readonly string[] | undefined;
-  readonly movedPaths?: ReadonlyArray<{
-    from: string;
-    to: string;
-  }> | undefined;
+  readonly movedPaths?: ReadonlyArray<WorkflowFileMove> | undefined;
   readonly removedPaths?: readonly string[] | undefined;
   readonly segments?: readonly SegmentEntry[] | undefined;
   readonly settingsSegment?: SettingsSegmentEntry | undefined;
@@ -352,8 +347,8 @@ export interface InstallConfig {
    */
   readonly fromTemplate?: boolean | undefined;
   readonly preserveTracked?: boolean | undefined;
+  readonly repairTracked?: boolean | undefined;
   readonly dryRun?: boolean | undefined;
-  readonly ensureCurrent?: boolean | undefined;
   readonly expectedReceipt?: OciManifestReceipt | undefined;
   readonly json?: boolean | undefined;
   readonly manifest?: string | undefined;
@@ -481,8 +476,6 @@ export declare function verifyBundleFiles(filesDir: string, manifest: BundleMani
  * mismatch — the merge result would silently differ from producer intent.
  */
 export declare function verifySegments(segmentsDir: string, manifest: BundleManifest): string[];
-//#endregion
-//#region scripts/repo/gen/bootstrap/src/resolve.d.mts
 export declare const GREEN_TAG = "green";
 /**
  * Resolve the NEWEST pack ref from GHCR's moving `latest` tag.
@@ -506,8 +499,6 @@ export interface GreenPackResolution {
   readonly ref: string;
 }
 export declare function resolveGreenPack(repo: string): Promise<GreenPackResolution | undefined>;
-//#endregion
-//#region scripts/repo/gen/bootstrap/src/applied-state.d.mts
 export declare const SETTINGS_CANDIDATES: string[];
 export declare function resolveSettingsPath(dest: string): string | undefined;
 export declare function readAppliedManifest(dest: string): Record<string, string> | undefined;
@@ -530,7 +521,7 @@ export declare function readBuildShape(dest: string): MemberBuildShape;
  * groups: a `@capability`-tagged hook is placed only when the member
  * declares the capability.
  */
-export declare function readDeclaredCapabilities(dest: string): string[];
+export declare function readDeclaredCapabilities(dest: string): string[] | undefined;
 export declare function readAppliedRef(dest: string): string | undefined;
 /**
  * The file list the LAST applied bundle owned, or undefined when no record
@@ -545,8 +536,6 @@ export declare function readAppliedFiles(dest: string): string[] | undefined;
 export declare function writeAppliedFiles(dest: string, files: readonly string[]): void;
 export declare function writeAppliedManifest(dest: string, manifest: Readonly<Record<string, string>>): void;
 export declare function writeAppliedRef(dest: string, ref: string): void;
-//#endregion
-//#region scripts/repo/gen/bootstrap/src/bundle-source.d.mts
 export type BundleFetchFn = (config: {
   readonly ref: string;
   readonly repo: string;
@@ -599,21 +588,23 @@ export declare function fetchBundleSource(config: {
   readonly repo: string;
   readonly tmp: string;
 }): Promise<FetchedBundle>;
-//#endregion
-//#region scripts/repo/gen/bootstrap/src/install-prune.d.mts
 /**
  * Apply the manifest's per-repo-owned file MOVES (`movedPaths`) — the rename
  * half of relocating a file the fleet does NOT byte-mirror. A plain tombstone
  * would delete the member's only copy with nothing in the bundle to re-create
  * it (the file is repo-owned; the bundle never ships it), so the move renames
- * `from` → `to` when `to` is absent — repo-owned content survives
- * byte-for-byte — and deletes a stale `from` leftover once `to` exists. Runs
+ * `from` → `to` when `to` is absent and removes identical duplicates. Workflow
+ * metadata follows the destination name; job bodies remain repo-owned. Runs
  * BEFORE removeTombstonedPaths. Idempotent: a missing `from` is a no-op.
  * Belt: a move whose `from` the current manifest ships a file at/under is
  * skipped, so a bad producer entry can never displace freshly placed payload.
  * Returns the count of paths acted on (renamed or cleaned up).
  */
-export declare function applyMovedPaths(dest: string, manifest: FleetFileManifest): number;
+export declare function applyMovedPaths(dest: string, manifest: FleetFileManifest, options?: {
+  allowChangedPaths?: ((paths: readonly string[]) => boolean) | undefined;
+  changedPaths?: Set<string> | undefined;
+  preservedPaths?: ReadonlySet<string> | undefined;
+} | undefined): number;
 /**
  * Delete the manifest's TOMBSTONED paths (`removedPaths`) — files or whole
  * dirs a past bundle shipped that the wheelhouse has since moved/retired. The
@@ -624,7 +615,9 @@ export declare function applyMovedPaths(dest: string, manifest: FleetFileManifes
  * walk. Belt: a tombstone the current manifest ships a file at/under is
  * skipped, so a bad producer entry can never delete freshly placed payload.
  */
-export declare function removeTombstonedPaths(dest: string, manifest: FleetFileManifest): number;
+export declare function removeTombstonedPaths(dest: string, manifest: FleetFileManifest, options?: {
+  preservedPaths?: ReadonlySet<string> | undefined;
+} | undefined): number;
 /**
  * Prune stale fleet files so a fetch is a true SYNC (place + prune) — scoped
  * to what the bundle PREVIOUSLY owned. Only a file the last-applied manifest
@@ -640,10 +633,9 @@ export declare function removeTombstonedPaths(dest: string, manifest: FleetFileM
  */
 interface PruneStaleFleetFilesOptions {
   archiveManifest?: FleetFileManifest | undefined;
+  preservedPaths?: ReadonlySet<string> | undefined;
 }
 export declare function pruneStaleFleetFiles(dest: string, manifest: FleetFileManifest, previousFiles: readonly string[] | undefined, options?: PruneStaleFleetFilesOptions | undefined): number;
-//#endregion
-//#region scripts/repo/gen/bootstrap/src/install.d.mts
 export interface InstallFilesOptions {
   preserveTracked?: boolean | undefined;
   preservedPaths?: ReadonlySet<string> | undefined;
@@ -753,8 +745,6 @@ export declare const PREPARE_FROM_TEMPLATE = "node scripts/repo/bootstrap/fleet.
  * if package.json is absent. (Dep-0 file — raw JSON, not EditablePackageJson.)
  */
 export declare function wirePackageJson(dest: string): void;
-//#endregion
-//#region scripts/repo/gen/bootstrap/src/yaml-merge.d.mts
 export interface MergeWorkspaceConfig {
   readonly bundleFleetSections: string;
   readonly consumerYaml: string;
@@ -828,8 +818,6 @@ export declare function mergeYamlKeyBlock(bundleBlock: YamlKeyBlock, consumerBlo
  * ambiguous input.
  */
 export declare function mergeWorkspaceYaml(config: MergeWorkspaceConfig): string;
-//#endregion
-//#region scripts/repo/gen/bootstrap/src/fleet.d.mts
 export declare function resolveRepoRoot(startDir: string): string;
 export declare function parseArgs(argv: readonly string[]): InstallConfig;
 interface EnsureCurrentReceipt {
@@ -863,5 +851,4 @@ export declare function ensureCurrentFleet(config: InstallConfig, dependencies?:
 export declare function installFleet(config: InstallConfig): Promise<number>;
 export declare function isMainModule(): boolean;
 export declare function main(): Promise<number>;
-//#endregion
 export { OCI_MANIFEST_ACCEPT as MANIFEST_ACCEPT, type ScriptMeta };
