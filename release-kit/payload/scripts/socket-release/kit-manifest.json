@@ -113,22 +113,22 @@
     {
       "channels": ["common"],
       "path": "bootstrap/steps/npm-access-permissive.mts",
-      "sha256": "38494f213a73517dc4903ad2882c5678ae938f500b2ebf8d70aa6f7a02ad5aea"
+      "sha256": "5415b7a4f3873d52cc275f28b70697327025f6c79c8240c25c56e486bb32fca0"
     },
     {
       "channels": ["common"],
       "path": "bootstrap/steps/npm-access-staged-only.mts",
-      "sha256": "2c05d791c7b52caac4cdb4ac7f0cca81fca09a7fa9b959fc6218142faa292c12"
+      "sha256": "a41bf689ced8a6c9799338faa6db4572a79946ea5b23579ff669196ef48fe1c0"
     },
     {
       "channels": ["common"],
       "path": "bootstrap/steps/placeholder.mts",
-      "sha256": "5fdeea13396dad99f9ee0e6bc963d22040d1d9c64d4a9a5947166d16d782b8c4"
+      "sha256": "c0dc1911d022e5fc11f106515c790234ab35aa006efa23600d92b1911b79e710"
     },
     {
       "channels": ["common"],
       "path": "bootstrap/steps/preflight.mts",
-      "sha256": "289bbc97ef00d28bfe5e8b202f5c220ca611265a7cc920c43cb46a6ce06b615a"
+      "sha256": "496f8b17f60c4caedf22b00cbd0e80640a65c1d1b392c2ff984522769d3baf59"
     },
     {
       "channels": ["common"],
@@ -143,7 +143,7 @@
     {
       "channels": ["common"],
       "path": "bootstrap/steps/verify.mts",
-      "sha256": "f8220c22d93f23b4e36fe100c733a0d464dfe3f3a595a2951c8144093ebeac78"
+      "sha256": "1f01f4044aa50f8b449be3b360c43cbb6ce5c470ebb709e16ee1207a35ce4727"
     },
     {
       "channels": ["brew"],
@@ -158,7 +158,7 @@
     {
       "channels": ["common"],
       "path": "constants/npm-registry.mts",
-      "sha256": "12ee5b71a86c1fc5eca2ad6fdce2d3db5def3211e93d4854edea994128c66486"
+      "sha256": "2a779de6ba91e28e532139274861507b3d0f6c93dd8212573be9ab63ce034ab0"
     },
     {
       "channels": ["github-release"],
@@ -348,7 +348,7 @@
     {
       "channels": ["npm"],
       "path": "publish-infra/npm/provenance.mts",
-      "sha256": "b77b8e56b3470df89e512b0e9015ac28d3bfa8dde0bf8984e22af5efd477eb09"
+      "sha256": "124eba37382fcfcc3b379d5bce3d461ea2f7d49f56dd9a124cf59bc2d3fb38af"
     },
     {
       "channels": ["npm"],
