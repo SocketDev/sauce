@@ -21,8 +21,8 @@ import {
 } from './lib/validate-marketplace.mts'
 import type { Skill } from './lib/validate-marketplace.mts'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
-import { runMain } from '../fleet/process/run-main.mts'
-import type { ScriptMeta } from '../fleet/process/run-main.mts'
+import { runMain } from '../fleet/process/main/run.mts'
+import type { ScriptMeta } from '../fleet/process/main/run.mts'
 import { repoClaudeMarketplacePath } from './_shared/paths.mts'
 
 const logger = getDefaultLogger()

@@ -41,8 +41,8 @@ import {
   walkPayload,
 } from '../../../release-kit/install/seams.mts'
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
-import { runMain } from '../../fleet/process/run-main.mts'
-import type { ScriptMeta } from '../../fleet/process/run-main.mts'
+import { runMain } from '../../fleet/process/main/run.mts'
+import type { ScriptMeta } from '../../fleet/process/main/run.mts'
 
 const logger = getDefaultLogger()
 const REPO_ROOT = path.resolve(

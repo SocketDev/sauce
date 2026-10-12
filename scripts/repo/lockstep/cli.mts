@@ -47,8 +47,8 @@ import { emitHuman, summarize } from './report.mts'
 import type { Row } from './schema.mts'
 import type { Manifest, Report } from './types.mts'
 import { isMainModule } from '../../fleet/process/is-main-module.mts'
-import { runMain } from '../../fleet/process/run-main.mts'
-import type { ScriptMeta } from '../../fleet/process/run-main.mts'
+import { runMain } from '../../fleet/process/main/run.mts'
+import type { ScriptMeta } from '../../fleet/process/main/run.mts'
 
 const logger = getDefaultLogger()
 

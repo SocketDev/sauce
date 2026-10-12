@@ -17,8 +17,8 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { safeDelete } from '@socketsecurity/lib-stable/fs/safe'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
-import { runMain } from '../fleet/process/run-main.mts'
-import type { ScriptMeta } from '../fleet/process/run-main.mts'
+import { runMain } from '../fleet/process/main/run.mts'
+import type { ScriptMeta } from '../fleet/process/main/run.mts'
 
 const rootPath = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),

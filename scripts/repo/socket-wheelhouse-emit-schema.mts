@@ -19,8 +19,8 @@ import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
 import { SocketWheelhouseConfigSchema } from './socket-wheelhouse-schema.mts'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
-import { runMain } from '../fleet/process/run-main.mts'
-import type { ScriptMeta } from '../fleet/process/run-main.mts'
+import { runMain } from '../fleet/process/main/run.mts'
+import type { ScriptMeta } from '../fleet/process/main/run.mts'
 
 const logger = getDefaultLogger()
 

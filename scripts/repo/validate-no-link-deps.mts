@@ -13,8 +13,8 @@ import { findUpPackageJson } from '@socketsecurity/lib-stable/packages/find'
 
 import { DEP_FIELDS } from '../../.claude/hooks/fleet/_shared/dependency-spec-forms.mts'
 import { isMainModule } from '../fleet/process/is-main-module.mts'
-import { runMain } from '../fleet/process/run-main.mts'
-import type { ScriptMeta } from '../fleet/process/run-main.mts'
+import { runMain } from '../fleet/process/main/run.mts'
+import type { ScriptMeta } from '../fleet/process/main/run.mts'
 
 const logger = getDefaultLogger()
 
