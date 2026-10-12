@@ -1,9 +1,9 @@
 ---
 name: socket-scan
 description:
-  Run a dependency scan using the Socket CLI. Prompts unauthenticated users
-  to log in or create a free account. If the user skips login, falls back to cdxgen
-  with greatly reduced alert accuracy and poor SBOM accuracy. Authenticated users
+  Run a dependency scan using the Socket CLI. Prompt unauthenticated users
+  to log in or create an account. If they decline, offer a local SBOM that does
+  not include Socket analysis. Authenticated users
   get temporary read-only scans by default (--tmp). Creates a persistent dashboard
   scan only when explicitly requested. Includes reachability analysis for enterprise
   customers and license compliance auditing.
@@ -13,7 +13,7 @@ description:
 
 Run a dependency scan using the Socket CLI. For authenticated users, scans run in **temporary read-only mode** (`--tmp`) by default - results are returned locally without creating a persistent entry in the Socket dashboard.
 
-For unauthenticated users (no token or demo token only), the skill **prompts the user to log in or create a free account**. If the user skips login, the scan falls back to cdxgen - but alert accuracy will be greatly reduced and SBOM accuracy will be poor.
+For unauthenticated users, prompt them to log in or create an account. If they decline, offer a local SBOM and report that no Socket scan ran.
 
 When the user is authenticated with a full account (free or enterprise) and explicitly wants results saved, the scan can be promoted to a **persistent dashboard scan**.
 
@@ -45,22 +45,15 @@ pnpm dlx socket --version
 
 All commands in this skill use the `pnpm dlx socket` prefix (e.g., `pnpm dlx socket scan create ...`).
 
-<details><summary>Authentication: demo token or account login, plus the optional global install</summary>
+<details><summary>Account authentication and optional global install</summary>
 
 **Optional global install:** If you prefer a global `socket` command, install with `npm install -g socket@latest` (must be version **1.0.0 or higher**).
 
 #### Authentication
 
-**For users without a Socket account:** Configure the public demo token directly:
+Commands that require authentication need a Socket account and a credential that you own. Create an account at <https://socket.dev> if you do not have one.
 
-```shell
-pnpm dlx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api --no-banner --no-spinner
-pnpm dlx socket config set defaultOrg SocketDemo --no-banner --no-spinner
-```
-
-This provides limited access to CLI features like `pnpm dlx socket fix`, `pnpm dlx socket package score`, `sfw`, and `socket-patch` with rate limits. No account creation is needed for basic usage. **Note:** The public demo token cannot create scans (`pnpm dlx socket scan create` requires the `full-scans:create` permission). For scanning and full-rate access, create a free account at <https://socket.dev>.
-
-**For users with an account:** Authenticate with one of:
+Authenticate with one of these methods:
 
 - **Interactive login**: `pnpm dlx socket login` (stores credentials in `~/.socket/`)
 - **Environment variable**: Set `SOCKET_CLI_API_TOKEN` in your shell profile or CI environment
@@ -71,6 +64,8 @@ Verify account authentication:
 pnpm dlx socket organization list
 ```
 
+If you do not want an account, leave authentication unconfigured. Commands that require authentication remain unavailable. Do not print or share credential values to verify setup.
+
 If authentication fails or the CLI is not installed, use the `/socket-setup` skill for detailed guidance including Node.js installation, PATH troubleshooting, and CI/CD token configuration.
 
 </details>
@@ -78,7 +73,7 @@ If authentication fails or the CLI is not installed, use the `/socket-setup` ski
 
 For enterprise features (reachability analysis), an enterprise subscription is required in addition to authentication.
 
-If setup fails or this is a first-time scan, use the `/socket-scan-setup` subskill for guided setup including auto-configuration of the public demo token.
+If setup fails or this is a first-time scan, use the `/socket-scan-setup` subskill for guided setup and authentication verification.
 
 ## Quick Start
 
@@ -88,13 +83,13 @@ First, check whether the user has a Socket account:
 pnpm dlx socket organization list --json --no-banner --no-spinner
 ```
 
-**If the user has a real organization** (not `SocketDemo` or empty):
+**If the account check returns a non-demo organization:**
 
 ```shell
 pnpm dlx socket scan create . --tmp --json --no-banner --no-spinner
 ```
 
-**If the user has no token, the demo token, or is in the `SocketDemo` org**, prompt them to log in or create an account:
+**If the account check returns no non-demo organization or an error, report that authentication is unverified and ask the user to log in or create an account:**
 
 > You're not currently logged in to Socket. To scan your project, **log in with `pnpm dlx socket login`** or **create a free account at <https://socket.dev>**.
 >
@@ -102,9 +97,7 @@ pnpm dlx socket scan create . --tmp --json --no-banner --no-spinner
 
 **If the user logs in**, re-run `pnpm dlx socket organization list` and proceed with the authenticated scan above.
 
-**If the user skips login**, fall back to cdxgen. Warn them before proceeding:
-
-> I'll run a scan using cdxgen as a fallback. **Please note:** without a Socket account, alert accuracy will be greatly reduced and SBOM accuracy will be poor. You will not get malware detection, supply-chain risk analysis, or Socket scores.
+**If the user skips login**, offer a local SBOM. State that it records dependency inventory and does not include Socket analysis.
 
 ```shell
 pnpm dlx @cyclonedx/cdxgen -o bom.json -p
@@ -122,7 +115,7 @@ pnpm dlx socket organization list --json --no-banner --no-spinner
 
 Use the result to decide the scan approach:
 
-1. **No organizations returned, or the only org is `SocketDemo`** - the user has no account or only the demo token. **Prompt the user to log in or create an account**:
+1. **No non-demo organization is returned, or the command fails** - authentication is unverified. **Ask the user to log in or create an account**:
 
    > You're not currently logged in to Socket. To scan your project, **log in with `pnpm dlx socket login`** or **create a free account at <https://socket.dev>**.
    >
@@ -130,9 +123,9 @@ Use the result to decide the scan approach:
 
    **If the user logs in**, re-run `pnpm dlx socket organization list` to confirm, then proceed with Step 2a.
 
-   **If the user skips login**, proceed to Step 2b (cdxgen fallback). Warn them that alert accuracy will be greatly reduced and SBOM accuracy will be poor.
+   **If the user skips login**, offer Step 2b as a local SBOM. Explain that it does not include Socket analysis.
 
-2. **One or more real organizations returned** - the user has a full account. Decide on scan mode:
+2. **One or more non-demo organizations returned** - the user has a full account. Decide on scan mode:
    - Ask whether they want results saved to the dashboard:
      - If yes (or if they explicitly asked to "create a scan") → **persistent mode**
      - If no, or if the scan is for development/exploration purposes → **temporary mode** (default)
@@ -141,7 +134,7 @@ Use the result to decide the scan approach:
 
 ### 2a. Run the Scan (Authenticated Users)
 
-**Skip to Step 2b if the user has no account or only the demo token.**
+**Skip Socket analysis if authentication is unverified. Offer Step 2b only as a local SBOM.**
 
 <details><summary>Temporary vs persistent mode, the enterprise org flag, and the full flag table</summary>
 
@@ -385,7 +378,7 @@ Produce a human-readable compliance summary:
 ## Error Handling
 
 - **`socket: command not found`**: Use `pnpm dlx socket` as a prefix for all commands. If you prefer a global install, run `npm install -g socket@latest`. If you need a permanent installation, use the `/socket-setup` skill.
-- **`pnpm dlx socket scan create` fails with 403 / authentication error**: The public demo token cannot create scans. Prompt the user to log in with `pnpm dlx socket login` or create a free account at <https://socket.dev>. If they skip login, fall back to cdxgen (`pnpm dlx @cyclonedx/cdxgen -o bom.json -p`) - see Step 2b - but warn them that alert accuracy will be greatly reduced and SBOM accuracy will be poor. Use the `/socket-setup` skill for guided configuration.
+- **`pnpm dlx socket scan create` fails with 403 / authentication error**: Report that the Socket scan did not run. Ask the user to log in with `pnpm dlx socket login` or create an account. If they decline, offer Step 2b as a local SBOM without Socket analysis.
 - **`pnpm dlx socket scan reach` returns "not available"**: Reachability analysis requires an enterprise subscription. Skip this step for free-tier users.
 - **No manifest/lock files found**: The scan relies on manifest files (`package.json`, `requirements.txt`, `go.mod`, etc.). Ensure the target path points to a directory containing these files. For bun projects, if only `bun.lock` exists, run `npm install --package-lock-only` to generate a `package-lock.json` that Socket can parse.
 - **Scan times out**: Large monorepos with many manifest files may take longer. Try limiting the scan to a specific subdirectory (e.g., `pnpm dlx socket scan create ./path/to/subdir --tmp --json`).
@@ -393,7 +386,7 @@ Produce a human-readable compliance summary:
 
 ## Tips
 
-- Default to `--tmp` (temporary mode) for all scans - it's safe, fast, and works with the public token
+- Default to `--tmp` for scans with verified account authentication
 - Only omit `--tmp` when the user has a full account and explicitly wants results saved to the dashboard
 - Always run a scan after adding, updating, or removing dependencies to verify the project's security posture
 - Use `--json` for machine-readable output that is easier to parse and summarize

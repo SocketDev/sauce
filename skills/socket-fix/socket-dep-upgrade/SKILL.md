@@ -29,22 +29,15 @@ pnpm dlx socket --version
 
 All commands in this skill use the `pnpm dlx socket` prefix (e.g., `pnpm dlx socket scan create ...`).
 
-<details><summary>Authentication: demo token or account login, plus the optional global install</summary>
+<details><summary>Account authentication and optional global install</summary>
 
 **Optional global install:** If you prefer a global `socket` command, install with `npm install -g socket@latest` (must be version **1.0.0 or higher**).
 
 #### Authentication
 
-**For users without a Socket account:** Configure the public demo token directly:
+Commands that require authentication need a Socket account and a credential that you own. Create an account at <https://socket.dev> if you do not have one.
 
-```shell
-pnpm dlx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api --no-banner --no-spinner
-pnpm dlx socket config set defaultOrg SocketDemo --no-banner --no-spinner
-```
-
-This provides limited access to CLI features like `pnpm dlx socket fix`, `pnpm dlx socket package score`, `sfw`, and `socket-patch` with rate limits. No account creation is needed for basic usage. **Note:** The public demo token cannot create scans (`pnpm dlx socket scan create` requires the `full-scans:create` permission). For scanning and full-rate access, create a free account at <https://socket.dev>.
-
-**For users with an account:** Authenticate with one of:
+Authenticate with one of these methods:
 
 - **Interactive login**: `pnpm dlx socket login` (stores credentials in `~/.socket/`)
 - **Environment variable**: Set `SOCKET_CLI_API_TOKEN` in your shell profile or CI environment
@@ -54,6 +47,8 @@ Verify account authentication:
 ```shell
 pnpm dlx socket organization list
 ```
+
+If you do not want an account, leave authentication unconfigured. Commands that require authentication remain unavailable. Do not print or share credential values to verify setup.
 
 If authentication fails or the CLI is not installed, use the `/socket-setup` skill for detailed guidance including Node.js installation, PATH troubleshooting, and CI/CD token configuration.
 
@@ -217,7 +212,7 @@ To manage context window limits without subagents:
 - **`socket fix` returns no results**: The project may have no fixable vulnerabilities, or the Socket API may not cover the project's ecosystems. Check that manifest and lock files exist in the repository.
 - **`pnpm dlx socket fix --id` fails with "GHSA not found"**: The advisory ID may be incorrect or not yet indexed. Try searching by CVE ID or PURL instead.
 - **`socket fix` modifies files but tests fail**: The subagent (or main agent in fallback mode) should revert the changes with `git checkout -- .` and try an alternative version. Never leave the project in a broken state.
-- **Authentication required**: Run `pnpm dlx socket login` or set `SOCKET_CLI_API_TOKEN`. For users without an account, use the `/socket-setup` skill to configure the public demo token (limited rate).
+- **Authentication required**: Run `pnpm dlx socket login` or set `SOCKET_CLI_API_TOKEN`. If the user has no account credential, ask them to log in or create an account. Leave authentication unconfigured if they decline.
 - **Network errors during fix**: `socket fix` contacts the Socket API to compute upgrade paths. Check network connectivity and try again.
 
 ## How This Differs from `/socket-dep-patch`

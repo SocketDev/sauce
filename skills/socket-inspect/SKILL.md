@@ -31,22 +31,15 @@ pnpm dlx socket --version
 
 All commands in this skill use the `pnpm dlx socket` prefix (e.g., `pnpm dlx socket scan create ...`).
 
-<details><summary>Authentication: demo token or account login, plus the optional global install</summary>
+<details><summary>Account authentication and optional global install</summary>
 
 **Optional global install:** If you prefer a global `socket` command, install with `npm install -g socket@latest` (must be version **1.0.0 or higher**).
 
 #### Authentication
 
-**For users without a Socket account:** Configure the public demo token directly:
+Commands that require authentication need a Socket account and a credential that you own. Create an account at <https://socket.dev> if you do not have one.
 
-```shell
-pnpm dlx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api --no-banner --no-spinner
-pnpm dlx socket config set defaultOrg SocketDemo --no-banner --no-spinner
-```
-
-This provides limited access to CLI features like `pnpm dlx socket fix`, `pnpm dlx socket package score`, `sfw`, and `socket-patch` with rate limits. No account creation is needed for basic usage. **Note:** The public demo token cannot create scans (`pnpm dlx socket scan create` requires the `full-scans:create` permission). For scanning and full-rate access, create a free account at <https://socket.dev>.
-
-**For users with an account:** Authenticate with one of:
+Authenticate with one of these methods:
 
 - **Interactive login**: `pnpm dlx socket login` (stores credentials in `~/.socket/`)
 - **Environment variable**: Set `SOCKET_CLI_API_TOKEN` in your shell profile or CI environment
@@ -56,6 +49,8 @@ Verify account authentication:
 ```shell
 pnpm dlx socket organization list
 ```
+
+If you do not want an account, leave authentication unconfigured. Commands that require authentication remain unavailable. Do not print or share credential values to verify setup.
 
 If authentication fails or the CLI is not installed, use the `/socket-setup` skill for detailed guidance including Node.js installation, PATH troubleshooting, and CI/CD token configuration.
 
@@ -279,7 +274,7 @@ A clear, actionable recommendation: safe to use, use with caution (with reasons)
 
 ## Error Handling
 
-- **Batch PURL API returns no data**: The package may not exist in the specified ecosystem, or the package name may be misspelled. Verify the exact package name and ecosystem. For scoped npm packages, include the full scope (e.g., `@babel/core`). If `SOCKET_SECURITY_API_KEY` is not set, use the `/socket-setup` skill to configure authentication. For users without an account, the public demo token provides limited CLI access but the Batch PURL API requires `SOCKET_SECURITY_API_KEY` from a free or enterprise account. As a fallback, use `pnpm dlx socket package score <ecosystem> <name> <version>` for basic score data.
+- **Batch PURL API returns no data**: The package may not exist in the specified ecosystem, or the package name may be misspelled. Verify the exact package name and ecosystem. For scoped npm packages, include the full scope (e.g., `@babel/core`). If `SOCKET_SECURITY_API_KEY` is not set, use the `/socket-setup` skill to configure authentication. The Batch PURL API requires `SOCKET_SECURITY_API_KEY` from an account. CLI package scoring requires verified account authentication.
 - **WebFetch fails on socket.dev page**: Fall back to API data only. Note in the report that the review is based on API data and include the socket.dev URL for the user to check manually.
 - **Package not found in Socket's database**: Socket may not index all packages in all ecosystems. Note this limitation and suggest checking the package's own repository and issue tracker directly.
 - **GitHub API rate limit**: If GitHub API calls for maintenance data are rate-limited, skip the maintenance health dimension and note it in the report.
@@ -293,5 +288,5 @@ A clear, actionable recommendation: safe to use, use with caution (with reasons)
 - Use inspect results to inform decisions with the `/socket-dep-upgrade`, `/socket-dep-patch`, and `/socket-scan` skills
 - Weigh Socket score and maintenance health over download count alone
 - Re-review periodically - a package's security posture changes over time
-- CLI-based inspection works with the public token (use `/socket-setup` to configure) for users without an account, subject to rate limits. The Batch PURL API requires `SOCKET_SECURITY_API_KEY` from a free or enterprise account.
+- CLI-based inspection requires verified account authentication. The Batch PURL API requires `SOCKET_SECURITY_API_KEY` from an account.
 - Prefer Socket patches over manual version pinning when available

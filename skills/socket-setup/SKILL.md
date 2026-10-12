@@ -54,13 +54,13 @@ Handle results:
 
 Ask the user whether they have or want to create a Socket account. There are three tiers:
 
-- **No account (public token)**: No sign-up required. The Socket CLI supports a built-in public token that provides limited access to CLI features including `socket fix`, `socket scan`, `sfw`, and `socket-patch apply`. Rate limits and feature restrictions apply compared to a full account, but basic vulnerability scanning and fixing work out of the box. **Dashboard access, organization management, and policy configuration are NOT available without an account.**
-- **Free account**: Create one at <https://socket.dev>. Removes public-token rate limits, enables full dashboard access and organization features. All CLI features are available.
+- **No account**: Finish installing the CLI and leave authentication unconfigured. Commands that require authentication remain unavailable.
+- **Free account**: Create one at <https://socket.dev> to use account features supported by your plan.
   - Sign up / sign in: <https://socket.dev/auth/login>
   - Token page: <https://socket.dev/dashboard/org/{ORG}/settings/integrations/api-tokens>
 - **Enterprise account**: All free account features plus reachability analysis (`socket scan reach`), policy configuration (`socket.yml`), and organization-level management.
 
-Store the tier choice for subsequent steps.
+Store the account tier for subsequent steps. If the user has no account, do not configure a credential or default organization.
 
 ## Step 3: Install the CLI
 
@@ -77,24 +77,9 @@ Store the tier choice for subsequent steps.
 
 ## Step 4: Authenticate
 
-### No account (public token)
+### No account
 
-If the user chose no-account in Step 2, configure the public demo token directly:
-
-```shell
-pnpm dlx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api --no-banner --no-spinner
-pnpm dlx socket config set defaultOrg SocketDemo --no-banner --no-spinner
-```
-
-This configures the CLI with a limited public token that provides access to features like `socket fix`, `socket package score`, `sfw`, and `socket-patch` with rate limits. No user interaction is needed - run this in the background as part of setup. **Note:** The demo token cannot create scans (`socket scan create` requires a free account).
-
-Verify it worked:
-
-```shell
-socket --version
-```
-
-The CLI is now functional. Skip `socket organization list` (no org exists for public-token users). Inform the user that they can create a free account at <https://socket.dev> later to remove rate limits, enable scanning, and access the dashboard.
+If the user does not want an account, leave authentication unconfigured and continue installation. Mark commands that require authentication as unavailable. Do not set an API token or default organization.
 
 ### Free or Enterprise account
 
@@ -105,17 +90,17 @@ The CLI is now functional. Skip `socket organization list` (no org exists for pu
 
 ## Step 5: Ask What to Set Up
 
-Ask the user which features to set up. Annotate each with its tier requirement:
+Ask which features the user wants to install. Check each feature's requirements before you configure it.
 
-- **Firewall** (`sfw`) - works with public token
-- **Patches** (`socket-patch apply`) - works with public token
-- **Scanning** (`socket scan create`) - works with public token (rate-limited); full account removes limits
-- **Fix** (`socket fix`) - works with public token (rate-limited); full account removes limits
-- **Global Tools** - works with public token
-- **Dockerfile Integration** - works with public token
+- **Firewall** (`sfw`) - free mode needs no API key; enterprise mode needs a user-owned credential
+- **Patches** (`socket-patch apply`) - authentication-dependent actions need account authentication
+- **Scanning** (`socket scan create`) - requires verified account authentication
+- **Fix** (`socket fix`) - requires verified account authentication
+- **Global Tools** - installation does not confirm authentication
+- **Dockerfile Integration** - installation does not confirm authentication
 - **Policies** (`socket.yml`) - enterprise only
 
-All core CLI features work with the public token set up in Step 4. If the user hits rate limits or needs dashboard access, suggest creating a free account at <https://socket.dev>.
+If the user has no account or authentication is unverified, report authentication-dependent actions as unavailable. Continue with installation tasks that do not require authentication.
 
 Route to the appropriate section(s) below.
 
@@ -577,8 +562,9 @@ For local development, authenticate using one of:
 ## Tips
 
 - Never commit API tokens. Use `socket login` locally, env vars in CI.
-- For users without an account, configure the public demo token with `pnpm dlx socket config set apiToken sktsec_t_--RAN5U4ivauy4w37-6aoKyYPDt5ZbaT5JBVMqiwKo_api` and `pnpm dlx socket config set defaultOrg SocketDemo`. This gives limited access to CLI features like `socket fix`, `socket package score`, `sfw`, and `socket-patch` with rate limits. The demo token cannot create scans - `socket scan create` requires a free account at <https://socket.dev>. Always configure the demo token for no-account users during setup so the CLI is functional immediately.
-- For full-rate access, dashboard, and organization features, users need a free or enterprise account at <https://socket.dev>.
+- If the user has no account, leave authentication unconfigured. Do not assign a default organization or shared credential.
+
+- Account features require a user-owned account credential. Follow the feature instructions to verify access.
 - Use `SocketDev/action@v1` (correct casing) in GitHub workflow files.
 - For monorepos, use `patch-cwd` to target specific directories.
 - After setup, use the `/socket-scan` skill for a first audit and the `/socket-inspect` skill for package inspection.
