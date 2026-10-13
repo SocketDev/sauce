@@ -17,7 +17,7 @@ Socket Security Skills are definitions for dependency security tasks like vulner
 
 If your agent isn't listed above but supports skills, extensions, or custom instructions, it can likely use these skills via the [Skills CLI](https://skills.sh/) or the [`agents/README.md`](agents/README.md) fallback.
 
-## How do Skills work?
+### How do Skills work?
 
 Skills are self-contained folders that package instructions, scripts, and resources for an AI agent to use on a specific task. Each folder includes a `SKILL.md` file with YAML frontmatter (name and description) followed by the guidance your coding agent follows while the skill is active.
 

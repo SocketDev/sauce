@@ -98,7 +98,7 @@ path is unreachable. Anything else is reported, never written.
 ## Example workflows
 
 Annotated, drop-in workflows carrying these practices live in
-[examples/workflows/](examples/workflows/README.md), shaped the fleet way:
+[example workflows](../examples/workflows/README.md), shaped the fleet way:
 thin shells over a shared setup-and-install block, cadence-named workflows
 (`ci.yml`, `weekly-update.yml`, `doctor-gate.yml`), and SHA-pinned external
 actions. Each one passes the doctor practice gate itself.
