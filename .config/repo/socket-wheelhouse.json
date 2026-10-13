@@ -109,5 +109,18 @@
       "scripts/repo/validate-no-link-deps.mts",
       "scripts/repo/validate-rolldown-minify.mts"
     ]
+  },
+  "docs": {
+    "surfaces": [
+      {
+        "kind": "workflows",
+        "hub": "docs/best-practices.md",
+        "sources": [
+          "skills/socket-setup/SKILL.md",
+          "skills/socket-scan/SKILL.md",
+          "skills/socket-fix/SKILL.md"
+        ]
+      }
+    ]
   }
 }
