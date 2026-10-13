@@ -131,6 +131,15 @@ pnpm dlx skills add SocketDev/skills
 
 ## Usage
 
+### Documentation
+
+- [Best practices guide](docs/best-practices.md): recommended dependency
+  security controls and CLI workflows.
+- [Skill catalog](#available-skills): descriptions and source links for each
+  installable skill.
+- [Agent fallback bundle](agents/README.md): instructions for agents that do
+  not load skills directly.
+
 This repository contains security-focused skills for dependency management. You can also contribute your own skills to the repository.
 
 ### Available skills
