@@ -49,7 +49,10 @@ function getAllSkillPaths(): string[] {
 
 export function getSkillDirs(): string[] {
   return readdirSync(SKILLS_DIR, { withFileTypes: true })
-    .filter(e => e.isDirectory() && !e.name.startsWith('_'))
+    .filter(
+      e =>
+        e.isDirectory() && !e.name.startsWith('_') && !e.name.startsWith('.'),
+    )
     .map(e => e.name)
     .toSorted()
 }
@@ -60,7 +63,10 @@ export function getSubSkillDirs(parent: string): string[] {
     return []
   }
   return readdirSync(parentDir, { withFileTypes: true })
-    .filter(e => e.isDirectory() && !e.name.startsWith('_'))
+    .filter(
+      e =>
+        e.isDirectory() && !e.name.startsWith('_') && !e.name.startsWith('.'),
+    )
     .map(e => e.name)
     .toSorted()
 }

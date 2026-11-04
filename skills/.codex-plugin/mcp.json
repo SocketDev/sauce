@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "socket": {
+      "type": "http",
+      "url": "https://mcp.socket.dev/",
+      "scopes": ["packages:list", "alerts:list", "threat-feed:list"]
+    }
+  }
+}

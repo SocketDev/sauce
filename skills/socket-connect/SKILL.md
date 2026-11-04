@@ -22,7 +22,7 @@ This plugin ships the hosted Socket MCP server (`https://mcp.socket.dev/`). Othe
 
 ## Step 1: Check Whether Socket Is Connected
 
-Look for a Socket MCP tool named `organizations` among your available tools. The full tool name depends on how the server was added. For example, it can be `mcp__plugin_socket-connect_socket__organizations` or `mcp__socket-mcp__organizations`. Match on the server URL or the `organizations` suffix, never on one hard-coded prefix.
+Look for a Socket MCP tool named `organizations` among your available tools. The full tool name depends on how the server was added. For example, it can be `mcp__plugin_socket-connect_socket__organizations`, `mcp__socket__organizations`, or `mcp__socket-mcp__organizations`. Match on the server URL or the `organizations` suffix, never on one hard-coded prefix.
 
 - If the tool exists, call it. A list of organizations means the user is connected. Go to Step 3.
 - If the call fails with an authentication error, or the tool is missing, go to Step 2.
@@ -31,13 +31,13 @@ Look for a Socket MCP tool named `organizations` among your available tools. The
 
 Tell the user how to sign in for their agent. Nobody needs an API key.
 
-| Agent               | How to sign in                                                                                 |
-| ------------------- | ---------------------------------------------------------------------------------------------- |
-| Claude Code         | Run `/mcp`, pick the Socket server, then choose **Authenticate**. A browser window opens.      |
-| Claude Code (shell) | `claude mcp login <server-name>`, using the name shown by `/mcp`. Add `--no-browser` over SSH. |
-| Cursor              | Open **Customize** in the sidebar, select the Socket server, and sign in to it.                |
-| Gemini CLI          | Run `/mcp auth socket`.                                                                        |
-| Codex               | Add `https://mcp.socket.dev/` as an MCP server, then run `codex mcp login <server-name>`.      |
+| Agent               | How to sign in                                                                                  |
+| ------------------- | ----------------------------------------------------------------------------------------------- |
+| Claude Code         | Run `/mcp`, pick the Socket server, then choose **Authenticate**. A browser window opens.       |
+| Claude Code (shell) | `claude mcp login <server-name>`, using the name shown by `/mcp`. Add `--no-browser` over SSH.  |
+| Cursor              | Open **Customize** in the sidebar, select the Socket server, and sign in to it.                 |
+| Gemini CLI          | Run `/mcp auth socket`.                                                                         |
+| Codex               | Run `/mcp login socket`, or `codex mcp login socket` from a shell. Add `--no-browser` over SSH. |
 
 If the Socket server is not listed at all, add it by URL. In Claude Code:
 

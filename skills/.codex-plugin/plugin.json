@@ -1,0 +1,38 @@
+{
+  "name": "socket-skills",
+  "version": "1.0.0",
+  "description": "Agent Skills for dependency security including vulnerability scanning, package review, patching, setup and configuration, and secure dependency updates via Socket.dev",
+  "keywords": [
+    "socket",
+    "security",
+    "dependencies",
+    "vulnerabilities",
+    "supply-chain",
+    "scanning",
+    "firewall",
+    "patching"
+  ],
+  "skills": [
+    "./socket-connect",
+    "./socket-fix",
+    "./socket-inspect",
+    "./socket-release",
+    "./socket-scan",
+    "./socket-setup"
+  ],
+  "mcpServers": "./.codex-plugin/mcp.json",
+  "interface": {
+    "displayName": "Socket",
+    "shortDescription": "Scan, inspect, patch, and fix dependencies with Socket security data",
+    "longDescription": "Agent Skills for dependency security including vulnerability scanning, package review, patching, setup and configuration, and secure dependency updates via Socket.dev",
+    "developerName": "Socket",
+    "category": "Developer Tools",
+    "capabilities": ["Read", "Write"],
+    "websiteURL": "https://socket.dev",
+    "defaultPrompt": [
+      "Scan this project's dependencies with Socket.",
+      "Check an npm package with Socket before I add it.",
+      "Fix the vulnerable dependencies in this project."
+    ]
+  }
+}

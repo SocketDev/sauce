@@ -30,6 +30,7 @@ export const SHIPPED_INSTRUCTION_DIRS = ['.cursor-plugin/rules'] as const
  * consumer copies wholesale.
  */
 export const SHIPPED_ROOT_FILES = [
+  '.agents',
   '.claude-plugin',
   '.cursor-plugin',
   '.opencode',
