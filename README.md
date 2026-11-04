@@ -9,7 +9,7 @@ Socket Security Skills are definitions for dependency security tasks like vulner
 - **Codex** (OpenAI) - Agent Skills standard + AGENTS.md fallback
 - **Gemini CLI** (Google DeepMind) - extensions support
 - **OpenCode** - skill directory support
-- **Cursor** - plugin manifest support
+- **Cursor** - plugin with skills, rules, and the Socket MCP server
 - **VS Code Copilot / GitHub Copilot** - via AGENTS.md or Skills CLI
 - **Windsurf** - via Skills CLI
 - **Roo Code** - via Skills CLI
@@ -94,11 +94,18 @@ gemini extensions install https://github.com/SocketDev/skills.git --consent
 
 ### Cursor
 
-This repository includes Cursor plugin manifests:
+This repository is a Cursor plugin. It gives Cursor:
 
-- `.cursor-plugin/plugin.json`
+- the skills in `skills/`
+- the Socket MCP server at `https://mcp.socket.dev/` (`.cursor-plugin/mcp.json`)
+- a rule that tells the agent when to use the Socket MCP tools (`.cursor-plugin/rules/`)
 
 Install from repository URL (or local checkout) via the Cursor plugin flow.
+
+To connect to Socket, open **Customize** in the Cursor sidebar, find the Socket MCP server, and choose **Authenticate**. You sign in to Socket in the browser. You do not paste an API key. The skills that run the Socket CLI use their own sign-in (`pnpm dlx socket login`).
+
+> [!WARNING]
+> Some Cursor versions do not complete the OAuth sign-in for MCP servers that a plugin adds. The Socket tools then keep returning `Unauthorized`. See the [Cursor forum report](https://forum.cursor.com/t/plugin-mcp-oauth-never-reaches-needsauth-authenticate-button-missing-browser-never-opens/170058). If this occurs, use the skills, which sign in through the Socket CLI.
 
 For contributors, regenerate manifests with:
 

@@ -19,6 +19,12 @@ export const SHIPPED_DIRS = [
 ] as const
 
 /**
+ * Agent-instruction trees inside a shipped root entry. Agents read and obey
+ * these files, so the shipped-content gates scan them like SHIPPED_DIRS.
+ */
+export const SHIPPED_INSTRUCTION_DIRS = ['.cursor-plugin/rules'] as const
+
+/**
  * Consumer-facing manifests and adapters at the root: generated for the
  * harnesses consumers use, referenced by shipped docs, but not trees a
  * consumer copies wholesale.

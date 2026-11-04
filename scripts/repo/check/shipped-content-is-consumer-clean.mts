@@ -23,6 +23,7 @@ import {
   FLEET_INTERNAL_MARKERS,
   SCAFFOLDING_ENTRIES,
   SHIPPED_DIRS,
+  SHIPPED_INSTRUCTION_DIRS,
   SHIPPED_MARKER_ALLOWLIST,
   SHIPPED_ROOT_FILES,
 } from '../constants/shipped-surfaces.mts'
@@ -69,7 +70,9 @@ export function isAllowlistedMarker(rel: string, marker: string): boolean {
 export function findFleetLeaks(tracked: string[]): string[] {
   const leaks: string[] = []
   const shipped = tracked.filter(f =>
-    SHIPPED_DIRS.some(dir => f.startsWith(`${dir}/`)),
+    [...SHIPPED_DIRS, ...SHIPPED_INSTRUCTION_DIRS].some(dir =>
+      f.startsWith(`${dir}/`),
+    ),
   )
   for (let i = 0, { length } = shipped; i < length; i += 1) {
     const rel = shipped[i]!

@@ -12,7 +12,10 @@ import { describe, expect, it } from 'vitest'
  * install one-liners outside an auditable trusted-prefix allowlist.
  */
 
-import { SHIPPED_DIRS } from '../../../../scripts/repo/constants/shipped-surfaces.mts'
+import {
+  SHIPPED_DIRS,
+  SHIPPED_INSTRUCTION_DIRS,
+} from '../../../../scripts/repo/constants/shipped-surfaces.mts'
 
 const REPO_ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -25,6 +28,7 @@ const REPO_ROOT = path.resolve(
 const SCANNED_EXTENSIONS = new Set([
   '.json',
   '.md',
+  '.mdc',
   '.mdx',
   '.mjs',
   '.mts',
@@ -68,7 +72,9 @@ const PIPE_TO_SHELL =
 
 export function listShippedFiles(): string[] {
   const files: string[] = []
-  const stack = SHIPPED_DIRS.map(d => path.join(REPO_ROOT, d))
+  const stack = [...SHIPPED_DIRS, ...SHIPPED_INSTRUCTION_DIRS].map(d =>
+    path.join(REPO_ROOT, d),
+  )
   while (stack.length) {
     const dir = stack.pop()!
     for (const entry of readdirSync(dir, { withFileTypes: true })) {

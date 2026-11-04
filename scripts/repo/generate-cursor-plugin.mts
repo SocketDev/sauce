@@ -3,6 +3,9 @@
  * Generate Cursor plugin artifacts — .cursor-plugin/plugin.json and
  * .cursor-plugin/mcp.json — from .claude-plugin/plugin.json.
  *
+ * The mcp config declares Socket's hosted OAuth MCP server. No API key ships in
+ * the plugin.
+ *
  * The plugin's mcp artifact lives under .cursor-plugin/, never at the repo
  * root, where it would overwrite a hand-maintained .mcp.json. This generator
  * must never write outside .cursor-plugin/.
@@ -33,6 +36,16 @@ const ROOT = path.resolve(
 
 // Manifest-relative reference to the plugin's own mcp config artifact.
 const CURSOR_MCP_RELATIVE = '.cursor-plugin/mcp.json'
+
+// Hand-maintained Cursor-only sources the manifest references.
+export const CURSOR_LOGO_RELATIVE = '.cursor-plugin/logo.svg'
+export const CURSOR_RULES_RELATIVE = '.cursor-plugin/rules'
+
+export const CURSOR_DISPLAY_NAME = 'Socket'
+
+// Same server name as the socket-connect marketplace entry, the Gemini
+// extension, and the Codex plugin, so every agent shows one "socket" server.
+export const SOCKET_MCP_SERVER_NAME = 'socket'
 
 const PLUGIN_NAME_RE = /^[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$/
 
@@ -66,10 +79,26 @@ export function buildCursorPluginManifest(
     throw new Error('No skills discovered under skills/*/SKILL.md')
   }
 
+  const sources = [CURSOR_LOGO_RELATIVE, CURSOR_RULES_RELATIVE]
+  for (let i = 0, { length } = sources; i < length; i += 1) {
+    const relative = sources[i]!
+    if (!existsSync(path.join(root, relative))) {
+      throw new Error(
+        `Cursor plugin manifest references a missing file.\n` +
+          `  Where: ${relative}\n` +
+          `  Saw:   no file or directory at that path\n` +
+          `  Fix:   restore ${relative}; the Cursor manifest points at it.`,
+      )
+    }
+  }
+
   const manifest: Record<string, unknown> = {
     name,
+    displayName: CURSOR_DISPLAY_NAME,
     skills: 'skills',
+    rules: CURSOR_RULES_RELATIVE,
     mcpServers: CURSOR_MCP_RELATIVE,
+    logo: CURSOR_LOGO_RELATIVE,
   }
 
   const optionalKeys = [
@@ -80,7 +109,6 @@ export function buildCursorPluginManifest(
     'repository',
     'license',
     'keywords',
-    'logo',
   ]
   for (let i = 0, { length } = optionalKeys; i < length; i += 1) {
     const key = optionalKeys[i]!
@@ -103,7 +131,7 @@ export const SOCKET_MCP_URL = 'https://mcp.socket.dev/'
 export function buildMcpConfig(): Record<string, unknown> {
   return {
     mcpServers: {
-      socket: { url: SOCKET_MCP_URL },
+      [SOCKET_MCP_SERVER_NAME]: { url: SOCKET_MCP_URL },
     },
   }
 }
