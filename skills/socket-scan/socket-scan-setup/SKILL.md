@@ -1,9 +1,9 @@
 ---
 name: socket-scan-setup
 description:
-  Set up prerequisites for Socket scanning - install the CLI, configure
-  user-owned authentication, and verify scan access. Use this before the first scan
-  or when encountering auth errors.
+  Set up prerequisites for Socket scanning - install the CLI, sign in with your
+  own Socket account, and verify scan access. Use this before the first scan or
+  when encountering auth errors.
 ---
 
 # Scan Setup
@@ -43,7 +43,7 @@ pnpm dlx socket --version
 
 If the user has no account credential, ask whether they want to create an account or log in. If they decline, leave authentication unconfigured. Do not write an API token or default organization.
 
-**For users with an existing account:** Set the `SOCKET_CLI_API_TOKEN` environment variable or run `pnpm dlx socket login`.
+**For users with an existing account:** Ask the user to run `pnpm dlx socket login` in their own terminal; it needs an interactive TTY. CLI releases with browser login show a device code to approve in the browser, so no token is pasted. The `/socket-connect` skill covers signing in and picking an organization. In CI, set `SOCKET_CLI_API_TOKEN` instead.
 
 ### Step 4: Verify Setup
 

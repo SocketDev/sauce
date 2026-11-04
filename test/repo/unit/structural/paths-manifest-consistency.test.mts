@@ -52,6 +52,27 @@ describe('Manifest Consistency', () => {
     'utf-8',
   )
 
+  describe('hosted Socket MCP server', () => {
+    it('every shipped manifest points at the same server URL', async () => {
+      const { SOCKET_MCP_URL } =
+        await import('../../../../scripts/repo/generate-cursor-plugin.mts')
+      /* eslint-disable typescript/no-unsafe-type-assertion -- shape checked by the expectations below */
+      const connect = marketplace.plugins.find(
+        plugin => plugin.name === 'socket-connect',
+      ) as unknown as { mcpServers?: Record<string, { url?: string }> }
+      const gemini = geminiJson as unknown as {
+        mcpServers?: Record<string, { httpUrl?: string }>
+      }
+      const cursor = loadJSON('.cursor-plugin/mcp.json') as {
+        mcpServers: Record<string, { url?: string }>
+      }
+      /* eslint-enable typescript/no-unsafe-type-assertion */
+      expect(connect?.mcpServers?.['socket']?.url).toBe(SOCKET_MCP_URL)
+      expect(gemini.mcpServers?.['socket']?.httpUrl).toBe(SOCKET_MCP_URL)
+      expect(cursor.mcpServers['socket']?.url).toBe(SOCKET_MCP_URL)
+    })
+  })
+
   describe('marketplace.json', () => {
     it('every plugin source path resolves to a real SKILL.md', () => {
       const plugins = marketplace.plugins

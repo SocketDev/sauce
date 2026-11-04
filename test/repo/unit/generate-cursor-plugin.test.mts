@@ -66,14 +66,14 @@ it('generate leaves a populated root .mcp.json byte-identical', () => {
   }
 })
 
-it('generate writes the empty plugin mcp config under .cursor-plugin/', () => {
+it('generate writes the hosted Socket MCP server config under .cursor-plugin/', () => {
   const root = makeFixtureRoot()
   try {
     const result = generateCursorPlugin(root, { check: false })
 
     expect(result.mcpPath).toBe(path.join(root, '.cursor-plugin', 'mcp.json'))
     expect(JSON.parse(readFileSync(result.mcpPath, 'utf-8'))).toStrictEqual({
-      mcpServers: {},
+      mcpServers: { socket: { url: 'https://mcp.socket.dev/' } },
     })
   } finally {
     safeDeleteSync(root)

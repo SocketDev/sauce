@@ -1,8 +1,8 @@
 ---
 name: socket-setup
-description: Set up Socket - prompt for API key, install the CLI, authenticate,
-  configure policies and tokens, set up CI/CD for firewall or patch modes across
-  GitHub, GitLab, Bitbucket, and other systems.
+description: Set up Socket - connect your account through browser sign-in,
+  install the CLI, configure policies and CI tokens, and set up CI/CD for
+  firewall or patch modes across GitHub, GitLab, Bitbucket, and other systems.
 ---
 
 # Setup
@@ -56,8 +56,7 @@ Ask the user whether they have or want to create a Socket account. There are thr
 
 - **No account**: Finish installing the CLI and leave authentication unconfigured. Commands that require authentication remain unavailable.
 - **Free account**: Create one at <https://socket.dev> to use account features supported by your plan.
-  - Sign up / sign in: <https://socket.dev/auth/login>
-  - Token page: <https://socket.dev/dashboard/org/{ORG}/settings/integrations/api-tokens>
+  - Sign up / sign in: <https://socket.dev/auth/login>, or sign in from the agent with `/socket-connect`
 - **Enterprise account**: All free account features plus reachability analysis (`socket scan reach`), policy configuration (`socket.yml`), and organization-level management.
 
 Store the account tier for subsequent steps. If the user has no account, do not configure a credential or default organization.
@@ -83,8 +82,11 @@ If the user does not want an account, leave authentication unconfigured and cont
 
 ### Free or Enterprise account
 
-- Interactive: `socket login`
-- Manual token: `SOCKET_CLI_API_TOKEN` env var
+Sign in through the browser. Do not ask the user to copy an API token out of the dashboard for local use.
+
+- **Agent (MCP):** run the `/socket-connect` skill. It signs in to the hosted Socket MCP server with OAuth and lists every organization the user belongs to. If the user belongs to several, use all of them unless the user selects specific ones.
+- **CLI:** the user runs `socket login` in their own terminal (it needs an interactive TTY). CLI releases with browser login show a device code to approve in the browser. Older releases prompt for an API token instead; in that case, ask before having the user create one.
+- **CI and other non-interactive environments:** an organization API token in `SOCKET_CLI_API_TOKEN` (see API Token Configuration below)
 - Verify: `socket organization list`
 - **Authentication is required for full-rate scanning (`socket scan create`) and `socket fix`**, dashboard access, and organization management
 
@@ -511,7 +513,7 @@ Repository-level settings override organization-level settings, which override d
 
 ## API Token Configuration
 
-Different Socket features use different tokens. Set up the appropriate tokens for your use case.
+Different Socket features use different tokens. For local use, prefer browser sign-in (`/socket-connect` and `socket login`) over API tokens. Use API tokens for CI and other environments that cannot open a browser.
 
 ### Token Types
 
@@ -543,7 +545,7 @@ Different Socket features use different tokens. Set up the appropriate tokens fo
 
 For local development, authenticate using one of:
 
-- **Interactive login**: `socket login` (stores credentials in `~/.socket/`)
+- **Browser sign-in (recommended)**: `/socket-connect` for the agent's Socket MCP tools, and `socket login` for the CLI. The MCP sign-in never needs a pasted token; `socket login` needs one only on CLI releases without browser login, including the current npm release.
 - **Environment variable**: Set `SOCKET_CLI_API_TOKEN` in your shell profile or `.env.local`
 - **Per-project**: Add `SOCKET_SECURITY_API_KEY` to `.env.local` (ensure `.env.local` is in `.gitignore`)
 
@@ -552,7 +554,7 @@ For local development, authenticate using one of:
 ## Error Handling
 
 - **`socket: command not found`**: Ensure Node.js 18+ is installed, then run `npm install -g socket`. Check that the npm global bin directory is in `PATH` - `npm prefix -g` prints the global prefix, and the bin directory is `<prefix>/bin` on macOS and Linux, or the prefix itself on Windows.
-- **`socket login` fails**: Check network connectivity. If behind a proxy, ensure `HTTPS_PROXY` is set. Try setting `SOCKET_CLI_API_TOKEN` directly as an environment variable instead.
+- **`socket login` fails**: Check network connectivity. If behind a proxy, ensure `HTTPS_PROXY` is set. `socket login` needs an interactive terminal: have the user run it in their own shell rather than through the agent. Use `/socket-connect` for MCP tools. Offer a manually created `SOCKET_CLI_API_TOKEN` only if the user agrees.
 - **`socket organization list` returns empty**: The API token may lack organization access. Verify the token at <https://socket.dev/dashboard> and ensure it has the correct scopes.
 - **`sfw` not intercepting installs**: Ensure `sfw` is in `PATH` before the package manager. In CI, verify the install step runs before any dependency install commands.
 - **GitHub Action fails with permission errors**: Ensure the `socket-token` secret is set correctly in the repository settings and the workflow has `contents: read` permission.
@@ -561,7 +563,8 @@ For local development, authenticate using one of:
 
 ## Tips
 
-- Never commit API tokens. Use `socket login` locally, env vars in CI.
+- Never commit API tokens. Use browser sign-in (`/socket-connect`, `socket login`) locally, env vars in CI.
+- Never ask the user to paste a token into the chat.
 - If the user has no account, leave authentication unconfigured. Do not assign a default organization or shared credential.
 
 - Account features require a user-owned account credential. Follow the feature instructions to verify access.

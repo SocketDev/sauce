@@ -41,8 +41,8 @@ Commands that require authentication need a Socket account and a credential that
 
 Authenticate with one of these methods:
 
-- **Interactive login**: `pnpm dlx socket login` (stores credentials in `~/.socket/`)
-- **Environment variable**: Set `SOCKET_CLI_API_TOKEN` in your shell profile or CI environment
+- **Interactive login**: the user runs `pnpm dlx socket login` in their own terminal (it needs an interactive TTY, so the agent cannot run it). CLI releases with browser login show a device code to approve in the browser; older releases, including the current npm release, prompt for an API token. The `/socket-connect` skill covers signing in and choosing organizations.
+- **Environment variable (CI)**: Set `SOCKET_CLI_API_TOKEN` to an organization API token in CI or other non-interactive environments
 
 Verify account authentication:
 
@@ -56,6 +56,8 @@ If authentication fails or the CLI is not installed, use the `/socket-setup` ski
 
 </details>
 <!-- END_SECTION:cli-setup.md -->
+
+**Prefer the Socket MCP tools when connected:** if a Socket MCP `depscore` tool is available (installed by `/socket-connect`, signed in through the browser), use it for package scores instead of the Batch PURL API. It needs no API key. Use the `organizations` tool to find the `org_slug` for org-scoped tools such as `alerts`.
 
 **For the Batch PURL API:** `SOCKET_SECURITY_API_KEY` is required for direct API calls. Users with a free or enterprise account can create an API key at `https://socket.dev/dashboard/org/{ORG}/settings/integrations/api-tokens`.
 
@@ -89,7 +91,7 @@ curl -X POST https://api.socket.dev/v0/orgs/{org_slug}/purl \
   -d '{"purls": ["pkg:npm/lodash@4.17.21"]}'
 ```
 
-If `SOCKET_SECURITY_API_KEY` is not set, authentication is required before proceeding. Run `pnpm dlx socket login` or set the `SOCKET_SECURITY_API_KEY` environment variable. Use the `/socket-setup` skill for guidance.
+If `SOCKET_SECURITY_API_KEY` is not set, use the Socket MCP tools from `/socket-connect` (browser sign-in, no key) or the CLI fallback in Step 1b. Do not ask the user to paste a key into the chat.
 
 Extract **all** returned data:
 

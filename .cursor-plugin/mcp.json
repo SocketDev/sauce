@@ -1,3 +1,7 @@
 {
-  "mcpServers": {}
+  "mcpServers": {
+    "socket": {
+      "url": "https://mcp.socket.dev/"
+    }
+  }
 }
