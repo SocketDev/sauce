@@ -1,5 +1,5 @@
 /*
- * @file `check --all` gate: every playwright launch in the release-kit
+ * @file `pnpm run check` gate: every playwright launch in the release-kit
  *   payload goes through the ONE sanctioned session module, with no
  *   automation flags and no bare `chromium.launch`. The scanner logic is the
  *   wheelhouse's proven text scan (comment stripping so a docblock quoting
@@ -25,9 +25,8 @@ import {
   PAYLOAD_ROOT,
   walkPayload,
 } from '../../../release-kit/install/seams.mts'
-import { isMainModule } from '../../fleet/process/is-main-module.mts'
-import { runMain } from '../../fleet/process/main/run.mts'
-import type { ScriptMeta } from '../../fleet/process/main/run.mts'
+import { isMainModule, runMain } from '../util/main.mts'
+import type { ScriptMeta } from '../util/main.mts'
 
 const logger = getDefaultLogger()
 

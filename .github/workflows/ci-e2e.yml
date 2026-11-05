@@ -36,6 +36,13 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1'
+  DISABLE_TELEMETRY: '1'
+  DO_NOT_TRACK: '1'
+  NO_UPDATE_NOTIFIER: '1'
+  OTEL_SDK_DISABLED: 'true'
+
 jobs:
   e2e:
     name: E2e (${{ matrix.agent }})
@@ -53,27 +60,6 @@ jobs:
           '["claude-code","codex","gemini"]' || format('["{0}"]',
           github.event.inputs.test_agent)) || '["codex"]' ) }}
     steps:
-      - name: Bootstrap checkout
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          REPOSITORY: ${{ github.repository }}
-          SERVER_URL: ${{ github.server_url }}
-          TRIGGER_REF: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-          git init -q
-          git config --local advice.detachedHead false
-          git remote remove origin 2>/dev/null || true
-          git remote add origin "${SERVER_URL}/${REPOSITORY}"
-          FETCH_ARGS=(--no-tags --prune --depth 1 origin "${TRIGGER_REF}")
-          if [ -n "${GITHUB_TOKEN}" ]; then
-            AUTH_B64="$(printf 'x-access-token:%s' "${GITHUB_TOKEN}" | base64 | tr -d '\n')"
-            git -c "http.${SERVER_URL}/.extraheader=AUTHORIZATION: basic ${AUTH_B64}" fetch "${FETCH_ARGS[@]}"
-          else
-            git fetch "${FETCH_ARGS[@]}"
-          fi
-          git checkout -q --detach FETCH_HEAD
       - name: Check agent credential
         id: agent-credential
         env:
@@ -93,16 +79,21 @@ jobs:
             echo 'available=false' >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Set up and install
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         if: steps.agent-credential.outputs.available == 'true'
-        uses: ./.github/actions/fleet/setup-and-install
         with:
-          socket-api-token: ${{ secrets.SOCKET_API_TOKEN_FOR_CLI_AND_SFW }}
-          # Thin-distribution CI auth: mint a contents:read-only token so the
-          # bootstrap fetch (fired by `prepare` during install) can download the
-          # fleet release bundle from the private wheelhouse.
-          payload-token-client-id: ${{ secrets.SOCKET_RELEASE_CLIENT_ID || vars.SOCKET_RELEASE_CLIENT_ID }}
-          payload-token-private-key: ${{ secrets.SOCKET_RELEASE_APP_PRIVATE_KEY }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        if: steps.agent-credential.outputs.available == 'true'
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+      - name: Install pnpm
+        if: steps.agent-credential.outputs.available == 'true'
+        working-directory: ${{ runner.temp }}
+        run: npm install --global --allow-scripts=pnpm pnpm@12.14.0
+      - run: pnpm install --frozen-lockfile
+        if: steps.agent-credential.outputs.available == 'true'
 
       - name: Run e2e tests (tier 3)
         if: steps.agent-credential.outputs.available == 'true'

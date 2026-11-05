@@ -1,5 +1,5 @@
 /*
- * @file `check --all` gate: the kit's workflow templates hold the fleet
+ * @file `pnpm run check` gate: the kit's workflow templates hold the fleet
  *   zizmor posture. Per templates/workflows/*.yml: (1) no `${{` inside any
  *   `run:` scalar — inputs reach shell through env-mapped variables, never
  *   expression interpolation, the classic injection shape; (2) every
@@ -17,9 +17,8 @@ import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
 import { isAgent } from '@socketsecurity/lib-stable/env/agents'
 
 import { PAYLOAD_ROOT } from '../../../release-kit/install/seams.mts'
-import { isMainModule } from '../../fleet/process/is-main-module.mts'
-import { runMain } from '../../fleet/process/main/run.mts'
-import type { ScriptMeta } from '../../fleet/process/main/run.mts'
+import { isMainModule, runMain } from '../util/main.mts'
+import type { ScriptMeta } from '../util/main.mts'
 
 const logger = getDefaultLogger()
 

@@ -1,7 +1,7 @@
 {
-  "extends": "../fleet/tsconfig.check.base.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "rootDir": "../.."
+    "lib": ["DOM", "ES2024"]
   },
   "include": ["../../release-kit/**/*.mts"],
   "exclude": ["**/node_modules"]

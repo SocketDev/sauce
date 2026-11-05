@@ -14,7 +14,7 @@
 // The installer anchors REPO_ROOT on its own `import.meta.url` (not
 // `process.cwd()`), so each test must COPY install-git-hooks.mts into
 // `<tmpdir>/scripts/repo/install-git-hooks.mts` before spawning it. Running
-// the original script in the wheelhouse/fleet repo would still
+// the original script in this repo would still
 // resolve REPO_ROOT to the real repo and write to the real git config
 // instead of the tmpdir, which is what we want to verify.
 
@@ -31,13 +31,13 @@ import os from 'node:os'
 import { expect, it } from 'vitest'
 import { safeDeleteSync } from '@socketsecurity/lib-stable/fs/safe'
 
-import { isolateGitEnv } from '../../../.git-hooks/_shared/isolate-git-env.mts'
-import { REPO_ROOT } from '../../../scripts/fleet/paths.mts'
+import { isolateGitEnv } from '../util/git-env.mts'
+import { REPO_ROOT } from '../../../scripts/repo/paths.mts'
 
-// The fleet vitest setup already pins the git env, and this suite spawns `git`
-// against throwaway tmpdirs, so pin it here too: an inherited GIT_DIR would
-// send every fixture's config write at the live checkout.
-isolateGitEnv({ pinConfigToNull: true })
+// This suite spawns `git` against throwaway tmpdirs, so pin the git env: an
+// inherited GIT_DIR would send every fixture's config write at the live
+// checkout.
+isolateGitEnv()
 
 const SOURCE_SCRIPT = path.join(
   REPO_ROOT,
@@ -72,13 +72,11 @@ function makeTmpRepo(): TmpRepo {
   mkdirSync(scriptsDir, { recursive: true })
   const installerPath = path.join(scriptsDir, 'install-git-hooks.mts')
   copyFileSync(SOURCE_SCRIPT, installerPath)
-  // The installer imports the shared process modules relative to itself. Link
-  // that module tree so this fixture follows the installer's current boundary.
-  const fleetDir = path.join(dir, 'scripts', 'fleet')
-  mkdirSync(fleetDir, { recursive: true })
+  // The installer imports scripts/repo/util relative to itself. Link that
+  // module tree so this fixture follows the installer's current boundary.
   symlinkSync(
-    path.join(REPO_ROOT, 'scripts', 'fleet', 'process'),
-    path.join(fleetDir, 'process'),
+    path.join(REPO_ROOT, 'scripts', 'repo', 'util'),
+    path.join(scriptsDir, 'util'),
     'junction',
   )
   // The installer imports `@socketsecurity/lib-stable`, and Node resolves a
@@ -188,7 +186,7 @@ it('install-git-hooks: skips when .git dir is absent (e.g. tarball install)', ()
   }
 })
 
-it('install-git-hooks: skips when .git-hooks dir is absent (pre-cascade state)', () => {
+it('install-git-hooks: skips when .git-hooks dir is absent', () => {
   const repo = makeTmpRepo()
   try {
     gitInit(repo.dir)

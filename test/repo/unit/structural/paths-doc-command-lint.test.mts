@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import * as path from 'node:path'
 import { getSkillMarkdownFiles } from './paths-skill-path-portability.test.mts'
-import { REPO_ROOT } from '../../../../scripts/fleet/paths.mts'
+import { REPO_ROOT } from '../../../../scripts/repo/paths.mts'
 
 const SKILLS_DIR = path.join(REPO_ROOT, 'skills')
 const SHARED_DOCS_DIR = path.join(SKILLS_DIR, '_shared', 'docs')

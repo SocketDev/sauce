@@ -32,7 +32,7 @@ import {
   stringifyWithFormatting,
 } from '@socketsecurity/lib-stable/json/format'
 
-import { REPO_ROOT } from '../../fleet/paths.mts'
+import { REPO_ROOT } from '../paths.mts'
 import {
   checkCrossRowConsistency,
   checkFeatureParity,
@@ -46,9 +46,8 @@ import { emitHuman, summarize } from './report.mts'
 
 import type { Row } from './schema.mts'
 import type { Manifest, Report } from './types.mts'
-import { isMainModule } from '../../fleet/process/is-main-module.mts'
-import { runMain } from '../../fleet/process/main/run.mts'
-import type { ScriptMeta } from '../../fleet/process/main/run.mts'
+import { isMainModule, runMain } from '../util/main.mts'
+import type { ScriptMeta } from '../util/main.mts'
 
 const logger = getDefaultLogger()
 

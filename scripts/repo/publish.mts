@@ -16,9 +16,8 @@ import { fileURLToPath } from 'node:url'
 
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
-import { isMainModule } from '../fleet/process/is-main-module.mts'
-import { runMain } from '../fleet/process/main/run.mts'
-import type { ScriptMeta } from '../fleet/process/main/run.mts'
+import { isMainModule, runMain } from './util/main.mts'
+import type { ScriptMeta } from './util/main.mts'
 
 const rootPath = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -73,7 +72,7 @@ async function generate(): Promise<void> {
   // Generated Markdown tables and JSON must be byte-identical to the normal
   // repository formatter output; otherwise `build` and `format` fight and the
   // subsequent `generate:check` reports drift on a clean checkout.
-  await runScript('scripts/fleet/format.mts', ...GENERATED_FILES, 'skills')
+  await runScript('node_modules/oxfmt/bin/oxfmt', ...GENERATED_FILES, 'skills')
 }
 
 async function check(): Promise<void> {

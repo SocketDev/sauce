@@ -26,7 +26,7 @@ import {
   SHIPPED_MARKER_ALLOWLIST,
   SHIPPED_ROOT_FILES,
 } from '../constants/shipped-surfaces.mts'
-import { repoClaudeMarketplacePath } from '../_shared/paths.mts'
+import { repoClaudeMarketplacePath } from '../paths.mts'
 
 const logger = getDefaultLogger()
 const ROOT = path.resolve(

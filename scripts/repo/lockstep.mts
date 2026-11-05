@@ -4,8 +4,7 @@
  */
 
 import { main, SCRIPT_META } from './lockstep/cli.mts'
-import { isMainModule } from '../fleet/process/is-main-module.mts'
-import { runMain } from '../fleet/process/main/run.mts'
+import { isMainModule, runMain } from './util/main.mts'
 
 if (isMainModule(import.meta.url)) {
   runMain(() => main(), SCRIPT_META)

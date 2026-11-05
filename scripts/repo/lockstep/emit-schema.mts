@@ -18,11 +18,10 @@ import {
 } from '@socketsecurity/lib-stable/json/format'
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
-import { REPO_ROOT } from '../../fleet/paths.mts'
+import { REPO_ROOT } from '../paths.mts'
 import { LockstepManifestSchema } from './schema.mts'
-import { isMainModule } from '../../fleet/process/is-main-module.mts'
-import { runMain } from '../../fleet/process/main/run.mts'
-import type { ScriptMeta } from '../../fleet/process/main/run.mts'
+import { isMainModule, runMain } from '../util/main.mts'
+import type { ScriptMeta } from '../util/main.mts'
 
 const logger = getDefaultLogger()
 
@@ -48,18 +47,12 @@ export async function main(): Promise<void> {
   )
 
   // Run oxfmt on the output so the file matches what oxfmt would
-  // produce. Without this, `pnpm run check --all` (which runs oxfmt
-  // over the tree) would flag the emitted schema as drifted on every
-  // repo that re-emits it. The schema is in IDENTICAL_FILES, so the
-  // formatted form is the byte-canonical form fleet-wide.
-  await spawn(
-    'pnpm',
-    ['exec', 'oxfmt', '-c', '.config/fleet/oxfmtrc.json', outPath],
-    {
-      cwd: rootDir,
-      stdio: 'inherit',
-    },
-  )
+  // produce. Without this, `pnpm run check` (which runs oxfmt over the
+  // tree) would flag the emitted schema as drifted.
+  await spawn('pnpm', ['exec', 'oxfmt', outPath], {
+    cwd: rootDir,
+    stdio: 'inherit',
+  })
 
   logger.success(`wrote ${path.relative(rootDir, outPath)}`)
 }

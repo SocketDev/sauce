@@ -258,8 +258,7 @@ push, then dispatch the publish workflow.
 12. Stub-bin PATH e2e harness - CLI boundary covered by spawn smokes +
     in-process integration with fully fake seams.
 13. Coverage thresholds / mirror-name ratchets / actionlint in consumers -
-    staged-config byte detection + verify cover template drift there;
-    sauce's own fleet gates already run here.
+    staged-config byte detection + verify cover template drift there.
 14. Standalone runbook docs - folded into this README and the skills.
 
 </details>
@@ -277,10 +276,11 @@ release-kit/
 ```
 
 Sauce-side gates: `scripts/repo/check/release-kit-is-coherent.mts`,
-`release-kit-launches-are-sanctioned.mts`,
-`release-kit-workflows-are-env-mapped.mts`,
-`release-kit-types-resolve.mts` - auto-discovered by
-`pnpm run check` (repo-owned checks run in the gate on every push). Tests
+`release-kit-launches-are-sanctioned.mts`, and
+`release-kit-workflows-are-env-mapped.mts` - auto-discovered by
+`pnpm run check` (repo-owned checks run in the gate on every push).
+`pnpm run type` type-checks the kit through
+`.config/repo/tsconfig.release-kit.json`. Tests
 live under `test/repo/unit/release-kit/` and
 `test/repo/integration/release-kit/`, all offline, importing straight from
 the payload.
