@@ -11,7 +11,10 @@ export function getSkillContent(dir: string): string {
 
 export function getSkillDirs(): string[] {
   return readdirSync(SKILLS_DIR, { withFileTypes: true })
-    .filter(e => e.isDirectory() && !e.name.startsWith('_'))
+    .filter(
+      e =>
+        e.isDirectory() && !e.name.startsWith('_') && !e.name.startsWith('.'),
+    )
     .map(e => e.name)
     .toSorted()
 }

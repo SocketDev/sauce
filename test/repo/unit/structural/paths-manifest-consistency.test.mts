@@ -21,7 +21,10 @@ interface Marketplace {
 
 export function getSkillDirs(): string[] {
   return readdirSync(SKILLS_DIR, { withFileTypes: true })
-    .filter(e => e.isDirectory() && !e.name.startsWith('_'))
+    .filter(
+      e =>
+        e.isDirectory() && !e.name.startsWith('_') && !e.name.startsWith('.'),
+    )
     .map(e => e.name)
     .toSorted()
 }
@@ -66,10 +69,14 @@ describe('Manifest Consistency', () => {
       const cursor = loadJSON('.cursor-plugin/mcp.json') as {
         mcpServers: Record<string, { url?: string }>
       }
+      const codex = loadJSON('skills/.codex-plugin/mcp.json') as {
+        mcpServers: Record<string, { url?: string }>
+      }
       /* eslint-enable typescript/no-unsafe-type-assertion */
       expect(connect?.mcpServers?.['socket']?.url).toBe(SOCKET_MCP_URL)
       expect(gemini.mcpServers?.['socket']?.httpUrl).toBe(SOCKET_MCP_URL)
       expect(cursor.mcpServers['socket']?.url).toBe(SOCKET_MCP_URL)
+      expect(codex.mcpServers['socket']?.url).toBe(SOCKET_MCP_URL)
     })
   })
 
@@ -134,6 +141,9 @@ describe('Manifest Consistency', () => {
       const cursorJson = loadJSON('.cursor-plugin/plugin.json') as {
         version: string
       }
+      const codexJson = loadJSON('skills/.codex-plugin/plugin.json') as {
+        version: string
+      }
       /* eslint-enable typescript/no-unsafe-type-assertion */
 
       const versions = {
@@ -141,6 +151,7 @@ describe('Manifest Consistency', () => {
         'gemini-extension.json': geminiJson.version,
         'plugin.json': pluginJson.version,
         'cursor plugin.json': cursorJson.version,
+        'codex plugin.json': codexJson.version,
       }
 
       const uniqueVersions = [...new Set(Object.values(versions))]
@@ -148,6 +159,38 @@ describe('Manifest Consistency', () => {
         uniqueVersions,
         `Version mismatch across manifests: ${JSON.stringify(versions)}`,
       ).toHaveLength(1)
+    })
+  })
+
+  describe('codex marketplace', () => {
+    /* eslint-disable typescript/no-unsafe-type-assertion -- same rationale
+       as the suite-level manifests above. */
+    const codexMarketplace = loadJSON('.agents/plugins/marketplace.json') as {
+      plugins: Array<{ name: string; source: { path: string } }>
+    }
+    /* eslint-enable typescript/no-unsafe-type-assertion */
+
+    it('every plugin source holds a Codex manifest with the same name', () => {
+      const plugins = codexMarketplace.plugins
+      expect(plugins.length).toBeGreaterThan(0)
+      for (let i = 0, { length } = plugins; i < length; i += 1) {
+        const plugin = plugins[i]!
+        const manifestPath = path.join(
+          REPO_ROOT,
+          plugin.source.path,
+          '.codex-plugin',
+          'plugin.json',
+        )
+        expect(
+          existsSync(manifestPath),
+          `codex plugin '${plugin.name}' source '${plugin.source.path}' has no .codex-plugin/plugin.json`,
+        ).toBe(true)
+        /* eslint-disable-next-line typescript/no-unsafe-type-assertion -- the manifest is under test. */
+        const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8')) as {
+          name: string
+        }
+        expect(manifest.name).toBe(plugin.name)
+      }
     })
   })
 })

@@ -31,7 +31,10 @@ node_modules/
 /.claude/*
 !/.claude/settings.json
 
-/.agents/
+/.agents/*
+!/.agents/plugins/
+/.agents/plugins/*
+!/.agents/plugins/marketplace.json
 /.codex/
 /.cursor/
 /.opencode/*

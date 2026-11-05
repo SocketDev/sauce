@@ -6,7 +6,7 @@
 Socket Security Skills are definitions for dependency security tasks like vulnerability scanning, package review, patching, firewall configuration, and secure dependency updates. They follow the standardized [Agent Skill](https://agentskills.io/home) format and are compatible with **40+ coding agent tools** including:
 
 - **Claude Code** (Anthropic) - native skill/plugin support
-- **Codex** (OpenAI) - Agent Skills standard + AGENTS.md fallback
+- **Codex** (OpenAI) - plugin with Socket account sign-in, Agent Skills standard, AGENTS.md fallback
 - **Gemini CLI** (Google DeepMind) - extensions support
 - **OpenCode** - skill directory support
 - **Cursor** - plugin with skills, rules, and the Socket MCP server
@@ -68,11 +68,35 @@ The installable plugin names are `socket-connect`, `socket-setup`, `socket-scan`
 
 ### Codex
 
-1. Copy or symlink any skills you want to use from this repository's `skills/` directory into one of Codex's standard `.agents/skills` locations (for example, `$REPO_ROOT/.agents/skills` or `$HOME/.agents/skills`) as described in the [Codex Skills guide](https://developers.openai.com/codex/skills/).
+This repo is a Codex plugin marketplace. The `socket-skills` plugin bundles every skill and connects Codex to the hosted [Socket MCP server](https://mcp.socket.dev/). Codex signs in to the MCP server with your Socket account in the browser, so the MCP tools need no API token, and one sign-in covers every organization your account can see. The MCP tools look up package scores, alerts, the threat feed, and your organizations.
 
-2. Once a skill is available in one of those locations, Codex will discover it using the Agent Skills standard and load the `SKILL.md` instructions when it decides to use that skill or when you explicitly invoke it.
+1. Add the marketplace:
 
-3. If your Codex setup still relies on `AGENTS.md`, you can use the generated [`agents/README.md`](agents/README.md) file in this repo as a fallback bundle of instructions - copy it into your project as `AGENTS.md`.
+   ```bash
+   codex plugin marketplace add SocketDev/skills
+   ```
+
+1. Install the plugin. In the Codex TUI, run `/plugins`, select **Socket**, and install it. Codex opens your browser to sign in to Socket. From a shell, run:
+
+   ```bash
+   codex plugin add socket-skills@socket-skills
+   ```
+
+1. If you installed from a shell, or a Socket tool reports `Authentication required`, sign in to the MCP server:
+
+   ```bash
+   codex mcp login socket
+   ```
+
+   On a machine without a browser, such as over SSH, run `codex mcp login socket --no-browser` and paste the redirect URL back into the terminal. In the TUI, run `/mcp login socket`.
+
+1. Start a new Codex session so it loads the plugin.
+
+The scan and fix skills also run the Socket CLI, which signs in separately with `socket login`; the `socket-connect` skill walks through it. The hosted MCP server does not accept API tokens, so CI and other non-interactive `codex exec` runs use the CLI with `SOCKET_CLI_API_TOKEN`.
+
+If you installed single-skill plugins such as `socket-scan@socket-skills` from this marketplace before, remove each one with `codex plugin remove <name>@socket-skills` before you install `socket-skills`. Otherwise Codex keeps the old copies, stops updating them, and loads each skill twice.
+
+To use skills without the plugin, copy or symlink folders from `skills/` into a standard `.agents/skills` location, as described in the [Codex Skills guide](https://developers.openai.com/codex/skills/). If your Codex setup relies on `AGENTS.md`, copy the generated [`agents/README.md`](agents/README.md) into your project as `AGENTS.md`.
 
 ### Gemini CLI
 

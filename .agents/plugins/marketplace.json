@@ -1,0 +1,20 @@
+{
+  "name": "socket-skills",
+  "interface": {
+    "displayName": "Socket"
+  },
+  "plugins": [
+    {
+      "name": "socket-skills",
+      "source": {
+        "source": "local",
+        "path": "./skills"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

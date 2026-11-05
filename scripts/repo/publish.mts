@@ -32,6 +32,9 @@ const GENERATED_FILES = [
   '.cursor-plugin/mcp.json',
   '.claude-plugin/plugin.json',
   '.claude-plugin/marketplace.json',
+  '.agents/plugins/marketplace.json',
+  'skills/.codex-plugin/plugin.json',
+  'skills/.codex-plugin/mcp.json',
   'gemini-extension.json',
 ] as const
 
@@ -40,6 +43,7 @@ const GENERATORS = [
   'scripts/repo/sync-versions.mts',
   'scripts/repo/generate-agents.mts',
   'scripts/repo/generate-cursor-plugin.mts',
+  'scripts/repo/generate-codex-plugin.mts',
 ] as const
 
 const MISSING = '__MISSING__'
@@ -101,6 +105,7 @@ async function check(): Promise<void> {
   }
 
   await runScript('scripts/repo/generate-cursor-plugin.mts', '--check')
+  await runScript('scripts/repo/generate-codex-plugin.mts', '--check')
   await runScript('scripts/repo/inline-shared.mts', '--check')
   process.stdout.write('All generated artifacts are up to date.\n')
 }
