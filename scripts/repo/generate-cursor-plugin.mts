@@ -92,9 +92,19 @@ export function buildCursorPluginManifest(
   return manifest
 }
 
+/**
+ * The hosted Socket MCP server. It signs users in with OAuth (dynamic client
+ * registration + PKCE against api.socket.dev), so the plugin ships no API key
+ * and users never paste one. Keep in sync with the socket-connect entry in
+ * .claude-plugin/marketplace.json and with gemini-extension.json.
+ */
+export const SOCKET_MCP_URL = 'https://mcp.socket.dev/'
+
 export function buildMcpConfig(): Record<string, unknown> {
   return {
-    mcpServers: {},
+    mcpServers: {
+      socket: { url: SOCKET_MCP_URL },
+    },
   }
 }
 

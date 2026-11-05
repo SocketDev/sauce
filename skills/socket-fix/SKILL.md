@@ -66,8 +66,8 @@ Commands that require authentication need a Socket account and a credential that
 
 Authenticate with one of these methods:
 
-- **Interactive login**: `pnpm dlx socket login` (stores credentials in `~/.socket/`)
-- **Environment variable**: Set `SOCKET_CLI_API_TOKEN` in your shell profile or CI environment
+- **Interactive login**: the user runs `pnpm dlx socket login` in their own terminal (it needs an interactive TTY, so the agent cannot run it). CLI releases with browser login show a device code to approve in the browser; older releases, including the current npm release, prompt for an API token. The `/socket-connect` skill covers signing in and choosing organizations.
+- **Environment variable (CI)**: Set `SOCKET_CLI_API_TOKEN` to an organization API token in CI or other non-interactive environments
 
 Verify account authentication:
 

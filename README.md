@@ -64,7 +64,7 @@ For example:
 /plugin install socket-scan@SocketDev/skills
 ```
 
-The installable plugin names are `socket-setup`, `socket-scan`, `socket-scan-setup`, `socket-inspect`, `socket-fix`, `socket-dep-cleanup`, `socket-dep-patch`, `socket-dep-replace`, and `socket-dep-upgrade`.
+The installable plugin names are `socket-connect`, `socket-setup`, `socket-scan`, `socket-scan-setup`, `socket-inspect`, `socket-fix`, `socket-dep-cleanup`, `socket-dep-patch`, `socket-dep-replace`, and `socket-dep-upgrade`.
 
 ### Codex
 
@@ -127,7 +127,7 @@ pnpm dlx skills add SocketDev/skills
 
 1. Or manually copy the [`agents/README.md`](agents/README.md) file into your agent's instructions/context directory as `AGENTS.md`. This file contains a summary of all available skills and their locations.
 
-2. Skills call the Socket CLI and Batch PURL API directly, so no MCP server is required.
+2. Skills call the Socket CLI and Batch PURL API directly, so no MCP server is required. The Claude Code, Cursor, and Gemini plugins also bundle the hosted Socket MCP server (`https://mcp.socket.dev/`), which signs you in through the browser instead of asking for an API key. See the `socket-connect` skill.
 
 ## Usage
 
@@ -159,9 +159,10 @@ Install, authenticate, and configure Socket for your project.
 | `cargo-publish`     | Operate the socket-release crates.io flow - the cargo staged model, trusted publishing (OIDC), index-propagation waits, and yank-as-rollback.                                                                                               | [SKILL.md](skills/socket-release/cargo-publish/SKILL.md)  |
 | `github-release`    | Cut, verify, and reconcile immutable GitHub releases - the registry-resolvability ORDER RULE, the draft-upload-undraft cut, checksums.txt, and tag-gap healing.                                                                             | [SKILL.md](skills/socket-release/github-release/SKILL.md) |
 | `npm-publish`       | Operate the socket-release npm flow end to end - bootstrap (permissive-then-staged-only publishing access), staged publish dispatch, soak, --approve promote, backfill, and rollback/deprecate.                                             | [SKILL.md](skills/socket-release/npm-publish/SKILL.md)    |
+| `socket-connect`    | Connect to Socket by signing in through the browser - no API key to paste. Bundles the hosted Socket MCP server (OAuth), lists every organization you belong to, and links the Socket CLI for scans.                                        | [SKILL.md](skills/socket-connect/SKILL.md)                |
 | `socket-release`    | Stand up SocketDev publishing (npm, crates.io, GitHub releases, Homebrew tap) in a repo: copy in the release kit and run its bootstrap - name reservation, GitHub environments, npm trusted publisher, staged publish config, verification. | [SKILL.md](skills/socket-release/SKILL.md)                |
-| `socket-scan-setup` | Set up prerequisites for Socket scanning - install the CLI, configure auth with the public demo token, and verify scan access.                                                                                                              | [SKILL.md](skills/socket-scan/socket-scan-setup/SKILL.md) |
-| `socket-setup`      | Set up Socket - prompt for API key, install the CLI, authenticate, configure policies and tokens, set up CI/CD for firewall or patch modes across GitHub, GitLab, Bitbucket, and other systems.                                             | [SKILL.md](skills/socket-setup/SKILL.md)                  |
+| `socket-scan-setup` | Set up prerequisites for Socket scanning - install the CLI, sign in with your own Socket account, and verify scan access.                                                                                                                   | [SKILL.md](skills/socket-scan/socket-scan-setup/SKILL.md) |
+| `socket-setup`      | Set up Socket - connect your account through browser sign-in, install the CLI, configure policies and CI tokens, and set up CI/CD for firewall or patch modes across GitHub, GitLab, Bitbucket, and other systems.                          | [SKILL.md](skills/socket-setup/SKILL.md)                  |
 
 #### Analysis
 

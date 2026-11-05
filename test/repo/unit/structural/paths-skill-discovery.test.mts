@@ -9,6 +9,7 @@ export const SKILLS_DIR = path.join(REPO_ROOT, 'skills')
  * Top-level skill directories expected under skills/
  */
 const EXPECTED_TOP_LEVEL = [
+  'socket-connect',
   'socket-fix',
   'socket-inspect',
   'socket-release',
