@@ -129,6 +129,7 @@
     "release-kit/payload/**",
     "**/*.generated.mjs",
     "**/*.generated.mts",
-    "**/*.generated.cjs"
+    "**/*.generated.cjs",
+    "**/plugin-patches/**"
   ]
 }

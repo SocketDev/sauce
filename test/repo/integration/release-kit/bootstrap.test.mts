@@ -31,6 +31,11 @@ import {
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = path.join(HERE, '../../../..')
 
+function shadowPath(repoRoot: string, p: string): string {
+  const rel = path.relative(repoRoot, p)
+  return rel.startsWith('..') || path.isAbsolute(rel) ? p : path.join(ROOT, rel)
+}
+
 interface CapturedRun {
   doc: RunJson
   exitCode: number
@@ -48,7 +53,7 @@ async function capture(config: {
   const repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'kit-bootstrap-'))
   const realRead = scenario.seams.readFile.bind(scenario.seams)
   scenario.seams.readFile = p =>
-    realRead(p.replace(repoRoot, ROOT)) ?? realRead(p)
+    realRead(shadowPath(repoRoot, p)) ?? realRead(p)
   let stdout = ''
   const humanLines: string[] = []
   const exitCode = await runBootstrap({
@@ -121,7 +126,7 @@ describe('bootstrap integration (fake seams)', () => {
     const repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'kit-bootstrap-'))
     const realRead = scenario.seams.readFile.bind(scenario.seams)
     scenario.seams.readFile = p =>
-      realRead(p.replace(repoRoot, ROOT)) ?? realRead(p)
+      realRead(shadowPath(repoRoot, p)) ?? realRead(p)
     let stdout = ''
     const exitCode = await runBootstrap({
       argv: ['--apply', '--json'],
@@ -172,7 +177,7 @@ describe('bootstrap integration (fake seams)', () => {
     const scenario = buildScenario()
     const realRead = scenario.seams.readFile.bind(scenario.seams)
     scenario.seams.readFile = p =>
-      realRead(p.replace(repoRoot, ROOT)) ?? realRead(p)
+      realRead(shadowPath(repoRoot, p)) ?? realRead(p)
     const exitCode = await runBootstrap({
       argv: [],
       log: () => {},
