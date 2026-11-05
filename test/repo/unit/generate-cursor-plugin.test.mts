@@ -5,6 +5,9 @@
 // silently emptying the MCP server inventory. The plugin's mcp artifact now
 // lives at .cursor-plugin/mcp.json; a populated root .mcp.json must survive a
 // generator run byte-for-byte.
+//
+// The plugin mcp config declares Socket's hosted OAuth MCP server and nothing
+// else: no headers, no token placeholders.
 
 import { expect, it } from 'vitest'
 
@@ -16,8 +19,12 @@ import { safeDeleteSync } from '@socketsecurity/lib-stable/fs/safe'
 
 import {
   buildCursorPluginManifest,
+  buildMcpConfig,
+  CURSOR_LOGO_RELATIVE,
+  CURSOR_RULES_RELATIVE,
   generateCursorPlugin,
   renderJson,
+  SOCKET_MCP_URL,
 } from '../../../scripts/repo/generate-cursor-plugin.mts'
 
 const POPULATED_MCP_SERVERS = {
@@ -50,6 +57,13 @@ function makeFixtureRoot(): string {
     'utf-8',
   )
   writeFileSync(path.join(root, '.mcp.json'), POPULATED_MCP, 'utf-8')
+  mkdirSync(path.join(root, CURSOR_RULES_RELATIVE), { recursive: true })
+  writeFileSync(
+    path.join(root, CURSOR_RULES_RELATIVE, 'demo.mdc'),
+    '---\ndescription: A demo rule.\nalwaysApply: false\n---\n\n# demo\n',
+    'utf-8',
+  )
+  writeFileSync(path.join(root, CURSOR_LOGO_RELATIVE), '<svg/>\n', 'utf-8')
   return root
 }
 
@@ -75,6 +89,38 @@ it('generate writes the hosted Socket MCP server config under .cursor-plugin/', 
     expect(JSON.parse(readFileSync(result.mcpPath, 'utf-8'))).toStrictEqual({
       mcpServers: { socket: { url: 'https://mcp.socket.dev/' } },
     })
+  } finally {
+    safeDeleteSync(root)
+  }
+})
+
+it('mcp config carries only the OAuth server URL, never a credential', () => {
+  const config = buildMcpConfig()
+  expect(config).toStrictEqual({
+    mcpServers: { socket: { url: SOCKET_MCP_URL } },
+  })
+  expect(JSON.stringify(config)).not.toMatch(/\$\{|authorization|token/i)
+})
+
+it('manifest references the Cursor rules, logo and display name', () => {
+  const root = makeFixtureRoot()
+  try {
+    const manifest = buildCursorPluginManifest({ root })
+    expect(manifest['displayName']).toBe('Socket')
+    expect(manifest['rules']).toBe(CURSOR_RULES_RELATIVE)
+    expect(manifest['logo']).toBe(CURSOR_LOGO_RELATIVE)
+  } finally {
+    safeDeleteSync(root)
+  }
+})
+
+it('manifest generation fails when a Cursor source is missing', () => {
+  const root = makeFixtureRoot()
+  try {
+    safeDeleteSync(path.join(root, CURSOR_LOGO_RELATIVE))
+    expect(() => buildCursorPluginManifest({ root })).toThrow(
+      CURSOR_LOGO_RELATIVE,
+    )
   } finally {
     safeDeleteSync(root)
   }

@@ -1,7 +1,10 @@
 {
   "name": "socket-skills",
+  "displayName": "Socket",
   "skills": "skills",
+  "rules": ".cursor-plugin/rules",
   "mcpServers": ".cursor-plugin/mcp.json",
+  "logo": ".cursor-plugin/logo.svg",
   "description": "Agent Skills for dependency security including vulnerability scanning, package review, patching, setup and configuration, and secure dependency updates via Socket.dev",
   "version": "1.0.0",
   "author": {

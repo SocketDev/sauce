@@ -1,0 +1,36 @@
+---
+description: Use the Socket MCP server to check a package before you add, upgrade, or review a dependency, and tell the user how to sign in to Socket without an API key.
+alwaysApply: false
+---
+
+# Socket MCP
+
+This plugin connects Cursor to Socket's hosted MCP server at `https://mcp.socket.dev/`. Cursor shows it as `plugin-socket-skills-socket`.
+
+## Sign in
+
+The server uses OAuth. The user signs in to Socket in the browser. Nobody copies or pastes an API key.
+
+When a Socket tool returns `Unauthorized`, or the server shows that it needs a login:
+
+1. Tell the user to open **Customize** in the Cursor sidebar, find the Socket MCP server, and choose **Authenticate**.
+2. When the user says the sign-in is done, try the tool one more time.
+3. If the tool still returns `Unauthorized`, do not ask the user to sign in again. Some Cursor versions do not complete the sign-in for MCP servers that a plugin adds. Continue with the Socket CLI steps in the skills (`pnpm dlx socket login`), and tell the user that MCP checks are not available in this session.
+
+Do not ask the user for an API key for this server. Do not put a token in an `Authorization` header for this server.
+
+## Tools
+
+- `depscore`: get Socket scores (0-100) for one or more packages. Give each package as `depname`, `ecosystem` (default `npm`), and `version` (use the exact version when you know it). Lower scores mean higher risk. A missing score is not a safety verdict.
+- `organizations`: list the Socket organizations that the sign-in can access. Use it to find the `org_slug` that `alerts` and `threat_feed` need. If there is more than one organization, ask the user which one to use.
+- `alerts`: list the security alerts of an organization. It needs `org_slug`. Filter with `status`, `severity`, and other fields, and use `cursor` to get more pages.
+- `threat_feed`: list packages that Socket flagged recently, for example malware and typosquats. It needs `org_slug`.
+- `package_files`, `package_file_contents`, `package_file_grep`: read the files in a published package before you install it.
+
+## When to check
+
+- Before you add a new dependency, run `depscore` on it. Report low scores to the user before you continue.
+- Before you upgrade a dependency, run `depscore` on the target version.
+- When the user asks if a package is safe, use `depscore`, then the `/socket-inspect` skill for a full review.
+
+The MCP server does not create scans. For a full project scan, use the `/socket-scan` skill.
