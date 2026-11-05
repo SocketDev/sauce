@@ -29,7 +29,9 @@ const EXPECTED_SUBSKILLS: Record<string, string[]> = {
   'socket-scan': ['socket-scan-setup'],
 }
 
-export /** All skill directory paths (top-level as name, subskills as parent/name) */
+export /**
+ * All skill directory paths (top-level as name, subskills as parent/name)
+ */
 function getAllSkillPaths(): string[] {
   const paths: string[] = []
   const dirs = getSkillDirs()
