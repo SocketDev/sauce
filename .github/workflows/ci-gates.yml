@@ -1,7 +1,3 @@
-# Seeded from the socket-wheelhouse CI preset, then owned by this repo:
-# edit it here. Fleet CI runs check + test through the LOCAL composite
-# actions under .github/actions/, inlined, so there is no cross-repo
-# reusable workflow and no first-party `uses:@sha`.
 name: 'ci: gates'
 run-name: 'ci: gates'
 
@@ -18,66 +14,35 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  DISABLE_TELEMETRY: '1'
+  DO_NOT_TRACK: '1'
+  NO_UPDATE_NOTIFIER: '1'
+  OTEL_SDK_DISABLED: 'true'
 
 jobs:
-  # Each job bootstraps a depth-1 checkout inline so local composite actions
-  # become available. setup-and-install then re-checks-out — full history
-  # (fetch-depth 0) in the check job, since the commit-history checks it runs
-  # (AI-attribution, release-boundary) read the default branch's history and
-  # refuse a shallow clone rather than false-green; the test matrix stays at
-  # the default depth (25 — covers CI's other git operations) and runs the
-  # zizmor Actions audit (its own `strategy.job-total < 2` skip runs it in the
-  # non-matrix check job, skips it in the test matrix).
   check:
     name: Check
     runs-on: ubuntu-26.04
     timeout-minutes: 10
     steps:
-      - name: Bootstrap checkout
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          REPOSITORY: ${{ github.repository }}
-          SERVER_URL: ${{ github.server_url }}
-          TRIGGER_REF: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-          git init -q
-          git config --local advice.detachedHead false
-          git remote remove origin 2>/dev/null || true
-          git remote add origin "${SERVER_URL}/${REPOSITORY}"
-          FETCH_ARGS=(--no-tags --prune --depth 1 origin "${TRIGGER_REF}")
-          if [ -n "${GITHUB_TOKEN}" ]; then
-            AUTH_B64="$(printf 'x-access-token:%s' "${GITHUB_TOKEN}" | base64 | tr -d '\n')"
-            git -c "http.${SERVER_URL}/.extraheader=AUTHORIZATION: basic ${AUTH_B64}" fetch "${FETCH_ARGS[@]}"
-          else
-            git fetch "${FETCH_ARGS[@]}"
-          fi
-          git checkout -q --detach FETCH_HEAD
-      - name: Set up and install
-        uses: ./.github/actions/fleet/setup-and-install
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # Full history: the commit-history checks (AI-attribution,
-          # release-boundary) read the default branch's history and refuse a
-          # shallow clone rather than false-green.
-          checkout-fetch-depth: '0'
-          socket-api-token: ${{ secrets.SOCKET_API_TOKEN_FOR_CLI_AND_SFW }}
-          # Thin-distribution CI auth: mint a contents:read-only token so the
-          # bootstrap fetch (fired by `prepare` during install) can download the
-          # fleet release bundle from the private wheelhouse. Both refs are
-          # empty on a non-thin member (var/secret unset) - the mint is skipped
-          # and the fetch no-ops. A thin member sets a dedicated read-only App's
-          # client-id + private-key secrets.
-          payload-token-client-id: ${{ secrets.SOCKET_RELEASE_CLIENT_ID || vars.SOCKET_RELEASE_CLIENT_ID }}
-          payload-token-private-key: ${{ secrets.SOCKET_RELEASE_APP_PRIVATE_KEY }}
-      - name: Run checks
-        uses: ./.github/actions/fleet/run-script
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          main-script: pnpm run check --all
+          node-version-file: .node-version
+          package-manager-cache: false
+      - name: Install pnpm
+        working-directory: ${{ runner.temp }}
+        run: npm install --global --allow-scripts=pnpm pnpm@12.14.0
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run check
 
   test:
-    name: Test (${{ matrix.os }})
+    name: 'Test (${{ matrix.os }})'
     strategy:
       fail-fast: false
       max-parallel: 4
@@ -86,46 +51,20 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     steps:
-      - name: Bootstrap checkout
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          REPOSITORY: ${{ github.repository }}
-          SERVER_URL: ${{ github.server_url }}
-          TRIGGER_REF: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-          git init -q
-          git config --local advice.detachedHead false
-          git remote remove origin 2>/dev/null || true
-          git remote add origin "${SERVER_URL}/${REPOSITORY}"
-          FETCH_ARGS=(--no-tags --prune --depth 1 origin "${TRIGGER_REF}")
-          if [ -n "${GITHUB_TOKEN}" ]; then
-            AUTH_B64="$(printf 'x-access-token:%s' "${GITHUB_TOKEN}" | base64 | tr -d '\n')"
-            git -c "http.${SERVER_URL}/.extraheader=AUTHORIZATION: basic ${AUTH_B64}" fetch "${FETCH_ARGS[@]}"
-          else
-            git fetch "${FETCH_ARGS[@]}"
-          fi
-          git checkout -q --detach FETCH_HEAD
-      - name: Set up and install
-        uses: ./.github/actions/fleet/setup-and-install
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          socket-api-token: ${{ secrets.SOCKET_API_TOKEN_FOR_CLI_AND_SFW }}
-          # Thin-distribution CI auth: mint a contents:read-only token so the
-          # bootstrap fetch (fired by `prepare` during install) can download the
-          # fleet release bundle from the private wheelhouse. Both refs are
-          # empty on a non-thin member (var/secret unset) - the mint is skipped
-          # and the fetch no-ops. A thin member sets a dedicated read-only App's
-          # client-id + private-key secrets.
-          payload-token-client-id: ${{ secrets.SOCKET_RELEASE_CLIENT_ID || vars.SOCKET_RELEASE_CLIENT_ID }}
-          payload-token-private-key: ${{ secrets.SOCKET_RELEASE_APP_PRIVATE_KEY }}
-      - name: Run tests
-        uses: ./.github/actions/fleet/run-script
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+      - name: Install pnpm
+        working-directory: ${{ runner.temp }}
+        run: npm install --global --allow-scripts=pnpm pnpm@12.14.0
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+      - run: pnpm test
         env:
-          # Authenticate build-time GitHub API reads (release listings,
-          # prebuilt-artifact downloads). Unauthenticated calls share the
-          # hosted runner's IP-scoped rate limit and 403 under load.
+          # Authenticate build-time GitHub API reads. Unauthenticated calls
+          # share the hosted runner's IP-scoped rate limit and 403 under load.
           GH_TOKEN: ${{ github.token }}
-        with:
-          setup-script: pnpm run build
-          main-script: pnpm run test --ci

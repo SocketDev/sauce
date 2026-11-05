@@ -1,4 +1,4 @@
-import type { RepoGlyph } from '../../fleet/gen/glyph-types.mts'
+import type { RepoGlyph } from './glyph-types.mts'
 
 const GLYPH_PARTS = [
   {

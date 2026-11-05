@@ -4,8 +4,7 @@ import assert from 'node:assert/strict'
 // The script is the CI-gate side of the Lock-step convention. It walks
 // the scan dirs declared in .config/repo/lock-step-refs.json, greps every
 // canonical `Lock-step (with|from) <Lang>: <path>` comment, and fails
-// when the path doesn't resolve. Companion edit-time hook is
-// .claude/hooks/fleet/lock-step-ref-nudge/.
+// when the path doesn't resolve.
 //
 // Test strategy: build a tmpdir repo with a known set of source files +
 // a config + (optionally) the target files the refs claim. Spawn the
@@ -20,7 +19,7 @@ import { expect, it } from 'vitest'
 import { safeDeleteSync } from '@socketsecurity/lib-stable/fs/safe'
 import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
 
-import { REPO_ROOT } from '../../../scripts/fleet/paths.mts'
+import { REPO_ROOT } from '../../../scripts/repo/paths.mts'
 
 const SCRIPT_PATH = path.join(
   REPO_ROOT,

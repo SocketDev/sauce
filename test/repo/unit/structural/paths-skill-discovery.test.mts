@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { existsSync, readdirSync } from 'node:fs'
 import * as path from 'node:path'
-import { REPO_ROOT } from '../../../../scripts/fleet/paths.mts'
+import { REPO_ROOT } from '../../../../scripts/repo/paths.mts'
 
 export const SKILLS_DIR = path.join(REPO_ROOT, 'skills')
 
@@ -29,7 +29,9 @@ const EXPECTED_SUBSKILLS: Record<string, string[]> = {
   'socket-scan': ['socket-scan-setup'],
 }
 
-export /** All skill directory paths (top-level as name, subskills as parent/name) */
+export /**
+ * All skill directory paths (top-level as name, subskills as parent/name)
+ */
 function getAllSkillPaths(): string[] {
   const paths: string[] = []
   const dirs = getSkillDirs()

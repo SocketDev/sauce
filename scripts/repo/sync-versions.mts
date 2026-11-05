@@ -7,13 +7,9 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import * as path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
-import { isMainModule } from '../fleet/process/is-main-module.mts'
-import { runMain } from '../fleet/process/main/run.mts'
-import type { ScriptMeta } from '../fleet/process/main/run.mts'
-import {
-  repoClaudeMarketplacePath,
-  repoClaudePluginPath,
-} from './_shared/paths.mts'
+import { isMainModule, runMain } from './util/main.mts'
+import type { ScriptMeta } from './util/main.mts'
+import { repoClaudeMarketplacePath, repoClaudePluginPath } from './paths.mts'
 
 const logger = getDefaultLogger()
 

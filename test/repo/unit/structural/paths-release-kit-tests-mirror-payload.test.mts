@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { existsSync, readdirSync } from 'node:fs'
 import * as path from 'node:path'
-import { REPO_ROOT } from '../../../../scripts/fleet/paths.mts'
+import { REPO_ROOT } from '../../../../scripts/repo/paths.mts'
 
 const TEST_ROOT = path.join(REPO_ROOT, 'test', 'repo', 'unit', 'release-kit')
 const PAYLOAD_ROOT = path.join(

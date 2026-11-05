@@ -39,9 +39,8 @@ import process from 'node:process'
 import { parseArgs } from 'node:util'
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
-import { isMainModule } from '../fleet/process/is-main-module.mts'
-import { runMain } from '../fleet/process/main/run.mts'
-import type { ScriptMeta } from '../fleet/process/main/run.mts'
+import { isMainModule, runMain } from './util/main.mts'
+import type { ScriptMeta } from './util/main.mts'
 
 const CONFIG_PATH = '.config/repo/lock-step-refs.json'
 const SKIP_DIRS = new Set([
@@ -79,6 +78,10 @@ type Finding = {
 // resolution).
 const LOCK_STEP_RE =
   /Lock-step (?<form>from|with) (?<lang>[A-Za-z][A-Za-z0-9+#-]*): (?<refPath>[^\s:,]*[./][^\s:,]*)(?::(?<range>\d+(?:-\d+)?))?/g
+
+function toRepoRelative(repoRoot: string, file: string): string {
+  return path.relative(repoRoot, file).split(path.sep).join('/')
+}
 
 function loadConfig(repoRoot: string): Config | undefined {
   const configFile = path.join(repoRoot, CONFIG_PATH)
@@ -232,7 +235,7 @@ function formatFindings(
   }
   const lines: string[] = []
   for (const [file, fileFindings] of grouped) {
-    const rel = path.relative(repoRoot, file)
+    const rel = toRepoRelative(repoRoot, file)
     lines.push(`\n${rel}:`)
     for (let i = 0, { length } = fileFindings; i < length; i += 1) {
       const f = fileFindings[i]!
@@ -294,7 +297,7 @@ function main(): void {
       JSON.stringify(
         findings.map(f => ({
           __proto__: null,
-          file: path.relative(repoRoot, f.file),
+          file: toRepoRelative(repoRoot, f.file),
           line: f.line,
           lang: f.lang,
           refPath: f.refPath,

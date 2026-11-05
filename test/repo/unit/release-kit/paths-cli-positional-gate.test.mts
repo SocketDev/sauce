@@ -13,7 +13,7 @@ import process from 'node:process'
 
 import { describe, expect, it } from 'vitest'
 
-import { REPO_ROOT } from '../../../../scripts/fleet/paths.mts'
+import { REPO_ROOT } from '../../../../scripts/repo/paths.mts'
 
 const SOCKET_RELEASE_DIR = path.join(
   REPO_ROOT,

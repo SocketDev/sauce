@@ -1,5 +1,5 @@
 /*
- * @file `check --all` gate: the release-kit payload is internally coherent.
+ * @file `pnpm run check` gate: the release-kit payload is internally coherent.
  *   Four assertions, all read-only:
  *
  *   1. kit-manifest.json matches the payload's current bytes (gen-manifest
@@ -40,9 +40,8 @@ import {
   PAYLOAD_ROOT,
   walkPayload,
 } from '../../../release-kit/install/seams.mts'
-import { isMainModule } from '../../fleet/process/is-main-module.mts'
-import { runMain } from '../../fleet/process/main/run.mts'
-import type { ScriptMeta } from '../../fleet/process/main/run.mts'
+import { isMainModule, runMain } from '../util/main.mts'
+import type { ScriptMeta } from '../util/main.mts'
 
 const logger = getDefaultLogger()
 const REPO_ROOT = path.resolve(

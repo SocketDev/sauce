@@ -6,8 +6,7 @@
  *   already points at .git-hooks. Safe to invoke from `prepare`. Skipped when:
  *
  *   - Not inside a git repo (e.g. running in a tarball install).
- *   - .git-hooks/ doesn't exist (e.g. the template scaffold hasn't been cascaded
- *     into this repo yet).
+ *   - .git-hooks/ doesn't exist.
  */
 
 import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
@@ -15,9 +14,8 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
-import { isMainModule } from '../fleet/process/is-main-module.mts'
-import { runMain } from '../fleet/process/main/run.mts'
-import type { ScriptMeta } from '../fleet/process/main/run.mts'
+import { isMainModule, runMain } from './util/main.mts'
+import type { ScriptMeta } from './util/main.mts'
 
 const HOOKS_DIR = '.git-hooks'
 

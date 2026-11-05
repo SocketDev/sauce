@@ -13,104 +13,9 @@
 
 import crypto from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
-import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
 import path from 'node:path'
 
 import type { AllowlistEntry, Finding } from './types.mts'
-
-/**
- * Read `pathsAllowlist` from `.config/repo/socket-wheelhouse.json` (the fleet's
- * canonical config file — JSON, not YAML, per the "JSON not YAML for our own
- * configs" rule). Returns `undefined` when the config is absent / has no
- * pathsAllowlist key — caller falls back to the legacy
- * `.github/paths-allowlist.yml`. Returns `[]` when the key is present but
- * empty.
- *
- * Each entry mirrors the YAML schema (rule/file/pattern/line/
- * snippet_hash/reason). `reason` is required; structural validation is light —
- * bad shapes get dropped with a stderr note rather than blowing up the whole
- * gate.
- */
-// oxlint-disable-next-line eslint/complexity -- config validation branches
-const loadAllowlistFromJson = (
-  repoRoot: string,
-): AllowlistEntry[] | undefined => {
-  // Two accepted locations match the rest of the fleet's
-  // socket-wheelhouse.json resolution: primary under .config/ and
-  // legacy root-level dotfile.
-  const candidates = [
-    path.join(repoRoot, '.config', 'repo', 'socket-wheelhouse.json'),
-    path.join(repoRoot, '.socket-wheelhouse.json'),
-  ]
-  let configPath: string | undefined
-  for (let i = 0, { length } = candidates; i < length; i += 1) {
-    const c = candidates[i]!
-    if (existsSync(c)) {
-      configPath = c
-      break
-    }
-  }
-  if (!configPath) {
-    return undefined
-  }
-  let raw: string
-  try {
-    raw = readFileSync(configPath, 'utf8')
-  } catch {
-    return undefined
-  }
-  let cfg: { pathsAllowlist?: unknown | undefined }
-  try {
-    cfg = JSON.parse(raw)
-  } catch {
-    return undefined
-  }
-  const arr = cfg.pathsAllowlist
-  if (arr === undefined) {
-    return undefined
-  }
-  if (!Array.isArray(arr)) {
-    process.stderr.write(
-      `[check-paths] pathsAllowlist in ${configPath} must be an array; ignoring.\n`,
-    )
-    return []
-  }
-  const out: AllowlistEntry[] = []
-  for (let i = 0; i < arr.length; i += 1) {
-    const e: unknown = arr[i]
-    if (!isObject(e)) {
-      process.stderr.write(
-        `[check-paths] pathsAllowlist[${i}] in ${configPath} is not an object; skipping.\n`,
-      )
-      continue
-    }
-    const obj = e
-    if (typeof obj['reason'] !== 'string' || obj['reason'].length === 0) {
-      process.stderr.write(
-        `[check-paths] pathsAllowlist[${i}] in ${configPath} missing required \`reason\`; skipping.\n`,
-      )
-      continue
-    }
-    const entry: AllowlistEntry = { reason: obj['reason'] }
-    if (typeof obj['file'] === 'string') {
-      entry.file = obj['file']
-    }
-    if (typeof obj['pattern'] === 'string') {
-      entry.pattern = obj['pattern']
-    }
-    if (typeof obj['rule'] === 'string') {
-      entry.rule = obj['rule']
-    }
-    if (typeof obj['line'] === 'number') {
-      entry.line = obj['line']
-    }
-    if (typeof obj['snippet_hash'] === 'string') {
-      entry.snippet_hash = obj['snippet_hash']
-    }
-    out.push(entry)
-  }
-  return out
-}
 
 export const unquote = (s: string): string => {
   const t = s.trim()
@@ -125,15 +30,6 @@ export const unquote = (s: string): string => {
 
 // oxlint-disable-next-line eslint/complexity -- format validation branches
 export const loadAllowlist = (repoRoot: string): AllowlistEntry[] => {
-  // Primary source: `.config/repo/socket-wheelhouse.json` → `pathsAllowlist`
-  // array. Fleet convention is "JSON not YAML for our own configs"
-  // (pnpm-mandated configs stay in pnpm-workspace.yaml; everything
-  // else lives in socket-wheelhouse.json). Falls back to the legacy
-  // `.github/paths-allowlist.yml` while repos migrate.
-  const jsonEntries = loadAllowlistFromJson(repoRoot)
-  if (jsonEntries !== undefined) {
-    return jsonEntries
-  }
   const allowlistPath = path.join(repoRoot, '.github', 'paths-allowlist.yml')
   if (!existsSync(allowlistPath)) {
     return []

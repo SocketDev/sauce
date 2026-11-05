@@ -212,7 +212,9 @@ export function buildScenario(config?: ScenarioConfig | undefined): Scenario {
       return 0
     },
     listDir: p =>
-      p.endsWith('.github/workflows') && workflowsInstalled
+      path.basename(p) === 'workflows' &&
+      path.basename(path.dirname(p)) === '.github' &&
+      workflowsInstalled
         ? ['github-release.yml', 'npm-publish.yml']
         : [],
     now: () => {

@@ -4,10 +4,8 @@
  * .cursor-plugin/mcp.json — from .claude-plugin/plugin.json.
  *
  * The plugin's mcp artifact lives under .cursor-plugin/, never at the repo
- * root: root .mcp.json is the fleet's tracked, hand-populated MCP server
- * inventory that scripts/fleet/mcp-config.mts projects to every client. An
- * earlier revision wrote the empty plugin config over it, silently truncating
- * the inventory. This generator must never write outside .cursor-plugin/.
+ * root, where it would overwrite a hand-maintained .mcp.json. This generator
+ * must never write outside .cursor-plugin/.
  */
 
 import {
@@ -20,11 +18,10 @@ import {
 import * as path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
-import { isMainModule } from '../fleet/process/is-main-module.mts'
-import { runMain } from '../fleet/process/main/run.mts'
-import type { ScriptMeta } from '../fleet/process/main/run.mts'
+import { isMainModule, runMain } from './util/main.mts'
+import type { ScriptMeta } from './util/main.mts'
 import { parseFrontmatter } from './lib/frontmatter.mts'
-import { repoClaudePluginPath } from './_shared/paths.mts'
+import { repoClaudePluginPath } from './paths.mts'
 
 const logger = getDefaultLogger()
 

@@ -258,8 +258,7 @@ push, then dispatch the publish workflow.
 12. Stub-bin PATH e2e harness - CLI boundary covered by spawn smokes +
     in-process integration with fully fake seams.
 13. Coverage thresholds / mirror-name ratchets / actionlint in consumers -
-    staged-config byte detection + verify cover template drift there;
-    sauce's own fleet gates already run here.
+    staged-config byte detection + verify cover template drift there.
 14. Standalone runbook docs - folded into this README and the skills.
 
 </details>
@@ -277,10 +276,11 @@ release-kit/
 ```
 
 Sauce-side gates: `scripts/repo/check/release-kit-is-coherent.mts`,
-`release-kit-launches-are-sanctioned.mts`,
-`release-kit-workflows-are-env-mapped.mts`,
-`release-kit-types-resolve.mts` - auto-discovered by
-`pnpm run check` (repo-owned checks run in the gate on every push). Tests
+`release-kit-launches-are-sanctioned.mts`, and
+`release-kit-workflows-are-env-mapped.mts` - auto-discovered by
+`pnpm run check` (repo-owned checks run in the gate on every push).
+`pnpm run type` type-checks the kit through
+`.config/repo/tsconfig.release-kit.json`. Tests
 live under `test/repo/unit/release-kit/` and
 `test/repo/integration/release-kit/`, all offline, importing straight from
 the payload.
@@ -373,11 +373,11 @@ fleet's shared script tree is done **fleet-first or not at all**.
    **Nothing else may be added at root.** _(machine-enforced)_
 2. **Tiers.** A flow's implementation lives in `publish-infra/<flow>/` using
    phase names from the closed set `{registry, staged, approve, placeholder,
-trusted-publisher}`; flow-specific nouns (brew `formula`/`tap`) appear in
+   trusted-publisher}`; flow-specific nouns (brew `formula`/`tap`) appear in
    the layout table. A phase-named file contains only that phase.
 3. **Pure vs effect.** PURE ⇔ imports no `node:{fs,child_process,net,http}`.
    Pure modules take the nouns `plan / parse / render / state / config /
-gates`. Every injectable effect module is `seams.mts` exporting
+   gates`. Every injectable effect module is `seams.mts` exporting
    `<Area>Seams` + `resolve<Area>Seams`; browser lanes are the triple
    `<subject>-{plan,parse,page}` sharing `browser-session.mts`.
 4. **Gate vocabulary.** A refusal point is a _gate_ - the only sanctioned

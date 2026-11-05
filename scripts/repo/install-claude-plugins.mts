@@ -19,11 +19,7 @@
  *   3. Warns (does NOT auto-remove) about marketplaces that exist locally + only
  *      serve plugins we now serve canonically. The user might intentionally
  *      keep a dev-source override; let them remove it explicitly. Idempotent —
- *      running twice in a row is a no-op. Designed for `pnpm setup` wiring in
- *      every fleet repo. Pin discipline is enforced by
- *      `.claude/hooks/fleet/marketplace-comment-guard/`: every
- *      `plugins[].source.sha` in `marketplace.json` must have a row in
- *      `.claude-plugin/README.md` with matching version + sha + ISO date.
+ *      running twice in a row is a no-op.
  */
 
 import { spawnSync } from '@socketsecurity/lib-stable/process/spawn/child'
@@ -33,9 +29,8 @@ import { fileURLToPath } from 'node:url'
 
 import { errorMessage } from '@socketsecurity/lib-stable/errors/message'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
-import { isMainModule } from '../fleet/process/is-main-module.mts'
-import { runMain } from '../fleet/process/main/run.mts'
-import type { ScriptMeta } from '../fleet/process/main/run.mts'
+import { isMainModule, runMain } from './util/main.mts'
+import type { ScriptMeta } from './util/main.mts'
 
 import {
   extractInstalledSha,
@@ -56,7 +51,7 @@ import type {
   MarketplacePlugin,
   PluginListEntry,
 } from './install-claude-plugins-internal.mts'
-import { repoClaudeMarketplacePath } from './_shared/paths.mts'
+import { repoClaudeMarketplacePath } from './paths.mts'
 
 // Re-exported so `scripts/repo/test/install-claude-plugins.test.mts` keeps a
 // single stable import path across the split — the pure helpers + types

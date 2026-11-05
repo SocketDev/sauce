@@ -2,9 +2,8 @@
 /*
  * @file Path-hygiene gate CLI entry. Mantra: 1 path, 1 reference. A path is
  *   constructed exactly once; everywhere else references the constructed value.
- *   Whole-repo scan complementing the per-edit `.claude/hooks/path-guard` hook.
- *   The hook stops new violations from landing; this gate finds the existing
- *   ones and blocks merges that introduce more. Helper modules:
+ *   Whole-repo scan that `pnpm run check` runs; it finds existing violations
+ *   and blocks merges that introduce more. Helper modules:
  *
  *   - exempt.mts — file-path patterns the gate skips
  *   - walk.mts — recursive file walker with SKIP_DIRS
@@ -43,11 +42,9 @@ import {
   stringifyWithFormatting,
 } from '@socketsecurity/lib-stable/json/format'
 
-import { REPO_ROOT } from '../../fleet/paths.mts'
-import { sharedGithubWorkflowsPath } from '../../fleet/paths/util.mts'
-import { isMainModule } from '../../fleet/process/is-main-module.mts'
-import { runMain } from '../../fleet/process/main/run.mts'
-import type { ScriptMeta } from '../../fleet/process/main/run.mts'
+import { REPO_ROOT, repoGithubWorkflowsPath } from '../paths.mts'
+import { isMainModule, runMain } from '../util/main.mts'
+import type { ScriptMeta } from '../util/main.mts'
 import { isAllowlisted, loadAllowlist, snippetHash } from './allowlist.mts'
 import { isExempt } from './exempt.mts'
 import { checkRuleF } from './rules.mts'
@@ -117,7 +114,7 @@ export function scanScriptPaths(): void {
 }
 
 export function scanWorkflowPaths(): void {
-  const workflowDir = sharedGithubWorkflowsPath(REPO_ROOT)
+  const workflowDir = repoGithubWorkflowsPath(REPO_ROOT)
   if (existsSync(workflowDir)) {
     for (const rel of walk(REPO_ROOT, workflowDir, p => p.endsWith('.yml'))) {
       if (isExempt(rel)) {

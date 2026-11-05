@@ -18,7 +18,7 @@ import { expect, it } from 'vitest'
 import { safeDeleteSync } from '@socketsecurity/lib-stable/fs/safe'
 import { isObject } from '@socketsecurity/lib-stable/objects/predicates'
 
-import { REPO_ROOT } from '../../../scripts/fleet/paths.mts'
+import { REPO_ROOT } from '../../../scripts/repo/paths.mts'
 
 const SCRIPT_PATH = path.join(
   REPO_ROOT,
