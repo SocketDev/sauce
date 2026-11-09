@@ -81,6 +81,61 @@
       "dependencies": ["socket-connect"]
     },
     {
+      "name": "socket-firewall",
+      "source": "./skills/socket-firewall",
+      "skills": "./",
+      "description": "Run package installs through Socket Firewall (`sfw`) to block malware at download time, and handle a block when one happens. Use it when installing dependencies, when an install fails with a Socket block, or when setting up Enterprise policy and private registries.",
+      "dependencies": ["socket-connect"]
+    },
+    {
+      "name": "socket-pr-alerts",
+      "source": "./skills/socket-pr-alerts",
+      "skills": "./",
+      "description": "Triage the alerts Socket for GitHub posts on a pull request and decide what to fix, replace, or accept. Use it when a PR has a failing \"Socket Security\" check or a Socket alerts comment.",
+      "dependencies": ["socket-connect"]
+    },
+    {
+      "name": "socket-reachability",
+      "source": "./skills/socket-reachability",
+      "skills": "./",
+      "description": "Run Socket full application reachability analysis and read the .socket.facts.json report it writes. Use it to learn which vulnerabilities your code actually reaches, so you fix reachable CVEs first.",
+      "dependencies": ["socket-connect"]
+    },
+    {
+      "name": "socket-incident-response",
+      "source": "./skills/socket-incident-response",
+      "skills": "./",
+      "description": "Respond to a malware report or advisory about a package. Use it to confirm the report in Socket's threat feed, find out whether your projects use the bad version, contain it, check whether it ran, rotate secrets, and write up what happened.",
+      "dependencies": ["socket-connect"]
+    },
+    {
+      "name": "socket-policy",
+      "source": "./skills/socket-policy",
+      "skills": "./",
+      "description": "Edit a repository's socket.yml and change how Socket acts on alerts (block, warn, monitor, ignore). Use it to exclude paths from scans, tune the GitHub App per repo, check the file against the schema, or find and change the organization's security and license policy.",
+      "dependencies": ["socket-connect"]
+    },
+    {
+      "name": "socket-sbom",
+      "source": "./skills/socket-sbom",
+      "skills": "./",
+      "description": "Generate a CycloneDX SBOM for a project, export a CycloneDX or SPDX SBOM for an existing Socket scan, and check dependencies against the organization's license policy. Use it when someone asks for an SBOM, a bill of materials, or a license report.",
+      "dependencies": ["socket-connect"]
+    },
+    {
+      "name": "socket-vet-agent-tools",
+      "source": "./skills/socket-vet-agent-tools",
+      "skills": "./",
+      "description": "Vet an MCP server, agent skill, or plugin before you install it into a coding agent. Use it to check the packages behind it with Socket, read its published files, review its hooks, scripts, and prompt text, and install it pinned through Socket Firewall.",
+      "dependencies": ["socket-connect"]
+    },
+    {
+      "name": "knowledge-update",
+      "source": "./skills/knowledge-update",
+      "skills": "./",
+      "description": "Correct outdated model knowledge about Socket products - the CLI, Socket Firewall, the hosted MCP server, Socket for GitHub, reachability, socket.yml, and socket-patch. Read it before giving Socket advice from memory."
+    },
+    {
       "name": "socket-release",
       "source": "./skills/socket-release",
       "skills": "./",

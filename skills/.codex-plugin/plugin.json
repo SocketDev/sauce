@@ -13,12 +13,20 @@
     "patching"
   ],
   "skills": [
+    "./knowledge-update",
     "./socket-connect",
+    "./socket-firewall",
     "./socket-fix",
+    "./socket-incident-response",
     "./socket-inspect",
+    "./socket-policy",
+    "./socket-pr-alerts",
+    "./socket-reachability",
     "./socket-release",
+    "./socket-sbom",
     "./socket-scan",
-    "./socket-setup"
+    "./socket-setup",
+    "./socket-vet-agent-tools"
   ],
   "mcpServers": "./.codex-plugin/mcp.json",
   "interface": {
