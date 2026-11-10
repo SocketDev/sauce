@@ -10,6 +10,7 @@ Socket Security Skills are definitions for dependency security tasks like vulner
 - **Gemini CLI** (Google DeepMind) - extensions support
 - **OpenCode** - skill directory support
 - **Cursor** - plugin with skills, rules, and the Socket MCP server
+- **Hermes Agent** (Nous Research) - portable Agent Plugins package with every skill
 - **VS Code Copilot / GitHub Copilot** - via AGENTS.md or Skills CLI
 - **Windsurf** - via Skills CLI
 - **Roo Code** - via Skills CLI
@@ -28,7 +29,7 @@ If your agent doesn't support skills, use [`agents/README.md`](agents/README.md)
 
 ## Install
 
-Socket Security Skills are compatible with Claude Code, Codex, Gemini CLI, Cursor, and any agent supporting the [Agent Skills standard](https://agentskills.io/specification).
+Socket Security Skills are compatible with Claude Code, Codex, Gemini CLI, Cursor, Hermes Agent, and any agent supporting the [Agent Skills standard](https://agentskills.io/specification).
 
 ### Quick Install
 
@@ -137,6 +138,23 @@ For contributors, regenerate manifests with:
 node scripts/repo/publish.mts
 ```
 
+### Hermes Agent
+
+The [`hermes/`](hermes/) directory is a portable [Agent Plugins](https://agent-plugins.org) package for [Hermes Agent](https://github.com/NousResearch/hermes-agent). It carries every skill in `skills/`, which Hermes names `socket:<skill>`.
+
+```bash
+hermes plugins install SocketDev/skills/hermes
+hermes plugins enable socket
+```
+
+To use the hosted Socket MCP server, add it once with OAuth turned on, then start a new Hermes session. Hermes opens your browser to sign in to Socket, so you do not paste an API key:
+
+```bash
+hermes mcp add socket --url https://mcp.socket.dev/ --auth oauth
+```
+
+The plugin cannot add the server for you, because a portable plugin cannot ask Hermes for OAuth. See [`hermes/README.md`](hermes/README.md) for details.
+
 ### OpenCode
 
 This repository includes an `.opencode/skills` directory that OpenCode discovers automatically.
@@ -158,7 +176,7 @@ pnpm dlx skills add SocketDev/skills
 
 1. Or manually copy the [`agents/README.md`](agents/README.md) file into your agent's instructions/context directory as `AGENTS.md`. This file contains a summary of all available skills and their locations.
 
-2. Skills call the Socket CLI and Batch PURL API directly, so no MCP server is required. The Claude Code, Cursor, and Gemini plugins also bundle the hosted Socket MCP server (`https://mcp.socket.dev/`), which signs you in through the browser instead of asking for an API key. See the `socket-connect` skill.
+2. Skills call the Socket CLI and Batch PURL API directly, so no MCP server is required. The Claude Code, Codex, Cursor, and Gemini plugins also bundle the hosted Socket MCP server (`https://mcp.socket.dev/`), which signs you in through the browser instead of asking for an API key. The Hermes plugin explains how to add it. See the `socket-connect` skill.
 
 ## Usage
 

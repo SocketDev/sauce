@@ -9,7 +9,7 @@
  */
 
 import crypto from 'node:crypto'
-import { readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
@@ -38,15 +38,20 @@ const GENERATED_FILES = [
   'gemini-extension.json',
 ] as const
 
+// Generated trees, hashed as a whole so an added, changed, or removed file
+// counts as drift.
+const GENERATED_DIRS = ['hermes'] as const
+
 const GENERATORS = [
   'scripts/repo/inline-shared.mts',
   'scripts/repo/sync-versions.mts',
   'scripts/repo/generate-agents.mts',
   'scripts/repo/generate-cursor-plugin.mts',
   'scripts/repo/generate-codex-plugin.mts',
+  'scripts/repo/generate-hermes-plugin.mts',
 ] as const
 
-const MISSING = '__MISSING__'
+export const MISSING = '__MISSING__'
 
 function fileSignature(relativePath: string): string {
   try {
@@ -57,6 +62,33 @@ function fileSignature(relativePath: string): string {
   } catch {
     return MISSING
   }
+}
+
+export function treeSignature(
+  relativeDir: string,
+  root: string = rootPath,
+): string {
+  const dir = path.join(root, relativeDir)
+  if (!existsSync(dir)) {
+    return MISSING
+  }
+  const hash = crypto.createHash('sha256')
+  const entries = readdirSync(dir, { recursive: true, withFileTypes: true })
+    .filter(entry => entry.isFile())
+    .map(entry =>
+      path
+        .relative(dir, path.join(entry.parentPath, entry.name))
+        .split(path.sep)
+        .join('/'),
+    )
+    .toSorted()
+  for (let i = 0, { length } = entries; i < length; i += 1) {
+    const rel = entries[i]!
+    hash.update(`${rel}\0`)
+    hash.update(readFileSync(path.join(dir, ...rel.split('/'))))
+    hash.update('\0')
+  }
+  return hash.digest('hex')
 }
 
 async function runScript(scriptPath: string, ...args: string[]): Promise<void> {
@@ -76,7 +108,12 @@ async function generate(): Promise<void> {
   // Generated Markdown tables and JSON must be byte-identical to the normal
   // repository formatter output; otherwise `build` and `format` fight and the
   // subsequent `generate:check` reports drift on a clean checkout.
-  await runScript('node_modules/oxfmt/bin/oxfmt', ...GENERATED_FILES, 'skills')
+  await runScript(
+    'node_modules/oxfmt/bin/oxfmt',
+    ...GENERATED_FILES,
+    'skills',
+    ...GENERATED_DIRS,
+  )
 }
 
 async function check(): Promise<void> {
@@ -84,6 +121,10 @@ async function check(): Promise<void> {
   for (let i = 0, { length } = GENERATED_FILES; i < length; i += 1) {
     const relativePath = GENERATED_FILES[i]!
     before.set(relativePath, fileSignature(relativePath))
+  }
+  for (let i = 0, { length } = GENERATED_DIRS; i < length; i += 1) {
+    const relativeDir = GENERATED_DIRS[i]!
+    before.set(relativeDir, treeSignature(relativeDir))
   }
 
   await generate()
@@ -93,6 +134,12 @@ async function check(): Promise<void> {
     const relativePath = GENERATED_FILES[i]!
     if (fileSignature(relativePath) !== before.get(relativePath)) {
       changed.push(relativePath)
+    }
+  }
+  for (let i = 0, { length } = GENERATED_DIRS; i < length; i += 1) {
+    const relativeDir = GENERATED_DIRS[i]!
+    if (treeSignature(relativeDir) !== before.get(relativeDir)) {
+      changed.push(`${relativeDir}/`)
     }
   }
 
@@ -106,6 +153,7 @@ async function check(): Promise<void> {
 
   await runScript('scripts/repo/generate-cursor-plugin.mts', '--check')
   await runScript('scripts/repo/generate-codex-plugin.mts', '--check')
+  await runScript('scripts/repo/generate-hermes-plugin.mts', '--check')
   await runScript('scripts/repo/inline-shared.mts', '--check')
   process.stdout.write('All generated artifacts are up to date.\n')
 }

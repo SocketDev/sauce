@@ -43,3 +43,19 @@ export function repoCodexMcpPath(root: string): string {
 export function repoCodexPluginPath(root: string): string {
   return path.join(root, 'skills', '.codex-plugin', 'plugin.json')
 }
+
+export function repoHermesPluginDir(root: string): string {
+  return path.join(root, 'hermes')
+}
+
+export function repoHermesPluginManifestPath(root: string): string {
+  return path.join(repoHermesPluginDir(root), 'plugin.json')
+}
+
+export function repoHermesReadmePath(root: string): string {
+  return path.join(repoHermesPluginDir(root), 'README.md')
+}
+
+export function repoHermesSkillsDir(root: string): string {
+  return path.join(repoHermesPluginDir(root), 'skills')
+}

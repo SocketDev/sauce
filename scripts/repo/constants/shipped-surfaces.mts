@@ -14,6 +14,7 @@
 export const SHIPPED_DIRS = [
   'agents',
   'examples',
+  'hermes',
   'release-kit',
   'skills',
 ] as const

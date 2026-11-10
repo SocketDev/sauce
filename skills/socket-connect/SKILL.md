@@ -2,7 +2,7 @@
 name: socket-connect
 description:
   Connect your agent to Socket by signing in through the browser - no API key
-  to copy or paste. Bundles the hosted Socket MCP server (OAuth), lists every
+  to copy or paste. Signs in to the hosted Socket MCP server (OAuth), lists every
   organization you belong to, and links the Socket CLI for scans.
 ---
 
@@ -10,7 +10,7 @@ description:
 
 Sign in to Socket from the agent with OAuth. The user approves access in the browser, and the agent gets a token for their own account. That token covers every organization the user belongs to, so nobody copies an organization API token out of the dashboard.
 
-This plugin ships the hosted Socket MCP server (`https://mcp.socket.dev/`). Other Socket skills install it as a dependency, so most users already have it.
+The Claude Code, Codex, Cursor, and Gemini CLI plugins add the hosted Socket MCP server (`https://mcp.socket.dev/`) for you, and other Socket skills install it as a dependency, so most users already have it. In Hermes Agent, or when the skills are installed without a plugin, add it once as shown in Step 2.
 
 ## When to Use
 
@@ -38,11 +38,18 @@ Tell the user how to sign in for their agent. Nobody needs an API key.
 | Cursor              | Open **Customize** in the sidebar, select the Socket server, and sign in to it.                 |
 | Gemini CLI          | Run `/mcp auth socket`.                                                                         |
 | Codex               | Run `/mcp login socket`, or `codex mcp login socket` from a shell. Add `--no-browser` over SSH. |
+| Hermes Agent        | Add the server first (below). Sign in again later with `hermes mcp login socket`.               |
 
 If the Socket server is not listed at all, add it by URL. In Claude Code:
 
 ```shell
 claude mcp add --transport http socket https://mcp.socket.dev/
+```
+
+In Hermes Agent, the Socket plugin does not add the server, so add it once with OAuth turned on. Hermes opens a browser to sign in. Then start a new session:
+
+```shell
+hermes mcp add socket --url https://mcp.socket.dev/ --auth oauth
 ```
 
 The browser shows Socket's sign-in and consent pages. If the user has no account, they can create a free one there. After they approve, call `organizations` again to confirm.
@@ -90,8 +97,8 @@ For CI and other non-interactive environments, an organization API token in `SOC
 
 ## Error Handling
 
-- **No Socket tools after installing the plugin:** restart the agent or reload plugins so the bundled MCP server loads, then check `/mcp`.
-- **Browser does not open:** copy the URL the agent prints into a browser. Over SSH, use the `--no-browser` option and open the URL locally.
+- **No Socket tools after installing the plugin:** list the agent's MCP servers (Claude Code, Codex: `/mcp`; Hermes Agent: `hermes mcp list`). If Socket is missing, add it as in Step 2; the Hermes plugin never adds it. Then restart the agent or reload MCP servers (Hermes Agent: `/reload-mcp` or a new session).
+- **Browser does not open:** copy the URL the agent prints into a browser. Over SSH, Claude Code and Codex take a `--no-browser` option; other agents print the URL for you to open locally.
 - **`organizations` returns an empty list:** the account has no organization yet. Create one at <https://socket.dev/dashboard>, then call `organizations` again.
 - **401 after it worked before:** the session expired or was revoked. Sign in again from Step 2.
 - **Wrong account:** clear the server's authentication in `/mcp` (or `claude mcp logout <server-name>`), then sign in again.
