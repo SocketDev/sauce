@@ -175,7 +175,7 @@ Clone the repository at a fixed commit. Do not install it yet. Read these files.
 
 **Skills (`SKILL.md` and its folder):**
 
-- Any `` !`command` `` that follows whitespace (including mid-line) and any ` ```! ` fenced block in `SKILL.md`. Claude Code runs these on the host when the skill loads.
+- Any inline command written as an exclamation mark directly followed by a backtick-quoted command, after whitespace (including mid-line), and any fenced block whose opening fence is three backticks followed by an exclamation mark, in `SKILL.md`. Claude Code runs these on the host when the skill loads, and so does Hermes Agent when `skills.inline_shell` is on.
 - `allowed-tools` in the frontmatter. It pre-approves commands.
 - `hooks` in the frontmatter. Claude Code registers these when the skill is invoked, and they keep running for the rest of the session.
 - Scripts the skill tells the agent to run, and every URL they reach

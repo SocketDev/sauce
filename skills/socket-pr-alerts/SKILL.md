@@ -60,7 +60,7 @@ gh api repos/<owner>/<repo>/issues/<number>/comments --paginate --jq '.[]|select
 There are usually two comments:
 
 1. **Dependency overview.** Starts with "Review the following changes in direct dependencies." It is a table of added and updated direct dependencies with Supply Chain Security, Vulnerability, Quality, Maintenance and License scores. It is context, not a list of problems.
-2. **Alerts.** A table with Priority, Alert and Action columns. The Priority icon shows a priority score, such as "Priority 140 (Low)". It is not the alert's severity. The PR comment does not show severity; get it from the alert page or from `depscore`. Each alert is a collapsible block with:
+2. **Alerts.** A table with Priority, Alert and Action columns. The Priority icon shows a priority score, such as "Priority 140 (Low)". It is not the alert's severity. The PR comment does not show severity; get it from the alert page linked in the comment. `depscore` returns only 0-100 scores, not alert severity. Each alert is a collapsible block with:
    - the alert title, the ecosystem, and the package
    - **From:** the dependency path that pulls the package in
    - links to the package, the alert, and the alert type's page under `https://socket.dev/alerts/`

@@ -143,13 +143,14 @@ To skip the alias for one command, run `command npm install lodash`, or call the
 
 ## Step 4: Confirm It Blocks
 
-Socket publishes test packages that are blocked with the default policy, such as `lodahs` (a mistyped `lodash`). Run the test in a new directory outside the user's project, such as under the system temp directory. Create a `package.json` there first. Without one, npm installs into the nearest parent folder that has a `package.json` or `node_modules`, which could be the user's project.
+Socket publishes test packages that are blocked with the default policy, such as `lodahs` (a mistyped `lodash`). Run the test in a new directory outside the user's project, such as under the system temp directory. Create a `package.json` there first. Without one, npm installs into the nearest parent folder that has a `package.json` or `node_modules`, which could be the user's project. Run the test in a subshell, so the shell stays in the user's project for the steps that follow.
 
 ```shell
-dir="$(mktemp -d)"
-cd "$dir"
-npm init -y
-sfw npm install lodahs
+(
+  cd "$(mktemp -d)" &&
+  npm init -y &&
+  sfw npm install lodahs
+)
 ```
 
 The install should fail. If it succeeds, one of these happened:

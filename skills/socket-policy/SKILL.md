@@ -111,7 +111,7 @@ githubApp:
 ### Keys
 
 - `version` (required): set it to `2`.
-- `projectIgnorePaths`: list of gitignore-style patterns for paths Socket skips. Socket always ignores `.git`, `.log`, `.nyc_output`, `.sass-cache`, `.yarn`, `bower_components`, `coverage`, and `node_modules`. Quote any pattern that uses `!` or `*`.
+- `projectIgnorePaths`: list of gitignore-style patterns for paths Socket skips. Socket always ignores `.git`, `.log`, `.nyc_output`, `.sass-cache`, `.yarn`, `bower_components`, `coverage`, and `node_modules`. Quote any pattern that contains `*` or starts with an exclamation mark.
 - `triggerPaths`: gitignore-style patterns, default `["*"]`. The GitHub App runs a PR alert scan only when a file changed in the PR matches. The CLI ignores this key.
 - `issueRules`: map of alert type to `true` or `false`. **Deprecated**: Socket plans to replace it with repository labels and Policies. Alert types you leave out follow the organization settings.
 - `githubApp.enabled`: default `true`. `false` turns the GitHub App off for this repo and overrides the other `githubApp` settings.
@@ -129,7 +129,7 @@ For GitLab, the GitLab app (beta) reads only `projectIgnorePaths` and `gitlabApp
 
 - `pnpm dlx socket scan create`, `pnpm dlx socket scan reach`, and `pnpm dlx socket fix` apply `projectIgnorePaths` when they collect manifest files. The CLI reads the patterns as a .gitignore at the project root.
 - The package manager wrappers (`pnpm dlx socket npm`, `pnpm dlx socket npx`, `pnpm dlx socket pnpm`) apply `issueRules`. `false` hides that alert type. `true` does not bring back an alert type the organization policy ignores, because the wrappers never receive those alerts. These wrappers are the older install path; for blocking at install time, prefer `sfw` (see `/socket-firewall`).
-- For a one-off scan, `pnpm dlx socket scan create --exclude-paths <glob>` excludes paths without editing the file. Its patterns are anchored globs relative to the current directory and do not support `!` negation, so they differ from `projectIgnorePaths`.
+- For a one-off scan, `pnpm dlx socket scan create --exclude-paths <glob>` excludes paths without editing the file. Its patterns are anchored globs relative to the current directory and do not support negation with a leading exclamation mark, so they differ from `projectIgnorePaths`.
 
 ## Step 4: Check the File
 
