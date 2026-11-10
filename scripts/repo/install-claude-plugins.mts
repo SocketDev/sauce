@@ -51,7 +51,7 @@ import type {
   MarketplacePlugin,
   PluginListEntry,
 } from './install-claude-plugins-internal.mts'
-import { repoClaudeMarketplacePath } from './paths.mts'
+import { CLAUDE_MARKETPLACE } from './plugins/targets/claude.mts'
 
 // Re-exported so `scripts/repo/test/install-claude-plugins.test.mts` keeps a
 // single stable import path across the split — the pure helpers + types
@@ -191,7 +191,10 @@ function loadMarketplaceManifest(
         'cannot read its marketplace.json.',
     )
   }
-  const manifestPath = repoClaudeMarketplacePath(marketplace.installLocation)
+  const manifestPath = path.join(
+    marketplace.installLocation,
+    CLAUDE_MARKETPLACE,
+  )
   if (!existsSync(manifestPath)) {
     throw new Error(
       `marketplace.json not found at ${manifestPath} ` +

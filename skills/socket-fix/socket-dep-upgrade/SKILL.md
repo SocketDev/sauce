@@ -1,6 +1,9 @@
 ---
 name: socket-dep-upgrade
 description: Use socket fix to find and update vulnerable dependencies, then fix any breaking changes in the codebase. Security-audited upgrades with automated code migration.
+metadata:
+  category: fix
+  requires: socket-connect
 ---
 
 # Dep Upgrade
@@ -53,6 +56,7 @@ If you do not want an account, leave authentication unconfigured. Commands that 
 If authentication fails or the CLI is not installed, use the `/socket-setup` skill for detailed guidance including Node.js installation, PATH troubleshooting, and CI/CD token configuration.
 
 </details>
+
 <!-- END_SECTION:cli-setup.md -->
 
 ## Update Strategy

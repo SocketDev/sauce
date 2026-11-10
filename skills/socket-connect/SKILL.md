@@ -4,13 +4,15 @@ description:
   Connect your agent to Socket by signing in through the browser - no API key
   to copy or paste. Signs in to the hosted Socket MCP server (OAuth), lists every
   organization you belong to, and links the Socket CLI for scans.
+metadata:
+  category: setup
 ---
 
 # Connect to Socket
 
 Sign in to Socket from the agent with OAuth. The user approves access in the browser, and the agent gets a token for their own account. That token covers every organization the user belongs to, so nobody copies an organization API token out of the dashboard.
 
-The Claude Code, Codex, Cursor, and Gemini CLI plugins add the hosted Socket MCP server (`https://mcp.socket.dev/`) for you, and other Socket skills install it as a dependency, so most users already have it. In Hermes Agent, or when the skills are installed without a plugin, add it once as shown in Step 2.
+Other Socket skills depend on this one, so most users already have the hosted Socket MCP server. Step 2 shows which agent plugins add it and how to add it by hand.
 
 ## When to Use
 
@@ -31,16 +33,22 @@ Look for a Socket MCP tool named `organizations` among your available tools. The
 
 Tell the user how to sign in for their agent. Nobody needs an API key.
 
+<!-- BEGIN_SECTION:agent-sign-in.md -->
+
+The Claude Code, Codex, Cursor, and Gemini CLI plugins add the hosted Socket MCP server (`https://mcp.socket.dev/`) for you. In Hermes Agent, or when the skills are installed without a plugin, add it once as shown below.
+
 | Agent               | How to sign in                                                                                  |
 | ------------------- | ----------------------------------------------------------------------------------------------- |
 | Claude Code         | Run `/mcp`, pick the Socket server, then choose **Authenticate**. A browser window opens.       |
 | Claude Code (shell) | `claude mcp login <server-name>`, using the name shown by `/mcp`. Add `--no-browser` over SSH.  |
+| Codex               | Run `/mcp login socket`, or `codex mcp login socket` from a shell. Add `--no-browser` over SSH. |
 | Cursor              | Open **Customize** in the sidebar, select the Socket server, and sign in to it.                 |
 | Gemini CLI          | Run `/mcp auth socket`.                                                                         |
-| Codex               | Run `/mcp login socket`, or `codex mcp login socket` from a shell. Add `--no-browser` over SSH. |
 | Hermes Agent        | Add the server first (below). Sign in again later with `hermes mcp login socket`.               |
 
-If the Socket server is not listed at all, add it by URL. In Claude Code:
+If the Socket server is not listed at all, add it by URL.
+
+In Claude Code:
 
 ```shell
 claude mcp add --transport http socket https://mcp.socket.dev/
@@ -51,6 +59,8 @@ In Hermes Agent, the Socket plugin does not add the server, so add it once with 
 ```shell
 hermes mcp add socket --url https://mcp.socket.dev/ --auth oauth
 ```
+
+<!-- END_SECTION:agent-sign-in.md -->
 
 The browser shows Socket's sign-in and consent pages. If the user has no account, they can create a free one there. After they approve, call `organizations` again to confirm.
 
@@ -69,10 +79,15 @@ Org-scoped tools such as `alerts` and `threat_feed` take one `org_slug` per call
 
 Once connected, prefer the MCP tools over pasted tokens:
 
-- `depscore` - scores for one or more packages (used by `/socket-inspect`)
-- `alerts` - open alerts across the organization's monitored packages
-- `threat_feed` - recent malware and threat reports
-- `package_files`, `package_file_contents`, `package_file_grep` - read a published package's files
+<!-- BEGIN_SECTION:mcp-tools.md -->
+
+- `depscore`: get Socket scores (0-100) for one or more packages. Give each package as `depname`, `ecosystem` (default `npm`), and `version` (use the exact version when you know it). Lower scores mean higher risk. A missing score is not a safety verdict.
+- `organizations`: list the Socket organizations that the sign-in can access. Use it to find the `org_slug` that `alerts` and `threat_feed` need.
+- `alerts`: list the security alerts of an organization. It needs `org_slug`. Filter with `status`, `severity`, and other fields, and use `cursor` to get more pages.
+- `threat_feed`: list packages that Socket flagged recently, for example malware and typosquats. It needs `org_slug`.
+- `package_files`, `package_file_contents`, `package_file_grep`: read the files in a published package before you install it.
+
+<!-- END_SECTION:mcp-tools.md -->
 
 ## Step 5: Connect the Socket CLI (Scans and Fixes)
 

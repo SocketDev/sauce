@@ -27,13 +27,11 @@ import {
   SHIPPED_MARKER_ALLOWLIST,
   SHIPPED_ROOT_FILES,
 } from '../constants/shipped-surfaces.mts'
-import { repoClaudeMarketplacePath } from '../paths.mts'
+import { REPO_ROOT } from '../paths.mts'
+import { CLAUDE_MARKETPLACE } from '../plugins/targets/claude.mts'
 
 const logger = getDefaultLogger()
-const ROOT = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '../../..',
-)
+const ROOT = REPO_ROOT
 
 export function listTrackedFiles(): string[] {
   const result = spawnSync('git', ['ls-files'], { cwd: ROOT })
@@ -97,7 +95,7 @@ export function findFleetLeaks(tracked: string[]): string[] {
 }
 
 export function findUnshippedManifestSources(): string[] {
-  const manifestPath = repoClaudeMarketplacePath(ROOT)
+  const manifestPath = path.join(ROOT, CLAUDE_MARKETPLACE)
   const manifest: {
     plugins?:
       | Array<{

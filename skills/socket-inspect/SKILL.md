@@ -1,6 +1,9 @@
 ---
 name: socket-inspect
 description: Research a package before you depend on it - pull every signal from Socket (scores, alerts, malware verdicts, CVEs, supply-chain risk), check the socket.dev package page, evaluate alternatives, and surface available Socket patches.
+metadata:
+  category: analysis
+  requires: socket-connect
 ---
 
 # Research Inspect
@@ -55,6 +58,7 @@ If you do not want an account, leave authentication unconfigured. Commands that 
 If authentication fails or the CLI is not installed, use the `/socket-setup` skill for detailed guidance including Node.js installation, PATH troubleshooting, and CI/CD token configuration.
 
 </details>
+
 <!-- END_SECTION:cli-setup.md -->
 
 **Prefer the Socket MCP tools when connected:** if a Socket MCP `depscore` tool is available (installed by `/socket-connect`, signed in through the browser), use it for package scores instead of the Batch PURL API. It needs no API key. Use the `organizations` tool to find the `org_slug` for org-scoped tools such as `alerts`.
@@ -230,6 +234,8 @@ To research alternatives:
 
 ## Output Format
 
+<!-- BEGIN_SECTION:malware-warning.md -->
+
 ### If Malware Is Detected
 
 When malware is detected, the output **MUST** begin with this warning before any other content:
@@ -239,7 +245,11 @@ When malware is detected, the output **MUST** begin with this warning before any
 > **Package:** `{name}` ({ecosystem})
 > **Malware type:** {description of malware behavior}
 >
-> **Recommended action:** Remove this package immediately if already installed. Check for alternatives below.
+> **Recommended action:** Remove this package immediately if already installed. {next step}
+
+<!-- END_SECTION:malware-warning.md -->
+
+For `{next step}`, write: Check for alternatives below.
 
 Then continue with the standard report sections.
 

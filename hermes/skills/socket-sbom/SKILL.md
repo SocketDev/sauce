@@ -1,6 +1,9 @@
 ---
 name: socket-sbom
 description: Generate a CycloneDX SBOM for a project, export a CycloneDX or SPDX SBOM for an existing Socket scan, and check dependencies against the organization's license policy. Use it when someone asks for an SBOM, a bill of materials, or a license report.
+metadata:
+  category: analysis
+  requires: socket-connect
 ---
 
 # Socket SBOM
@@ -58,6 +61,7 @@ If you do not want an account, leave authentication unconfigured. Commands that 
 If authentication fails or the CLI is not installed, use the `/socket-setup` skill for detailed guidance including Node.js installation, PATH troubleshooting, and CI/CD token configuration.
 
 </details>
+
 <!-- END_SECTION:cli-setup.md -->
 
 Local generation with `pnpm dlx socket cdxgen` needs no account. Scan reports and the license policy need a signed-in CLI or an API token. Use `/socket-connect` to sign in: the user runs `pnpm dlx socket login` in their own terminal.

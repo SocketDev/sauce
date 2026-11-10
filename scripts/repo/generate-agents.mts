@@ -7,51 +7,33 @@
  * Generate agents/README.md — the AGENTS.md-style fallback bundle — from
  * docs/agents-template.md and SKILL.md frontmatter.
  *
- * Also validates that marketplace.json is in sync with discovered skills, and
- * updates the skills table in README.md.
+ * Also updates the skills table in README.md, grouped by each skill's
+ * `metadata.category`.
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import * as path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
-import {
-  collectSkills,
-  validateMarketplace,
-} from './lib/validate-marketplace.mts'
-import type { Skill } from './lib/validate-marketplace.mts'
+import { REPO_ROOT } from './paths.mts'
+import { discoverSkills, skillCategory } from './plugins/skills.mts'
 import { isMainModule, runMain } from './util/main.mts'
 import type { ScriptMeta } from './util/main.mts'
-import { repoClaudeMarketplacePath } from './paths.mts'
 
 const logger = getDefaultLogger()
 
-const ROOT = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '..',
-  '..',
-)
+const ROOT = REPO_ROOT
 const TEMPLATE_PATH = path.join(ROOT, 'docs', 'agents-template.md')
 const OUTPUT_PATH = path.join(ROOT, 'agents', 'README.md')
-const SKILLS_DIR = path.join(ROOT, 'skills')
-const MARKETPLACE_PATH = repoClaudeMarketplacePath(ROOT)
 const README_PATH = path.join(ROOT, 'README.md')
 
 const README_TABLE_START = '<!-- BEGIN_SKILLS_TABLE -->'
 const README_TABLE_END = '<!-- END_SKILLS_TABLE -->'
 
-interface MarketplacePlugin {
+export interface Skill {
   name: string
-  source: string
-  skills: string
   description: string
-}
-
-interface Marketplace {
-  name: string
-  owner: { name: string }
-  metadata: { description: string; version: string }
-  plugins: MarketplacePlugin[]
+  path: string
+  category: string
 }
 
 interface CategoryDef {
@@ -59,7 +41,7 @@ interface CategoryDef {
   description: string
 }
 
-const CATEGORIES: Array<[string, CategoryDef]> = [
+export const CATEGORIES: Array<[string, CategoryDef]> = [
   [
     'setup',
     {
@@ -84,17 +66,54 @@ const CATEGORIES: Array<[string, CategoryDef]> = [
         'Holistic dependency repair - orchestrate cleanup, replacement, patching, and upgrades in a single phased workflow with individual subskills for each operation.',
     },
   ],
+  [
+    'protect',
+    {
+      label: 'Protect',
+      description:
+        'Block malicious packages at install time and respond when one gets through.',
+    },
+  ],
+  [
+    'reference',
+    {
+      label: 'Reference',
+      description:
+        'Current facts about Socket products for the agent to read before giving advice.',
+    },
+  ],
+  [
+    'release',
+    {
+      label: 'Release',
+      description:
+        'Stand up and operate SocketDev publishing with the socket-release kit.',
+    },
+  ],
 ]
 
-export function generateReadmeTable(skills: Skill[]): string {
-  const marketplace = loadMarketplace()
-  const pluginsBySource = new Map<string, MarketplacePlugin>()
-  const plugins = marketplace.plugins
-  for (let i = 0, { length } = plugins; i < length; i += 1) {
-    const p = plugins[i]!
-    pluginsBySource.set(p.source, p)
-  }
+/**
+ * Every skill, as agents/README.md and the README table list it.
+ */
+export function loadSkills(root: string = ROOT): Skill[] {
+  const known = new Set(CATEGORIES.map(([key]) => key))
+  return discoverSkills(root).map(skill => {
+    const category = skillCategory(skill)
+    if (!category || !known.has(category)) {
+      throw new Error(
+        `skills/${skill.relDir}/SKILL.md needs metadata.category set to one of: ${[...known].join(', ')}`,
+      )
+    }
+    return {
+      name: skill.name,
+      description: skill.description,
+      path: `skills/${skill.relDir}`,
+      category,
+    }
+  })
+}
 
+export function generateReadmeTable(skills: Skill[]): string {
   const grouped = new Map<string, Skill[]>()
   for (let i = 0, { length } = CATEGORIES; i < length; i += 1) {
     const key = CATEGORIES[i]![0]
@@ -102,8 +121,7 @@ export function generateReadmeTable(skills: Skill[]): string {
   }
   for (let i = 0, { length } = skills; i < length; i += 1) {
     const skill = skills[i]!
-    const cat = getCategory(skill.name)
-    grouped.get(cat)?.push(skill)
+    grouped.get(skill.category)?.push(skill)
   }
 
   const lines: string[] = []
@@ -124,12 +142,8 @@ export function generateReadmeTable(skills: Skill[]): string {
 
     for (let i = 0, { length } = catSkills; i < length; i += 1) {
       const skill = catSkills[i]!
-      const source = `./${skill.path}`
-      const plugin = pluginsBySource.get(source)
-      const name = plugin?.name ?? skill.name
-      const description = plugin?.description ?? skill.description
       const docLink = `[SKILL.md](${skill.path}/SKILL.md)`
-      lines.push(`| \`${name}\` | ${description} | ${docLink} |`)
+      lines.push(`| \`${skill.name}\` | ${skill.description} | ${docLink} |`)
     }
 
     lines.push('')
@@ -141,26 +155,6 @@ export function generateReadmeTable(skills: Skill[]): string {
   }
 
   return lines.join('\n')
-}
-
-export function getCategory(skillName: string): string {
-  if (skillName === 'socket-setup') {
-    return 'setup'
-  }
-  if (skillName === 'socket-inspect' || skillName === 'socket-scan') {
-    return 'analysis'
-  }
-  if (skillName.startsWith('socket-dep-') || skillName === 'socket-fix') {
-    return 'fix'
-  }
-  return 'setup'
-}
-
-export function loadMarketplace(): Marketplace {
-  if (!existsSync(MARKETPLACE_PATH)) {
-    throw new Error(`marketplace.json not found at ${MARKETPLACE_PATH}`)
-  }
-  return JSON.parse(readFileSync(MARKETPLACE_PATH, 'utf-8'))
 }
 
 export function loadTemplate(): string {
@@ -226,7 +220,7 @@ export function updateReadme(skills: Skill[]): boolean {
 
 function main(): void {
   const template = loadTemplate()
-  const skills = collectSkills(SKILLS_DIR)
+  const skills = loadSkills()
   const output = renderAgentsDoc(template, skills)
 
   const outputDir = path.dirname(OUTPUT_PATH)
@@ -238,18 +232,6 @@ function main(): void {
   logger.log(
     `Wrote ${path.relative(ROOT, OUTPUT_PATH)} with ${skills.length} skills.`,
   )
-
-  const errors = validateMarketplace(SKILLS_DIR, MARKETPLACE_PATH)
-  if (errors.length > 0) {
-    logger.error('')
-    logger.fail('Marketplace.json validation errors:')
-    for (let i = 0, { length } = errors; i < length; i += 1) {
-      const error = errors[i]!
-      logger.fail(`  - ${error.message}`)
-    }
-    process.exit(1)
-  }
-  logger.log('Marketplace.json validation passed.')
 
   if (updateReadme(skills)) {
     logger.log(`Updated ${path.relative(ROOT, README_PATH)} skills table.`)

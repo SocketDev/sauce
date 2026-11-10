@@ -3,6 +3,9 @@ name: socket-reachability
 description: Run Socket full application reachability analysis and read the
   .socket.facts.json report it writes. Use it to learn which vulnerabilities
   your code actually reaches, so you fix reachable CVEs first.
+metadata:
+  category: analysis
+  requires: socket-connect
 ---
 
 # Reachability Analysis

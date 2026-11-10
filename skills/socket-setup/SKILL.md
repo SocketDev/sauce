@@ -3,6 +3,9 @@ name: socket-setup
 description: Set up Socket - connect your account through browser sign-in,
   install the CLI, configure policies and CI tokens, and set up CI/CD for
   firewall or patch modes across GitHub, GitLab, Bitbucket, and other systems.
+metadata:
+  category: setup
+  requires: socket-connect
 ---
 
 # Setup
@@ -132,28 +135,58 @@ If any tool fails to install, check PATH and retry. `npm prefix -g` prints the g
 
 ## Step 7: Detect SCM and CI System
 
+<!-- BEGIN_SECTION:ci-setup.md -->
+
+### Detecting the CI/CD System
+
 List the CI config files that exist in the project root - the command prints only the ones that are present:
 
 ```shell
 ls -d .github/workflows .gitlab-ci.yml bitbucket-pipelines.yml Jenkinsfile .circleci/config.yml .travis.yml azure-pipelines.yml 2>/dev/null || true
 ```
 
-Then identify the SCM and map the results:
+Map each result to its CI system:
 
-- Run `git remote -v` to detect the SCM:
-  - github.com → GitHub
-  - gitlab.com or self-hosted GitLab → GitLab
-  - bitbucket.org → Bitbucket
-  - Other / not a git repo → Generic
-- Based on SCM, infer the likely CI system, but also check for:
-  - .github/workflows/ → GitHub Actions
-  - .gitlab-ci.yml → GitLab CI
-  - bitbucket-pipelines.yml → Bitbucket Pipelines
-  - Jenkinsfile → Jenkins
-  - .circleci/config.yml → CircleCI
-  - .travis.yml → Travis CI
-  - azure-pipelines.yml → Azure Pipelines
-  - None found → Generic / manual
+| CI System           | Config File               |
+| ------------------- | ------------------------- |
+| GitHub Actions      | `.github/workflows/*.yml` |
+| GitLab CI           | `.gitlab-ci.yml`          |
+| Bitbucket Pipelines | `bitbucket-pipelines.yml` |
+| Jenkins             | `Jenkinsfile`             |
+| CircleCI            | `.circleci/config.yml`    |
+| Travis CI           | `.travis.yml`             |
+| Azure Pipelines     | `azure-pipelines.yml`     |
+
+If none of these files are present, treat the project as Generic / manual setup.
+
+### Detecting the SCM Provider
+
+Run `git remote -v` and match:
+
+- `github.com` → GitHub
+- `gitlab.com` or self-hosted GitLab → GitLab
+- `bitbucket.org` → Bitbucket
+- Other / not a git repo → Generic
+
+The SCM suggests the likely CI system, but the CI config files found above take precedence.
+
+### Integration Patterns
+
+#### GitHub Actions
+
+Use `SocketDev/action@v1` after `actions/checkout` and before install steps:
+
+```yaml
+- uses: SocketDev/action@v1
+  with:
+    mode: <mode> # firewall, firewall-free, or patch
+```
+
+#### GitLab CI / Bitbucket Pipelines / Generic
+
+Install the Socket CLI or tool, then run it in a `before_script` or dedicated step after dependency install.
+
+<!-- END_SECTION:ci-setup.md -->
 
 ## Firewall Setup
 
@@ -229,13 +262,9 @@ All Socket tools (sfw, socket-patch, socket CLI) are npm packages. The standalon
 
 Set up automated patching so `socket-patch apply` runs after every dependency install. For one-time manual patching, use the `/socket-dep-patch` skill instead.
 
+<!-- BEGIN_SECTION:patch-automation.md -->
+
 ### Scan Codebase for Install/Build Locations
-
-Identify the project's CI/CD system - the command prints only the config files that are present:
-
-```shell
-ls -d .github/workflows .gitlab-ci.yml bitbucket-pipelines.yml Jenkinsfile .circleci/config.yml .travis.yml azure-pipelines.yml 2>/dev/null || true
-```
 
 Before configuring automation, scan the project to find ALL places where dependencies are installed and builds happen:
 
@@ -274,7 +303,7 @@ Use the runner that matches the detected package manager in the sections below: 
 
 Use `SocketDev/action@v1` with `mode: patch`:
 
-```text
+```yaml
 - uses: SocketDev/action@v1
   with:
     mode: patch
@@ -363,6 +392,8 @@ If the project uses an unusual build system, use the appropriate package manager
 - **Interpreted projects** (Python, Ruby): add `socket-patch scan && socket-patch apply` after `pip install` / `bundle install`
 - **Compiled projects** (Rust, Go, Java): add `socket-patch scan && socket-patch apply` after dependency fetch, before compile
 - **Containers**: add `RUN socket-patch scan` and `RUN socket-patch apply` layers after the install layer
+
+<!-- END_SECTION:patch-automation.md -->
 
 ## Dockerfile Integration
 

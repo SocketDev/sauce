@@ -1,195 +1,66 @@
 import { describe, expect, it } from 'vitest'
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import * as path from 'node:path'
 import { REPO_ROOT } from '../../../../scripts/repo/paths.mts'
+import { discoverSkills } from '../../../../scripts/repo/plugins/skills.mts'
 
-const SKILLS_DIR = path.join(REPO_ROOT, 'skills')
+// Version and MCP-server agreement across every agent manifest is checked
+// once, over the plugin registry, in plugins.test.mts.
 
-interface MarketplacePlugin {
-  name: string
-  source: string
-  skills: string
-  description: string
+function loadJSON(relPath: string): Record<string, any> {
+  return JSON.parse(readFileSync(path.join(REPO_ROOT, relPath), 'utf-8'))
 }
 
-interface Marketplace {
-  name: string
-  owner: { name: string }
-  metadata: { description: string; version: string }
-  plugins: MarketplacePlugin[]
-}
-
-export function getSkillDirs(): string[] {
-  return readdirSync(SKILLS_DIR, { withFileTypes: true })
-    .filter(
-      e =>
-        e.isDirectory() && !e.name.startsWith('_') && !e.name.startsWith('.'),
-    )
-    .map(e => e.name)
-    .toSorted()
-}
-
-export function loadJSON(relPath: string): unknown {
-  const fullPath = path.join(REPO_ROOT, relPath)
-  return JSON.parse(readFileSync(fullPath, 'utf-8'))
-}
+const skills = discoverSkills(REPO_ROOT)
 
 describe('Manifest Consistency', () => {
-  /* eslint-disable typescript/no-unsafe-type-assertion -- these manifests are
-     the very files under test; the assertions below fail loudly on any
-     missing field, which is exactly this suite's job. */
-  const marketplace = loadJSON('.claude-plugin/marketplace.json') as Marketplace
-  const packageJson = loadJSON('package.json') as {
-    private: boolean
-    version: string
-  }
-  const pluginJson = loadJSON('.claude-plugin/plugin.json') as {
-    version: string
-  }
-  const geminiJson = loadJSON('gemini-extension.json') as {
-    version: string
-  }
-  /* eslint-enable typescript/no-unsafe-type-assertion */
-  const agentsMd = readFileSync(
-    path.join(REPO_ROOT, 'agents', 'README.md'),
-    'utf-8',
-  )
-
-  describe('hosted Socket MCP server', () => {
-    it('every shipped manifest points at the same server URL', async () => {
-      const { SOCKET_MCP_URL } =
-        await import('../../../../scripts/repo/generate-cursor-plugin.mts')
-      /* eslint-disable typescript/no-unsafe-type-assertion -- shape checked by the expectations below */
-      const connect = marketplace.plugins.find(
-        plugin => plugin.name === 'socket-connect',
-      ) as unknown as { mcpServers?: Record<string, { url?: string }> }
-      const gemini = geminiJson as unknown as {
-        mcpServers?: Record<string, { httpUrl?: string }>
-      }
-      const cursor = loadJSON('.cursor-plugin/mcp.json') as {
-        mcpServers: Record<string, { url?: string }>
-      }
-      const codex = loadJSON('skills/.codex-plugin/mcp.json') as {
-        mcpServers: Record<string, { url?: string }>
-      }
-      /* eslint-enable typescript/no-unsafe-type-assertion */
-      expect(connect?.mcpServers?.['socket']?.url).toBe(SOCKET_MCP_URL)
-      expect(gemini.mcpServers?.['socket']?.httpUrl).toBe(SOCKET_MCP_URL)
-      expect(cursor.mcpServers['socket']?.url).toBe(SOCKET_MCP_URL)
-      expect(codex.mcpServers['socket']?.url).toBe(SOCKET_MCP_URL)
-    })
-  })
-
-  describe('marketplace.json', () => {
-    it('every plugin source path resolves to a real SKILL.md', () => {
-      const plugins = marketplace.plugins
-      for (let i = 0, { length } = plugins; i < length; i += 1) {
-        const plugin = plugins[i]!
-        const skillMd = path.join(REPO_ROOT, plugin.source, 'SKILL.md')
-        expect(
-          existsSync(skillMd),
-          `plugin '${plugin.name}' source '${plugin.source}' has no SKILL.md`,
-        ).toBe(true)
-      }
-    })
+  it('keeps the tooling package private and unversioned', () => {
+    const packageJson = loadJSON('package.json')
+    expect(packageJson['private']).toBe(true)
+    expect(packageJson['version']).toBe('0.0.0')
   })
 
   describe('agents/README.md', () => {
-    it('references all skill paths', () => {
-      const dirs = getSkillDirs()
-      for (let i = 0, { length } = dirs; i < length; i += 1) {
-        const dir = dirs[i]
-        expect(
-          agentsMd,
-          `agents/README.md does not reference skills/${dir}/SKILL.md`,
-        ).toContain(`skills/${dir}/SKILL.md`)
+    const agentsMd = readFileSync(
+      path.join(REPO_ROOT, 'agents', 'README.md'),
+      'utf-8',
+    )
+
+    it('links every skill, nested ones too', () => {
+      for (const skill of skills) {
+        expect(agentsMd, skill.name).toContain(
+          `skills/${skill.relDir}/SKILL.md`,
+        )
       }
     })
 
-    it('lists all skill names in the table', () => {
-      const dirs = getSkillDirs()
-      for (let i = 0, { length } = dirs; i < length; i += 1) {
-        const dir = dirs[i]
-        // Markdown tables pad column values with spaces; match the
-        // skill-dir cell with a regex that tolerates the padding.
-        const tableRowRe = new RegExp(`\\|\\s*${dir}\\s*\\|`)
+    it('lists every skill name in the table', () => {
+      for (const skill of skills) {
         expect(
-          tableRowRe.test(agentsMd),
-          `agents/README.md table does not list skill '${dir}'`,
+          new RegExp(`\\|\\s*${skill.name}\\s*\\|`).test(agentsMd),
+          `agents/README.md table does not list skill '${skill.name}'`,
         ).toBe(true)
       }
-    })
-  })
-
-  describe('Version consistency', () => {
-    it('keeps the tooling package private and unversioned', () => {
-      expect(packageJson.private).toBe(true)
-      expect(packageJson.version).toBe('0.0.0')
-    })
-
-    it('marketplace.json version matches the plugin manifest', () => {
-      expect(marketplace.metadata.version).toBe(pluginJson.version)
-    })
-
-    it('gemini-extension.json version matches the plugin manifest', () => {
-      expect(geminiJson.version).toBe(pluginJson.version)
-    })
-
-    it('all manifest versions are in sync', () => {
-      /* eslint-disable typescript/no-unsafe-type-assertion -- same rationale
-         as the suite-level manifests above. */
-      const cursorJson = loadJSON('.cursor-plugin/plugin.json') as {
-        version: string
-      }
-      const codexJson = loadJSON('skills/.codex-plugin/plugin.json') as {
-        version: string
-      }
-      /* eslint-enable typescript/no-unsafe-type-assertion */
-
-      const versions = {
-        'marketplace.json': marketplace.metadata.version,
-        'gemini-extension.json': geminiJson.version,
-        'plugin.json': pluginJson.version,
-        'cursor plugin.json': cursorJson.version,
-        'codex plugin.json': codexJson.version,
-      }
-
-      const uniqueVersions = [...new Set(Object.values(versions))]
-      expect(
-        uniqueVersions,
-        `Version mismatch across manifests: ${JSON.stringify(versions)}`,
-      ).toHaveLength(1)
     })
   })
 
   describe('codex marketplace', () => {
-    /* eslint-disable typescript/no-unsafe-type-assertion -- same rationale
-       as the suite-level manifests above. */
-    const codexMarketplace = loadJSON('.agents/plugins/marketplace.json') as {
-      plugins: Array<{ name: string; source: { path: string } }>
-    }
-    /* eslint-enable typescript/no-unsafe-type-assertion */
-
     it('every plugin source holds a Codex manifest with the same name', () => {
-      const plugins = codexMarketplace.plugins
+      const { plugins } = loadJSON('.agents/plugins/marketplace.json') as {
+        plugins: Array<{ name: string; source: { path: string } }>
+      }
       expect(plugins.length).toBeGreaterThan(0)
-      for (let i = 0, { length } = plugins; i < length; i += 1) {
-        const plugin = plugins[i]!
+      for (const plugin of plugins) {
         const manifestPath = path.join(
           REPO_ROOT,
           plugin.source.path,
           '.codex-plugin',
           'plugin.json',
         )
-        expect(
-          existsSync(manifestPath),
-          `codex plugin '${plugin.name}' source '${plugin.source.path}' has no .codex-plugin/plugin.json`,
-        ).toBe(true)
-        /* eslint-disable-next-line typescript/no-unsafe-type-assertion -- the manifest is under test. */
-        const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8')) as {
-          name: string
-        }
-        expect(manifest.name).toBe(plugin.name)
+        expect(existsSync(manifestPath), plugin.name).toBe(true)
+        expect(JSON.parse(readFileSync(manifestPath, 'utf-8')).name).toBe(
+          plugin.name,
+        )
       }
     })
   })

@@ -3,6 +3,8 @@ name: socket-dep-replace
 description:
   Replace a dependency with an alternative package, eliminate it via code
   rewrite, or use socket-optimize for optimized replacements.
+metadata:
+  category: fix
 ---
 
 # Dep Replace
@@ -36,13 +38,22 @@ If the user isn't sure which package to replace, help them pick one:
 
 ## Step 2: Detect the Ecosystem
 
-Identify which ecosystem the target package belongs to by checking manifest and lock files:
+<!-- BEGIN_SECTION:ecosystem-detection.md -->
+
+List the manifest and lock files in the project root. The command prints only the files that exist:
+
+```shell
+ls -d package.json package-lock.json pnpm-lock.yaml yarn.lock bun.lock bun.lockb requirements.txt pyproject.toml setup.py setup.cfg Pipfile Cargo.toml Gemfile pom.xml packages.config go.mod 2>/dev/null || true
+```
+
+Match the results against this table:
 
 | Ecosystem | Manifest Files                                                           |
 | --------- | ------------------------------------------------------------------------ |
 | npm       | `package.json` + `package-lock.json`                                     |
 | pnpm      | `package.json` + `pnpm-lock.yaml`                                        |
 | yarn      | `package.json` + `yarn.lock`                                             |
+| bun       | `package.json` + `bun.lock` or `bun.lockb`                               |
 | PyPI      | `requirements.txt`, `pyproject.toml`, `setup.py`, `setup.cfg`, `Pipfile` |
 | Cargo     | `Cargo.toml`                                                             |
 | Bundler   | `Gemfile`                                                                |
@@ -50,9 +61,13 @@ Identify which ecosystem the target package belongs to by checking manifest and 
 | NuGet     | `*.csproj`, `packages.config`                                            |
 | Go        | `go.mod`                                                                 |
 
-For npm, pnpm, and yarn: differentiate by which lock file is present (`package-lock.json`, `pnpm-lock.yaml`, or `yarn.lock`).
+For npm, pnpm, yarn, and bun, the lock file tells them apart. If `package.json` has no lock file, ask the user which package manager the project uses. If several ecosystems are present, handle each one separately. In a monorepo, also check the workspace folders, because manifests can sit below the root.
+
+<!-- END_SECTION:ecosystem-detection.md -->
 
 ## Step 3: Search for All Usages
+
+<!-- BEGIN_SECTION:usage-search.md -->
 
 Search the **entire codebase** for every reference to the target package. Be thorough - check all of the following:
 
@@ -94,6 +109,8 @@ Search beyond just source code:
 - Shell scripts (`*.sh`)
 - Dockerfiles
 - Documentation that references the package as a runtime dependency
+
+<!-- END_SECTION:usage-search.md -->
 
 ### Build the Usage Map
 
@@ -231,6 +248,8 @@ Using the usage map from Step 3, rewrite each call site:
 
 ### 6d. Remove Original Package
 
+<!-- BEGIN_SECTION:dependency-removal.md -->
+
 | Ecosystem | Removal Command                                                                                                                 |
 | --------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | npm       | `npm uninstall {package}`                                                                                                       |
@@ -242,6 +261,8 @@ Using the usage map from Step 3, rewrite each call site:
 | Maven     | Edit `pom.xml` to remove the `<dependency>` block, then `mvn dependency:resolve`                                                |
 | NuGet     | `dotnet remove package {package}`                                                                                               |
 | Go        | Edit `go.mod` to remove the entry, then `go mod tidy`                                                                           |
+
+<!-- END_SECTION:dependency-removal.md -->
 
 ### 6e. Handle `@types/*` Packages
 

@@ -4,6 +4,9 @@ description:
   Set up prerequisites for Socket scanning - install the CLI, sign in with your
   own Socket account, and verify scan access. Use this before the first scan or
   when encountering auth errors.
+metadata:
+  category: setup
+  requires: socket-connect
 ---
 
 # Scan Setup

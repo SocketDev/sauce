@@ -11,22 +11,42 @@
  * pipeline to keep shared sections in sync.
  */
 
-import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import * as path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { getDefaultLogger } from '@socketsecurity/lib-stable/logger/default'
+import { SHIPPED_INSTRUCTION_DIRS } from './constants/shipped-surfaces.mts'
+import { REPO_ROOT } from './paths.mts'
+import { ArtifactWriter } from './plugins/output.mts'
+import { discoverSkills } from './plugins/skills.mts'
 import { isMainModule, runMain } from './util/main.mts'
 import type { ScriptMeta } from './util/main.mts'
 
 const logger = getDefaultLogger()
 
-const ROOT = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '..',
-  '..',
-)
-const SKILLS_DIR = path.join(ROOT, 'skills')
-const SHARED_DIR = path.join(SKILLS_DIR, '_shared', 'docs')
+const ROOT = REPO_ROOT
+const SHARED_DIR = path.join(ROOT, 'skills', '_shared', 'docs')
+
+/**
+ * Every file shared sections are inlined into: each SKILL.md, plus the
+ * agent instruction files (Cursor rules) that ship beside the skills.
+ */
+export function findTargetFiles(root: string = ROOT): string[] {
+  const files = discoverSkills(root).map(skill =>
+    path.join(skill.dir, 'SKILL.md'),
+  )
+  for (const dir of SHIPPED_INSTRUCTION_DIRS) {
+    const full = path.join(root, dir)
+    if (!existsSync(full)) {
+      continue
+    }
+    for (const entry of readdirSync(full).toSorted()) {
+      if (entry.endsWith('.md') || entry.endsWith('.mdc')) {
+        files.push(path.join(full, entry))
+      }
+    }
+  }
+  return files
+}
 
 const BEGIN_RE = /^<!-- BEGIN_SECTION:(\S+) -->$/
 const END_RE = /^<!-- END_SECTION:(\S+) -->$/
@@ -36,28 +56,14 @@ interface Replacement {
   section: string
 }
 
-export function findSkillFiles(dir: string): string[] {
-  const results: string[] = []
-  const entries = readdirSync(dir, { withFileTypes: true })
-  for (let i = 0, { length } = entries; i < length; i += 1) {
-    const entry = entries[i]!
-    if (entry.name.startsWith('_')) {
-      continue
-    }
-    const full = path.join(dir, entry.name)
-    if (entry.isDirectory()) {
-      const skillMd = path.join(full, 'SKILL.md')
-      if (existsSync(skillMd)) {
-        results.push(skillMd)
-      }
-      // Recurse for subskills
-      results.push(...findSkillFiles(full))
-    }
-  }
-  return results
-}
-
-export function inlineShared(filePath: string): Replacement[] {
+/**
+ * The file's text with every shared section replaced by the current shared
+ * doc, without writing anything.
+ */
+export function renderInlined(filePath: string): {
+  content: string
+  replacements: Replacement[]
+} {
   const content = readFileSync(filePath, 'utf-8')
   const lines = content.split(/\r?\n/)
   const output: string[] = []
@@ -97,7 +103,7 @@ export function inlineShared(filePath: string): Replacement[] {
 
     // Insert shared content
     const shared = embedBelowCurrentHeading(loadShared(sectionName), output)
-    output.push('', shared)
+    output.push('', shared, '')
     output.push(lines[i]!) // keep the END marker
     replacements.push({
       file: path.relative(ROOT, filePath),
@@ -106,12 +112,7 @@ export function inlineShared(filePath: string): Replacement[] {
     i++
   }
 
-  const newContent = output.join('\n')
-  if (newContent !== content) {
-    writeFileSync(filePath, newContent, 'utf-8')
-  }
-
-  return replacements
+  return { content: output.join('\n'), replacements }
 }
 
 export function loadShared(name: string): string {
@@ -159,51 +160,34 @@ function embedBelowCurrentHeading(shared: string, output: string[]): string {
 
 function main(): void {
   const checkMode = process.argv.includes('--check')
-  const files = findSkillFiles(SKILLS_DIR)
-  let totalReplacements = 0
-  const outdated: string[] = []
-
-  for (let i = 0, { length } = files; i < length; i += 1) {
-    const file = files[i]!
-    if (checkMode) {
-      // Read content, compute what it should be, compare
-      const original = readFileSync(file, 'utf-8')
-      const replacements = inlineShared(file)
-      const updated = readFileSync(file, 'utf-8')
-      if (original !== updated) {
-        outdated.push(path.relative(ROOT, file))
-        // Restore original for check mode
-        writeFileSync(file, original, 'utf-8')
-      }
-      totalReplacements += replacements.length
-    } else {
-      const replacements = inlineShared(file)
-      for (let i = 0, { length } = replacements; i < length; i += 1) {
-        const r = replacements[i]!
+  const files = findTargetFiles()
+  const out = new ArtifactWriter(ROOT, checkMode)
+  let total = 0
+  for (const file of files) {
+    const { content, replacements } = renderInlined(file)
+    out.file(path.relative(ROOT, file).split(path.sep).join('/'), content)
+    total += replacements.length
+    if (!checkMode) {
+      for (const r of replacements) {
         logger.log(`  ${r.file}: inlined ${r.section}`)
       }
-      totalReplacements += replacements.length
     }
   }
-
-  if (checkMode) {
-    if (outdated.length > 0) {
-      logger.fail('Shared sections are out of date:')
-      for (let i = 0, { length } = outdated; i < length; i += 1) {
-        const f = outdated[i]!
-        logger.fail(`  - ${f}`)
-      }
-      logger.fail('Run: pnpm exec tsx scripts/repo/inline-shared.ts')
-      process.exit(1)
+  const { outdated } = out.report()
+  if (checkMode && outdated.length > 0) {
+    logger.fail('Shared sections are out of date:')
+    for (const f of outdated) {
+      logger.fail(`  - ${f}`)
     }
-    logger.log(
-      `Shared sections are up to date (${totalReplacements} sections in ${files.length} files).`,
-    )
-  } else {
-    logger.log(
-      `Inlined ${totalReplacements} shared sections across ${files.length} files.`,
-    )
+    logger.fail('Run: pnpm run generate')
+    process.exitCode = 1
+    return
   }
+  logger.log(
+    checkMode
+      ? `Shared sections are up to date (${total} sections in ${files.length} files).`
+      : `Inlined ${total} shared sections across ${files.length} files.`,
+  )
 }
 
 const SCRIPT_META: ScriptMeta = {

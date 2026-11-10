@@ -5,6 +5,8 @@ description: Cut, verify, and reconcile immutable GitHub releases with the
   three-step draft-upload-undraft cut, checksums.txt production, and tag-gap
   healing. Use when tagging a release, healing a missing tag/release, or
   when the github-release workflow gate refuses a tag.
+metadata:
+  category: release
 ---
 
 # GitHub release (immutable, registry-gated)

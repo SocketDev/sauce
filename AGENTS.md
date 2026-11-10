@@ -13,7 +13,14 @@ Rules for people and agents who change this repository.
 
 ## Generated artifacts
 
-- `pnpm run generate` rebuilds `agents/README.md`, `README.md`, the plugin manifests, and `gemini-extension.json` from `skills/` and `package.json`. Run it after you change a skill, then commit the result. `pnpm run generate:check` fails when they are out of date.
+- `pnpm run generate` rebuilds `agents/README.md`, the `README.md` skills table, every agent plugin's generated files (including `.claude-plugin/marketplace.json`, `gemini-extension.json`, and `hermes/`), and `skills/_shared/docs/agent-sign-in.md` from `skills/` and `.claude-plugin/plugin.json`, then inlines shared sections. Run it after you change a skill, then commit the result. `pnpm run generate:check` fails when anything is out of date.
+
+## Skills and agent plugins
+
+- Each skill is `skills/<name>/SKILL.md`, optionally nested under another skill. Its frontmatter `metadata` sets `category` (the README table group) and `requires` (comma-separated skills it needs, such as `socket-connect` for skills that use the MCP server). Every plugin reads skills through `scripts/repo/plugins/skills.mts`.
+- Text that more than one skill needs lives once in `skills/_shared/docs/<name>.md` and is inlined between `<!-- BEGIN_SECTION:<name>.md -->` and `<!-- END_SECTION:<name>.md -->` markers. Cursor rules can use the same markers.
+- `.claude-plugin/plugin.json` is the hand-maintained name, version, and description. Every other plugin manifest is generated from it and from `skills/`; do not edit them by hand.
+- To add an agent, write one target module in `scripts/repo/plugins/targets/` (its generated files and directories, its hand-maintained sources and instruction directories, whether its plugin bundles the MCP server, its sign-in steps, and a `generate` function that writes through the `ArtifactWriter` it is given), list it in `scripts/repo/plugins/registry.mts`, add a `### <agent>` install section to `README.md`, and run `pnpm run generate`. Nothing else needs editing: the shipped-surface lists, the drift check, the `socket-connect` sign-in section, and the contract tests in `test/repo/unit/plugins/` all read the registry.
 
 ## Commits
 

@@ -1,6 +1,9 @@
 ---
 name: socket-pr-alerts
 description: Triage the alerts Socket for GitHub posts on a pull request and decide what to fix, replace, or accept. Use it when a PR has a failing "Socket Security" check or a Socket alerts comment.
+metadata:
+  category: analysis
+  requires: socket-connect
 ---
 
 # Socket PR Alerts

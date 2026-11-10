@@ -8,37 +8,56 @@
  *   fails on any unclassified entry so new surfaces are a conscious call.
  */
 
-/**
- * Trees consumers install or copy — Socket-integration content only.
- */
-export const SHIPPED_DIRS = [
-  'agents',
-  'examples',
-  'hermes',
-  'release-kit',
-  'skills',
-] as const
+import {
+  generatedDirs,
+  generatedFiles,
+  PLUGIN_TARGETS,
+} from '../plugins/registry.mts'
+
+const topLevel = (rel: string): string => rel.split('/')[0]!
 
 /**
- * Agent-instruction trees inside a shipped root entry. Agents read and obey
- * these files, so the shipped-content gates scan them like SHIPPED_DIRS.
+ * Trees consumers install or copy — Socket-integration content only. Each
+ * agent plugin's generated trees are added from the plugin registry.
  */
-export const SHIPPED_INSTRUCTION_DIRS = ['.cursor-plugin/rules'] as const
+export const SHIPPED_DIRS: readonly string[] = [
+  ...new Set([
+    'agents',
+    'examples',
+    'release-kit',
+    'skills',
+    ...generatedDirs().map(topLevel),
+  ]),
+].toSorted()
+
+/**
+ * Agent-instruction trees inside a shipped root entry, declared by the plugin
+ * targets. Agents read and obey these files, so the shipped-content gates
+ * scan them like SHIPPED_DIRS, and shared skill sections are inlined into
+ * them.
+ */
+export const SHIPPED_INSTRUCTION_DIRS: readonly string[] =
+  PLUGIN_TARGETS.flatMap(target => target.instructionDirs ?? [])
 
 /**
  * Consumer-facing manifests and adapters at the root: generated for the
  * harnesses consumers use, referenced by shipped docs, but not trees a
- * consumer copies wholesale.
+ * consumer copies wholesale. Each agent plugin's root entries come from the
+ * plugin registry.
  */
-export const SHIPPED_ROOT_FILES = [
-  '.agents',
-  '.claude-plugin',
-  '.cursor-plugin',
-  '.opencode',
-  'gemini-extension.json',
-  'LICENSE',
-  'README.md',
-] as const
+export const SHIPPED_ROOT_FILES: readonly string[] = [
+  ...new Set([
+    '.opencode',
+    'LICENSE',
+    'README.md',
+    ...[
+      ...generatedFiles(),
+      ...PLUGIN_TARGETS.flatMap(target => target.sources),
+    ]
+      .map(topLevel)
+      .filter(entry => !SHIPPED_DIRS.includes(entry)),
+  ]),
+].toSorted()
 
 /**
  * Fleet-member machinery — cascaded from the wheelhouse, never consumable.

@@ -7,6 +7,9 @@ description:
   get temporary read-only scans by default (--tmp). Creates a persistent dashboard
   scan only when explicitly requested. Includes reachability analysis for enterprise
   customers and license compliance auditing.
+metadata:
+  category: analysis
+  requires: socket-connect
 ---
 
 # Research Scan
@@ -69,6 +72,7 @@ If you do not want an account, leave authentication unconfigured. Commands that 
 If authentication fails or the CLI is not installed, use the `/socket-setup` skill for detailed guidance including Node.js installation, PATH troubleshooting, and CI/CD token configuration.
 
 </details>
+
 <!-- END_SECTION:cli-setup.md -->
 
 For enterprise features (reachability analysis), an enterprise subscription is required in addition to authentication.

@@ -1,6 +1,9 @@
 ---
 name: socket-vet-agent-tools
 description: Vet an MCP server, agent skill, or plugin before you install it into a coding agent. Use it to check the packages behind it with Socket, read its published files, review its hooks, scripts, and prompt text, and install it pinned through Socket Firewall.
+metadata:
+  category: analysis
+  requires: socket-connect
 ---
 
 # Vet Agent Tools
@@ -64,6 +67,7 @@ If you do not want an account, leave authentication unconfigured. Commands that 
 If authentication fails or the CLI is not installed, use the `/socket-setup` skill for detailed guidance including Node.js installation, PATH troubleshooting, and CI/CD token configuration.
 
 </details>
+
 <!-- END_SECTION:cli-setup.md -->
 
 **Prefer the Socket MCP tools when connected.** Look for Socket MCP tools by suffix: `depscore`, `package_files`, `package_file_contents`, `package_file_grep`, `organizations`, `threat_feed`. The full name depends on how the server was added, for example `mcp__socket-mcp__depscore` or `mcp__plugin_socket-connect_socket__depscore`. Match the suffix, never one hard-coded prefix. If they are missing or return an authentication error, use `/socket-connect` to sign in through the browser.
@@ -234,6 +238,8 @@ Re-run this skill when you update to a new version or commit.
 
 ## Output Format
 
+<!-- BEGIN_SECTION:malware-warning.md -->
+
 ### If Malware Is Detected
 
 When malware is detected, the output **MUST** begin with this warning before any other content:
@@ -243,7 +249,11 @@ When malware is detected, the output **MUST** begin with this warning before any
 > **Package:** `{name}` ({ecosystem})
 > **Malware type:** {description of malware behavior}
 >
-> **Recommended action:** Remove this package immediately if already installed. Use `/socket-dep-replace` to find an alternative.
+> **Recommended action:** Remove this package immediately if already installed. {next step}
+
+<!-- END_SECTION:malware-warning.md -->
+
+For `{next step}`, write: Use `/socket-dep-replace` to find an alternative.
 
 If the tool is already installed, remove it from the agent's config and use `/socket-incident-response`.
 

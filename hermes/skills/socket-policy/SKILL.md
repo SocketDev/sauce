@@ -1,6 +1,9 @@
 ---
 name: socket-policy
 description: Edit a repository's socket.yml and change how Socket acts on alerts (block, warn, monitor, ignore). Use it to exclude paths from scans, tune the GitHub App per repo, check the file against the schema, or find and change the organization's security and license policy.
+metadata:
+  category: setup
+  requires: socket-connect
 ---
 
 # Socket Policy
@@ -55,6 +58,7 @@ If you do not want an account, leave authentication unconfigured. Commands that 
 If authentication fails or the CLI is not installed, use the `/socket-setup` skill for detailed guidance including Node.js installation, PATH troubleshooting, and CI/CD token configuration.
 
 </details>
+
 <!-- END_SECTION:cli-setup.md -->
 
 Editing `socket.yml` needs no account. Reading or changing the organization policy does. Never ask the user to paste a token into the chat, and never print one.

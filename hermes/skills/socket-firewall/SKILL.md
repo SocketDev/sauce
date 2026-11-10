@@ -1,6 +1,9 @@
 ---
 name: socket-firewall
 description: Run package installs through Socket Firewall (`sfw`) to block malware at download time, and handle a block when one happens. Use it when installing dependencies, when an install fails with a Socket block, or when setting up Enterprise policy and private registries.
+metadata:
+  category: protect
+  requires: socket-connect
 ---
 
 # Socket Firewall

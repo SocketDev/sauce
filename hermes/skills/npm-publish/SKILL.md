@@ -6,6 +6,8 @@ description:
   publishing), dispatch a staged publish, promote with --approve,
   backfill an old version, and roll back with deprecate. Use when
   publishing an npm package in a repo carrying scripts/socket-release/.
+metadata:
+  category: release
 ---
 
 # npm publish (staged)

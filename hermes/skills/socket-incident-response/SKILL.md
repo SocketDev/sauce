@@ -1,6 +1,9 @@
 ---
 name: socket-incident-response
 description: Respond to a malware report or advisory about a package. Use it to confirm the report in Socket's threat feed, find out whether your projects use the bad version, contain it, check whether it ran, rotate secrets, and write up what happened.
+metadata:
+  category: protect
+  requires: socket-connect
 ---
 
 # Socket Incident Response
@@ -56,6 +59,7 @@ If you do not want an account, leave authentication unconfigured. Commands that 
 If authentication fails or the CLI is not installed, use the `/socket-setup` skill for detailed guidance including Node.js installation, PATH troubleshooting, and CI/CD token configuration.
 
 </details>
+
 <!-- END_SECTION:cli-setup.md -->
 
 **Prefer the Socket MCP tools when connected.** Look for tools whose names end in `threat_feed`, `organizations`, `alerts`, `depscore`, `package_files`, `package_file_contents`, and `package_file_grep`. Match on the suffix, never on one hard-coded prefix (see `/socket-connect`, Step 1). If none are present, or a call fails with an authentication error, use `/socket-connect` to sign in through the browser. Never ask the user to paste a token into the chat, and never print one.

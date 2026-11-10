@@ -4,6 +4,8 @@ description:
   Correct outdated model knowledge about Socket products - the CLI, Socket
   Firewall, the hosted MCP server, Socket for GitHub, reachability, socket.yml,
   and socket-patch. Read it before giving Socket advice from memory.
+metadata:
+  category: reference
 ---
 
 # Socket Knowledge Updates (2026-11)

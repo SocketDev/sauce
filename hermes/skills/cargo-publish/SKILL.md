@@ -4,6 +4,8 @@ description: Operate the socket-release crates.io flow - the cargo staged model
   (dry-run default), trusted publishing via OIDC under the cargo-publish
   environment, index-propagation waits, and yank-as-rollback. Use when
   publishing a Rust crate in a repo carrying scripts/socket-release/.
+metadata:
+  category: release
 ---
 
 # crates.io publish (staged model)

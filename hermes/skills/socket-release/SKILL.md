@@ -7,6 +7,8 @@ description:
   trusted publisher, publishing-access tightening, staged publish config,
   and verification.
 disable-model-invocation: true
+metadata:
+  category: release
 ---
 
 # Socket Release Setup
