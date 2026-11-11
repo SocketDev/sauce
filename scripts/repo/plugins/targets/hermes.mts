@@ -17,11 +17,12 @@
 import { statSync } from 'node:fs'
 import * as path from 'node:path'
 
+import { findSkillNames, parseJsonOutput } from '../load.mts'
 import { renderFormattedJson } from '../output.mts'
 import { skillOwnFiles } from '../skills.mts'
 import { SOCKET_MCP, WEBSITE_URL } from '../socket.mts'
 import { definePluginTarget } from '../target.mts'
-import type { PluginInputs } from '../target.mts'
+import type { LoadCheck, PluginInputs } from '../target.mts'
 
 export const HERMES_DIR = 'hermes'
 export const HERMES_MANIFEST = `${HERMES_DIR}/plugin.json`
@@ -136,6 +137,44 @@ export function validateHermesPlugin(
   return problems
 }
 
+/**
+ * Runs Hermes's own validator, then installs the plugin through Hermes's
+ * clone-and-scan install path (the install scanner included) and reads the
+ * skills it installed.
+ */
+export const hermesLoadCheck: LoadCheck = {
+  cli: {
+    bin: 'hermes',
+    install: {
+      tool: 'uv',
+      spec: 'git+https://github.com/NousResearch/hermes-agent@bf0203a794a07aac3ff764972ab9087baa4e4f4e',
+    },
+    isolate: home => ({ HERMES_HOME: home }),
+  },
+  load(session) {
+    session.run([
+      'plugins',
+      'validate',
+      path.join(session.dir, HERMES_DIR),
+      '--json',
+    ])
+    session.run([
+      'plugins',
+      'install',
+      `${session.gitUrl()}#${HERMES_DIR}`,
+      '--yes-deps',
+      '--no-enable',
+    ])
+    const listed = parseJsonOutput(
+      session.run(['plugins', 'list', '--json']),
+    ) as Array<{ name: string }>
+    if (!listed.some(p => p.name === HERMES_PLUGIN_NAME)) {
+      throw new Error(`Hermes did not list the ${HERMES_PLUGIN_NAME} plugin.`)
+    }
+    return { skills: findSkillNames(session.home), mcpUrls: [] }
+  },
+}
+
 export const hermesTarget = definePluginTarget({
   id: 'hermes',
   agent: 'Hermes Agent',
@@ -173,4 +212,5 @@ export const hermesTarget = definePluginTarget({
     ctx.out.file(HERMES_MANIFEST, manifestText)
     ctx.out.tree(HERMES_SKILLS, files)
   },
+  loadCheck: hermesLoadCheck,
 })

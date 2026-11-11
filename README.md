@@ -283,7 +283,8 @@ The full writeup with config and command examples is in [docs/best-practices.md]
 2. Add a `SKILL.md` file with YAML frontmatter followed by guidance content. The frontmatter needs `name`, `description`, and `metadata.category` (one of `setup`, `analysis`, `fix`, `protect`, `reference`, or `release`), plus `metadata.requires` when the skill needs another one, such as `socket-connect` for the MCP server
 3. Run `pnpm run generate` to regenerate every agent plugin, `agents/README.md`, and this README's skills table
 4. Run `pnpm run check` to verify everything is in sync
-5. Submit a pull request
+5. Run `pnpm run plugins:load` to have each installed agent CLI load the plugin and list its skills
+6. Submit a pull request
 
 See the "Skills and agent plugins" section of [AGENTS.md](AGENTS.md) for how skills share text and how to add an agent plugin.
 

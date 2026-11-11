@@ -67,6 +67,7 @@ export const SCAFFOLDING_ENTRIES = [
   '.claude',
   '.config',
   '.editorconfig',
+  '.env.example',
   '.git-hooks',
   '.gitattributes',
   '.github',

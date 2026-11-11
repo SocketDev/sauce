@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process'
 import process from 'node:process'
 
+import { loadLocalEnv } from '../plugins/endpoint.mts'
 import { formatScanHits, scanFiles } from '../util/scan.mts'
 import { parseStagedBlobPaths } from '../util/staged.mts'
 
@@ -14,6 +15,13 @@ function readStagedFile(file: string): string {
     )
   }
   return result.stdout.toString('utf8')
+}
+
+const top = spawnSync('git', ['rev-parse', '--show-toplevel'], {
+  encoding: 'utf8',
+})
+if (top.status === 0) {
+  loadLocalEnv(top.stdout.trim())
 }
 
 const staged = spawnSync(
@@ -34,7 +42,7 @@ try {
 }
 if (hits.length > 0) {
   process.stderr.write(
-    `pre-commit: staged files contain secrets or personal paths:\n${formatScanHits(hits)}\nFix: remove them, then stage again.\n`,
+    `pre-commit: staged files contain secrets, personal paths, or non-public Socket hosts:\n${formatScanHits(hits)}\nFix: remove them, then stage again.\n`,
   )
   process.exit(1)
 }

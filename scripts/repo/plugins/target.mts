@@ -79,6 +79,71 @@ export interface PluginTarget {
   instructionDirs?: readonly string[] | undefined
   connect: AgentConnect
   generate(ctx: PluginContext): void
+  /**
+   * How the load check installs this agent's own CLI and has it load the
+   * plugin. Omit it for an agent that has no CLI to load plugins with.
+   */
+  loadCheck?: LoadCheck | undefined
+}
+
+/**
+ * The agent CLI that the load check runs.
+ */
+export interface AgentCli {
+  /**
+   * The executable name.
+   */
+  bin: string
+  /**
+   * How CI installs the CLI: an exact npm package version, or a Python
+   * package that uv installs from a pinned source.
+   */
+  install: { tool: 'npm' | 'uv'; spec: string }
+  /**
+   * Environment variables that keep the CLI's config, plugins, and caches in
+   * `home`, away from the user's own setup.
+   */
+  isolate(home: string): Record<string, string>
+}
+
+export interface LoadSession {
+  /**
+   * The plugin build to load.
+   */
+  dir: string
+  /**
+   * The isolated config directory the agent CLI runs with.
+   */
+  home: string
+  /**
+   * Commits the build to a throwaway git repository inside it and returns
+   * its file:// URL, for agents that install plugins only by cloning.
+   */
+  gitUrl(): string
+  /**
+   * Runs the agent CLI with the isolated environment and returns stdout. A
+   * non-zero exit throws with the output.
+   */
+  run(args: readonly string[], options?: { cwd?: string }): string
+}
+
+/**
+ * What the agent reported after loading the plugin.
+ */
+export interface LoadReport {
+  /**
+   * Names of the skills the agent lists for the plugin.
+   */
+  skills: readonly string[]
+  /**
+   * URLs of the MCP servers the plugin registered.
+   */
+  mcpUrls: readonly string[]
+}
+
+export interface LoadCheck {
+  cli: AgentCli
+  load(session: LoadSession): LoadReport
 }
 
 export function definePluginTarget(target: PluginTarget): PluginTarget {

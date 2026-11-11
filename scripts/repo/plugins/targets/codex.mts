@@ -8,6 +8,14 @@
  * inventory and gitignored at every depth.
  */
 
+import path from 'node:path'
+
+import {
+  collectUrls,
+  findSkillNames,
+  parseJsonOutput,
+  readJson,
+} from '../load.mts'
 import {
   DEFAULT_PROMPTS,
   DISPLAY_NAME,
@@ -17,7 +25,7 @@ import {
   WEBSITE_URL,
 } from '../socket.mts'
 import { definePluginTarget } from '../target.mts'
-import type { PluginInputs } from '../target.mts'
+import type { LoadCheck, PluginInputs } from '../target.mts'
 
 export const CODEX_MANIFEST = 'skills/.codex-plugin/plugin.json'
 export const CODEX_MCP = 'skills/.codex-plugin/mcp.json'
@@ -81,6 +89,47 @@ export function buildCodexMarketplace(
   }
 }
 
+/**
+ * Adds the build as a Codex marketplace, installs the plugin from it, and
+ * reads back the installed plugin, its skills in the Codex cache, and the MCP
+ * servers Codex now knows.
+ */
+export const codexLoadCheck: LoadCheck = {
+  cli: {
+    bin: 'codex',
+    install: { tool: 'npm', spec: '@openai/codex@0.165.0' },
+    isolate: home => ({ CODEX_HOME: home }),
+  },
+  load(session) {
+    const marketplace = readJson(path.join(session.dir, CODEX_MARKETPLACE))
+    const plugins = marketplace['plugins'] as Array<{ name: string }>
+    session.run(['plugin', 'marketplace', 'add', session.dir, '--json'])
+    for (const plugin of plugins) {
+      session.run([
+        'plugin',
+        'add',
+        `${plugin.name}@${String(marketplace['name'])}`,
+        '--json',
+      ])
+    }
+    const listed = parseJsonOutput(
+      session.run(['plugin', 'list', '--json']),
+    ) as { installed?: Array<{ name: string; enabled?: boolean }> }
+    for (const plugin of plugins) {
+      const entry = listed.installed?.find(p => p.name === plugin.name)
+      if (!entry || entry.enabled === false) {
+        throw new Error(`Codex did not install and enable ${plugin.name}.`)
+      }
+    }
+    return {
+      skills: findSkillNames(session.home),
+      mcpUrls: collectUrls(
+        parseJsonOutput(session.run(['mcp', 'list', '--json'])),
+      ),
+    }
+  },
+}
+
 export const codexTarget = definePluginTarget({
   id: 'codex',
   agent: 'Codex',
@@ -101,4 +150,5 @@ export const codexTarget = definePluginTarget({
     ctx.out.json(CODEX_MCP, buildCodexMcpConfig())
     ctx.out.json(CODEX_MARKETPLACE, buildCodexMarketplace(ctx))
   },
+  loadCheck: codexLoadCheck,
 })

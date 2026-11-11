@@ -6,6 +6,7 @@ import process from 'node:process'
 import { REPO_ROOT } from './paths.mts'
 import { isMainModule, runMain } from './util/main.mts'
 import type { ScriptMeta } from './util/main.mts'
+import { loadLocalEnv } from './plugins/endpoint.mts'
 import { formatScanHits, scanFiles } from './util/scan.mts'
 
 interface CheckStep {
@@ -35,6 +36,7 @@ function runNode(args: readonly string[]): boolean {
 }
 
 function scanTrackedFiles(): boolean {
+  loadLocalEnv(REPO_ROOT)
   const listed = spawnSync('git', ['ls-files', '-z'], {
     cwd: REPO_ROOT,
     encoding: 'utf8',
@@ -46,7 +48,7 @@ function scanTrackedFiles(): boolean {
   const hits = scanFiles(listed.stdout.split('\0').filter(Boolean))
   if (hits.length > 0) {
     process.stderr.write(
-      `Tracked files contain secrets or personal paths:\n${formatScanHits(hits)}\n`,
+      `Tracked files contain secrets, personal paths, or non-public Socket hosts:\n${formatScanHits(hits)}\n`,
     )
     return false
   }
