@@ -4,6 +4,9 @@ description:
   Fix dependency security issues - either scan and fix everything (requires
   /socket-scan), or target a single named package. Orchestrates /socket-dep-cleanup,
   /socket-dep-replace, /socket-dep-patch, and /socket-dep-upgrade as subskills.
+metadata:
+  category: fix
+  requires: socket-connect
 ---
 
 # Fix
@@ -80,6 +83,7 @@ If you do not want an account, leave authentication unconfigured. Commands that 
 If authentication fails or the CLI is not installed, use the `/socket-setup` skill for detailed guidance including Node.js installation, PATH troubleshooting, and CI/CD token configuration.
 
 </details>
+
 <!-- END_SECTION:cli-setup.md -->
 
 **Do not proceed with Fix All mode until scanning works.** If the user cannot or will not set up Socket, offer Fix Package mode instead (which has lower requirements per subskill).

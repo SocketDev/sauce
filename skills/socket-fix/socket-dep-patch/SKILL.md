@@ -4,6 +4,8 @@ description:
   Apply Socket's binary-level security patches without changing dependency
   versions. Uses socket-patch apply to fix vulnerabilities in-place, then verifies
   automated patching is configured so patches persist across installs.
+metadata:
+  category: fix
 ---
 
 # Dep Patch
@@ -144,6 +146,8 @@ If the user says no, skip setup and finish.
 
 Set up automated patching so `socket-patch apply` runs after every dependency install, keeping patches persistent across installs and CI rebuilds.
 
+<!-- BEGIN_SECTION:patch-automation.md -->
+
 ### Scan Codebase for Install/Build Locations
 
 Before configuring automation, scan the project to find ALL places where dependencies are installed and builds happen:
@@ -240,7 +244,7 @@ This auto-adds a postinstall hook to your `package.json` scripts that runs `sock
 
 Add a `RUN socket-patch apply` layer after the install layer. Use the appropriate runner for the project's package manager (e.g. `pnpm dlx` for pnpm, `bunx` for bun):
 
-```text
+```dockerfile
 FROM node:20-alpine
 WORKDIR /app
 COPY package*.json ./
@@ -272,6 +276,8 @@ If the project uses an unusual build system, use the appropriate package manager
 - **Interpreted projects** (Python, Ruby): add `socket-patch scan && socket-patch apply` after `pip install` / `bundle install`
 - **Compiled projects** (Rust, Go, Java): add `socket-patch scan && socket-patch apply` after dependency fetch, before compile
 - **Containers**: add `RUN socket-patch scan` and `RUN socket-patch apply` layers after the install layer
+
+<!-- END_SECTION:patch-automation.md -->
 
 ## Error Handling
 

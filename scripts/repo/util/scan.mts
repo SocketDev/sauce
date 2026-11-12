@@ -1,4 +1,11 @@
 import { readFileSync } from 'node:fs'
+import process from 'node:process'
+
+import {
+  PUBLIC_SOCKET_HOSTS,
+  privateHosts,
+  resolveEndpoints,
+} from '../plugins/endpoint.mts'
 
 export interface ScanHit {
   readonly file: string
@@ -37,17 +44,55 @@ const SCAN_RULES: readonly ScanRule[] = [
         line,
       ),
   },
+  {
+    name: 'non-public-socket-host',
+    pattern: /[a-z0-9-]\.socket\.dev\b/i,
+    allow: line =>
+      [...line.matchAll(/(?<![\w.-])((?:[a-z0-9-]+\.)+socket\.dev)\b/gi)].every(
+        match => PUBLIC_SOCKET_HOSTS.includes(match[1]!.toLowerCase()),
+      ),
+  },
 ]
+
+function escapeRegExp(text: string): string {
+  return text.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/**
+ * The fixed rules plus one per non-production Socket host configured in the
+ * environment or .env.local, so an override never reaches a tracked file.
+ */
+export function scanRules(
+  env: NodeJS.ProcessEnv = process.env,
+): readonly ScanRule[] {
+  let hosts: string[]
+  try {
+    hosts = privateHosts(resolveEndpoints(env))
+  } catch {
+    hosts = []
+  }
+  return [
+    ...SCAN_RULES,
+    ...hosts.map(host => ({
+      name: 'endpoint-override',
+      pattern: new RegExp(`(?<![\\w.-])${escapeRegExp(host)}(?![\\w-])`, 'i'),
+    })),
+  ]
+}
 
 const SKIPPED_FILE_RE =
   /(?:^|\/)(?:pnpm-lock\.yaml|[^/]+\.(?:png|jpg|jpeg|gif|ico|svg|woff2?|ttf|zip|gz|tgz|mcpb))$/
 
-export function scanText(file: string, text: string): ScanHit[] {
+export function scanText(
+  file: string,
+  text: string,
+  rules: readonly ScanRule[] = SCAN_RULES,
+): ScanHit[] {
   const hits: ScanHit[] = []
   const lines = text.split(/\r?\n/)
   for (let index = 0, { length } = lines; index < length; index += 1) {
     const line = lines[index]!
-    for (const rule of SCAN_RULES) {
+    for (const rule of rules) {
       if (rule.pattern.test(line) && !rule.allow?.(line)) {
         hits.push({ file, line: index + 1, rule: rule.name })
       }
@@ -73,6 +118,7 @@ export function readWorkingTreeFile(file: string): string | undefined {
 export function scanFiles(
   files: readonly string[],
   read: ReadText = readWorkingTreeFile,
+  rules: readonly ScanRule[] = scanRules(),
 ): ScanHit[] {
   const hits: ScanHit[] = []
   for (const file of files) {
@@ -83,7 +129,7 @@ export function scanFiles(
     if (text === undefined || text.includes('\0')) {
       continue
     }
-    hits.push(...scanText(file, text))
+    hits.push(...scanText(file, text, rules))
   }
   return hits
 }

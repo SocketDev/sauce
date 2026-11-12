@@ -1,0 +1,5 @@
+- `depscore`: get Socket scores (0-100) for one or more packages. Give each package as `depname`, `ecosystem` (default `npm`), and `version` (use the exact version when you know it). Lower scores mean higher risk. A missing score is not a safety verdict.
+- `organizations`: list the Socket organizations that the sign-in can access. Use it to find the `org_slug` that `alerts` and `threat_feed` need.
+- `alerts`: list the security alerts of an organization. It needs `org_slug`. Filter with `status`, `severity`, and other fields, and use `cursor` to get more pages.
+- `threat_feed`: list packages that Socket flagged recently, for example malware and typosquats. It needs `org_slug`.
+- `package_files`, `package_file_contents`, `package_file_grep`: read the files in a published package before you install it.

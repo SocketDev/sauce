@@ -4,6 +4,8 @@ description: Operate the socket-release Homebrew tap flow - the binary-download
   formula model, tap repo layout, formula bumps tied to published releases,
   and sha256 verification against the release's own checksums.txt. Use when
   bumping a Homebrew formula or standing up a tap for a Socket CLI.
+metadata:
+  category: release
 ---
 
 # Homebrew tap (binary-download formula)

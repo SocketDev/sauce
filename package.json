@@ -13,6 +13,8 @@
     "generate": "node scripts/repo/publish.mts",
     "generate:check": "node scripts/repo/publish.mts --check",
     "lint": "oxlint .",
+    "plugins:load": "node scripts/repo/plugins/load-check.mts",
+    "plugins:local": "node scripts/repo/plugins/local-build.mts",
     "lint:fix": "oxlint --fix .",
     "prepare": "node scripts/repo/install-git-hooks.mts",
     "prepublishOnly": "echo 'ERROR: Use GitHub Actions workflow for publishing' && exit 1",

@@ -12,41 +12,34 @@ import crypto from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
-import { fileURLToPath } from 'node:url'
 
 import { spawn } from '@socketsecurity/lib-stable/process/spawn/child'
 
+import { SHIPPED_INSTRUCTION_DIRS } from './constants/shipped-surfaces.mts'
+import { REPO_ROOT } from './paths.mts'
+import { MISSING, treeSignature } from './plugins/output.mts'
+import {
+  generatedDirs,
+  generatedFiles,
+  SIGN_IN_DOC,
+} from './plugins/registry.mts'
 import { isMainModule, runMain } from './util/main.mts'
 import type { ScriptMeta } from './util/main.mts'
 
-const rootPath = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '..',
-  '..',
-)
+const rootPath = REPO_ROOT
 
-const GENERATED_FILES = [
+const PLUGINS = 'scripts/repo/plugins/generate.mts'
+const OXFMT = 'node_modules/oxfmt/bin/oxfmt'
+
+export const GENERATED_FILES: readonly string[] = [
   'agents/README.md',
   'README.md',
-  '.cursor-plugin/plugin.json',
-  '.cursor-plugin/mcp.json',
-  '.claude-plugin/plugin.json',
-  '.claude-plugin/marketplace.json',
-  '.agents/plugins/marketplace.json',
-  'skills/.codex-plugin/plugin.json',
-  'skills/.codex-plugin/mcp.json',
-  'gemini-extension.json',
-] as const
+  ...generatedFiles(),
+]
 
-const GENERATORS = [
-  'scripts/repo/inline-shared.mts',
-  'scripts/repo/sync-versions.mts',
-  'scripts/repo/generate-agents.mts',
-  'scripts/repo/generate-cursor-plugin.mts',
-  'scripts/repo/generate-codex-plugin.mts',
-] as const
-
-const MISSING = '__MISSING__'
+// Generated trees, hashed as a whole so an added, changed, or removed file
+// counts as drift.
+export const GENERATED_DIRS: readonly string[] = generatedDirs()
 
 function fileSignature(relativePath: string): string {
   try {
@@ -69,14 +62,21 @@ async function runScript(scriptPath: string, ...args: string[]): Promise<void> {
   }
 }
 
+// Skills are formatted before the plugins copy them, so every copy matches
+// the repository formatter's output and `format` never fights `generate`.
 async function generate(): Promise<void> {
-  for (let i = 0, { length } = GENERATORS; i < length; i += 1) {
-    await runScript(GENERATORS[i]!)
-  }
-  // Generated Markdown tables and JSON must be byte-identical to the normal
-  // repository formatter output; otherwise `build` and `format` fight and the
-  // subsequent `generate:check` reports drift on a clean checkout.
-  await runScript('node_modules/oxfmt/bin/oxfmt', ...GENERATED_FILES, 'skills')
+  await runScript(PLUGINS, '--sign-in-only')
+  await runScript(OXFMT, SIGN_IN_DOC)
+  await runScript('scripts/repo/inline-shared.mts')
+  await runScript('scripts/repo/generate-agents.mts')
+  await runScript(
+    OXFMT,
+    'agents/README.md',
+    'README.md',
+    'skills',
+    ...SHIPPED_INSTRUCTION_DIRS,
+  )
+  await runScript(PLUGINS)
 }
 
 async function check(): Promise<void> {
@@ -85,6 +85,14 @@ async function check(): Promise<void> {
     const relativePath = GENERATED_FILES[i]!
     before.set(relativePath, fileSignature(relativePath))
   }
+  for (let i = 0, { length } = GENERATED_DIRS; i < length; i += 1) {
+    const relativeDir = GENERATED_DIRS[i]!
+    before.set(relativeDir, treeSignature(path.join(rootPath, relativeDir)))
+  }
+
+  // Check inlined sections before generate() rewrites them; files outside
+  // the generated outputs (such as Cursor rules) are not hashed below.
+  await runScript('scripts/repo/inline-shared.mts', '--check')
 
   await generate()
 
@@ -93,6 +101,15 @@ async function check(): Promise<void> {
     const relativePath = GENERATED_FILES[i]!
     if (fileSignature(relativePath) !== before.get(relativePath)) {
       changed.push(relativePath)
+    }
+  }
+  for (let i = 0, { length } = GENERATED_DIRS; i < length; i += 1) {
+    const relativeDir = GENERATED_DIRS[i]!
+    if (
+      treeSignature(path.join(rootPath, relativeDir)) !==
+      before.get(relativeDir)
+    ) {
+      changed.push(`${relativeDir}/`)
     }
   }
 
@@ -104,9 +121,7 @@ async function check(): Promise<void> {
     return
   }
 
-  await runScript('scripts/repo/generate-cursor-plugin.mts', '--check')
-  await runScript('scripts/repo/generate-codex-plugin.mts', '--check')
-  await runScript('scripts/repo/inline-shared.mts', '--check')
+  await runScript(PLUGINS, '--check')
   process.stdout.write('All generated artifacts are up to date.\n')
 }
 

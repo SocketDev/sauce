@@ -4,6 +4,8 @@ description:
   Evaluate and remove a single unused dependency from your project. Searches
   the entire codebase for all usages (imports, requires, config refs, scripts, type
   packages, indirect usage), reports findings, and performs full removal with verification.
+metadata:
+  category: fix
 ---
 
 # Dep Cleanup
@@ -32,13 +34,22 @@ If the user isn't sure which package to evaluate, help them pick one:
 
 ## Step 2: Detect the Ecosystem
 
-Identify which ecosystem the target package belongs to by checking manifest and lock files:
+<!-- BEGIN_SECTION:ecosystem-detection.md -->
+
+List the manifest and lock files in the project root. The command prints only the files that exist:
+
+```shell
+ls -d package.json package-lock.json pnpm-lock.yaml yarn.lock bun.lock bun.lockb requirements.txt pyproject.toml setup.py setup.cfg Pipfile Cargo.toml Gemfile pom.xml packages.config go.mod 2>/dev/null || true
+```
+
+Match the results against this table:
 
 | Ecosystem | Manifest Files                                                           |
 | --------- | ------------------------------------------------------------------------ |
 | npm       | `package.json` + `package-lock.json`                                     |
 | pnpm      | `package.json` + `pnpm-lock.yaml`                                        |
 | yarn      | `package.json` + `yarn.lock`                                             |
+| bun       | `package.json` + `bun.lock` or `bun.lockb`                               |
 | PyPI      | `requirements.txt`, `pyproject.toml`, `setup.py`, `setup.cfg`, `Pipfile` |
 | Cargo     | `Cargo.toml`                                                             |
 | Bundler   | `Gemfile`                                                                |
@@ -46,9 +57,13 @@ Identify which ecosystem the target package belongs to by checking manifest and 
 | NuGet     | `*.csproj`, `packages.config`                                            |
 | Go        | `go.mod`                                                                 |
 
-For npm, pnpm, and yarn: differentiate by which lock file is present (`package-lock.json`, `pnpm-lock.yaml`, or `yarn.lock`).
+For npm, pnpm, yarn, and bun, the lock file tells them apart. If `package.json` has no lock file, ask the user which package manager the project uses. If several ecosystems are present, handle each one separately. In a monorepo, also check the workspace folders, because manifests can sit below the root.
+
+<!-- END_SECTION:ecosystem-detection.md -->
 
 ## Step 3: Search for All Usages
+
+<!-- BEGIN_SECTION:usage-search.md -->
 
 Search the **entire codebase** for every reference to the target package. Be thorough - check all of the following:
 
@@ -90,6 +105,8 @@ Search beyond just source code:
 - Shell scripts (`*.sh`)
 - Dockerfiles
 - Documentation that references the package as a runtime dependency
+
+<!-- END_SECTION:usage-search.md -->
 
 ## Step 4: Report Findings
 
@@ -137,6 +154,8 @@ Then ask the user: **"This package is used in {N} locations. Do you still want t
 
 ### 5a. Uninstall via Package Manager
 
+<!-- BEGIN_SECTION:dependency-removal.md -->
+
 | Ecosystem | Removal Command                                                                                                                 |
 | --------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | npm       | `npm uninstall {package}`                                                                                                       |
@@ -148,6 +167,8 @@ Then ask the user: **"This package is used in {N} locations. Do you still want t
 | Maven     | Edit `pom.xml` to remove the `<dependency>` block, then `mvn dependency:resolve`                                                |
 | NuGet     | `dotnet remove package {package}`                                                                                               |
 | Go        | Edit `go.mod` to remove the entry, then `go mod tidy`                                                                           |
+
+<!-- END_SECTION:dependency-removal.md -->
 
 ### 5b. Remove Import Statements
 

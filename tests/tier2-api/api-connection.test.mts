@@ -10,10 +10,22 @@
 import { describe, expect, it } from 'vitest'
 import { httpRequest } from '@socketsecurity/lib/http-request'
 import { readSocketApiTokenSync } from '@socketsecurity/lib/secrets/socket-api-token'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+import {
+  loadLocalEnv,
+  resolveEndpoints,
+} from '../../scripts/repo/plugins/endpoint.mts'
+
+loadLocalEnv(
+  path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..'),
+)
 
 const API_KEY = readSocketApiTokenSync()
 const ORG = process.env['SOCKET_ORG'] || 'SocketDemo'
-const BATCH_PURL_URL = `https://api.socket.dev/v0/orgs/${ORG}/purl`
+const BATCH_PURL_URL = new URL(`v0/orgs/${ORG}/purl`, resolveEndpoints().apiUrl)
+  .href
 
 export function postPurls(purls: string[]) {
   return httpRequest(BATCH_PURL_URL, {

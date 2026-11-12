@@ -1,0 +1,105 @@
+name: 'ci: plugin load'
+run-name: 'ci: plugin load'
+
+# Each agent's own CLI, at the version its plugin target pins, loads the
+# plugin from a local build and must report every skill and the Socket MCP
+# server. No model calls and no credentials. The agents and versions come
+# from the plugin registry (load-check.mts --ci-matrix).
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1'
+  DISABLE_TELEMETRY: '1'
+  DO_NOT_TRACK: '1'
+  NO_UPDATE_NOTIFIER: '1'
+  OTEL_SDK_DISABLED: 'true'
+
+jobs:
+  agents:
+    name: Agents
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+      - name: Install pnpm
+        working-directory: ${{ runner.temp }}
+        run: npm install --global --allow-scripts=pnpm pnpm@12.14.0
+      - run: pnpm install --frozen-lockfile
+      - name: List agents with a load check
+        id: matrix
+        run: echo "matrix=$(node scripts/repo/plugins/load-check.mts --ci-matrix)" >> "$GITHUB_OUTPUT"
+
+  load:
+    name: 'Load (${{ matrix.agent.agent }})'
+    needs: agents
+    runs-on: ubuntu-26.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        agent: ${{ fromJson(needs.agents.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+      - name: Install pnpm
+        working-directory: ${{ runner.temp }}
+        run: npm install --global --allow-scripts=pnpm pnpm@12.14.0
+      - run: pnpm install --frozen-lockfile
+      - name: Install ${{ matrix.agent.agent }}
+        working-directory: ${{ runner.temp }}
+        env:
+          TOOL: ${{ matrix.agent.tool }}
+          SPEC: ${{ matrix.agent.spec }}
+        run: |
+          case "$TOOL" in
+            npm)
+              prefix="$RUNNER_TEMP/agent-cli"
+              npm install --global --prefix "$prefix" --allow-scripts="${SPEC%@*}" "$SPEC"
+              echo "$prefix/bin" >> "$GITHUB_PATH"
+              ;;
+            uv)
+              python3 -m venv "$RUNNER_TEMP/uv"
+              "$RUNNER_TEMP/uv/bin/pip" install --disable-pip-version-check uv==0.13.6
+              uv="$RUNNER_TEMP/uv/bin/uv"
+              repo="${SPEC#git+}"
+              rev="${repo##*@}"
+              repo="${repo%@*}"
+              src="$RUNNER_TEMP/agent-src"
+              git init -q "$src"
+              git -C "$src" fetch -q --depth 1 "$repo" "$rev"
+              git -C "$src" checkout -q FETCH_HEAD
+              "$uv" sync --frozen --python 3.14 --project "$src"
+              echo "$src/.venv/bin" >> "$GITHUB_PATH"
+              ;;
+            *) echo "Unknown install tool: $TOOL" >&2; exit 2 ;;
+          esac
+      - name: Load the plugin
+        env:
+          TARGET: ${{ matrix.agent.id }}
+        run: node scripts/repo/plugins/load-check.mts --target "$TARGET" --require
