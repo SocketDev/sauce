@@ -71,11 +71,6 @@ jobs:
         working-directory: ${{ runner.temp }}
         run: npm install --global --allow-scripts=pnpm pnpm@12.14.0
       - run: pnpm install --frozen-lockfile
-      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
-        if: matrix.agent.tool == 'uv'
-        with:
-          enable-cache: false
-          python-version: '3.13'
       - name: Install ${{ matrix.agent.agent }}
         working-directory: ${{ runner.temp }}
         env:
@@ -89,8 +84,11 @@ jobs:
               echo "$prefix/bin" >> "$GITHUB_PATH"
               ;;
             uv)
-              uv tool install --python 3.13 "$SPEC"
-              uv tool dir --bin >> "$GITHUB_PATH"
+              python3 -m venv "$RUNNER_TEMP/uv"
+              "$RUNNER_TEMP/uv/bin/pip" install --disable-pip-version-check uv==0.13.6
+              uv="$RUNNER_TEMP/uv/bin/uv"
+              "$uv" tool install --python 3.13 "$SPEC"
+              "$uv" tool dir --bin >> "$GITHUB_PATH"
               ;;
             *) echo "Unknown install tool: $TOOL" >&2; exit 2 ;;
           esac
