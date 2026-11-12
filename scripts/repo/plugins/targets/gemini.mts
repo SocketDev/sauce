@@ -28,13 +28,17 @@ export function buildGeminiManifest(
 
 /**
  * Validates and installs the build as a Gemini CLI extension, then reads the
- * skills and MCP servers Gemini CLI loaded from it.
+ * skills and MCP servers Gemini CLI loaded from it. The build folder is
+ * trusted through the environment, since the install otherwise asks.
  */
 export const geminiLoadCheck: LoadCheck = {
   cli: {
     bin: 'gemini',
     install: { tool: 'npm', spec: '@google/gemini-cli@0.66.0' },
-    isolate: home => ({ GEMINI_CLI_HOME: home }),
+    isolate: home => ({
+      GEMINI_CLI_HOME: home,
+      GEMINI_CLI_TRUST_WORKSPACE: 'true',
+    }),
   },
   load(session) {
     const { name } = readJson(path.join(session.dir, GEMINI_MANIFEST))

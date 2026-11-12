@@ -160,6 +160,7 @@ export function runTargetLoadCheck(
     const probe = spawnSync(bin, ['--version'], {
       env,
       encoding: 'utf8',
+      input: '',
       timeout: RUN_TIMEOUT_MS,
     })
     if (probe.error || probe.status !== 0) {
@@ -179,6 +180,7 @@ export function runTargetLoadCheck(
           cwd: runOptions?.cwd ?? home,
           env,
           encoding: 'utf8',
+          input: '',
           maxBuffer: 64 * 1024 * 1024,
           timeout: RUN_TIMEOUT_MS,
         })

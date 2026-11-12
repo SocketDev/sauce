@@ -87,7 +87,14 @@ jobs:
               python3 -m venv "$RUNNER_TEMP/uv"
               "$RUNNER_TEMP/uv/bin/pip" install --disable-pip-version-check uv==0.13.6
               uv="$RUNNER_TEMP/uv/bin/uv"
-              "$uv" tool install --python 3.13 "$SPEC"
+              repo="${SPEC#git+}"
+              rev="${repo##*@}"
+              repo="${repo%@*}"
+              src="$RUNNER_TEMP/agent-src"
+              git init -q "$src"
+              git -C "$src" fetch -q --depth 1 "$repo" "$rev"
+              git -C "$src" checkout -q FETCH_HEAD
+              "$uv" tool install --python 3.13 --editable "$src"
               "$uv" tool dir --bin >> "$GITHUB_PATH"
               ;;
             *) echo "Unknown install tool: $TOOL" >&2; exit 2 ;;

@@ -200,6 +200,27 @@ describe('runTargetLoadCheck', () => {
     })
   })
 
+  it('gives the CLI a closed stdin so a prompt cannot wait for input', () => {
+    withFixture(root => {
+      let out = ''
+      const target = fakeTarget(
+        false,
+        nodeCli(session => {
+          out = session.run([
+            '-e',
+            'process.stdin.on("data", () => {}).on("end", () => console.log("eof"))',
+          ])
+          return {
+            skills: findSkillNames(path.join(session.dir, 'skills')),
+            mcpUrls: [],
+          }
+        }),
+      )
+      expect(runTargetLoadCheck(target, root, PROD).status).toBe('passed')
+      expect(out.trim()).toBe('eof')
+    })
+  })
+
   it('fails when the agent misses a skill', () => {
     withFixture(root => {
       const target = fakeTarget(
