@@ -121,10 +121,14 @@ export interface LoadSession {
    */
   gitUrl(): string
   /**
-   * Runs the agent CLI with the isolated environment and returns stdout. A
-   * non-zero exit throws with the output.
+   * Runs the agent CLI with the isolated environment and returns its stdout,
+   * or its stderr when `stream` is 'stderr'. A non-zero exit throws with the
+   * output.
    */
-  run(args: readonly string[], options?: { cwd?: string }): string
+  run(
+    args: readonly string[],
+    options?: { cwd?: string; stream?: 'stdout' | 'stderr' },
+  ): string
 }
 
 /**

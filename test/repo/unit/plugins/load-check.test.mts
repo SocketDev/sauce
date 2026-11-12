@@ -221,6 +221,25 @@ describe('runTargetLoadCheck', () => {
     })
   })
 
+  it('returns stderr when a check asks for it', () => {
+    withFixture(root => {
+      const seen: string[] = []
+      const target = fakeTarget(
+        false,
+        nodeCli(session => {
+          const args = ['-e', 'console.log("out"); console.error("err")']
+          seen.push(session.run(args), session.run(args, { stream: 'stderr' }))
+          return {
+            skills: findSkillNames(path.join(session.dir, 'skills')),
+            mcpUrls: [],
+          }
+        }),
+      )
+      expect(runTargetLoadCheck(target, root, PROD).status).toBe('passed')
+      expect(seen).toStrictEqual(['out\n', 'err\n'])
+    })
+  })
+
   it('fails when the agent misses a skill', () => {
     withFixture(root => {
       const target = fakeTarget(

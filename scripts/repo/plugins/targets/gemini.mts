@@ -29,7 +29,8 @@ export function buildGeminiManifest(
 /**
  * Validates and installs the build as a Gemini CLI extension, then reads the
  * skills and MCP servers Gemini CLI loaded from it. The build folder is
- * trusted through the environment, since the install otherwise asks.
+ * trusted through the environment, since the install otherwise asks. Gemini
+ * CLI writes command output, the extension list included, to stderr.
  */
 export const geminiLoadCheck: LoadCheck = {
   cli: {
@@ -51,7 +52,7 @@ export const geminiLoadCheck: LoadCheck = {
       '--skip-settings',
     ])
     const listed = parseJsonOutput(
-      session.run(['extensions', 'list', '-o', 'json']),
+      session.run(['extensions', 'list', '-o', 'json'], { stream: 'stderr' }),
     ) as Array<{ name: string; skills?: unknown[]; mcpServers?: unknown }>
     const extension = listed.find(e => e.name === name)
     if (!extension) {

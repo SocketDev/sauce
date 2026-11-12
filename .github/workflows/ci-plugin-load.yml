@@ -94,7 +94,7 @@ jobs:
               git init -q "$src"
               git -C "$src" fetch -q --depth 1 "$repo" "$rev"
               git -C "$src" checkout -q FETCH_HEAD
-              "$uv" tool install --python 3.13 --editable "$src"
+              "$uv" tool install --python 3.14 --editable "$src"
               "$uv" tool dir --bin >> "$GITHUB_PATH"
               ;;
             *) echo "Unknown install tool: $TOOL" >&2; exit 2 ;;

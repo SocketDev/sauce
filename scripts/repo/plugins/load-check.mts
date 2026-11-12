@@ -189,7 +189,7 @@ export function runTargetLoadCheck(
             `\`${bin} ${args.join(' ')}\` ${result.error ? `failed: ${result.error.message}` : `exited ${result.status}`}\n${result.stdout ?? ''}${result.stderr ?? ''}`.trimEnd(),
           )
         }
-        return result.stdout
+        return runOptions?.stream === 'stderr' ? result.stderr : result.stdout
       },
     }
     const report = check.load(session)
