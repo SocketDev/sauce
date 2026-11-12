@@ -9,14 +9,22 @@ import path from 'node:path'
 import { parseFrontmatter } from '../lib/frontmatter.mts'
 
 /**
- * Parses JSON from CLI output, skipping any banner lines printed before it.
+ * Parses the first JSON block in CLI output, skipping log lines around it,
+ * including ones that start with a bracket.
  */
 export function parseJsonOutput(output: string): unknown {
-  const start = output.search(/^[[{]/m)
-  if (start === -1) {
-    throw new Error(`Expected JSON output, got:\n${output.slice(0, 500)}`)
+  const lines = output.split('\n')
+  for (let start = 0; start < lines.length; start += 1) {
+    if (!/^[[{]/.test(lines[start]!)) {
+      continue
+    }
+    for (let end = lines.length; end > start; end -= 1) {
+      try {
+        return JSON.parse(lines.slice(start, end).join('\n'))
+      } catch {}
+    }
   }
-  return JSON.parse(output.slice(start))
+  throw new Error(`Expected JSON output, got:\n${output.slice(0, 500)}`)
 }
 
 /**

@@ -313,7 +313,13 @@ describe('load helpers', () => {
     expect(parseJsonOutput('Welcome!\nnote\n[{"a":1}]\n')).toStrictEqual([
       { a: 1 },
     ])
+    expect(
+      parseJsonOutput(
+        '[ExtensionManager] loading\n[\n  {"name": "x"}\n]\n[done] ok\n',
+      ),
+    ).toStrictEqual([{ name: 'x' }])
     expect(() => parseJsonOutput('no json here')).toThrow(/Expected JSON/)
+    expect(() => parseJsonOutput('[tag] only logs')).toThrow(/Expected JSON/)
   })
 
   it('collects every URL in nested JSON', () => {
