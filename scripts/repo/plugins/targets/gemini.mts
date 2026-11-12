@@ -3,9 +3,11 @@
  * registers the hosted MCP server.
  */
 
+import { realpathSync } from 'node:fs'
 import path from 'node:path'
+import { stripVTControlCharacters } from 'node:util'
 
-import { collectUrls, parseJsonOutput, readJson } from '../load.mts'
+import { collectUrls, readJson } from '../load.mts'
 import { SOCKET_MCP, socketMcpServers } from '../socket.mts'
 import { definePluginTarget } from '../target.mts'
 import type { LoadCheck, PluginInputs } from '../target.mts'
@@ -26,11 +28,52 @@ export function buildGeminiManifest(
   }
 }
 
+export interface GeminiSkillList {
+  readonly skills: string[]
+  readonly errors: string[]
+}
+
 /**
- * Validates and installs the build as a Gemini CLI extension, then reads the
- * skills and MCP servers Gemini CLI loaded from it. The build folder is
- * trusted through the environment, since the install otherwise asks. Gemini
- * CLI writes command output, the extension list included, to stderr.
+ * Reads `gemini skills list` output: the skills discovered under the
+ * extension's directory, and every error Gemini CLI logged while loading
+ * extensions.
+ */
+export function parseGeminiSkillList(
+  output: string,
+  extensionDirs: readonly string[],
+): GeminiSkillList {
+  const lines = stripVTControlCharacters(output).split('\n')
+  const skills: string[] = []
+  const errors: string[] = []
+  let current: string | undefined
+  for (const line of lines) {
+    const heading = /^(\S+) \[(?:Enabled|Disabled)\]/.exec(line)
+    if (heading) {
+      current = heading[1]
+      continue
+    }
+    const location = /^\s+Location:\s+(.+)$/.exec(line)
+    if (location && current) {
+      const file = path.resolve(location[1]!.trim())
+      if (extensionDirs.some(dir => file.startsWith(dir + path.sep))) {
+        skills.push(current)
+      }
+      current = undefined
+      continue
+    }
+    if (/^\[\w+\] Error\b/.test(line)) {
+      errors.push(line)
+    }
+  }
+  return { skills, errors }
+}
+
+/**
+ * Validates and installs the build as a Gemini CLI extension, then lists the
+ * skills Gemini CLI discovered in it and reads the MCP servers from the
+ * manifest it installed. The build folder is trusted through the
+ * environment, since the install otherwise asks. Errors Gemini CLI logs
+ * while loading the extension are reported.
  */
 export const geminiLoadCheck: LoadCheck = {
   cli: {
@@ -51,21 +94,18 @@ export const geminiLoadCheck: LoadCheck = {
       '--consent',
       '--skip-settings',
     ])
-    const listed = parseJsonOutput(
-      session.run(['extensions', 'list', '-o', 'json'], { stream: 'stderr' }),
-    ) as Array<{ name: string; skills?: unknown[]; mcpServers?: unknown }>
-    const extension = listed.find(e => e.name === name)
-    if (!extension) {
-      throw new Error(`Gemini CLI did not list the ${String(name)} extension.`)
-    }
-    return {
-      skills: (extension.skills ?? []).map(skill =>
-        typeof skill === 'string'
-          ? skill
-          : String((skill as { name?: unknown }).name),
-      ),
-      mcpUrls: collectUrls(extension.mcpServers),
-    }
+    const extensionDir = path.join(
+      session.home,
+      '.gemini',
+      'extensions',
+      String(name),
+    )
+    const { skills, errors } = parseGeminiSkillList(
+      session.run(['skills', 'list'], { stream: 'both' }),
+      [extensionDir, realpathSync(extensionDir)],
+    )
+    const installed = readJson(path.join(extensionDir, GEMINI_MANIFEST))
+    return { skills, mcpUrls: collectUrls(installed['mcpServers']), errors }
   },
 }
 

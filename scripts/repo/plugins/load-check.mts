@@ -74,7 +74,9 @@ export function compareReport(
   report: LoadReport,
   endpoints: SocketEndpoints,
 ): string[] {
-  const problems: string[] = []
+  const problems: string[] = (report.errors ?? []).map(
+    error => `logged an error: ${error}`,
+  )
   const loaded = new Set(report.skills)
   const missing = expectedSkills.filter(name => !loaded.has(name))
   if (missing.length > 0) {
@@ -189,7 +191,11 @@ export function runTargetLoadCheck(
             `\`${bin} ${args.join(' ')}\` ${result.error ? `failed: ${result.error.message}` : `exited ${result.status}`}\n${result.stdout ?? ''}${result.stderr ?? ''}`.trimEnd(),
           )
         }
-        return runOptions?.stream === 'stderr' ? result.stderr : result.stdout
+        const stream = runOptions?.stream ?? 'stdout'
+        if (stream === 'both') {
+          return `${result.stdout}${result.stderr}`
+        }
+        return result[stream]
       },
     }
     const report = check.load(session)

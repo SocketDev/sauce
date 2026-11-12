@@ -26,6 +26,7 @@ import {
   parseJsonOutput,
 } from '../../../../scripts/repo/plugins/load.mts'
 import { PLUGIN_TARGETS } from '../../../../scripts/repo/plugins/registry.mts'
+import { parseGeminiSkillList } from '../../../../scripts/repo/plugins/targets/gemini.mts'
 import type {
   LoadCheck,
   PluginTarget,
@@ -111,6 +112,20 @@ describe('compareReport', () => {
     ).toStrictEqual([
       `did not register the Socket MCP server at ${OVERRIDE.mcpUrl}`,
       'still registers the production MCP server',
+    ])
+  })
+
+  it('reports every error the agent logged', () => {
+    expect(
+      compareReport(
+        fakeTarget(false),
+        ['a'],
+        { skills: [], mcpUrls: [], errors: ['bad agent file'] },
+        PROD,
+      ),
+    ).toStrictEqual([
+      'logged an error: bad agent file',
+      'did not load 1 skill(s): a',
     ])
   })
 
@@ -228,7 +243,11 @@ describe('runTargetLoadCheck', () => {
         false,
         nodeCli(session => {
           const args = ['-e', 'console.log("out"); console.error("err")']
-          seen.push(session.run(args), session.run(args, { stream: 'stderr' }))
+          seen.push(
+            session.run(args),
+            session.run(args, { stream: 'stderr' }),
+            session.run(args, { stream: 'both' }),
+          )
           return {
             skills: findSkillNames(path.join(session.dir, 'skills')),
             mcpUrls: [],
@@ -236,7 +255,7 @@ describe('runTargetLoadCheck', () => {
         }),
       )
       expect(runTargetLoadCheck(target, root, PROD).status).toBe('passed')
-      expect(seen).toStrictEqual(['out\n', 'err\n'])
+      expect(seen).toStrictEqual(['out\n', 'err\n', 'out\nerr\n'])
     })
   })
 
@@ -347,6 +366,46 @@ describe('load helpers', () => {
       expect(findSkillNames(dir, 1)).toStrictEqual(['named-one', 'two'])
       expect(findSkillNames(path.join(root, 'missing'))).toStrictEqual([])
     })
+  })
+})
+
+describe('parseGeminiSkillList', () => {
+  const ext = '/h/.gemini/extensions/socket-skills'
+  const output = [
+    '[ExtensionManager] Error loading agent from socket-skills: bad',
+    '\u001b[1mDiscovered Agent Skills:\u001b[22m',
+    '',
+    '\u001b[1malpha\u001b[22m \u001b[32m[Enabled]\u001b[39m',
+    '  Description: a',
+    `  Location:    ${ext}/skills/alpha/SKILL.md`,
+    '',
+    'beta [Disabled]',
+    '  Description: b',
+    `  Location:    ${ext}/skills/beta/SKILL.md`,
+    '',
+    'other [Enabled]',
+    '  Description: from elsewhere',
+    '  Location:    /h/.gemini/skills/other/SKILL.md',
+    '',
+    'lookalike [Enabled]',
+    '  Location:    /h/.gemini/extensions/socket-skills-x/skills/l/SKILL.md',
+    '[SkillManager] Error reading a skill',
+  ].join('\n')
+
+  it('lists the skills under the extension and the logged errors', () => {
+    expect(parseGeminiSkillList(output, ['/elsewhere', ext])).toStrictEqual({
+      skills: ['alpha', 'beta'],
+      errors: [
+        '[ExtensionManager] Error loading agent from socket-skills: bad',
+        '[SkillManager] Error reading a skill',
+      ],
+    })
+  })
+
+  it('finds nothing when no skill is under the extension', () => {
+    expect(
+      parseGeminiSkillList('No skills discovered.\n', [ext]),
+    ).toStrictEqual({ skills: [], errors: [] })
   })
 })
 

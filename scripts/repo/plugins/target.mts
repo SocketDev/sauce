@@ -122,12 +122,12 @@ export interface LoadSession {
   gitUrl(): string
   /**
    * Runs the agent CLI with the isolated environment and returns its stdout,
-   * or its stderr when `stream` is 'stderr'. A non-zero exit throws with the
-   * output.
+   * its stderr, or both (stdout first) as `stream` selects. A non-zero exit
+   * throws with the output.
    */
   run(
     args: readonly string[],
-    options?: { cwd?: string; stream?: 'stdout' | 'stderr' },
+    options?: { cwd?: string; stream?: 'stdout' | 'stderr' | 'both' },
   ): string
 }
 
@@ -143,6 +143,10 @@ export interface LoadReport {
    * URLs of the MCP servers the plugin registered.
    */
   mcpUrls: readonly string[]
+  /**
+   * Errors the agent logged while loading the plugin.
+   */
+  errors?: readonly string[] | undefined
 }
 
 export interface LoadCheck {
